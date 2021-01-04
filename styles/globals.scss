@@ -1,0 +1,146 @@
+@import "bootstrap/scss/bootstrap";
+@import "colors";
+@import "../node_modules/react-circular-progressbar/dist/styles.css";
+
+@font-face {
+    font-family: "NanumBarunGothic";
+    font-style: normal;
+    font-weight: 400;
+    src: url("//cdn.jsdelivr.net/font-nanumlight/1.0/NanumBarunGothicWeb.eot");
+    src: url("//cdn.jsdelivr.net/font-nanumlight/1.0/NanumBarunGothicWeb.eot?#iefix") format("embedded-opentype"),
+        url("//cdn.jsdelivr.net/font-nanumlight/1.0/NanumBarunGothicWeb.woff") format("woff"),
+        url("//cdn.jsdelivr.net/font-nanumlight/1.0/NanumBarunGothicWeb.ttf") format("truetype");
+}
+
+@import url("https://fonts.googleapis.com/css2?family=Teko&display=swap");
+
+/* Default Tags */
+
+h1 {
+    font-family: "NanumSquare";
+    font-weight: 800;
+}
+
+h2 {
+    font-family: "NanumSquare";
+    font-weight: 600;
+}
+
+h3 {
+    font-family: "NanumSquare";
+    font-weight: 600;
+}
+
+h4,
+h5,
+h6 {
+    font-family: "NanumBarunGothic";
+}
+
+a {
+    &:hover {
+        color: white;
+    }
+    color: white;
+}
+
+code {
+    color: lightgrey;
+}
+
+html,
+body {
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+}
+
+body {
+    background-color: #25282e;
+    overflow-x: visible;
+}
+
+/* Globals */
+
+.no-drag {
+    -ms-user-select: none;
+    -moz-user-select: -moz-none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    user-select: none;
+}
+
+.img-view-only {
+    border-radius: 10px;
+    pointer-events: none;
+}
+
+.anchor {
+    display: block;
+    position: relative;
+    top: -150px;
+    visibility: hidden;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.remove-after::after {
+    display: none !important;
+}
+
+.remove-before::before {
+    display: none !important;
+}
+
+button:focus {
+    outline: none;
+}
+
+/* Colors */
+
+.dropdown-menu-dark .dropdown-menu {
+    background-color: rgb(86, 85, 94) !important;
+    a {
+        color: white !important;
+    }
+}
+
+.dropdown-item-dark:hover,
+.dropdown-item-dark:focus {
+    color: white;
+    text-decoration: none;
+    background-color: #6e6a74;
+}
+
+.modal-dark {
+    .modal-content {
+        background-color: $dark;
+        color: white;
+        .modal-header,
+        .modal-footer {
+            border-color: scale-color($dark, $lightness: -30%);
+        }
+    }
+    .close {
+        color: white;
+    }
+}
+
+/* Sidebar */
+.guide-sidebar {
+    padding: 0.75rem 1rem 0.75rem 1rem;
+    font-family: "NanumBarunGothic";
+    margin-top: 45px;
+    margin-bottom: auto;
+    background-color: ghostwhite;
+    border-radius: 10px 10px 10px 10px;
+    box-shadow: 0 0 5px -1px rgb(207, 207, 207);
+    a {
+        text-decoration: none;
+        display: block;
+        padding-top: 3px;
+        padding-bottom: 3px;
+        color: darkslategrey;
+    }
+}

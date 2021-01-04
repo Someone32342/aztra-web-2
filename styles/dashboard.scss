@@ -1,0 +1,213 @@
+.Dashboard-Servers-Card {
+    padding: 8px 0px 8px 0px;
+    border: none;
+    margin-bottom: 8px;
+
+    opacity: 0;
+    animation: fadein 1s;
+    -moz-animation: fadein 1s; /* Firefox */
+    -webkit-animation: fadein 1s; /* Safari and Chrome */
+    -o-animation: fadein 1s; /* Opera */
+    -webkit-animation-fill-mode: forwards;
+    -moz-animation-fill-mode: forwards;
+    animation-fill-mode: forwards;
+
+    @keyframes fadein {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+    @-moz-keyframes fadein {
+        /* Firefox */
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+    @-webkit-keyframes fadein {
+        /* Safari and Chrome */
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+    @-o-keyframes fadein {
+        /* Opera */
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+}
+
+.Dashboardroute-body {
+    color: white;
+
+    padding-top: 50px;
+    padding-bottom: 80px;
+    @include media-breakpoint-up(xs) {
+        padding-left: 50px;
+        padding-right: 50px;
+    }
+    @include media-breakpoint-up(md) {
+        padding-left: 60px;
+        padding-right: 60px;
+    }
+    @include media-breakpoint-up(lg) {
+        padding-left: 80px;
+        padding-right: 80px;
+    }
+    .dashboard-section {
+        margin-bottom: 30px !important;
+    }
+    @extend .scrollbar;
+}
+
+.scrollbar-dark {
+    ::-webkit-scrollbar {
+        background: transparent;
+        width: 6px;
+        height: 6px;
+    }
+    ::-webkit-scrollbar-thumb {
+        background-color: rgb(88, 88, 100) !important;
+        border-radius: 15px;
+    }
+}
+
+.scrollbar {
+    ::-webkit-scrollbar {
+        background: rgb(214, 214, 224);
+        width: 8px;
+        height: 8px;
+        border-radius: 15px;
+    }
+    ::-webkit-scrollbar-thumb {
+        background-color: rgb(169, 169, 185) !important;
+        border-radius: 15px;
+    }
+}
+
+.Dashboardroute-sidebar {
+    background-color: rgb(61, 67, 73);
+    padding-top: 15px;
+
+    padding-bottom: 15px;
+    color: whitesmoke;
+    a {
+        color: white;
+    }
+    @extend .scrollbar;
+}
+.Dashboardroute-sidebar-body {
+    margin-top: 0.5rem;
+    // 모바일 사이즈가 아닌 경우 사이드바 본문의 높이는 React의 render에서 정합니다.
+    overflow: auto;
+    display: flex;
+    @include media-breakpoint-up(xs) {
+        height: 20vh;
+        .nav-link {
+            color: lightgrey;
+            font-family: "NanumSquare";
+            font-size: 1rem;
+            line-height: 1.6rem;
+            padding-bottom: 0.25rem !important;
+            padding-top: 0.25rem !important;
+            .MuiSvgIcon-root {
+                color: grey;
+            }
+
+            &.active {
+                font-size: 1.1rem;
+                color: white;
+                .MuiSvgIcon-root {
+                    color: white;
+                }
+                font-weight: 900;
+            }
+        }
+    }
+    @include media-breakpoint-up(md) {
+        height: 100vh;
+        .nav-link {
+            padding-top: 0.25rem !important;
+            padding-bottom: 0.25rem !important;
+        }
+    }
+}
+
+#warn-list-table {
+    th {
+        font-size: 12pt;
+        font-weight: normal;
+        word-break: keep-all;
+    }
+    td {
+        word-break: break-all;;
+    }
+}
+
+#sidebar-header {
+    position: sticky !important;
+    bottom: 100vh;
+    top: 72px !important;
+    overflow: hidden;
+}
+
+.lines {
+    p {
+        margin-bottom: unset;
+    }
+}
+
+.form-control {
+    background-color: rgb(66, 67, 77);
+    border: none;
+    color: whitesmoke;
+}
+
+.form-control:focus {
+    background-color: rgb(66, 67, 77);
+    outline: none;
+    box-shadow: none;
+    color: whitesmoke;
+}
+
+.form-control::placeholder {
+    color: rgb(160, 160, 172);
+    opacity: 1;
+}
+
+.form-control:-ms-input-placeholder {
+    color: rgb(160, 160, 172);
+}
+
+.form-control::-webkit-input-placeholder {
+    color: rgb(160, 160, 172);
+}
+
+.form-control:disabled {
+    display: none;
+    background-color: rgb(51, 52, 59);
+    border: none;
+    opacity: 1;
+    color: rgb(121, 117, 134);
+}
+
+.form-control:disabled::placeholder {
+    color: rgb(116, 113, 126);
+}
+
+textarea {
+    resize: none;
+    overflow: visible !important;
+}
