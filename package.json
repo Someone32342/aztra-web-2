@@ -8,16 +8,19 @@
     "start": "next start"
   },
   "dependencies": {
-    "@zeit/next-sass": "^1.0.1",
+    "axios": "^0.21.1",
     "bootstrap": "^4.5.3",
     "classnames": "^2.2.6",
+    "discord.js": "^12.5.1",
     "next": "10.0.4",
-    "node-sass": "^5.0.0",
+    "preval.macro": "^5.0.0",
     "react": "17.0.1",
     "react-bootstrap": "^1.4.0",
     "react-circular-progressbar": "^2.0.3",
     "react-dom": "17.0.1",
-    "react-scroll": "^1.8.1"
+    "react-scroll": "^1.8.1",
+    "sass": "^1.32.0",
+    "url-join": "^4.0.1"
   },
   "devDependencies": {
     "@types/node": "^14.14.19",

@@ -1,7 +1,8 @@
 @import "colors";
-@import "bootstrap/scss/bootstrap";
+@import "bootstrap/scss/functions";
+@import "bootstrap/scss/variables";
+@import "bootstrap/scss/mixins";
 @import "globals";
-
 
 .MainIntro {
   height: 100vh;
@@ -64,6 +65,7 @@
   min-width: 180px;
   margin-bottom: 30px;
   font-size: 13pt;
+  border: none;
 }
 
 .MainFeatures {

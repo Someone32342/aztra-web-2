@@ -5,23 +5,24 @@ import { Link as ScrollLink } from 'react-scroll'
 
 import styles from '../styles/Home.module.scss'
 import classNames from 'classnames/bind';
+import Layout from '../components/Layout';
 
 const cx = classNames.bind(styles)
 
 export default function Home() {
   return (
-    <>
+    <Layout>
       <Container fluid="sm">
         <div className={cx("MainIntro", "d-flex", "align-items-center")}>
           <div>
             <h1 className={cx("no-drag", "text-white")} style={{
-              fontSize: '25pt',
+              fontSize: '27pt',
               wordBreak: 'keep-all'
             }}>
               미래를 바꿀 디스코드 관리봇, Aztra
               </h1>
             <h2 className={cx("no-drag", "text-white", "pt-2", "pb-5", "font-weight-lighter")} style={{
-              fontSize: '14pt'
+              fontSize: '15pt'
             }}>
               다채롭고 깔끔한 디스코드 서버를 만들 수 있도록 도와드리겠습니다.
               </h2>
@@ -40,9 +41,9 @@ export default function Home() {
       </Container>
       <Container fluid id="main-features" className={cx("MainFeatures", "bg-dark", "text-white")} >
         <Container>
-          <Row className={cx("align-items-center", "px-3")} style={{ marginBottom: 200 }}>
+          <Row className={cx("align-items-center", "px-3")} style={{ paddingBottom: 100, paddingTop: 200 }}>
             <Col md={5}>
-              <Image src="/images/Home/feat-warn.png" className={cx("shadow", "mb-4")} width="100%" height="100%" />
+              <img src="/assets/images/Home/feat-warn.png" className={cx("shadow", "mb-4")} />
             </Col>
             <Col md={1} className={cx("py-3")} />
             <Col md={6} className={cx("text-lg-right")}>
@@ -50,9 +51,9 @@ export default function Home() {
               <p>기존의 헷갈리고 복잡한 관리봇이 아닌, 사용자 친화적으로 설계된 쉬운 사용법으로 여러분의 서버를 더 성장시킬 수 있습니다.</p>
             </Col>
           </Row>
-          <Row className={cx("align-items-center", "flex-row-reverse", "px-3")} style={{ marginBottom: 200 }}>
+          <Row className={cx("align-items-center", "flex-row-reverse", "px-3")} style={{ paddingBottom: 100, paddingTop: 100 }}>
             <Col md={5}>
-              <Image alt="모바일 환경" src="/images/Home/mobile.png" width="100%" height="100%" />
+              <img alt="모바일 환경" src="/assets/images/Home/mobile.png" />
             </Col>
             <Col md={1} className={cx("py-3")} />
             <Col md={6}>
@@ -60,9 +61,9 @@ export default function Home() {
               <p>Aztra 대시보드는 모바일에서도 언제 어디서나 사용하기 편하도록 모바일 환경에도 신경써서 개발하고 있습니다.</p>
             </Col>
           </Row>
-          <Row className={cx("align-items-center", "px-3")} style={{ marginBottom: 80 }}>
+          <Row className={cx("align-items-center", "px-3")} style={{ paddingBottom: 200, paddingTop: 100 }}>
             <Col md={6}>
-              <img alt="멤버 관리" src="/images/member-manage.png" className={cx("shadow", "mb-4")} width="100%" height="100%" />
+              <img alt="멤버 관리" src="/assets/images/Home/member-manage.png" className={cx("shadow", "mb-4")} />
             </Col>
             <Col md={1} className={cx("py-3")} />
             <Col md={5} className={cx("text-lg-right")}>
@@ -72,6 +73,6 @@ export default function Home() {
           </Row>
         </Container>
       </Container>
-    </>
+    </Layout>
   )
 }
