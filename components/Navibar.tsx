@@ -7,33 +7,15 @@ import { User } from '../types/DiscordTypes'
 import Link from 'next/link'
 
 import styles from '../styles/components/Navibar.module.scss'
-import { GetServerSideProps } from 'next'
 
-interface NavibarProps {
-  user?: User | null
-}
+import Cookies from 'universal-cookie'
 
 interface NavibarState {
-  expanded: boolean,
+  user?: User | null
+  expanded: boolean
 }
 
-export const getServerSideProps: GetServerSideProps<Partial<NavibarProps>> = async context => {
-  let user = null
-
-  try {
-    let res = await axios.get(urljoin(oauth2.api_endpoint, '/users/@me'), {
-      headers: { cookie: context.req.headers.cookie }
-    })
-    user = res.data
-  }
-  finally {
-    return {
-      props: { user }
-    }
-  }
-}
-
-export default class Navibar extends React.Component<NavibarProps, NavibarState> {
+export default class Navibar extends React.Component<{}, NavibarState> {
   state: NavibarState = {
     expanded: false,
   }
@@ -44,11 +26,31 @@ export default class Navibar extends React.Component<NavibarProps, NavibarState>
 
   closeNavbar = () => {
     this.setState({ expanded: false })
-    console.log('dsds')
+  }
+
+  fetchUser = async () => {
+    try {
+      let res = await axios.get(urljoin(oauth2.api_endpoint, '/users/@me'), {
+        headers: {
+          Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
+        }
+      })
+      this.setState({ user: res.data })
+      localStorage.setItem('cached_user', JSON.stringify(res.data))
+    }
+    catch (_e) {
+      this.setState({ user: null })
+      localStorage.removeItem('cached_user')
+    }
+  }
+
+  componentDidMount() {
+    this.fetchUser()
   }
 
   render() {
-    const user = this.props.user
+    const { user } = this.state
+
     return (
       <div style={{ paddingBottom: 57 }}>
         <Navbar bg="dark" expand="md" onToggle={this.handleOnToggle} expanded={this.state.expanded} fixed="top" className="no-drag navbar-dark shadow">

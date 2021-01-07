@@ -1,5 +1,3 @@
-import Head from 'next/head'
-import Image from 'next/image'
 import { Container, Button, Row, Col } from 'react-bootstrap';
 import { Link as ScrollLink } from 'react-scroll'
 
@@ -9,7 +7,7 @@ import Layout from '../components/Layout';
 
 const cx = classNames.bind(styles)
 
-export default function Home() {
+export default function Home(props) {
   return (
     <Layout>
       <Container fluid="sm">
