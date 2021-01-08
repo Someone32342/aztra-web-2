@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { Container, Card, Row, Col, Button, Spinner } from 'react-bootstrap'
 import axios, { AxiosError } from 'axios'
 import urljoin from 'url-join'
@@ -7,60 +7,75 @@ import { Permissions } from 'discord.js'
 import { PartialGuildExtend } from '../types/DiscordTypes'
 import {
   Refresh as RefreshIcon
-} from '@material-ui/icons';
+} from '@material-ui/icons'
 import Layout from '../components/Layout';
-import { GetServerSideProps } from 'next';
-import Router from 'next/router';
 
 const swal = require('@sweetalert/with-react')
 
-interface ServersProps {
-  guilds: PartialGuildExtend[] | null
+interface ServersState {
+  guilds: PartialGuildExtend[]
+  fetchDone: boolean | null,
   fetchError: AxiosError | null
 }
 
-export const getServerSideProps: GetServerSideProps = async context => {
-  let token = context.req.cookies.ACCESS_TOKEN
-  if (!token) {
-    return {
-      redirect: {
-        destination: "/login",
-        permanent: false
-      }
+export default class Servers extends Component<{}, ServersState> {
+  state: ServersState = {
+    guilds: [],
+    fetchDone: null,
+    fetchError: null
+  }
+
+  getGuilds = async (token: string) => {
+    this.setState({ fetchDone: null })
+    try {
+      let res = await axios.get(urljoin(api, '/discord/users/@me/guilds'), {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+      this.setState({ guilds: res.data, fetchDone: true })
+    }
+    catch (e) {
+      this.setState({ guilds: [], fetchError: e, fetchDone: false })
     }
   }
 
-  let guilds = null
-  let fetchError = false
-
-  try {
-    let res = await axios.get(urljoin(api, '/discord/users/@me/guilds'), {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    })
-    guilds = res.data
-  }
-  catch (e) {
-    console.log('ds')
-    fetchError = true
-  }
-  finally {
-    return {
-      props: {
-        guilds,
-        fetchError
-      }
+  componentDidMount() {
+    const token = localStorage.getItem('token')
+    if (token) {
+      this.getGuilds(token)
+    }
+    else {
+      const lct = window.location
+      localStorage.setItem('loginFrom', lct.pathname + lct.search)
+      window.location.assign('/login')
     }
   }
-}
 
-export default class Servers extends React.Component<ServersProps> {
   render() {
+    if (this.state.fetchDone === false) {
+      swal(
+        <div>
+          <h2>서버를 가져올 수 없습니다!</h2>
+          <p className="px-3">
+            서버 데이터를 불러오는 데 실패했습니다.
+          </p>
+          <Button variant="danger" onClick={() => {
+            swal.close()
+            this.componentDidMount()
+          }}>
+            다시 시도하기
+          </Button>
+        </div>,
+        {
+          icon: "error",
+          button: false
+        }
+      )
+    }
 
-
-    const guild_cards = this.props.guilds
-      ?.filter(one => {
+    const guild_cards = this.state.guilds
+      .filter(one => {
         let perms = new Permissions(Number(one.permissions))
         return perms.has(Permissions.FLAGS.ADMINISTRATOR)
       })
@@ -78,8 +93,8 @@ export default class Servers extends React.Component<ServersProps> {
                       one.icon && <img alt={one.name} src={`https://cdn.discordapp.com/icons/${one.id}/${one.icon}.png`} style={{ maxHeight: 40, marginRight: 15, borderRadius: '70%' }} />
                     }
                     <div>
-                      {one.name}
-                    </div>
+                      {one.name
+                      }</div>
 
                   </div>
                 </Col>
@@ -104,24 +119,34 @@ export default class Servers extends React.Component<ServersProps> {
         <div className="min-vh-100">
           <Container fluid="sm" className="text-center">
             {
-              guild_cards?.length
-                ? <h2 className="text-white" style={{ marginTop: 120, marginBottom: 120 }}>서버를 선택하세요</h2>
-                : <>
-                  <div style={{ marginTop: 120, marginBottom: 120 }}>
-                    <h2 className="text-white">
-                      관리할 수 있는 서버가 하나도 없습니다!
+              this.state.fetchDone === true && guild_cards.length === 0
+                ? <>
+                  <h2 className="text-white" style={{ marginTop: 120, marginBottom: 120 }}>
+                    관리할 수 있는 서버가 하나도 없습니다!
+                  <h4 className="text-white mt-5" >관리자 권한이 있는 서버만 표시됩니다.</h4>
                   </h2>
-                    <h4 className="text-white mt-5" >관리자 권한이 있는 서버만 표시됩니다.</h4>
-                  </div>
-                  <Button variant="aztra" onClick={() => Router.reload()}>
+                  <Button variant="aztra" onClick={() => this.componentDidMount()}>
                     <RefreshIcon className="mr-2" />
                     새로고침
                   </Button>
                 </>
+                : <h2 className="text-white" style={{ marginTop: 120, marginBottom: 120 }}>서버를 선택하세요</h2>
             }
           </Container>
           <Container fluid="sm" style={{ marginBottom: 160 }}>
-            {guild_cards}
+            {
+              this.state.fetchDone === null
+                ? <div style={{ color: 'whitesmoke', paddingTop: 80, paddingBottom: 300 }} className="text-center">
+                  <Spinner animation="border" variant="aztra" style={{
+                    height: 50,
+                    width: 50
+                  }} />
+                  <h3 className="pt-5">
+                    서버 목록을 가져오고 있습니다...
+                  </h3>
+                </div>
+                : guild_cards
+            }
           </Container>
         </div>
       </Layout>
