@@ -51,6 +51,7 @@ export default class Navibar extends React.Component<{}, NavibarState> {
   }
 
   componentDidMount() {
+    this.setState({ user: JSON.parse(localStorage.getItem('cached_user')) })
     const token = new Cookies().get('ACCESS_TOKEN')
     !token || this.fetchUser(token)
   }
@@ -78,7 +79,7 @@ export default class Navibar extends React.Component<{}, NavibarState> {
                     홈
                   </Nav.Link>
                 </Link>
-                <Link href="/servers">
+                <Link href="/servers" shallow>
                   <Nav.Link href="/servers" className={styles.Navlink}>
                     대시보드
                   </Nav.Link>
