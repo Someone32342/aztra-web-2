@@ -24,7 +24,7 @@ export const getServerSideProps: GetServerSideProps = async context => {
     let r = await axios.get(`${api}/oauth2/token`, {
       params: {
         code: context.query.code
-      },
+      }
     })
     data = r.data
     console.log(data)

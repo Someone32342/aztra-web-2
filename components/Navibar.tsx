@@ -9,6 +9,7 @@ import Link from 'next/link'
 import styles from '../styles/components/Navibar.module.scss'
 
 import Cookies from 'universal-cookie'
+import Router from 'next/router'
 
 interface NavibarState {
   user?: User | null
@@ -28,11 +29,16 @@ export default class Navibar extends React.Component<{}, NavibarState> {
     this.setState({ expanded: false })
   }
 
-  fetchUser = async () => {
+  handleLogout = () => {
+    new Cookies().remove('ACCESS_TOKEN')
+    Router.reload()
+  }
+
+  fetchUser = async (token: string) => {
     try {
       let res = await axios.get(urljoin(oauth2.api_endpoint, '/users/@me'), {
         headers: {
-          Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
+          Authorization: `Bearer ${token}`
         }
       })
       this.setState({ user: res.data })
@@ -45,7 +51,8 @@ export default class Navibar extends React.Component<{}, NavibarState> {
   }
 
   componentDidMount() {
-    this.fetchUser()
+    const token = new Cookies().get('ACCESS_TOKEN')
+    !token || this.fetchUser(token)
   }
 
   render() {
@@ -102,7 +109,7 @@ export default class Navibar extends React.Component<{}, NavibarState> {
                           fontSize: '12.5pt'
                         }}>
 
-                          <NavDropdown.Item className="dropdown-item-dark" href="/logout">
+                          <NavDropdown.Item className="dropdown-item-dark" onClick={this.handleLogout}>
                             로그아웃
                             </NavDropdown.Item>
                         </NavDropdown>
