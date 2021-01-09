@@ -1,6 +1,6 @@
 import App from 'next/app'
 import Head from 'next/head'
-import '../styles/globals.scss'
+import '../styles/root.scss'
 
 export default class MyApp extends App {
   showConsoleMessage = () => {

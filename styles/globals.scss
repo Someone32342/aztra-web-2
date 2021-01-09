@@ -1,10 +1,7 @@
 @import "colors";
-
-@import "bootstrap/scss/bootstrap";
-
-@import "../node_modules/react-circular-progressbar/dist/styles.css";
-@import "markdown";
-@import "dashboard";
+@import "bootstrap/scss/functions";
+@import "bootstrap/scss/variables";
+@import "bootstrap/scss/mixins";
 
 @font-face {
     font-family: "NanumBarunGothic";
@@ -102,11 +99,26 @@ button:focus {
 }
 
 /* Colors */
+.dropdown-menu {
+    box-shadow: 0 2px 8px 8px rgba(0, 0, 0, 0.1);
+    padding: 0.4rem 0;
+    .dropdown-item {
+        font-family: 'NanumSquare';
+    }
+    .dropdown-header {
+        padding: 0.25rem 1.5rem !important;
+    }
+}
 
-.dropdown-menu-dark .dropdown-menu {
-    background-color: rgb(86, 85, 94) !important;
-    a {
+.dropdown-menu-dark {
+    .dropdown-menu {
+        background-color: #464c57 !important;
+    }
+    .dropdown-item {
         color: white !important;
+    }
+    .dropdown-header {
+        color: rgb(143, 143, 143) !important;
     }
 }
 
@@ -114,7 +126,7 @@ button:focus {
 .dropdown-item-dark:focus {
     color: white;
     text-decoration: none;
-    background-color: #6e6a74;
+    background-color: #5b5d74;
 }
 
 .modal-dark {

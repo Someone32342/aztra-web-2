@@ -2,7 +2,6 @@
 @import "bootstrap/scss/functions";
 @import "bootstrap/scss/variables";
 @import "bootstrap/scss/mixins";
-@import "globals";
 
 .MainIntro {
   height: 100vh;
@@ -69,9 +68,6 @@
 }
 
 .MainFeatures {
-  padding-top: 300;
-  padding-bottom: 200;
-
   h1 {
     @include media-breakpoint-up(xs) {
       font-size: 19pt;
@@ -97,4 +93,10 @@
   .row {
     padding-bottom: 7rem;
   }
+}
+
+.MainFeaturesItem {
+  height: 100vh;
+  display: flex;
+  align-items: center;
 }

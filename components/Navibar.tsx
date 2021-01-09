@@ -5,11 +5,13 @@ import oauth2 from '../datas/oauth'
 import urljoin from 'url-join'
 import { User } from '../types/DiscordTypes'
 import Link from 'next/link'
-
+import classNames from 'classnames/bind'
 import styles from '../styles/components/Navibar.module.scss'
 
 import Cookies from 'universal-cookie'
 import Router from 'next/router'
+
+const cx = classNames.bind(styles)
 
 interface NavibarState {
   user?: User | null
@@ -61,14 +63,13 @@ export default class Navibar extends React.Component<{}, NavibarState> {
 
     return (
       <div style={{ paddingBottom: 57 }}>
-        <Navbar bg="dark" expand="md" onToggle={this.handleOnToggle} expanded={this.state.expanded} fixed="top" className="no-drag navbar-dark shadow">
+        <Navbar bg="dark" expand="md" onToggle={this.handleOnToggle} expanded={this.state.expanded} fixed="top" className={cx("no-drag", "shadow", "navbar-dark", "NavbarDark")}>
           <Container fluid="md">
             <Link href="/">
-              <Navbar.Brand href="/" style={{
-                fontFamily: 'NanumSquare',
-                fontWeight: 600
-              }}>
-                {process.env.NODE_ENV === "production" ? 'Aztra' : 'Aztra βeta'}
+              <Navbar.Brand href="/" className="d-flex align-items-center pr-1">
+                <img src="/assets/images/aztra-withoutbg-white.png" style={{
+                  height: 27,
+                }} />
               </Navbar.Brand>
             </Link>
             <Navbar.Toggle aria-controls="navbar-nav" />
@@ -106,13 +107,27 @@ export default class Navibar extends React.Component<{}, NavibarState> {
                           marginRight: 5,
                           marginTop: 5
                         }} />
-                        <NavDropdown title={`${user.username}#${user.discriminator}`} id="nav-dropdown" className="dropdown-menu-dark" style={{
-                          fontSize: '12.5pt'
-                        }}>
-
+                        <NavDropdown id="nav-dropdown" className="dropdown-menu-dark NavDropdown" title={
+                          <>
+                            <span style={{
+                              fontSize: '12.5pt',
+                              fontFamily: 'NanumSquare',
+                              color: 'whitesmoke'
+                            }}>
+                              {user.username}
+                            </span>
+                            <span style={{
+                              fontSize: '10.5pt',
+                              fontFamily: 'NanumSquare',
+                              color: '#9f9f9f'
+                            }}>
+                              #{user.discriminator}
+                            </span>
+                          </>
+                        } >
                           <NavDropdown.Item className="dropdown-item-dark" onClick={this.handleLogout}>
                             로그아웃
-                            </NavDropdown.Item>
+                          </NavDropdown.Item>
                         </NavDropdown>
                       </div>
                     </>
