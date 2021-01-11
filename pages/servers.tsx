@@ -6,9 +6,12 @@ import api from '../datas/api'
 import { Permissions } from 'discord.js'
 import { PartialGuildExtend } from '../types/DiscordTypes'
 import {
-  Refresh as RefreshIcon
+  Refresh as RefreshIcon,
+  ArrowForward as ArrowForwardIcon
 } from '@material-ui/icons'
 import Layout from '../components/Layout';
+
+import Cookies from 'universal-cookie'
 
 const swal = require('@sweetalert/with-react')
 
@@ -41,7 +44,7 @@ export default class Servers extends Component<{}, ServersState> {
   }
 
   componentDidMount() {
-    const token = localStorage.getItem('token')
+    const token = new Cookies().get('ACCESS_TOKEN')
     if (token) {
       this.getGuilds(token)
     }
@@ -103,9 +106,12 @@ export default class Servers extends Component<{}, ServersState> {
                     one.bot_joined
                       ? <>
 
-                        <Button variant="success" size="sm" href={`/dashboard/${one.id}`}>대시보드</Button>
+                        <Button className="d-flex align-items-center" variant="aztra" size="sm" href={`/dashboard/${one.id}`}>
+                          대시보드
+                          <ArrowForwardIcon style={{fontSize: 22}} className="ml-1" />
+                        </Button>
                       </>
-                      : <Button variant="secondary" size="sm">초대하기</Button>
+                      : <Button variant="dark" size="sm">초대하기</Button>
                   }
                 </Col>
               </Row>

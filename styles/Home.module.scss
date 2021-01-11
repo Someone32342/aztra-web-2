@@ -68,6 +68,8 @@
 }
 
 .MainFeatures {
+  color: white;
+
   h1 {
     @include media-breakpoint-up(xs) {
       font-size: 19pt;
@@ -96,7 +98,23 @@
 }
 
 .MainFeaturesItem {
-  height: 100vh;
+  min-height: 900px;
+  height: 110vh;
   display: flex;
   align-items: center;
+}
+
+.MainFeaturesItemContent {
+  text-align: center;
+  padding-top: 4rem;
+
+  h1 {
+    font-weight: bold;
+  }
+
+  @include media-breakpoint-up(lg) {
+    padding-top: 0;
+    width: 45%;
+    text-align: left;
+  }
 }

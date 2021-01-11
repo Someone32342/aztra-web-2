@@ -8,6 +8,8 @@ import Link from 'next/link'
 import classNames from 'classnames/bind'
 import styles from '../styles/components/Navibar.module.scss'
 
+import MenuIcon from '@material-ui/icons/Menu';
+
 import Cookies from 'universal-cookie'
 import Router from 'next/router'
 
@@ -53,7 +55,8 @@ export default class Navibar extends React.Component<{}, NavibarState> {
   }
 
   componentDidMount() {
-    this.setState({ user: JSON.parse(localStorage.getItem('cached_user')) })
+    const userCache = localStorage.getItem('cached_user')
+    this.setState({ user: userCache ? JSON.parse(userCache) : null })
     const token = new Cookies().get('ACCESS_TOKEN')
     !token || this.fetchUser(token)
   }
@@ -63,7 +66,7 @@ export default class Navibar extends React.Component<{}, NavibarState> {
 
     return (
       <div style={{ paddingBottom: 57 }}>
-        <Navbar bg="dark" expand="md" onToggle={this.handleOnToggle} expanded={this.state.expanded} fixed="top" className={cx("no-drag", "shadow", "navbar-dark", "NavbarDark")}>
+        <Navbar bg="dark" expand="md" onToggle={this.handleOnToggle} expanded={this.state.expanded} fixed="top" className={cx("no-drag", "navbar-dark", "NavbarDark")}>
           <Container fluid="md">
             <Link href="/">
               <Navbar.Brand href="/" className="d-flex align-items-center pr-1">
@@ -72,7 +75,9 @@ export default class Navibar extends React.Component<{}, NavibarState> {
                 }} />
               </Navbar.Brand>
             </Link>
-            <Navbar.Toggle aria-controls="navbar-nav" />
+            <Navbar.Toggle aria-controls="navbar-nav" className={styles.NavbarToggle}>
+              <MenuIcon style={{ fontSize: '20pt' }} />
+            </Navbar.Toggle>
             <Navbar.Collapse id="navbar-nav">
               <Nav className="mr-auto" onSelect={this.closeNavbar}>
                 <Link href="/">

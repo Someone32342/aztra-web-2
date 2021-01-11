@@ -5,7 +5,7 @@ import { useRouter } from 'next/router'
 import { GetServerSideProps } from 'next'
 import Cookies from 'universal-cookie'
 
-export default function Auth({ data }) {
+export default function Auth({ data }: { data: any }) {
   const router = useRouter()
   useEffect(() => {
     new Cookies().set('ACCESS_TOKEN', data.access_token, {
@@ -27,7 +27,6 @@ export const getServerSideProps: GetServerSideProps = async context => {
       }
     })
     data = r.data
-    console.log(data)
   }
 
   catch (e) {
