@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Container, Card, Row, Col, Button, Spinner } from 'react-bootstrap'
+import { Container, Card, Row, Col, Button, Spinner, Modal } from 'react-bootstrap'
 import axios, { AxiosError } from 'axios'
 import urljoin from 'url-join'
 import api from '../datas/api'
@@ -12,6 +12,8 @@ import {
 import Layout from '../components/Layout';
 
 import Cookies from 'universal-cookie'
+import { withRouter } from 'next/router';
+import { WithRouterProps } from 'next/dist/client/with-router';
 
 const swal = require('@sweetalert/with-react')
 
@@ -19,13 +21,15 @@ interface ServersState {
   guilds: PartialGuildExtend[]
   fetchDone: boolean | null,
   fetchError: AxiosError | null
+  fetchErrorShow: boolean
 }
 
-export default class Servers extends Component<{}, ServersState> {
+class Servers extends Component<WithRouterProps, ServersState> {
   state: ServersState = {
     guilds: [],
     fetchDone: null,
-    fetchError: null
+    fetchError: null,
+    fetchErrorShow: false
   }
 
   getGuilds = async (token: string) => {
@@ -39,7 +43,7 @@ export default class Servers extends Component<{}, ServersState> {
       this.setState({ guilds: res.data, fetchDone: true })
     }
     catch (e) {
-      this.setState({ guilds: [], fetchError: e, fetchDone: false })
+      this.setState({ guilds: [], fetchError: e, fetchDone: false, fetchErrorShow: true })
     }
   }
 
@@ -56,27 +60,6 @@ export default class Servers extends Component<{}, ServersState> {
   }
 
   render() {
-    if (this.state.fetchDone === false) {
-      swal(
-        <div>
-          <h2>서버를 가져올 수 없습니다!</h2>
-          <p className="px-3">
-            서버 데이터를 불러오는 데 실패했습니다.
-          </p>
-          <Button variant="danger" onClick={() => {
-            swal.close()
-            this.componentDidMount()
-          }}>
-            다시 시도하기
-          </Button>
-        </div>,
-        {
-          icon: "error",
-          button: false
-        }
-      )
-    }
-
     const guild_cards = this.state.guilds
       .filter(one => {
         let perms = new Permissions(Number(one.permissions))
@@ -108,7 +91,7 @@ export default class Servers extends Component<{}, ServersState> {
 
                         <Button className="d-flex align-items-center" variant="aztra" size="sm" href={`/dashboard/${one.id}`}>
                           대시보드
-                          <ArrowForwardIcon style={{fontSize: 22}} className="ml-1" />
+                          <ArrowForwardIcon style={{ fontSize: 22 }} className="ml-1" />
                         </Button>
                       </>
                       : <Button variant="dark" size="sm">초대하기</Button>
@@ -155,7 +138,31 @@ export default class Servers extends Component<{}, ServersState> {
             }
           </Container>
         </div>
+        {
+          this.state.fetchErrorShow && (
+            (
+              <Modal className="modal-dark" show={!!this.state.fetchErrorShow} centered onHide={() => {}}>
+                <Modal.Body>
+                  서버 정보를 가져오는 데 실패했습니다!
+                </Modal.Body>
+                <Modal.Footer>
+                  <Button variant="dark" onClick={() => this.props.router.push('/')}>
+                    메인으로
+                  </Button>
+                  <Button variant="danger" onClick={() => {
+                    this.setState({ fetchErrorShow: false })
+                    this.componentDidMount()
+                  }}>
+                    다시 시도하기
+                  </Button>
+                </Modal.Footer>
+              </Modal>
+            )
+          )
+        }
       </Layout>
     )
   }
 }
+
+export default withRouter(Servers)
