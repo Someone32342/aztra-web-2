@@ -1,9 +1,9 @@
 import { Container, Button, Row, Col } from 'react-bootstrap';
 import { Link as ScrollLink } from 'react-scroll'
 
-import styles from '../styles/Home.module.scss'
+import styles from 'styles/Home.module.scss'
 import classNames from 'classnames/bind';
-import Layout from '../components/Layout';
+import Layout from 'components/Layout';
 
 const cx = classNames.bind(styles)
 

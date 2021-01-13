@@ -1,12 +1,12 @@
 import React from 'react'
 import { Nav, Navbar, NavDropdown, Container } from 'react-bootstrap'
 import axios from 'axios'
-import oauth2 from '../datas/oauth'
+import oauth2 from 'datas/oauth'
 import urljoin from 'url-join'
-import { User } from '../types/DiscordTypes'
+import { User } from 'types/DiscordTypes'
 import Link from 'next/link'
 import classNames from 'classnames/bind'
-import styles from '../styles/components/Navibar.module.scss'
+import styles from 'styles/components/Navibar.module.scss'
 
 import MenuIcon from '@material-ui/icons/Menu';
 
@@ -66,7 +66,7 @@ export default class Navibar extends React.Component<{}, NavibarState> {
 
     return (
       <div style={{ paddingBottom: 57 }}>
-        <Navbar bg="dark" expand="md" onToggle={this.handleOnToggle} expanded={this.state.expanded} fixed="top" className={cx("no-drag", "navbar-dark", "NavbarDark")}>
+        <Navbar bg="dark" expand="md" onToggle={this.handleOnToggle} expanded={this.state.expanded} fixed="top" className={cx("no-drag", "navbar-dark", "shadow", "NavbarDark")}>
           <Container fluid="md">
             <Link href="/">
               <Navbar.Brand href="/" className="d-flex align-items-center pr-1">

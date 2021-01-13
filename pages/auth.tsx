@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import api from '../datas/api'
+import api from 'datas/api'
 import axios from 'axios'
 import { useRouter } from 'next/router'
 import { GetServerSideProps } from 'next'

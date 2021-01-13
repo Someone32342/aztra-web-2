@@ -7,16 +7,16 @@ import { faHashtag, faExclamationTriangle } from '@fortawesome/free-solid-svg-ic
 
 import axios from 'axios'
 
-import { Greetings as GreetingsType } from '../../../types/dbtypes/greetings'
-import api from '../../../datas/api'
-import { ChannelMinimal } from '../../../types/DiscordTypes';
-import ChannelSelectCard from '../../../components/forms/ChannelSelectCard';
+import { Greetings as GreetingsType } from 'types/dbtypes/greetings'
+import api from 'datas/api'
+import { ChannelMinimal } from 'types/DiscordTypes';
+import ChannelSelectCard from 'components/forms/ChannelSelectCard';
 import withRouter, { WithRouterProps } from 'next/dist/client/with-router';
 import { GetServerSideProps } from 'next';
 
 import Cookies from 'universal-cookie'
-import Layout from '../../../components/Layout';
-import DashboardLayout from '../../../components/DashboardLayout';
+import Layout from 'components/Layout';
+import DashboardLayout from 'components/DashboardLayout';
 
 interface GreetingsRouterProps {
   guildId: string
@@ -201,7 +201,7 @@ class Greetings extends Component<GreetingsRouterProps & WithRouterProps, Greeti
     try {
       await axios.post(`${api}/servers/${this.props.guildId}/greetings`, data, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
+          Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
         },
       })
       this.setState({ data })
@@ -287,7 +287,7 @@ class Greetings extends Component<GreetingsRouterProps & WithRouterProps, Greeti
                           type="switch"
                           label="반기는 메시지 사용"
                           checked={this.state.useJoin}
-                          onClick={() => this.setState({ useJoin: !this.state.useJoin })}
+                          onChange={() => this.setState({ useJoin: !this.state.useJoin })}
                           aria-controls="incomingForm"
                           aria-expanded={!!this.state.useJoin}
                         />
@@ -338,7 +338,7 @@ class Greetings extends Component<GreetingsRouterProps & WithRouterProps, Greeti
                           type="switch"
                           label="나가는 메시지 사용"
                           checked={this.state.useLeave}
-                          onClick={() => this.setState({ useLeave: !this.state.useLeave })}
+                          onChange={() => this.setState({ useLeave: !this.state.useLeave })}
                           aria-controls="outgoingForm"
                           aria-expanded={!!this.state.useLeave}
                         />

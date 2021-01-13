@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import axios from 'axios'
 import { Card, Button, Row, Col, Container, Spinner } from 'react-bootstrap'
-import { MemberMinimal, PartialGuild } from '../../../types/DiscordTypes'
+import { MemberMinimal, PartialGuild } from 'types/DiscordTypes'
 import urljoin from 'url-join';
-import api from '../../../datas/api';
-import Layout from '../../../components/Layout';
-import DashboardLayout from '../../../components/DashboardLayout';
+import api from 'datas/api';
+import Layout from 'components/Layout';
+import DashboardLayout from 'components/DashboardLayout';
 import { withRouter } from 'next/router';
 import { WithRouterProps } from 'next/dist/client/with-router';
 

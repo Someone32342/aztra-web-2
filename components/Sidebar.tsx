@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Nav } from 'react-bootstrap'
-import { PartialGuild } from '../types/DiscordTypes'
+import { PartialGuild } from 'types/DiscordTypes'
 import {
   Home as HomeIcon,
   PersonAdd as PersonAddIcon,

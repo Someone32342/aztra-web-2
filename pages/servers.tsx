@@ -2,14 +2,14 @@ import React, { Component } from 'react';
 import { Container, Card, Row, Col, Button, Spinner, Modal } from 'react-bootstrap'
 import axios, { AxiosError } from 'axios'
 import urljoin from 'url-join'
-import api from '../datas/api'
+import api from 'datas/api'
 import { Permissions } from 'discord.js'
-import { PartialGuildExtend } from '../types/DiscordTypes'
+import { PartialGuildExtend } from 'types/DiscordTypes'
 import {
   Refresh as RefreshIcon,
   ArrowForward as ArrowForwardIcon
 } from '@material-ui/icons'
-import Layout from '../components/Layout';
+import Layout from 'components/Layout';
 
 import Cookies from 'universal-cookie'
 import { withRouter } from 'next/router';
