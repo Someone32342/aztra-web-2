@@ -1,7 +1,7 @@
-import { useRouter } from "next/router"
 import src from "docs/aztra-commands-guide"
 import DocViewWithNav from "components/docs/DocViewWithNav"
 import { GetServerSideProps } from "next"
+import Layout from "components/Layout"
 
 interface Props {
   pageId: string
@@ -18,7 +18,11 @@ export const getServerSideProps: GetServerSideProps<Props> = async context => {
 }
 
 const AztraCommandGuide: React.FC<Props> = ({ pageId }) => {
-  const router = useRouter()
-
-  return <DocViewWithNav index={src} pageId={pageId} />
+  return (
+    <Layout>
+      <DocViewWithNav index={src} pageId={pageId} />
+    </Layout>
+  )
 }
+
+export default AztraCommandGuide

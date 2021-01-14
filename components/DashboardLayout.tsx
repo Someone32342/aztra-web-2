@@ -47,7 +47,8 @@ class DashboardLayout extends Component<WithRouterProps, DashboardLayoutState> {
             return perms.has(Permissions.FLAGS.ADMINISTRATOR)
           })
           .find((one: PartialGuild) => one.id === this.props.router.query.guildid)
-        this.setState({ guild: guild })
+
+        this.setState({ guild: guild, guildCache: guild })
         localStorage.setItem('guildCache', JSON.stringify(guild))
       })
       .catch(e => {
@@ -127,7 +128,7 @@ class DashboardLayout extends Component<WithRouterProps, DashboardLayoutState> {
                     }}
                   >
                     {
-                      (guildCache || guild) && (
+                      ((guildCache || guild)?.id === this.props.router.query.guildid) && (
                         <img
                           alt="서버 아이콘"
                           src={

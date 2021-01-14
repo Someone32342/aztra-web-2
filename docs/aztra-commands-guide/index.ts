@@ -9,10 +9,10 @@ import ManageCommands from './manage-commands.md'
 import SettingCommands from './setting-commands.md'
 
 const index: GuideGroupType = {
-  id: "commands-guide",
+  id: "aztra-commands-guide",
   name: "Aztra 명령어 가이드",
   homePageName: "getting-started",
-  icon: '/assets/images/docs/aztra-command-guide/icon.png',
+  icon: '/assets/docs/aztra-command-guide/icon.png',
   pages: [
     {
       id: "getting-started",

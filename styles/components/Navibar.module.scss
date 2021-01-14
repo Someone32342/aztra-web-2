@@ -1,3 +1,7 @@
+@import "bootstrap/scss/functions";
+@import "bootstrap/scss/variables";
+@import "bootstrap/scss/mixins";
+
 .Navlink {
     color: whitesmoke !important;
     font-size: 14.5px;
@@ -15,4 +19,13 @@
     border: none;
     padding: 0.1rem 0.12rem;
     color: white !important;
+}
+
+.NavbarMargin {
+    @include media-breakpoint-up(xs) {
+        padding-bottom: 53px;
+    }
+    @include media-breakpoint-up(md) {
+        padding-bottom: 56px;
+    }
 }

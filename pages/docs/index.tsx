@@ -22,7 +22,7 @@ const DocsMain: React.FC = () => {
 
           <Row>
             <Col xs={12} md={6} lg={4} >
-              <Link href="/docs/commands-guide/getting-started">
+              <Link href="/docs/aztra-commands-guide/getting-started">
                 <Card
                   className="shadow-sm cursor-pointer text-dark text-decoration-none" style={{
                     border: 'none'

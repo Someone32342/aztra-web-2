@@ -1,6 +1,7 @@
 import App from 'next/app'
 import Head from 'next/head'
 import '../styles/root.scss'
+import Aztrart from 'public/aztrart.txt'
 
 export default class MyApp extends App {
   showConsoleMessage = () => {
@@ -8,9 +9,7 @@ export default class MyApp extends App {
       localStorage.setItem('theme', 'dark')
     }
 
-    fetch('/aztrart.txt')
-      .then(r => r.text())
-      .then(r => console.log(`%c${r}`, 'color:MediumPurple'))
+    console.log(`%c${Aztrart}`, 'color:MediumPurple')
 
     if (process.env.NODE_ENV === 'production') {
       let style = 'font-family: NanumSquare; font-size: 16pt;'

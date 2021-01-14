@@ -96,7 +96,7 @@ const WarnsListCard: React.FC<WarnsListCardProps> = ({ target, warnby, warn, gui
   const delWarn = (uuid: string) => {
     axios.delete(`${api}/servers/${guildId}/warns/${uuid}`, {
       headers: {
-        Authorization: new Cookies().get('ACCESS_TOKEN')
+        Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
       }
     })
       .then(() => onDelete())
@@ -155,7 +155,6 @@ const WarnsListCard: React.FC<WarnsListCardProps> = ({ target, warnby, warn, gui
         <ButtonGroup>
           <OverlayTrigger
             placement="top"
-            trigger="hover"
             overlay={
               <Tooltip id="warn-list-row-remove-warn">
                 이 경고 취소하기
@@ -194,7 +193,6 @@ const WarnsListCard: React.FC<WarnsListCardProps> = ({ target, warnby, warn, gui
 
           <OverlayTrigger
             placement="top"
-            trigger="hover"
             overlay={
               <Tooltip id="warn-list-row-remove-warn">
                 경고 자세히 보기

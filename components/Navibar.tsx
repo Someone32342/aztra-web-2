@@ -33,9 +33,20 @@ export default class Navibar extends React.Component<{}, NavibarState> {
     this.setState({ expanded: false })
   }
 
+  handleLogin = () => {
+    const lct = window.location
+    localStorage.setItem('loginFrom', lct.pathname + lct.search)
+    Router.push('/login')
+  }
+
   handleLogout = () => {
     new Cookies().remove('ACCESS_TOKEN')
-    Router.reload()
+    if (Router.pathname == '/') {
+      Router.reload()
+    }
+    else {
+      Router.push('/')
+    }
   }
 
   fetchUser = async (token: string) => {
@@ -55,17 +66,22 @@ export default class Navibar extends React.Component<{}, NavibarState> {
   }
 
   componentDidMount() {
-    const userCache = localStorage.getItem('cached_user')
-    this.setState({ user: userCache ? JSON.parse(userCache) : null })
     const token = new Cookies().get('ACCESS_TOKEN')
-    !token || this.fetchUser(token)
+    const cachedUser = localStorage.getItem('cached_user')
+    if (token) {
+      this.setState({ user: cachedUser ? JSON.parse(cachedUser) : null })
+      this.fetchUser(token)
+    }
+    else {
+      localStorage.removeItem('cached_user')
+    }
   }
 
   render() {
     const { user } = this.state
 
     return (
-      <div style={{ paddingBottom: 57 }}>
+      <div className={cx("NavbarMargin")}>
         <Navbar bg="dark" expand="md" onToggle={this.handleOnToggle} expanded={this.state.expanded} fixed="top" className={cx("no-drag", "navbar-dark", "shadow", "NavbarDark")}>
           <Container fluid="md">
             <Link href="/">
@@ -101,17 +117,17 @@ export default class Navibar extends React.Component<{}, NavibarState> {
                   user
                     ?
                     <>
-                      <div style={{
-                        justifyContent: 'left',
-                        display: 'flex'
-                      }}>
-                        <img alt={user.username} src={user.avatar ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}` : `https://cdn.discordapp.com/embed/avatars/${Number(user.discriminator) % 5}.png`} style={{
-                          maxHeight: 32,
-                          borderRadius: '700%',
-                          overflow: 'hidden',
-                          marginRight: 5,
-                          marginTop: 5
-                        }} />
+                      <div className="d-flex align-items-center">
+                        <img
+                          className="rounded-circle overflow-hidden"
+                          alt={user.username}
+                          src={
+                            user.avatar
+                              ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}`
+                              : `https://cdn.discordapp.com/embed/avatars/${Number(user.discriminator) % 5}.png`
+                          }
+                          style={{ maxHeight: 30 }}
+                        />
                         <NavDropdown id="nav-dropdown" className="dropdown-menu-dark NavDropdown" title={
                           <>
                             <span style={{
@@ -136,7 +152,7 @@ export default class Navibar extends React.Component<{}, NavibarState> {
                         </NavDropdown>
                       </div>
                     </>
-                    : <Nav.Link href="/login">로그인</Nav.Link>
+                    : <Nav.Link onClick={this.handleLogin}>로그인</Nav.Link>
                 }
               </Nav>
             </Navbar.Collapse>
