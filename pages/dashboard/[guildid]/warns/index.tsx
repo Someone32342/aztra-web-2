@@ -117,7 +117,7 @@ class WarnsMain extends React.Component<WarnsMainRouterProps & WithRouterProps, 
       <Layout>
         <DashboardLayout>
           {
-            this.state.warnsFetchDone && this.state.membersFetchDone ? (
+            () => this.state.warnsFetchDone && this.state.membersFetchDone ? (
               <div>
                 <Row className="dashboard-section">
                   <h3>경고 관리</h3>

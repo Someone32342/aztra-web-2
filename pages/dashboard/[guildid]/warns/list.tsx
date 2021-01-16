@@ -427,110 +427,114 @@ class WarnsList extends PureComponent<WarnsListRouteProps & WithRouterProps, War
     return (
       <Layout>
         <DashboardLayout>
-          <div style={{
-            fontFamily: 'NanumBarunGothic'
-          }}>
-            <Row className="dashboard-section">
-              <div>
-                <BackTo className="pl-2 mb-4" name="경고 관리" to={`/dashboard/${this.props.guildId}/warns`} />
-                <h3>전체 경고 목록</h3>
+          {
+            () => (
+              <div style={{
+                fontFamily: 'NanumBarunGothic'
+              }}>
+                <Row className="dashboard-section">
+                  <div>
+                    <BackTo className="pl-2 mb-4" name="경고 관리" to={`/dashboard/${this.props.guildId}/warns`} />
+                    <h3>전체 경고 목록</h3>
+                  </div>
+                </Row>
+                <Row className="d-md-none">
+                  <MobileAlert />
+                </Row>
+                <Row>
+                  <Col>
+                    {
+                      this.state.membersFetchDone && this.state.warnsFetchDone
+                        ? <Form>
+                          <Form.Group>
+                            <Row className="pb-2 justify-content-between">
+                              <Col
+                                className="d-flex align-items-end mt-4 mt-xl-0 px-0"
+                                xs={{
+                                  span: 0,
+                                  order: "last"
+                                }}
+                                xl={{
+                                  order: "first"
+                                }}
+                                style={{
+                                  fontSize: '12pt'
+                                }}>
+                                전체 경고 {this.state.warns?.length} 건{this.state.warnSearch && `, ${warns.length}건 검색됨`}
+                              </Col>
+                              <Col
+                                className="px-0"
+                                xs={{
+                                  span: "auto",
+                                  order: "first"
+                                }}
+                                xl={{
+                                  span: "auto",
+                                  order: "last"
+                                }}>
+                                <div className="d-flex">
+                                  <span>검색 조건:</span>
+                                  <div className="d-lg-flex">
+                                    <Form.Check className="ml-4" type="radio" label="경고 사유" checked={this.state.searchType === 'reason'} style={{ wordBreak: 'keep-all' }} onChange={() => this.handleSearchTypeOnChange('reason')} />
+                                    <Form.Check className="ml-4" type="radio" label="대상 멤버" checked={this.state.searchType === 'target'} style={{ wordBreak: 'keep-all' }} onChange={() => this.handleSearchTypeOnChange('target')} />
+                                    <Form.Check className="ml-4" type="radio" label="경고 부여자" checked={this.state.searchType === 'warnby'} style={{ wordBreak: 'keep-all' }} onChange={() => this.handleSearchTypeOnChange('warnby')} />
+                                  </div>
+                                </div>
+                                <div className="d-flex mt-4 mt-lg-0">
+                                  <span>정렬 조건:</span>
+                                  <div className="d-lg-flex">
+                                    <Form.Check className="ml-4" type="radio" label="최신순" checked={this.state.sortType === 'latest'} style={{ wordBreak: 'keep-all' }} onChange={() => this.handleSortTypeOnChange('latest')} />
+                                    <Form.Check className="ml-4" type="radio" label="과거순" checked={this.state.sortType === 'oldest'} style={{ wordBreak: 'keep-all' }} onChange={() => this.handleSortTypeOnChange('oldest')} />
+                                    <Form.Check className="ml-4" type="radio" label="경고수 많은순" checked={this.state.sortType === 'count'} style={{ wordBreak: 'keep-all' }} onChange={() => this.handleSortTypeOnChange('count')} />
+                                    <Form.Check className="ml-4" type="radio" label="경고수 적은순" checked={this.state.sortType === 'count_least'} style={{ wordBreak: 'keep-all' }} onChange={() => this.handleSortTypeOnChange('count_least')} />
+                                  </div>
+                                </div>
+                              </Col>
+                            </Row>
+
+                            <Row className="mb-2">
+                              <input hidden={true} />
+                              <Form.Control ref={this.searchRef} type="text" placeholder="경고 검색" defaultValue={this.state.warnSearch} onChange={this.handleSearchOnChange} />
+                            </Row>
+
+                            <Row className="flex-column">
+                              <Table id="warn-list-table" variant="dark" style={{
+                                tableLayout: 'fixed'
+                              }} >
+                                <thead>
+                                  <tr>
+                                    <th className="align-middle text-center" style={{ width: 50 }}>
+                                      <Form.Check style={{
+                                        transform: 'scale(1.25)',
+                                        WebkitTransform: 'scale(1.25)'
+                                      }} />
+                                    </th>
+                                    <th className="text-center text-md-left" style={{ width: '17%' }}>대상 멤버</th>
+                                    <th className="text-center text-md-left d-none d-md-table-cell">경고 사유</th>
+                                    <th className="text-center text-md-left" style={{ width: '10%' }}>경고 횟수</th>
+                                    <th className="text-center text-md-left" style={{ width: '17%' }}>경고 부여자</th>
+                                    <th style={{ width: 100 }} />
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {warns}
+                                </tbody>
+                              </Table>
+                            </Row>
+                          </Form.Group>
+                        </Form>
+                        : <Container className="d-flex align-items-center justify-content-center flex-column" style={{
+                          height: '500px'
+                        }}>
+                          <h3 className="pb-4 text-center">경고 목록을 가져오고 있습니다...</h3>
+                          <Spinner animation="border" variant="aztra" />
+                        </Container>
+                    }
+                  </Col>
+                </Row>
               </div>
-            </Row>
-            <Row className="d-md-none">
-              <MobileAlert />
-            </Row>
-            <Row>
-              <Col>
-                {
-                  this.state.membersFetchDone && this.state.warnsFetchDone
-                    ? <Form>
-                      <Form.Group>
-                        <Row className="pb-2 justify-content-between">
-                          <Col
-                            className="d-flex align-items-end mt-4 mt-xl-0 px-0"
-                            xs={{
-                              span: 0,
-                              order: "last"
-                            }}
-                            xl={{
-                              order: "first"
-                            }}
-                            style={{
-                              fontSize: '12pt'
-                            }}>
-                            전체 경고 {this.state.warns?.length} 건{this.state.warnSearch && `, ${warns.length}건 검색됨`}
-                          </Col>
-                          <Col
-                            className="px-0"
-                            xs={{
-                              span: "auto",
-                              order: "first"
-                            }}
-                            xl={{
-                              span: "auto",
-                              order: "last"
-                            }}>
-                            <div className="d-flex">
-                              <span>검색 조건:</span>
-                              <div className="d-lg-flex">
-                                <Form.Check className="ml-4" type="radio" label="경고 사유" checked={this.state.searchType === 'reason'} style={{ wordBreak: 'keep-all' }} onChange={() => this.handleSearchTypeOnChange('reason')} />
-                                <Form.Check className="ml-4" type="radio" label="대상 멤버" checked={this.state.searchType === 'target'} style={{ wordBreak: 'keep-all' }} onChange={() => this.handleSearchTypeOnChange('target')} />
-                                <Form.Check className="ml-4" type="radio" label="경고 부여자" checked={this.state.searchType === 'warnby'} style={{ wordBreak: 'keep-all' }} onChange={() => this.handleSearchTypeOnChange('warnby')} />
-                              </div>
-                            </div>
-                            <div className="d-flex mt-4 mt-lg-0">
-                              <span>정렬 조건:</span>
-                              <div className="d-lg-flex">
-                                <Form.Check className="ml-4" type="radio" label="최신순" checked={this.state.sortType === 'latest'} style={{ wordBreak: 'keep-all' }} onChange={() => this.handleSortTypeOnChange('latest')} />
-                                <Form.Check className="ml-4" type="radio" label="과거순" checked={this.state.sortType === 'oldest'} style={{ wordBreak: 'keep-all' }} onChange={() => this.handleSortTypeOnChange('oldest')} />
-                                <Form.Check className="ml-4" type="radio" label="경고수 많은순" checked={this.state.sortType === 'count'} style={{ wordBreak: 'keep-all' }} onChange={() => this.handleSortTypeOnChange('count')} />
-                                <Form.Check className="ml-4" type="radio" label="경고수 적은순" checked={this.state.sortType === 'count_least'} style={{ wordBreak: 'keep-all' }} onChange={() => this.handleSortTypeOnChange('count_least')} />
-                              </div>
-                            </div>
-                          </Col>
-                        </Row>
-
-                        <Row className="mb-2">
-                          <input hidden={true} />
-                          <Form.Control ref={this.searchRef} type="text" placeholder="경고 검색" defaultValue={this.state.warnSearch} onChange={this.handleSearchOnChange} />
-                        </Row>
-
-                        <Row className="flex-column">
-                          <Table id="warn-list-table" variant="dark" style={{
-                            tableLayout: 'fixed'
-                          }} >
-                            <thead>
-                              <tr>
-                                <th className="align-middle text-center" style={{ width: 50 }}>
-                                  <Form.Check style={{
-                                    transform: 'scale(1.25)',
-                                    WebkitTransform: 'scale(1.25)'
-                                  }} />
-                                </th>
-                                <th className="text-center text-md-left" style={{ width: '17%' }}>대상 멤버</th>
-                                <th className="text-center text-md-left d-none d-md-table-cell">경고 사유</th>
-                                <th className="text-center text-md-left" style={{ width: '10%' }}>경고 횟수</th>
-                                <th className="text-center text-md-left" style={{ width: '17%' }}>경고 부여자</th>
-                                <th style={{ width: 100 }} />
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {warns}
-                            </tbody>
-                          </Table>
-                        </Row>
-                      </Form.Group>
-                    </Form>
-                    : <Container className="d-flex align-items-center justify-content-center flex-column" style={{
-                      height: '500px'
-                    }}>
-                      <h3 className="pb-4 text-center">경고 목록을 가져오고 있습니다...</h3>
-                      <Spinner animation="border" variant="aztra" />
-                    </Container>
-                }
-              </Col>
-            </Row>
-          </div>
+            )
+          }
         </DashboardLayout>
       </Layout>
     )

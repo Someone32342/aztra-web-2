@@ -19,8 +19,6 @@ interface MainRouterProps {
 type MainProps = MainRouterProps & WithRouterProps
 
 interface MainState {
-  guild: PartialGuild | null
-  guildFetchDone: boolean
   membersFetchDone: boolean
   members: MemberMinimal[] | null
 }
@@ -36,8 +34,6 @@ export const getServerSideProps: GetServerSideProps<MainRouterProps> = async con
 
 class Main extends Component<MainProps, MainState> {
   state: MainState = {
-    guild: null,
-    guildFetchDone: false,
     membersFetchDone: false,
     members: null
   }
@@ -45,7 +41,6 @@ class Main extends Component<MainProps, MainState> {
   componentDidMount() {
     const token = new Cookies().get('ACCESS_TOKEN')
     if (token) {
-      this.getGuild(token)
       this.getMembers(token)
     }
     else {
@@ -53,26 +48,6 @@ class Main extends Component<MainProps, MainState> {
       localStorage.setItem('loginFrom', lct.pathname + lct.search)
       this.props.router.push('/login')
     }
-  }
-
-  getGuild = async (token: string) => {
-    await axios.get(urljoin(api, '/discord/users/@me/guilds'), {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    })
-      .then(res => {
-        let guild = res.data
-          .find((one: PartialGuild) => one.id === this.props.guildId)
-        this.setState({ guild: guild })
-      })
-      .catch(e => {
-        this.setState({ guild: null })
-        console.log(e)
-      })
-      .finally(() => {
-        this.setState({ guildFetchDone: true })
-      })
   }
 
   getMembers = async (token: string) => {
@@ -94,13 +69,11 @@ class Main extends Component<MainProps, MainState> {
   }
 
   render() {
-    const guild = this.state.guild
-
     return (
       <Layout>
         <DashboardLayout>
           {
-            this.state.guildFetchDone && this.state.membersFetchDone ? (
+            (guild) => guild && this.state.membersFetchDone ? (
               <div className="text-white" style={{
                 fontFamily: 'NanumBarunGothic'
               }}>

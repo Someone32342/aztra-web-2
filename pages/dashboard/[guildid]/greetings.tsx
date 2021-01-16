@@ -265,7 +265,7 @@ class Greetings extends Component<GreetingsRouterProps & WithRouterProps, Greeti
       <Layout>
         <DashboardLayout>
           {
-            this.state.fetchDone && this.state.channelFetchDone ? (
+            () => this.state.fetchDone && this.state.channelFetchDone ? (
               <div>
                 <Row className="dashboard-section">
                   <div>

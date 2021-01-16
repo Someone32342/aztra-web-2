@@ -13,6 +13,10 @@ import Cookies from 'universal-cookie'
 
 const swal = require('@sweetalert/with-react')
 
+interface DashboardLayoutProps extends WithRouterProps {
+  children?: ((guild: PartialGuild | null) => React.ReactNode)
+}
+
 interface DashboardLayoutState {
   guild: PartialGuild | null
   fetchDone: boolean
@@ -22,7 +26,7 @@ interface DashboardLayoutState {
   guildCache: PartialGuild | null
 }
 
-class DashboardLayout extends Component<WithRouterProps, DashboardLayoutState> {
+class DashboardLayout extends Component<DashboardLayoutProps, DashboardLayoutState> {
   state: DashboardLayoutState = {
     guild: null,
     fetchDone: false,
@@ -87,7 +91,7 @@ class DashboardLayout extends Component<WithRouterProps, DashboardLayoutState> {
   closeSidebar = () => this.setState({ sidebarOpen: false })
 
   render() {
-    const { router } = this.props
+    const { router, children } = this.props
     const { guild, guildCache } = this.state
 
     const isXSsize = (this.state?.winWidth || 0) < 768
@@ -128,11 +132,11 @@ class DashboardLayout extends Component<WithRouterProps, DashboardLayoutState> {
                     }}
                   >
                     {
-                      ((guildCache || guild)?.id === this.props.router.query.guildid) && (
+                      ((guildCache || guild)?.id === router.query.guildid) && (
                         <img
                           alt="서버 아이콘"
                           src={
-                            guildCache?.id === this.props.router.query.guildid
+                            guildCache?.id === router.query.guildid
                               ? `https://cdn.discordapp.com/icons/${guildCache?.id}/${guildCache?.icon}.png`
                               : `https://cdn.discordapp.com/icons/${guild?.id}/${guild?.icon}.png`
                           }
@@ -143,7 +147,7 @@ class DashboardLayout extends Component<WithRouterProps, DashboardLayoutState> {
                     {
                       guild
                         ? guild.name
-                        : guildCache?.id === this.props.router.query.guildid
+                        : guildCache?.id === router.query.guildid
                           ? guildCache?.name
                           : '서버 정보를 불러오는 중...'
                     }
@@ -191,7 +195,7 @@ class DashboardLayout extends Component<WithRouterProps, DashboardLayoutState> {
 
           {/* 대시보드 본문 */}
           <Col xl={10} lg={9} md={9} className="Dashboardroute-body">
-            {this.props.children}
+            {children ? children(guild) : null}
           </Col>
         </Row>
       </Container>

@@ -161,7 +161,7 @@ class MemberDashboard extends Component<MemberDashboardRouteProps & WithRouterPr
     let expIndex = this.state.exps?.sort((a, b) => b.exp - a.exp).findIndex(m => m.id === member?.user.id)
 
 
-    let expRank
+    let expRank: number | undefined
     switch (expIndex) {
       case -1:
       case undefined:
@@ -175,7 +175,7 @@ class MemberDashboard extends Component<MemberDashboardRouteProps & WithRouterPr
       <Layout>
         <DashboardLayout>
           {
-            this.state.memberFetchDone && this.state.expFetchDone && this.state.warnsFetchDone
+            () => this.state.memberFetchDone && this.state.expFetchDone && this.state.warnsFetchDone
               ? (
                 <div>
                   <Row className="dashboard-section">

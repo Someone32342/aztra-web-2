@@ -126,7 +126,7 @@ class Leveling extends React.Component<LevelingRouterProps & WithRouterProps, Le
       <Layout>
         <DashboardLayout>
           {
-            this.state.fetchDone ? (
+            () => this.state.fetchDone ? (
               <div>
                 <Row className="dashboard-section">
                   <div>
