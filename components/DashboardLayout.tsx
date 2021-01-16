@@ -7,13 +7,12 @@ import urljoin from 'url-join'
 import api from 'datas/api'
 import { Permissions } from 'discord.js'
 import { PartialGuild } from 'types/DiscordTypes'
-import { withRouter } from 'next/router'
-import { WithRouterProps } from 'next/dist/client/with-router'
 import Cookies from 'universal-cookie'
 
 const swal = require('@sweetalert/with-react')
 
-interface DashboardLayoutProps extends WithRouterProps {
+interface DashboardLayoutProps {
+  guildId: string
   children?: ((guild: PartialGuild | null) => React.ReactNode)
 }
 
@@ -26,7 +25,7 @@ interface DashboardLayoutState {
   guildCache: PartialGuild | null
 }
 
-class DashboardLayout extends Component<DashboardLayoutProps, DashboardLayoutState> {
+export default class DashboardLayout extends Component<DashboardLayoutProps, DashboardLayoutState> {
   state: DashboardLayoutState = {
     guild: null,
     fetchDone: false,
@@ -50,7 +49,7 @@ class DashboardLayout extends Component<DashboardLayoutProps, DashboardLayoutSta
             let perms = new Permissions(Number(one.permissions))
             return perms.has(Permissions.FLAGS.ADMINISTRATOR)
           })
-          .find((one: PartialGuild) => one.id === this.props.router.query.guildid)
+          .find((one: PartialGuild) => one.id === this.props.guildId)
 
         this.setState({ guild: guild, guildCache: guild })
         localStorage.setItem('guildCache', JSON.stringify(guild))
@@ -91,7 +90,7 @@ class DashboardLayout extends Component<DashboardLayoutProps, DashboardLayoutSta
   closeSidebar = () => this.setState({ sidebarOpen: false })
 
   render() {
-    const { router, children } = this.props
+    const { children } = this.props
     const { guild, guildCache } = this.state
 
     const isXSsize = (this.state?.winWidth || 0) < 768
@@ -132,11 +131,11 @@ class DashboardLayout extends Component<DashboardLayoutProps, DashboardLayoutSta
                     }}
                   >
                     {
-                      ((guildCache || guild)?.id === router.query.guildid) && (
+                      ((guildCache || guild)?.id === this.props.guildId) && (
                         <img
                           alt="서버 아이콘"
                           src={
-                            guildCache?.id === router.query.guildid
+                            guildCache?.id === this.props.guildId
                               ? `https://cdn.discordapp.com/icons/${guildCache?.id}/${guildCache?.icon}.png`
                               : `https://cdn.discordapp.com/icons/${guild?.id}/${guild?.icon}.png`
                           }
@@ -147,7 +146,7 @@ class DashboardLayout extends Component<DashboardLayoutProps, DashboardLayoutSta
                     {
                       guild
                         ? guild.name
-                        : guildCache?.id === router.query.guildid
+                        : guildCache?.id === this.props.guildId
                           ? guildCache?.name
                           : '서버 정보를 불러오는 중...'
                     }
@@ -202,5 +201,3 @@ class DashboardLayout extends Component<DashboardLayoutProps, DashboardLayoutSta
     )
   }
 }
-
-export default withRouter(DashboardLayout)

@@ -71,7 +71,7 @@ class Main extends Component<MainProps, MainState> {
   render() {
     return (
       <Layout>
-        <DashboardLayout>
+        <DashboardLayout guildId={this.props.guildId}>
           {
             (guild) => guild && this.state.membersFetchDone ? (
               <div className="text-white" style={{

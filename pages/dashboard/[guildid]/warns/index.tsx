@@ -115,7 +115,7 @@ class WarnsMain extends React.Component<WarnsMainRouterProps & WithRouterProps, 
 
     return (
       <Layout>
-        <DashboardLayout>
+        <DashboardLayout guildId={this.props.guildId}>
           {
             () => this.state.warnsFetchDone && this.state.membersFetchDone ? (
               <div>

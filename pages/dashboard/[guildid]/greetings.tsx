@@ -263,7 +263,7 @@ class Greetings extends Component<GreetingsRouterProps & WithRouterProps, Greeti
 
     return (
       <Layout>
-        <DashboardLayout>
+        <DashboardLayout guildId={this.props.guildId}>
           {
             () => this.state.fetchDone && this.state.channelFetchDone ? (
               <div>

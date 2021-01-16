@@ -173,7 +173,7 @@ class MemberDashboard extends Component<MemberDashboardRouteProps & WithRouterPr
 
     return (
       <Layout>
-        <DashboardLayout>
+        <DashboardLayout guildId={this.props.guildId}>
           {
             () => this.state.memberFetchDone && this.state.expFetchDone && this.state.warnsFetchDone
               ? (

@@ -426,7 +426,7 @@ class WarnsList extends PureComponent<WarnsListRouteProps & WithRouterProps, War
 
     return (
       <Layout>
-        <DashboardLayout>
+        <DashboardLayout guildId={this.props.guildId}>
           {
             () => (
               <div style={{

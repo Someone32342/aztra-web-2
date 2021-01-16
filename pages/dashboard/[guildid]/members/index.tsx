@@ -115,7 +115,7 @@ class Members extends React.Component<MembersRouterProps & WithRouterProps, Memb
 
     return (
       <Layout>
-        <DashboardLayout>
+        <DashboardLayout guildId={this.props.guildId}>
           {
             () => (
               <div style={{
