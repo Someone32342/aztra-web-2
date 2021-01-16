@@ -2,38 +2,27 @@ import { useEffect } from 'react'
 import api from 'datas/api'
 import axios from 'axios'
 import { useRouter } from 'next/router'
-import { GetServerSideProps } from 'next'
 import Cookies from 'universal-cookie'
 
-export default function Auth({ data }: { data: any }) {
+export default function Auth() {
   const router = useRouter()
+
   useEffect(() => {
-    new Cookies().set('ACCESS_TOKEN', data.access_token, {
-      maxAge: data.expires_in
+    axios.get(`${api}/oauth2/token`, {
+      params: {
+        code: new URLSearchParams(window.location.search).get('code')
+      }
     })
-    router.push(localStorage.getItem('loginFrom') || "/")
+      .then(r => {
+        new Cookies().set('ACCESS_TOKEN', r.data.access_token, {
+          maxAge: r.data.expires_in
+        })
+        router.push(localStorage.getItem('loginFrom') || "/")
+      })
+      .catch(e => {
+        console.error(e)
+      })
   }, [])
 
   return null
-}
-
-export const getServerSideProps: GetServerSideProps = async context => {
-  let data = null
-
-  try {
-    let r = await axios.get(`${api}/oauth2/token`, {
-      params: {
-        code: context.query.code
-      }
-    })
-    data = r.data
-  }
-
-  catch (e) {
-    console.error(e)
-  }
-
-  return {
-    props: { data }
-  };
 }
