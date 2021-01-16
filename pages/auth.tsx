@@ -3,6 +3,7 @@ import api from 'datas/api'
 import axios from 'axios'
 import { useRouter } from 'next/router'
 import Cookies from 'universal-cookie'
+import { Container, Spinner } from 'react-bootstrap'
 
 export default function Auth() {
   const router = useRouter()
@@ -24,5 +25,10 @@ export default function Auth() {
       })
   }, [])
 
-  return null
+  return (
+    <Container style={{ height: '100vh' }} className="d-flex align-items-center justify-content-center">
+      <Spinner animation="grow" variant="aztra" />
+      <h3 className="text-white my-auto ml-4">로그인하고 있습니다...</h3>
+    </Container>
+  )
 }
