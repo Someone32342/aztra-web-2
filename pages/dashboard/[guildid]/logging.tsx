@@ -1,5 +1,6 @@
 import DashboardLayout from 'components/DashboardLayout'
 import Layout from 'components/Layout'
+import { GetServerSideProps } from 'next'
 import React, { Component } from 'react'
 import { Col, Form, FormCheckProps, Row } from 'react-bootstrap'
 
@@ -11,15 +12,24 @@ const LoggingOptionCheckbox: React.FC<Omit<LoggingOptionCheckboxProps, 'custom' 
   return <Form.Check {...props} custom type="checkbox" label={<div className="pl-2" style={{ fontSize: '11pt' }}>{props.label}</div>} />
 }
 
-export interface LoggingProps {
-  guildId?: string
+interface LoggingRouterProps {
+  guildId: string
 }
 
-export interface LoggingState {
+interface LoggingState {
   useLogging: boolean
 }
 
-export default class Logging extends Component<LoggingProps, LoggingState> {
+export const getServerSideProps: GetServerSideProps<LoggingRouterProps> = async context => {
+  const { guildid } = context.query
+  return {
+    props: {
+      guildId: guildid as string
+    }
+  }
+}
+
+export default class Logging extends Component<LoggingRouterProps, LoggingState> {
   state: LoggingState = {
     useLogging: false
   }
@@ -27,7 +37,7 @@ export default class Logging extends Component<LoggingProps, LoggingState> {
   render() {
     return (
       <Layout>
-        <DashboardLayout>
+        <DashboardLayout guildId={this.props.guildId}>
           {
             () => (
               <div>
