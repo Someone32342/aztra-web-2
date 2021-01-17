@@ -64,8 +64,8 @@ const DocViewWithNav: React.FC<DocViewWithNavProps> = ({ pageId, index }) => {
                 padding: '5px 0'
               }}>
                 {
-                  index.pages.map((one) => (
-                    <Nav.Item>
+                  index.pages.map((one, idx) => (
+                    <Nav.Item key={idx}>
                       <Link href={`/docs/${index.id}/${one.id}`}>
                         <Nav.Link className="text-dark" href={`/docs/${index.id}/${one.id}`} style={{
                           fontWeight: one.id === pageId ? 800 : 'normal'

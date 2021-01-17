@@ -40,7 +40,7 @@ export default function Sidebar(props: SidebarProps) {
         onSelect={props.onSelect}
       >
         <Nav.Item>
-          <Link href={`/dashboard/${guild?.id}`} prefetch={false}>
+          <Link href={`/dashboard/${guild?.id}`}>
             <Nav.Link
               className="d-flex mb-1"
               href={`/dashboard/${guild?.id}`}
@@ -54,7 +54,7 @@ export default function Sidebar(props: SidebarProps) {
           </Link>
         </Nav.Item>
         <Nav.Item>
-          <Link href={`/dashboard/${guild?.id}/greetings`} prefetch={false}>
+          <Link href={`/dashboard/${guild?.id}/greetings`}>
             <Nav.Link
               className="d-flex mb-1"
               href={`/dashboard/${guild?.id}/greetings`}
@@ -68,7 +68,7 @@ export default function Sidebar(props: SidebarProps) {
           </Link>
         </Nav.Item>
         <Nav.Item>
-          <Link href={`/dashboard/${guild?.id}/members`} prefetch={false}>
+          <Link href={`/dashboard/${guild?.id}/members`}>
             <Nav.Link
               className="d-flex mb-1"
               href={`/dashboard/${guild?.id}/members`}
@@ -82,7 +82,7 @@ export default function Sidebar(props: SidebarProps) {
           </Link>
         </Nav.Item>
         <Nav.Item>
-          <Link href={`/dashboard/${guild?.id}/warns`} prefetch={false}>
+          <Link href={`/dashboard/${guild?.id}/warns`}>
             <Nav.Link
               className="d-flex mb-1"
               href={`/dashboard/${guild?.id}/warns`}
@@ -96,7 +96,7 @@ export default function Sidebar(props: SidebarProps) {
           </Link>
         </Nav.Item>
         <Nav.Item>
-          <Link href={`/dashboard/${guild?.id}/leveling`} prefetch={false}>
+          <Link href={`/dashboard/${guild?.id}/leveling`}>
             <Nav.Link
               className="d-flex mb-1"
               href={`/dashboard/${guild?.id}/leveling`}
@@ -112,7 +112,7 @@ export default function Sidebar(props: SidebarProps) {
         {
           process.env.NODE_ENV === "development" && (
             <Nav.Item>
-              <Link href={`/dashboard/${guild?.id}/logging`} prefetch={false}>
+              <Link href={`/dashboard/${guild?.id}/logging`}>
                 <Nav.Link
                   className="d-flex mb-1"
                   href={`/dashboard/${guild?.id}/logging`}

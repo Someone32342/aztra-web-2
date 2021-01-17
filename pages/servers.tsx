@@ -3,7 +3,6 @@ import { Container, Card, Row, Col, Button, Spinner, Modal } from 'react-bootstr
 import axios, { AxiosError } from 'axios'
 import urljoin from 'url-join'
 import api from 'datas/api'
-import { Permissions } from 'discord.js'
 import { PartialGuildExtend } from 'types/DiscordTypes'
 import {
   Refresh as RefreshIcon,
@@ -14,8 +13,6 @@ import Layout from 'components/Layout';
 import Cookies from 'universal-cookie'
 import { withRouter } from 'next/router';
 import { WithRouterProps } from 'next/dist/client/with-router';
-
-const swal = require('@sweetalert/with-react')
 
 interface ServersState {
   guilds: PartialGuildExtend[]
@@ -62,8 +59,7 @@ class Servers extends Component<WithRouterProps, ServersState> {
   render() {
     const guild_cards = this.state.guilds
       .filter(one => {
-        let perms = new Permissions(Number(one.permissions))
-        return perms.has(Permissions.FLAGS.ADMINISTRATOR)
+        return Number(one.permissions) & 8
       })
       .sort((a, b) => Number(!a.bot_joined) - Number(!b.bot_joined))
       .map((one, index) => (
