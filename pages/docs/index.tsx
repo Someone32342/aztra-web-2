@@ -1,7 +1,7 @@
 import React from 'react'
 import { Card, Col, Container, Row } from 'react-bootstrap'
 import { ArrowForward as ArrowForwardIcon } from '@material-ui/icons'
-import { Link } from '@material-ui/core'
+import Link from 'next/link'
 import Layout from 'components/Layout'
 
 const DocsMain: React.FC = () => {
@@ -31,10 +31,10 @@ const DocsMain: React.FC = () => {
                     <div>
                       <Card.Title>
                         Aztra 명령어 가이드
-                  </Card.Title>
+                      </Card.Title>
                       <Card.Text>
                         Aztra 전체 명령어 가이드
-                  </Card.Text>
+                      </Card.Text>
                     </div>
                     <div className="my-auto ml-auto" style={{ transform: 'scale(1.5)' }}>
                       <ArrowForwardIcon />

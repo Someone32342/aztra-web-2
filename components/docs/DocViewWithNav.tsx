@@ -5,7 +5,7 @@ import Twemoji from 'react-twemoji'
 import { heading } from 'components/MarkdownRenderer';
 import { GuideGroupType } from 'types/GuideIndexTypes';
 import { ArrowForward as ArrowForwardIcon, ArrowBack as ArrowBackIcon } from '@material-ui/icons'
-import { Link } from '@material-ui/core';
+import Link from 'next/link'
 
 interface DocViewWithNavProps {
   pageId: string
@@ -64,8 +64,8 @@ const DocViewWithNav: React.FC<DocViewWithNavProps> = ({ pageId, index }) => {
                 padding: '5px 0'
               }}>
                 {
-                  index.pages.map((one, idx) => (
-                    <Nav.Item key={idx}>
+                  index.pages.map((one) => (
+                    <Nav.Item>
                       <Link href={`/docs/${index.id}/${one.id}`}>
                         <Nav.Link className="text-dark" href={`/docs/${index.id}/${one.id}`} style={{
                           fontWeight: one.id === pageId ? 800 : 'normal'
@@ -101,8 +101,8 @@ const DocViewWithNav: React.FC<DocViewWithNavProps> = ({ pageId, index }) => {
           <div className="d-flex mt-5 px-1">
             {
               prevPage && (
-                <Link href={`/docs/${index.id}/${prevPage.id}`} className="mr-auto">
-                  <Button className="d-flex px-3" variant="outline-aztra">
+                <Link href={`/docs/${index.id}/${prevPage.id}`}>
+                  <Button className="d-flex px-3 mr-auto" variant="outline-aztra">
                     <ArrowBackIcon className="my-auto mr-3 d-none d-sm-block" style={{ transform: 'scale(1.2)' }} />
                     <div className="text-right">
                       <small>
@@ -118,8 +118,8 @@ const DocViewWithNav: React.FC<DocViewWithNavProps> = ({ pageId, index }) => {
             }
             {
               nextPage && (
-                <Link href={`/docs/${index.id}/${nextPage.id}`} className="ml-auto">
-                  <Button className="d-flex px-3" variant="aztra">
+                <Link href={`/docs/${index.id}/${nextPage.id}`}>
+                  <Button className="d-flex px-3 ml-auto" variant="aztra">
                     <div className="text-left">
                       <small>
                         다음 페이지

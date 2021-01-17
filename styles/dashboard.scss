@@ -69,7 +69,7 @@
     .dashboard-section {
         margin-bottom: 30px !important;
     }
-    @extend .scrollbar;
+    @extend .scrollbar-dark;
 }
 
 .scrollbar-dark {
@@ -107,7 +107,7 @@
     a {
         color: white;
     }
-    @extend .scrollbar;
+    @extend .scrollbar-dark;
 }
 .Dashboardroute-sidebar-body {
     margin-top: 0.5rem;
