@@ -5,7 +5,6 @@ import Sidebar from './Sidebar'
 import axios from 'axios'
 import urljoin from 'url-join'
 import api from 'datas/api'
-import { Permissions } from 'discord.js'
 import { PartialGuild } from 'types/DiscordTypes'
 import Cookies from 'universal-cookie'
 
@@ -46,8 +45,7 @@ export default class DashboardLayout extends Component<DashboardLayoutProps, Das
       .then(res => {
         let guild = res.data
           .filter((one: PartialGuild) => {
-            let perms = new Permissions(Number(one.permissions))
-            return perms.has(Permissions.FLAGS.ADMINISTRATOR)
+            return Number(one.permissions) & 8
           })
           .find((one: PartialGuild) => one.id === this.props.guildId)
 
