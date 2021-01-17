@@ -1,4 +1,4 @@
-import { ClientPresenceStatus } from "discord.js";
+type ClientPresenceStatus = "online" | "idle" | "dnd"
 
 export interface PartialGuild {
     id: string
