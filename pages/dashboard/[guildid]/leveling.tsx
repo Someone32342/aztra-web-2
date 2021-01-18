@@ -38,7 +38,6 @@ const Leveling: NextPage<LevelingRouterProps> = ({ guildId }) => {
     })
       .then(r => r.data),
     {
-      onSuccess: data => setUseLevelupMessage(data.sendLevelMessage),
       revalidateOnFocus: false,
       revalidateOnReconnect: false
     }
@@ -67,13 +66,16 @@ const Leveling: NextPage<LevelingRouterProps> = ({ guildId }) => {
     }
   }
 
-  const handleSubmit = (e: React.MouseEvent<HTMLElement>) => save()
+  const handleSubmit = save
 
   useEffect(() => {
     if (!new Cookies().get('ACCESS_TOKEN')) {
       const lct = window.location
       localStorage.setItem('loginFrom', lct.pathname + lct.search)
       window.location.assign('/login')
+    }
+    if (data) {
+      setUseLevelupMessage(data.sendLevelMessage)
     }
   }, [])
 
@@ -86,6 +88,8 @@ const Leveling: NextPage<LevelingRouterProps> = ({ guildId }) => {
       data.sendLevelMessage !== useLevelupMessage
     )
   }
+
+  console.log(data)
 
   return (
     <Layout>

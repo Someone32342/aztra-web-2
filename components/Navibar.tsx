@@ -25,6 +25,8 @@ export default class Navibar extends React.Component<{}, NavibarState> {
     expanded: false,
   }
 
+  mounted: boolean = false
+
   handleOnToggle = (expanded: boolean) => {
     this.setState({ expanded })
   }
@@ -56,16 +58,21 @@ export default class Navibar extends React.Component<{}, NavibarState> {
           Authorization: `Bearer ${token}`
         }
       })
-      this.setState({ user: res.data })
-      localStorage.setItem('cached_user', JSON.stringify(res.data))
+      if (this.mounted) {
+        this.setState({ user: res.data })
+        localStorage.setItem('cached_user', JSON.stringify(res.data))
+      }
     }
     catch (_e) {
-      this.setState({ user: null })
-      localStorage.removeItem('cached_user')
+      if (this.mounted) {
+        this.setState({ user: null })
+        localStorage.removeItem('cached_user')
+      }
     }
   }
 
   componentDidMount() {
+    this.mounted = true
     const token = new Cookies().get('ACCESS_TOKEN')
     const cachedUser = localStorage.getItem('cached_user')
     if (token) {
@@ -75,6 +82,10 @@ export default class Navibar extends React.Component<{}, NavibarState> {
     else {
       localStorage.removeItem('cached_user')
     }
+  }
+
+  componentWillUnmount() {
+    this.mounted = false
   }
 
   render() {

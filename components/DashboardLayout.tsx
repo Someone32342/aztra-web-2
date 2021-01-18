@@ -35,6 +35,7 @@ export default class DashboardLayout extends Component<DashboardLayoutProps, Das
   }
 
   sidebarHeaderRef: React.RefObject<HTMLDivElement> = createRef()
+  mounted: boolean = false
 
   getGuild = async (token: string) => {
     await axios.get(urljoin(api, '/discord/users/@me/guilds'), {
@@ -49,19 +50,20 @@ export default class DashboardLayout extends Component<DashboardLayoutProps, Das
           })
           .find((one: PartialGuild) => one.id === this.props.guildId)
 
-        this.setState({ guild: guild, guildCache: guild })
+        if (this.mounted) this.setState({ guild: guild, guildCache: guild })
         localStorage.setItem('guildCache', JSON.stringify(guild))
       })
       .catch(e => {
-        this.setState({ guild: null })
+        if (this.mounted) this.setState({ guild: null })
         console.log(e)
       })
       .finally(() => {
-        this.setState({ fetchDone: true })
+        if (this.mounted) this.setState({ fetchDone: true })
       })
   }
 
   componentDidMount() {
+    this.mounted = true
     this.updateWindowState()
     window.addEventListener('resize', this.updateWindowState)
 
@@ -75,6 +77,7 @@ export default class DashboardLayout extends Component<DashboardLayoutProps, Das
   }
 
   componentWillUnmount() {
+    this.mounted = false
     window.removeEventListener('resize', this.updateWindowState)
   }
 

@@ -61,7 +61,7 @@ export default class Logging extends Component<LoggingRouterProps, LoggingState>
                             </div>
                           }
                           checked={this.state.useLogging}
-                          onClick={() => this.setState({ useLogging: !this.state.useLogging })}
+                          onChange={() => this.setState({ useLogging: !this.state.useLogging })}
                           aria-controls="useLogging"
                           aria-expanded={!!this.state.useLogging}
                         />
