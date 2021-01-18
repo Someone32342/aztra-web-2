@@ -1,26 +1,18 @@
-import React from 'react'
-import axios from 'axios'
+import React, { useEffect, useState } from 'react'
+import axios, { AxiosError } from 'axios'
 import { Button, Col, Container, Form, Row, Spinner } from 'react-bootstrap'
 import api from 'datas/api'
 
 import { ServerData } from 'types/dbtypes/serverdata'
-import { GetServerSideProps } from 'next'
-import withRouter, { WithRouterProps } from 'next/dist/client/with-router'
+import { GetServerSideProps, NextPage } from 'next'
 import Cookies from 'universal-cookie'
 import Layout from 'components/Layout'
 import DashboardLayout from 'components/DashboardLayout'
+import useSWR from 'swr'
+import urljoin from 'url-join'
 
 interface LevelingRouterProps {
   guildId: string
-}
-
-interface LevelingState {
-  data: ServerData | null
-  useLevelupMessage: boolean
-  fetchDone: boolean
-  validation_channel: boolean | null
-  saving: boolean
-  saveError: boolean
 }
 
 export const getServerSideProps: GetServerSideProps<LevelingRouterProps> = async context => {
@@ -32,166 +24,138 @@ export const getServerSideProps: GetServerSideProps<LevelingRouterProps> = async
   }
 }
 
-class Leveling extends React.Component<LevelingRouterProps & WithRouterProps, LevelingState> {
-  state: LevelingState = {
-    data: null,
-    useLevelupMessage: false,
-    fetchDone: false,
-    validation_channel: null,
-    saving: false,
-    saveError: false
-  }
+const Leveling: NextPage<LevelingRouterProps> = ({ guildId }) => {
+  const [useLevelupMessage, setUseLevelupMessage] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState(false)
 
-  getData = async (token: string) => {
-    try {
-      let res = await axios.get(`${api}/servers/${this.props.guildId}/serverdata`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      })
-      let data: ServerData = res.data
+  const { data, mutate } = useSWR<ServerData, AxiosError>(
+    new Cookies().get('ACCESS_TOKEN') ? urljoin(api, `/servers/${guildId}/serverdata`) : null,
+    url => axios.get(url, {
+      headers: {
+        Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
+      }
+    })
+      .then(r => r.data),
+    {
+      onSuccess: data => setUseLevelupMessage(data.sendLevelMessage),
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false
+    }
+  )
 
-      this.setState({ data, useLevelupMessage: data.sendLevelMessage })
-    }
-    catch (e) {
-      this.setState({ data: null })
-    }
-    finally {
-      this.setState({ fetchDone: true })
-    }
-  }
-
-  save = async () => {
-    this.setState({ saving: true })
-    let data: ServerData = {
-      sendLevelMessage: this.state.useLevelupMessage,
-      noticeChannel: this.state.data?.noticeChannel!
+  const save = async () => {
+    setSaving(true)
+    let saveData: ServerData = {
+      sendLevelMessage: useLevelupMessage,
+      noticeChannel: data?.noticeChannel!
     }
 
     try {
-      await axios.post(`${api}/servers/${this.props.guildId}/serverdata`, data, {
+      await axios.post(`${api}/servers/${guildId}/serverdata`, saveData, {
         headers: {
           Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
         },
       })
-      this.setState({ data })
+      mutate(saveData)
     }
     catch (e) {
-      this.setState({ saveError: true })
+      setSaveError(true)
     }
     finally {
-      this.setState({ saving: false })
+      setSaving(false)
     }
   }
 
-  checkValidate = () => {
-    let s = this.state
+  const handleSubmit = (e: React.MouseEvent<HTMLElement>) => save()
 
-    return (
-      s.validation_channel === null
-    )
-  }
-
-  handleSubmit = (e: React.MouseEvent<HTMLElement>) => {
-    if (this.checkValidate()) {
-      this.save()
-    }
-  }
-
-  componentDidMount() {
-    const token = new Cookies().get('ACCESS_TOKEN')
-    if (token) {
-      this.getData(token)
-    }
-    else {
+  useEffect(() => {
+    if (!new Cookies().get('ACCESS_TOKEN')) {
       const lct = window.location
       localStorage.setItem('loginFrom', lct.pathname + lct.search)
-      this.props.router.push('/login')
+      window.location.assign('/login')
     }
-  }
+  }, [])
 
-  isChanged = () => {
-    if (!this.state.fetchDone) {
+  const isChanged = () => {
+    if (!data) {
       return false
     }
 
-    let data = this.state.data!
     return (
-      data.sendLevelMessage !== this.state.useLevelupMessage
+      data.sendLevelMessage !== useLevelupMessage
     )
   }
 
-  render() {
-    return (
-      <Layout>
-        <DashboardLayout guildId={this.props.guildId}>
-          {
-            () => this.state.fetchDone ? (
-              <div>
-                <Row className="dashboard-section">
-                  <div>
-                    <h3>레벨링 설정</h3>
-                    <div className="py-2">
-                      멤버가 메시지를 보낼 때 마다 경험치를 얻고, 레벨을 올릴 수 있습니다.
+  return (
+    <Layout>
+      <DashboardLayout guildId={guildId}>
+        {
+          () => data ? (
+            <div>
+              <Row className="dashboard-section">
+                <div>
+                  <h3>레벨링 설정</h3>
+                  <div className="py-2">
+                    멤버가 메시지를 보낼 때 마다 경험치를 얻고, 레벨을 올릴 수 있습니다.
                     </div>
-                  </div>
-                </Row>
-                <Row>
-                  <Col>
-                    <Form noValidate>
-                      <Row className="pb-2">
-                        <h4>레벨 메시지 설정</h4>
-                      </Row>
+                </div>
+              </Row>
+              <Row>
+                <Col>
+                  <Form noValidate>
+                    <Row className="pb-2">
+                      <h4>레벨 메시지 설정</h4>
+                    </Row>
 
-                      <Form.Group controlId="levelingSetting">
-                        <Form.Check
-                          type="switch"
-                          label={
-                            <div className="pl-2">
-                              멤버의 레벨이 올랐을 때 메시지 보내기
+                    <Form.Group controlId="levelingSetting">
+                      <Form.Check
+                        type="switch"
+                        label={
+                          <div className="pl-2">
+                            멤버의 레벨이 올랐을 때 메시지 보내기
                             </div>
-                          }
-                          checked={this.state.useLevelupMessage}
-                          onClick={() => this.setState({ useLevelupMessage: !this.state.useLevelupMessage })}
-                          aria-controls="incomingForm"
-                          aria-expanded={!!this.state.useLevelupMessage}
-                        />
-                      </Form.Group>
+                        }
+                        checked={useLevelupMessage}
+                        onChange={() => setUseLevelupMessage(!useLevelupMessage)}
+                        aria-controls="incomingForm"
+                        aria-expanded={!!useLevelupMessage}
+                      />
+                    </Form.Group>
 
-                      <Row className="mt-4">
-                        <Button
-                          variant={this.state.saveError ? "danger" : "aztra"}
-                          disabled={this.state.saving || this.state.saveError || !this.isChanged()}
-                          onClick={this.handleSubmit}
-                          style={{
-                            minWidth: 140
-                          }}
-                        >
-                          {
-                            this.state.saving
-                              ? <>
-                                <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
-                                <span className="pl-2">저장 중...</span>
-                              </>
-                              : <span>{this.state.saveError ? "오류" : this.isChanged() ? "저장하기" : "저장됨"}</span>
-                          }
-                        </Button>
-                      </Row>
-                    </Form>
-                  </Col>
-                </Row>
-              </div>
-            ) : <Container className="d-flex align-items-center justify-content-center flex-column" style={{
-              height: '500px'
-            }}>
-                <h3 className="pb-4">불러오는 중</h3>
-                <Spinner animation="border" variant="aztra" />
-              </Container>
-          }
-        </DashboardLayout>
-      </Layout>
-    )
-  }
+                    <Row className="mt-4">
+                      <Button
+                        variant={saveError ? "danger" : "aztra"}
+                        disabled={saving || saveError || !isChanged()}
+                        onClick={handleSubmit}
+                        style={{
+                          minWidth: 140
+                        }}
+                      >
+                        {
+                          saving
+                            ? <>
+                              <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
+                              <span className="pl-2">저장 중...</span>
+                            </>
+                            : <span>{saveError ? "오류" : isChanged() ? "저장하기" : "저장됨"}</span>
+                        }
+                      </Button>
+                    </Row>
+                  </Form>
+                </Col>
+              </Row>
+            </div>
+          ) : <Container className="d-flex align-items-center justify-content-center flex-column" style={{
+            height: '500px'
+          }}>
+              <h3 className="pb-4">불러오는 중</h3>
+              <Spinner animation="border" variant="aztra" />
+            </Container>
+        }
+      </DashboardLayout>
+    </Layout>
+  )
 }
 
-export default withRouter(Leveling)
+export default Leveling

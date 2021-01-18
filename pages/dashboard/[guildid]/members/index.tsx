@@ -1,27 +1,21 @@
-import React, { createRef } from 'react';
-import axios from 'axios'
+import React, { useEffect, useRef, useState } from 'react';
+import axios, { AxiosError } from 'axios'
 import api from 'datas/api'
 import { MemberMinimal } from 'types/DiscordTypes';
 import { Row, Col, Form, Container, Spinner } from 'react-bootstrap';
 import MemberListCard from 'components/forms/MemberListCard';
-import withRouter, { WithRouterProps } from 'next/dist/client/with-router';
 import Cookies from 'universal-cookie';
-import { GetServerSideProps } from 'next';
+import { GetServerSideProps, NextPage } from 'next';
 import Layout from 'components/Layout';
 import DashboardLayout from 'components/DashboardLayout';
+import useSWR from 'swr';
+import urljoin from 'url-join';
 
 interface MembersRouterProps {
   guildId: string
 }
 
 type MemberSearchType = 'nick-and-tag' | 'id'
-
-interface MembersState {
-  members: MemberMinimal[] | null
-  memberSearch: string
-  memberSearchType: MemberSearchType
-  fetchDone: boolean
-}
 
 export const getServerSideProps: GetServerSideProps<MembersRouterProps> = async context => {
   const { guildid } = context.query
@@ -32,50 +26,37 @@ export const getServerSideProps: GetServerSideProps<MembersRouterProps> = async 
   }
 }
 
-class Members extends React.Component<MembersRouterProps & WithRouterProps, MembersState> {
-  state: MembersState = {
-    members: null,
-    memberSearch: '',
-    memberSearchType: 'nick-and-tag',
-    fetchDone: false
-  }
+const Members: NextPage<MembersRouterProps> = ({ guildId }) => {
+  const [memberSearch, setMemberSearch] = useState('')
+  const [memberSearchType, setMemberSearchType] = useState<MemberSearchType>('nick-and-tag')
 
-  componentDidMount() {
-    const token = new Cookies().get('ACCESS_TOKEN')
-    if (token) {
-      this.getMembers(token)
-    }
-    else {
+  const searchRef = useRef<HTMLInputElement>(null)
+
+  const { data: members } = useSWR<MemberMinimal[], AxiosError>(
+    new Cookies().get('ACCESS_TOKEN') ? urljoin(api, `/discord/guilds/${guildId}/members`) : null,
+    url => axios.get(url, {
+      headers: {
+        Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
+      }
+    })
+      .then(r => r.data)
+  )
+
+  useEffect(() => {
+    if (!new Cookies().get('ACCESS_TOKEN')) {
       const lct = window.location
       localStorage.setItem('loginFrom', lct.pathname + lct.search)
-      this.props.router.push('/login')
+      window.location.assign('/login')
     }
-  }
+  }, [])
 
-  getMembers = async (token: string) => {
-    try {
-      let res = await axios.get(`${api}/discord/guilds/${this.props.guildId}/members`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      })
-      this.setState({ members: res.data })
-    }
-    catch (e) {
-      this.setState({ members: null })
-    }
-    finally {
-      this.setState({ fetchDone: true })
-    }
-  }
-
-  filterMembers = (search?: string) => {
-    var x = this.state.members
+  const filterMembers = (search?: string) => {
+    var x = members
       ?.filter(one => {
         if (!search) return true
         let searchLowercase = search.normalize().toLowerCase()
 
-        switch (this.state.memberSearchType) {
+        switch (memberSearchType) {
           case 'nick-and-tag':
             return one.user.tag?.normalize().toLowerCase().includes(searchLowercase) || one.nickname?.normalize().toLowerCase().includes(searchLowercase)
           case 'id':
@@ -94,117 +75,111 @@ class Members extends React.Component<MembersRouterProps & WithRouterProps, Memb
     return x
   }
 
-  handleSearchOnChange = async (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    await this.setState({ memberSearch: e.target.value })
-  }
-
-  handleMemberSearchTypeOnChange = (searchType: MemberSearchType) => {
-    this.setState({ memberSearchType: searchType })
-    if (this.searchRef.current) {
-      this.searchRef.current.value = ''
-      this.setState({ memberSearch: '' })
+  const handleMemberSearchTypeOnChange = (searchType: MemberSearchType) => {
+    setMemberSearchType(searchType)
+    if (searchRef.current) {
+      searchRef.current.value = ''
+      setMemberSearch('')
     }
   }
 
-  searchRef = createRef<HTMLInputElement>()
+  const filteredMembers = (
+    (filterMembers(memberSearch) || members)?.map(one => <MemberListCard key={one.user.id} member={one} guildId={guildId as string} />)
+  )
 
-  render() {
-    const members = (
-      (this.filterMembers(this.state.memberSearch) || this.state.members)?.map(one => <MemberListCard key={one.user.id} member={one} guildId={this.props.guildId as string} />)
-    )
-
-    return (
-      <Layout>
-        <DashboardLayout guildId={this.props.guildId}>
-          {
-            () => (
-              <div style={{
-                fontFamily: 'NanumBarunGothic'
-              }}>
-                <Row className="dashboard-section">
-                  <h3>멤버 목록</h3>
-                </Row>
-                <Row>
-                  <Col>
-                    {
-                      this.state.fetchDone
-                        ? <Form>
-                          <Form.Group>
-                            <Row className="pb-2 justify-content-between">
-                              <Col
-                                className="d-flex align-items-end mt-4 mt-xl-0 px-0"
-                                xs={{
-                                  span: 0,
-                                  order: "last"
-                                }}
-                                xl={{
-                                  order: "first"
-                                }}
-                                style={{
-                                  fontSize: '12pt'
-                                }}>
-                                멤버 전체 {this.state.members?.length} 명{this.state.memberSearch && `, ${members.length}명 검색됨`}
-                              </Col>
-                              <Col
-                                className="px-0"
-                                xs={{
-                                  span: "auto",
-                                  order: "first"
-                                }}
-                                xl={{
-                                  span: "auto",
-                                  order: "last"
-                                }}>
-                                <div className="d-flex">
-                                  <span>검색 조건:</span>
-                                  <div className="d-lg-flex">
-                                    <Form.Check
-                                      className="ml-4"
-                                      type="radio"
-                                      label="이름 및 닉네임"
-                                      checked={this.state.memberSearchType === 'nick-and-tag'}
-                                      style={{ wordBreak: 'keep-all' }}
-                                      onChange={() => this.handleMemberSearchTypeOnChange('nick-and-tag')}
-                                    />
-                                    <Form.Check
-                                      className="ml-4"
-                                      type="radio"
-                                      label="사용자 ID"
-                                      checked={this.state.memberSearchType === 'id'}
-                                      style={{ wordBreak: 'keep-all' }}
-                                      onChange={() => this.handleMemberSearchTypeOnChange('id')}
-                                    />
-                                  </div>
+  return (
+    <Layout>
+      <DashboardLayout guildId={guildId}>
+        {
+          () => (
+            <div style={{
+              fontFamily: 'NanumBarunGothic'
+            }}>
+              <Row className="dashboard-section">
+                <h3>멤버 목록</h3>
+              </Row>
+              <Row>
+                <Col>
+                  {
+                    members
+                      ? <Form>
+                        <Form.Group>
+                          <Row className="pb-2 justify-content-between">
+                            <Col
+                              className="d-flex align-items-end mt-4 mt-xl-0 px-0"
+                              xs={{
+                                span: 0,
+                                order: "last"
+                              }}
+                              xl={{
+                                order: "first"
+                              }}
+                              style={{
+                                fontSize: '12pt'
+                              }}>
+                              멤버 전체 {members?.length} 명{memberSearch && `, ${members.length}명 검색됨`}
+                            </Col>
+                            <Col
+                              className="px-0"
+                              xs={{
+                                span: "auto",
+                                order: "first"
+                              }}
+                              xl={{
+                                span: "auto",
+                                order: "last"
+                              }}>
+                              <div className="d-flex">
+                                <span>검색 조건:</span>
+                                <div className="d-lg-flex">
+                                  <Form.Check
+                                    className="ml-4"
+                                    type="radio"
+                                    label="이름 및 닉네임"
+                                    checked={memberSearchType === 'nick-and-tag'}
+                                    style={{ wordBreak: 'keep-all' }}
+                                    onChange={() => handleMemberSearchTypeOnChange('nick-and-tag')}
+                                  />
+                                  <Form.Check
+                                    className="ml-4"
+                                    type="radio"
+                                    label="사용자 ID"
+                                    checked={memberSearchType === 'id'}
+                                    style={{ wordBreak: 'keep-all' }}
+                                    onChange={() => handleMemberSearchTypeOnChange('id')}
+                                  />
                                 </div>
-                              </Col>
-                            </Row>
+                              </div>
+                            </Col>
+                          </Row>
 
-                            <Row className="mb-2">
-                              <input hidden={true} />
-                              <Form.Control ref={this.searchRef} type="text" placeholder="멤버 검색" onChange={this.handleSearchOnChange} />
-                            </Row>
+                          <Row className="mb-2">
+                            <input hidden={true} />
+                            <Form.Control ref={searchRef} type="text" placeholder="멤버 검색" onChange={e => {
+                              setMemberSearch(e.target.value)
+                            }} />
+                          </Row>
 
-                            <Row className="flex-column">
-                              {members}
-                            </Row>
-                          </Form.Group>
-                        </Form>
-                        : <Container className="d-flex align-items-center justify-content-center flex-column" style={{
-                          height: '500px'
-                        }}>
-                          <h3 className="pb-4 text-center">멤버 목록을 가져오고 있습니다...</h3>
-                          <Spinner animation="border" variant="aztra" />
-                        </Container>
-                    }
-                  </Col>
-                </Row>
-              </div>
-            )
-          }
-        </DashboardLayout>
-      </Layout>
-    )
-  }
+                          <Row className="flex-column">
+                            {filteredMembers}
+                          </Row>
+                        </Form.Group>
+                      </Form>
+                      : <Container className="d-flex align-items-center justify-content-center flex-column" style={{
+                        height: '500px'
+                      }}>
+                        <h3 className="pb-4 text-center">멤버 목록을 가져오고 있습니다...</h3>
+                        <Spinner animation="border" variant="aztra" />
+                      </Container>
+                  }
+                </Col>
+              </Row>
+            </div>
+          )
+        }
+      </DashboardLayout>
+    </Layout>
+  )
 }
 
-export default withRouter(Members)
+export default Members

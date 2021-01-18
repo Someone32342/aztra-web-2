@@ -1,6 +1,6 @@
-import React, { createRef, PureComponent, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import api from 'datas/api'
 import { Warns as WarnsType } from 'types/dbtypes/warns';
 import MobileAlert from 'components/MobileAlert'
@@ -8,11 +8,12 @@ import { Row, Col, Form, Container, Spinner, Button, Table, ButtonGroup, Overlay
 import { MemberMinimal } from 'types/DiscordTypes';
 import { RemoveCircleOutline, FileCopy as FileCopyIcon, OpenInNew as OpenInNewIcon } from '@material-ui/icons'
 import BackTo from 'components/BackTo';
-import withRouter, { WithRouterProps } from 'next/dist/client/with-router';
-import { GetServerSideProps } from 'next';
+import { GetServerSideProps, NextPage } from 'next';
 import Cookies from 'universal-cookie';
 import Layout from 'components/Layout';
 import DashboardLayout from 'components/DashboardLayout';
+import useSWR from 'swr';
+import urljoin from 'url-join';
 
 export interface WarnsListRouteProps {
   guildId: string
@@ -21,18 +22,6 @@ export interface WarnsListRouteProps {
 type WarnSearchType = 'reason' | 'target' | 'warnby'
 
 type WarnSortType = 'latest' | 'oldest' | 'count' | 'count_least'
-
-export interface WarnsListState {
-  members: MemberMinimal[] | null
-  membersFetchDone: boolean
-
-  warns: WarnsType[] | null
-  warnSearch: string
-  warnsFetchDone: boolean
-
-  searchType: WarnSearchType
-  sortType: WarnSortType
-}
 
 interface MemberCellProps {
   member: MemberMinimal
@@ -295,94 +284,72 @@ export const getServerSideProps: GetServerSideProps<WarnsListRouteProps> = async
   }
 }
 
-class WarnsList extends PureComponent<WarnsListRouteProps & WithRouterProps, WarnsListState> {
-  state: WarnsListState = {
-    members: null,
-    warnSearch: '',
-    membersFetchDone: false,
-    warns: null,
-    warnsFetchDone: false,
-    searchType: 'reason',
-    sortType: 'latest'
-  }
+const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
+  const [warnSearch, setWarnSearch] = useState('')
+  const [searchType, setSearchType] = useState<WarnSearchType>('reason')
+  const [sortType, setSortType] = useState<WarnSortType>('latest')
 
-  parseQs = () => {
+  const searchRef = useRef<HTMLInputElement>(null)
+
+  const parseQs = () => {
     const params = new URLSearchParams(window.location.search)
     let searchtype = params.get('type')
-    this.setState({
-      warnSearch: params.get('search') || '',
-      searchType: ['reason', 'target', 'warnby'].includes(searchtype || '') ? searchtype as WarnSearchType : 'reason'
-    })
+    setWarnSearch(params.get('search') || '')
+    setSearchType(['reason', 'target', 'warnby'].includes(searchtype || '') ? searchtype as WarnSearchType : 'reason')
   }
 
-  componentDidMount() {
-    const token = new Cookies().get('ACCESS_TOKEN')
-    if (token) {
-      this.getMembers(token)
-      this.getWarns(token)
-    }
-    else {
+  const { data: warns, mutate: warnsMutate } = useSWR<WarnsType[], AxiosError>(
+    new Cookies().get('ACCESS_TOKEN') ? urljoin(api, `/servers/${guildId}/warns`) : null,
+    url => axios.get(url, {
+      headers: {
+        Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
+      }
+    })
+      .then(r => r.data)
+  )
+
+  const { data: members, mutate: membersMutate } = useSWR<MemberMinimal[], AxiosError>(
+    new Cookies().get('ACCESS_TOKEN') ? urljoin(api, `/discord/guilds/${guildId}/members`) : null,
+    url => axios.get(url, {
+      headers: {
+        Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
+      }
+    })
+      .then(r => r.data)
+  )
+
+  useEffect(() => {
+    if (!new Cookies().get('ACCESS_TOKEN')) {
       const lct = window.location
       localStorage.setItem('loginFrom', lct.pathname + lct.search)
-      this.props.router.push('/login')
+      window.location.assign('/login')
     }
-  }
+    else {
+      parseQs()
+    }
+  }, [])
 
-  getWarns = async (token: string) => {
-    try {
-      let res = await axios.get(`${api}/servers/${this.props.guildId}/warns`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      })
-      this.setState({ warns: res.data })
-    }
-    catch (e) {
-      this.setState({ warns: null })
-    }
-    finally {
-      this.setState({ warnsFetchDone: true })
-    }
-  }
-
-  getMembers = async (token: string) => {
-    try {
-      let res = await axios.get(`${api}/discord/guilds/${this.props.guildId}/members`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      })
-      this.setState({ members: res.data })
-    }
-    catch (e) {
-      this.setState({ members: null })
-    }
-    finally {
-      this.setState({ membersFetchDone: true })
-    }
-  }
-
-  filterSortWarns = (search?: string) => (
-    this.state.warns
+  const filterSortWarns = (search?: string) => (
+    warns
       ?.filter(one => {
         if (!search) return true
         let searchLowercase = search.normalize().toLowerCase()
 
-        switch (this.state.searchType) {
+        switch (searchType) {
           case 'reason':
             return one.reason.normalize().toLowerCase().includes(searchLowercase)
           case 'target':
-            let target = this.state.members?.find(m => m.user.id === one.member)
+            let target = members?.find(m => m.user.id === one.member)
             return target?.user.tag?.normalize().toLowerCase().includes(searchLowercase) || target?.nickname?.normalize().toLowerCase().includes(searchLowercase)
           case 'warnby':
-            let warnby = this.state.members?.find(m => m.user.id === one.warnby)
+            let warnby = members?.find(m => m.user.id === one.warnby)
             return warnby?.user.tag?.normalize().toLowerCase().includes(searchLowercase) || warnby?.nickname?.normalize().toLowerCase().includes(searchLowercase)
           default:
             return false
         }
       })
       .sort((a, b) => {
-        switch (this.state.sortType) {
+        switch (sortType) {
           case 'latest':
             return new Date(b.dt).getTime() - new Date(a.dt).getTime()
           case 'oldest':
@@ -397,148 +364,142 @@ class WarnsList extends PureComponent<WarnsListRouteProps & WithRouterProps, War
       })!
   )
 
-  handleSearchOnChange = async (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    await this.setState({ warnSearch: e.target.value })
-  }
-
-  handleSearchTypeOnChange = (searchType: WarnSearchType) => {
-    this.setState({ searchType: searchType })
-    if (this.searchRef.current) {
-      this.searchRef.current.value = ''
-      this.setState({ warnSearch: '' })
+  const handleSearchTypeOnChange = (searchType: WarnSearchType) => {
+    setSearchType(searchType)
+    if (searchRef.current) {
+      searchRef.current.value = ''
+      setWarnSearch('')
     }
   }
 
-  handleSortTypeOnChange = (sortType: WarnSortType) => {
-    this.setState({ sortType: sortType })
+  const handleSortTypeOnChange = (sortType: WarnSortType) => {
+    setSortType(sortType)
   }
 
-  searchRef = createRef<HTMLInputElement>()
+  const filteredWarns = (
+    (filterSortWarns(warnSearch) || warns)?.map(one => {
+      const target = members?.find(m => m.user.id === one.member)
+      const warnby = members?.find(m => m.user.id === one.warnby)
+      return <WarnsListCard key={one.uuid} target={target!} warnby={warnby!} warn={one} guildId={guildId} onDelete={() => warnsMutate()} />
+    })
+  )
 
-  render() {
-    const warns = (
-      (this.filterSortWarns(this.state.warnSearch) || this.state.warns)?.map(one => {
-        const target = this.state.members?.find(m => m.user.id === one.member)
-        const warnby = this.state.members?.find(m => m.user.id === one.warnby)
-        return <WarnsListCard target={target!} warnby={warnby!} warn={one} guildId={this.props.guildId!} onDelete={() => this.componentDidMount()} />
-      })
-    )
-
-    return (
-      <Layout>
-        <DashboardLayout guildId={this.props.guildId}>
-          {
-            () => (
-              <div style={{
-                fontFamily: 'NanumBarunGothic'
-              }}>
-                <Row className="dashboard-section">
-                  <div>
-                    <BackTo className="pl-2 mb-4" name="경고 관리" to={`/dashboard/${this.props.guildId}/warns`} />
-                    <h3>전체 경고 목록</h3>
-                  </div>
-                </Row>
-                <Row className="d-md-none">
-                  <MobileAlert />
-                </Row>
-                <Row>
-                  <Col>
-                    {
-                      this.state.membersFetchDone && this.state.warnsFetchDone
-                        ? <Form>
-                          <Form.Group>
-                            <Row className="pb-2 justify-content-between">
-                              <Col
-                                className="d-flex align-items-end mt-4 mt-xl-0 px-0"
-                                xs={{
-                                  span: 0,
-                                  order: "last"
-                                }}
-                                xl={{
-                                  order: "first"
-                                }}
-                                style={{
-                                  fontSize: '12pt'
-                                }}>
-                                전체 경고 {this.state.warns?.length} 건{this.state.warnSearch && `, ${warns.length}건 검색됨`}
-                              </Col>
-                              <Col
-                                className="px-0"
-                                xs={{
-                                  span: "auto",
-                                  order: "first"
-                                }}
-                                xl={{
-                                  span: "auto",
-                                  order: "last"
-                                }}>
-                                <div className="d-flex">
-                                  <span>검색 조건:</span>
-                                  <div className="d-lg-flex">
-                                    <Form.Check className="ml-4" type="radio" label="경고 사유" checked={this.state.searchType === 'reason'} style={{ wordBreak: 'keep-all' }} onChange={() => this.handleSearchTypeOnChange('reason')} />
-                                    <Form.Check className="ml-4" type="radio" label="대상 멤버" checked={this.state.searchType === 'target'} style={{ wordBreak: 'keep-all' }} onChange={() => this.handleSearchTypeOnChange('target')} />
-                                    <Form.Check className="ml-4" type="radio" label="경고 부여자" checked={this.state.searchType === 'warnby'} style={{ wordBreak: 'keep-all' }} onChange={() => this.handleSearchTypeOnChange('warnby')} />
-                                  </div>
+  return (
+    <Layout>
+      <DashboardLayout guildId={guildId}>
+        {
+          () => (
+            <div style={{
+              fontFamily: 'NanumBarunGothic'
+            }}>
+              <Row className="dashboard-section">
+                <div>
+                  <BackTo className="pl-2 mb-4" name="경고 관리" to={`/dashboard/${guildId}/warns`} />
+                  <h3>전체 경고 목록</h3>
+                </div>
+              </Row>
+              <Row className="d-md-none">
+                <MobileAlert />
+              </Row>
+              <Row>
+                <Col>
+                  {
+                    members && warns
+                      ? <Form>
+                        <Form.Group>
+                          <Row className="pb-2 justify-content-between">
+                            <Col
+                              className="d-flex align-items-end mt-4 mt-xl-0 px-0"
+                              xs={{
+                                span: 0,
+                                order: "last"
+                              }}
+                              xl={{
+                                order: "first"
+                              }}
+                              style={{
+                                fontSize: '12pt'
+                              }}>
+                              전체 경고 {warns?.length} 건{warnSearch && `, ${warns.length}건 검색됨`}
+                            </Col>
+                            <Col
+                              className="px-0"
+                              xs={{
+                                span: "auto",
+                                order: "first"
+                              }}
+                              xl={{
+                                span: "auto",
+                                order: "last"
+                              }}>
+                              <div className="d-flex">
+                                <span>검색 조건:</span>
+                                <div className="d-lg-flex">
+                                  <Form.Check className="ml-4" type="radio" label="경고 사유" checked={searchType === 'reason'} style={{ wordBreak: 'keep-all' }} onChange={() => handleSearchTypeOnChange('reason')} />
+                                  <Form.Check className="ml-4" type="radio" label="대상 멤버" checked={searchType === 'target'} style={{ wordBreak: 'keep-all' }} onChange={() => handleSearchTypeOnChange('target')} />
+                                  <Form.Check className="ml-4" type="radio" label="경고 부여자" checked={searchType === 'warnby'} style={{ wordBreak: 'keep-all' }} onChange={() => handleSearchTypeOnChange('warnby')} />
                                 </div>
-                                <div className="d-flex mt-4 mt-lg-0">
-                                  <span>정렬 조건:</span>
-                                  <div className="d-lg-flex">
-                                    <Form.Check className="ml-4" type="radio" label="최신순" checked={this.state.sortType === 'latest'} style={{ wordBreak: 'keep-all' }} onChange={() => this.handleSortTypeOnChange('latest')} />
-                                    <Form.Check className="ml-4" type="radio" label="과거순" checked={this.state.sortType === 'oldest'} style={{ wordBreak: 'keep-all' }} onChange={() => this.handleSortTypeOnChange('oldest')} />
-                                    <Form.Check className="ml-4" type="radio" label="경고수 많은순" checked={this.state.sortType === 'count'} style={{ wordBreak: 'keep-all' }} onChange={() => this.handleSortTypeOnChange('count')} />
-                                    <Form.Check className="ml-4" type="radio" label="경고수 적은순" checked={this.state.sortType === 'count_least'} style={{ wordBreak: 'keep-all' }} onChange={() => this.handleSortTypeOnChange('count_least')} />
-                                  </div>
+                              </div>
+                              <div className="d-flex mt-4 mt-lg-0">
+                                <span>정렬 조건:</span>
+                                <div className="d-lg-flex">
+                                  <Form.Check className="ml-4" type="radio" label="최신순" checked={sortType === 'latest'} style={{ wordBreak: 'keep-all' }} onChange={() => handleSortTypeOnChange('latest')} />
+                                  <Form.Check className="ml-4" type="radio" label="과거순" checked={sortType === 'oldest'} style={{ wordBreak: 'keep-all' }} onChange={() => handleSortTypeOnChange('oldest')} />
+                                  <Form.Check className="ml-4" type="radio" label="경고수 많은순" checked={sortType === 'count'} style={{ wordBreak: 'keep-all' }} onChange={() => handleSortTypeOnChange('count')} />
+                                  <Form.Check className="ml-4" type="radio" label="경고수 적은순" checked={sortType === 'count_least'} style={{ wordBreak: 'keep-all' }} onChange={() => handleSortTypeOnChange('count_least')} />
                                 </div>
-                              </Col>
-                            </Row>
+                              </div>
+                            </Col>
+                          </Row>
 
-                            <Row className="mb-2">
-                              <input hidden={true} />
-                              <Form.Control ref={this.searchRef} type="text" placeholder="경고 검색" defaultValue={this.state.warnSearch} onChange={this.handleSearchOnChange} />
-                            </Row>
+                          <Row className="mb-2">
+                            <input hidden={true} />
+                            <Form.Control ref={searchRef} type="text" placeholder="경고 검색" defaultValue={warnSearch} onChange={e => {
+                              setWarnSearch(e.target.value)
+                            }} />
+                          </Row>
 
-                            <Row className="flex-column">
-                              <Table id="warn-list-table" variant="dark" style={{
-                                tableLayout: 'fixed'
-                              }} >
-                                <thead>
-                                  <tr>
-                                    <th className="align-middle text-center" style={{ width: 50 }}>
-                                      <Form.Check style={{
-                                        transform: 'scale(1.25)',
-                                        WebkitTransform: 'scale(1.25)'
-                                      }} />
-                                    </th>
-                                    <th className="text-center text-md-left" style={{ width: '17%' }}>대상 멤버</th>
-                                    <th className="text-center text-md-left d-none d-md-table-cell">경고 사유</th>
-                                    <th className="text-center text-md-left" style={{ width: '10%' }}>경고 횟수</th>
-                                    <th className="text-center text-md-left" style={{ width: '17%' }}>경고 부여자</th>
-                                    <th style={{ width: 100 }} />
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {warns}
-                                </tbody>
-                              </Table>
-                            </Row>
-                          </Form.Group>
-                        </Form>
-                        : <Container className="d-flex align-items-center justify-content-center flex-column" style={{
-                          height: '500px'
-                        }}>
-                          <h3 className="pb-4 text-center">경고 목록을 가져오고 있습니다...</h3>
-                          <Spinner animation="border" variant="aztra" />
-                        </Container>
-                    }
-                  </Col>
-                </Row>
-              </div>
-            )
-          }
-        </DashboardLayout>
-      </Layout>
-    )
-  }
+                          <Row className="flex-column">
+                            <Table id="warn-list-table" variant="dark" style={{
+                              tableLayout: 'fixed'
+                            }} >
+                              <thead>
+                                <tr>
+                                  <th className="align-middle text-center" style={{ width: 50 }}>
+                                    <Form.Check style={{
+                                      transform: 'scale(1.25)',
+                                      WebkitTransform: 'scale(1.25)'
+                                    }} />
+                                  </th>
+                                  <th className="text-center text-md-left" style={{ width: '17%' }}>대상 멤버</th>
+                                  <th className="text-center text-md-left d-none d-md-table-cell">경고 사유</th>
+                                  <th className="text-center text-md-left" style={{ width: '10%' }}>경고 횟수</th>
+                                  <th className="text-center text-md-left" style={{ width: '17%' }}>경고 부여자</th>
+                                  <th style={{ width: 100 }} />
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {filteredWarns}
+                              </tbody>
+                            </Table>
+                          </Row>
+                        </Form.Group>
+                      </Form>
+                      : <Container className="d-flex align-items-center justify-content-center flex-column" style={{
+                        height: '500px'
+                      }}>
+                        <h3 className="pb-4 text-center">경고 목록을 가져오고 있습니다...</h3>
+                        <Spinner animation="border" variant="aztra" />
+                      </Container>
+                  }
+                </Col>
+              </Row>
+            </div>
+          )
+        }
+      </DashboardLayout>
+    </Layout>
+  )
 }
 
-export default withRouter(WarnsList)
+export default WarnsList
