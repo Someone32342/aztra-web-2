@@ -38,6 +38,7 @@ const Leveling: NextPage<LevelingRouterProps> = ({ guildId }) => {
     })
       .then(r => r.data),
     {
+      onSuccess: data => setUseLevelupMessage(data.sendLevelMessage),
       revalidateOnFocus: false,
       revalidateOnReconnect: false
     }
@@ -75,6 +76,7 @@ const Leveling: NextPage<LevelingRouterProps> = ({ guildId }) => {
       window.location.assign('/login')
     }
     if (data) {
+      console.log(data)
       setUseLevelupMessage(data.sendLevelMessage)
     }
   }, [])
@@ -89,7 +91,6 @@ const Leveling: NextPage<LevelingRouterProps> = ({ guildId }) => {
     )
   }
 
-  console.log(data)
 
   return (
     <Layout>
@@ -118,7 +119,7 @@ const Leveling: NextPage<LevelingRouterProps> = ({ guildId }) => {
                         label={
                           <div className="pl-2">
                             멤버의 레벨이 올랐을 때 메시지 보내기
-                            </div>
+                          </div>
                         }
                         checked={useLevelupMessage}
                         onChange={() => setUseLevelupMessage(!useLevelupMessage)}
