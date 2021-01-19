@@ -76,7 +76,6 @@ const Leveling: NextPage<LevelingRouterProps> = ({ guildId }) => {
       window.location.assign('/login')
     }
     if (data) {
-      console.log(data)
       setUseLevelupMessage(data.sendLevelMessage)
     }
   }, [])

@@ -40,7 +40,7 @@ export default function Sidebar(props: SidebarProps) {
         onSelect={props.onSelect}
       >
         <Nav.Item>
-          <Link href={`/dashboard/${guild?.id}`}>
+          <Link href={`/dashboard/${guild?.id}`} shallow={true}>
             <Nav.Link
               className="d-flex mb-1"
               href={`/dashboard/${guild?.id}`}
@@ -54,7 +54,7 @@ export default function Sidebar(props: SidebarProps) {
           </Link>
         </Nav.Item>
         <Nav.Item>
-          <Link href={`/dashboard/${guild?.id}/greetings`}>
+          <Link href={`/dashboard/${guild?.id}/greetings`} shallow={true}>
             <Nav.Link
               className="d-flex mb-1"
               href={`/dashboard/${guild?.id}/greetings`}
@@ -68,7 +68,7 @@ export default function Sidebar(props: SidebarProps) {
           </Link>
         </Nav.Item>
         <Nav.Item>
-          <Link href={`/dashboard/${guild?.id}/members`}>
+          <Link href={`/dashboard/${guild?.id}/members`} shallow={true}>
             <Nav.Link
               className="d-flex mb-1"
               href={`/dashboard/${guild?.id}/members`}
@@ -82,7 +82,7 @@ export default function Sidebar(props: SidebarProps) {
           </Link>
         </Nav.Item>
         <Nav.Item>
-          <Link href={`/dashboard/${guild?.id}/warns`}>
+          <Link href={`/dashboard/${guild?.id}/warns`} shallow={true}>
             <Nav.Link
               className="d-flex mb-1"
               href={`/dashboard/${guild?.id}/warns`}
@@ -96,7 +96,7 @@ export default function Sidebar(props: SidebarProps) {
           </Link>
         </Nav.Item>
         <Nav.Item>
-          <Link href={`/dashboard/${guild?.id}/leveling`}>
+          <Link href={`/dashboard/${guild?.id}/leveling`} shallow={true}>
             <Nav.Link
               className="d-flex mb-1"
               href={`/dashboard/${guild?.id}/leveling`}
@@ -112,7 +112,7 @@ export default function Sidebar(props: SidebarProps) {
         {
           process.env.NODE_ENV === "development" && (
             <Nav.Item>
-              <Link href={`/dashboard/${guild?.id}/logging`}>
+              <Link href={`/dashboard/${guild?.id}/logging`} shallow={true}>
                 <Nav.Link
                   className="d-flex mb-1"
                   href={`/dashboard/${guild?.id}/logging`}
