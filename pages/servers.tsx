@@ -71,7 +71,7 @@ export default function Servers() {
                 {
                   one.bot_joined
                     ? (
-                      <Link href={`/dashboard/${one.id}`}>
+                      <Link href={`/dashboard/${one.id}`} shallow={true}>
                         <Button className="d-flex align-items-center" variant="aztra" size="sm">
                           대시보드
                           <ArrowForwardIcon style={{ fontSize: 22 }} className="ml-1" />
