@@ -11,8 +11,7 @@ import { CircularProgressbarWithChildren } from 'react-circular-progressbar';
 import BackTo from 'components/BackTo';
 
 import { calcLevel, getAccumulateExp, getRequiredEXP } from '@aztra/level-utils'
-import { Exp } from 'types/dbtypes/exps';
-import { Warns } from 'types/dbtypes/warns';
+import { Exp, Warns } from 'types/dbtypes';
 
 import { GetServerSideProps, NextPage } from 'next';
 import Link from 'next/link';

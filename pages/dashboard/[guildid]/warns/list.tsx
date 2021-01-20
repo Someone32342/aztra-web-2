@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 
 import axios, { AxiosError } from 'axios'
 import api from 'datas/api'
-import { Warns as WarnsType } from 'types/dbtypes/warns';
+import { Warns as WarnsType } from 'types/dbtypes';
 import MobileAlert from 'components/MobileAlert'
 import { Row, Col, Form, Container, Spinner, Button, Table, ButtonGroup, OverlayTrigger, Tooltip, Popover, Modal, Overlay } from 'react-bootstrap';
 import { MemberMinimal } from 'types/DiscordTypes';

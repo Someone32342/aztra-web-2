@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import api from 'datas/api'
 import axios, { AxiosError } from 'axios'
-import { Warns as WarnsType } from 'types/dbtypes/warns'
+import { Warns as WarnsType } from 'types/dbtypes'
 import { Button, Card, Col, Container, OverlayTrigger, Popover, Row, Spinner, Tooltip } from 'react-bootstrap'
 import { faTrophy } from '@fortawesome/free-solid-svg-icons'
 import { faQuestionCircle } from '@fortawesome/free-regular-svg-icons'
