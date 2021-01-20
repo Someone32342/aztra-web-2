@@ -107,11 +107,6 @@ export default class Navibar extends React.Component<{}, NavibarState> {
             </Navbar.Toggle>
             <Navbar.Collapse id="navbar-nav">
               <Nav className="mr-auto" onSelect={this.closeNavbar}>
-                <Link href="/">
-                  <Nav.Link href="/" className={styles.Navlink}>
-                    홈
-                  </Nav.Link>
-                </Link>
                 <Link href="/servers" shallow>
                   <Nav.Link href="/servers" className={styles.Navlink}>
                     대시보드

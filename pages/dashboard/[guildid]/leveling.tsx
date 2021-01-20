@@ -3,7 +3,7 @@ import axios, { AxiosError } from 'axios'
 import { Button, Col, Container, Form, Row, Spinner } from 'react-bootstrap'
 import api from 'datas/api'
 
-import { ServerData } from 'types/dbtypes/serverdata'
+import { ServerData } from 'types/dbtypes'
 import { GetServerSideProps, NextPage } from 'next'
 import Cookies from 'universal-cookie'
 import Layout from 'components/Layout'

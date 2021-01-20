@@ -1,4 +1,4 @@
-import React, { Component, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Button, Row, Col, Form, Spinner, Container, Card, Alert } from 'react-bootstrap'
 import TextareaAutosize from 'react-textarea-autosize'
 
@@ -7,7 +7,7 @@ import { faHashtag, faExclamationTriangle } from '@fortawesome/free-solid-svg-ic
 
 import axios, { AxiosError } from 'axios'
 
-import { Greetings as GreetingsType } from 'types/dbtypes/greetings'
+import { Greetings as GreetingsType } from 'types/dbtypes'
 import api from 'datas/api'
 import { ChannelMinimal } from 'types/DiscordTypes';
 import ChannelSelectCard from 'components/forms/ChannelSelectCard';
@@ -18,7 +18,6 @@ import Layout from 'components/Layout';
 import DashboardLayout from 'components/DashboardLayout';
 import useSWR from 'swr';
 import urljoin from 'url-join';
-import { useRouter } from 'next/router';
 
 interface GreetingsRouterProps {
   guildId: string
@@ -99,7 +98,7 @@ const Greetings: NextPage<GreetingsRouterProps> = ({ guildId }) => {
     }
   )
 
-  const channels = useSWR<ChannelMinimal[], AxiosError>(
+  const { data: channels } = useSWR<ChannelMinimal[], AxiosError>(
     new Cookies().get('ACCESS_TOKEN') ? urljoin(api, `/discord/guilds/${guildId}/channels`) : null,
     url => axios.get(url, {
       headers: {
@@ -107,7 +106,7 @@ const Greetings: NextPage<GreetingsRouterProps> = ({ guildId }) => {
       }
     })
       .then(r => r.data)
-  ).data
+  )
 
   useEffect(() => {
     if (!new Cookies().get('ACCESS_TOKEN')) {
