@@ -28,7 +28,6 @@ export interface Warns {
 }
 
 export interface LoggingSet {
-  guild: string
   channel: string
   flags: string
 }

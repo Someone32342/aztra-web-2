@@ -25,7 +25,7 @@
     "preval.macro": "^5.0.0",
     "raw-loader": "^4.0.2",
     "react": "17.0.1",
-    "react-bootstrap": "^1.4.0",
+    "react-bootstrap": "^1.4.3",
     "react-circular-progressbar": "^2.0.3",
     "react-dom": "17.0.1",
     "react-markdown": "^5.0.3",
