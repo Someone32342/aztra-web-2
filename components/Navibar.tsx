@@ -44,7 +44,7 @@ export default class Navibar extends React.Component<{}, NavibarState> {
   handleLogout = () => {
     new Cookies().remove('ACCESS_TOKEN')
     if (Router.pathname == '/') {
-      Router.reload()
+      this.setState({ user: null })
     }
     else {
       Router.push('/')
