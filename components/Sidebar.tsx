@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Nav } from 'react-bootstrap'
+import { Badge, Nav } from 'react-bootstrap'
 import { PartialGuild } from 'types/DiscordTypes'
 import {
   Home as HomeIcon,
@@ -109,24 +109,21 @@ export default function Sidebar(props: SidebarProps) {
             </Nav.Link>
           </Link>
         </Nav.Item>
-        {
-          process.env.NODE_ENV === "development" && (
-            <Nav.Item>
-              <Link href={`/dashboard/${guild?.id}/logging`} shallow={true}>
-                <Nav.Link
-                  className="d-flex mb-1"
-                  href={`/dashboard/${guild?.id}/logging`}
-                  active={location?.pathname.startsWith(`/dashboard/${guild?.id}/logging`)}
-                >
-                  <div style={iconStyle} className="mr-3">
-                    <HistoryIcon style={{ transform: 'scale(1.1)' }} />
-                  </div>
-                  로깅 설정
-                </Nav.Link>
-              </Link>
-            </Nav.Item>
-          )
-        }
+        <Nav.Item>
+          <Link href={`/dashboard/${guild?.id}/logging`} shallow={true}>
+            <Nav.Link
+              className="d-flex mb-1"
+              href={`/dashboard/${guild?.id}/logging`}
+              active={location?.pathname.startsWith(`/dashboard/${guild?.id}/logging`)}
+            >
+              <div style={iconStyle} className="mr-3">
+                <HistoryIcon style={{ transform: 'scale(1.1)' }} />
+              </div>
+              로깅 설정
+              <Badge variant="aztra" className="ml-2 my-auto">NEW</Badge>
+            </Nav.Link>
+          </Link>
+        </Nav.Item>
       </Nav>
     </>
   )

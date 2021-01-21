@@ -191,10 +191,6 @@ const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
     }
   }
 
-  const getDefaultFlag = (flagBit: number) => {
-    return !!(Number(data?.flags ?? 0) & flagBit)
-  }
-
   return (
     <Layout>
       <DashboardLayout guildId={guildId}>
@@ -230,10 +226,16 @@ const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
                       useLogging &&
                       <>
                         <Row>
+                          <Col>
+                            <Button variant="dark" size="sm" className="mr-3" onClick={() => setFlag(((1 << (0x20000).toString(2).length) - 1).toString())}>모두 선택</Button>
+                            <Button variant="dark" size="sm" onClick={() => setFlag("0")}>모두 선택 해제</Button>
+                          </Col>
+                        </Row>
+                        <Row className="pt-4">
                           <Col xs={12} sm={6} xl={3} className="pb-4">
                             <h4 className="pb-2">
                               메시지 로깅
-                          </h4>
+                            </h4>
                             <Form.Group>
                               <LoggingOptionCheckbox id="logging-message-deleted" className="pb-1" label="메시지가 삭제되었을 때" flag={0x1} />
                               <LoggingOptionCheckbox id="logging-message-edited" className="pb-1" label="메시지가 수정되었을 때" flag={0x2} />
@@ -248,7 +250,7 @@ const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
                           <Col xs={12} sm={6} xl={3} className="pb-4">
                             <h4 className="pb-2">
                               채널 로깅
-                              </h4>
+                            </h4>
                             <Form.Group>
                               <LoggingOptionCheckbox id="logging-guild-channel-created" className="pb-1" label="채널이 생성되었을 때" flag={0x40} />
                               <LoggingOptionCheckbox id="logging-guild-channel-deleted" className="pb-1" label="채널이 삭제되었을 때" flag={0x80} />
@@ -258,7 +260,7 @@ const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
                           <Col xs={12} sm={6} xl={3} className="pb-4">
                             <h4 className="pb-2">
                               멤버 로깅
-                              </h4>
+                            </h4>
                             <Form.Group>
                               <LoggingOptionCheckbox id="logging-member-joined" className="pb-1" label="멤버가 참여했을 때" flag={0x200} />
                               <LoggingOptionCheckbox id="logging-member-left" className="pb-1" label="멤버가 나갔을 때" flag={0x400} />
@@ -272,7 +274,7 @@ const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
                           <Col xs={12} sm={6} xl={3} className="pb-4">
                             <h4 className="pb-2">
                               서버 로깅
-                              </h4>
+                            </h4>
                             <Form.Group>
                               <LoggingOptionCheckbox id="logging-guild-updated" className="pb-1" label="서버 설정이 변경되었을 때" flag={0x4000} />
                               <LoggingOptionCheckbox id="logging-guild-role-created" className="pb-1" label="역할이 생성되었을 때" flag={0x8000} />
