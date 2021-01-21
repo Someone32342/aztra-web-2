@@ -176,7 +176,7 @@ const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
       label={
         <div className="pl-2" style={{ fontSize: '11pt' }}>{props.label}</div>
       }
-      checked={Number(flag) & props.flag}
+      checked={!!(Number(flag) & props.flag)}
       onChange={() => toggleFlag(props.flag)}
     />
   )
