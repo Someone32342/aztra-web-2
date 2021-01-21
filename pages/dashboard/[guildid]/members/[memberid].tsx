@@ -130,6 +130,34 @@ const MemberDashboard: NextPage<MemberDashboardRouteProps> = ({ guildId, memberI
       expRank = expIndex + 1
   }
 
+  const memberWarns = warns
+    ?.filter(one => one.member === member?.user.id)
+    .sort((a, b) => new Date(b.dt).getTime() - new Date(a.dt).getTime())
+    .map(one => (
+      <Card key={one.uuid} bg="dark" className="mb-2 shadow-sm shadow">
+        <Card.Body as={Row} className="py-1 d-flex justify-content-between">
+          <Col xs={9} className="d-flex">
+            <FontAwesomeIcon icon={faExclamationTriangle} className="mr-3 my-auto" />
+            <div className="my-auto d-inline-block text-truncate">
+              {one.reason}
+            </div>
+          </Col>
+          <Col xs={3} className="d-flex align-items-center my-0 justify-content-end">
+            <div className="my-auto small" style={{
+              color: 'lightgrey'
+            }}>
+              <div className="text-right">
+                {one.count}회
+              </div>
+              <div className="text-right">
+                {dayjs.utc(one.dt).local().fromNow()}
+              </div>
+            </div>
+          </Col>
+        </Card.Body>
+      </Card>
+    ))
+
   return (
     <Layout>
       <DashboardLayout guildId={guildId}>
@@ -339,43 +367,17 @@ const MemberDashboard: NextPage<MemberDashboardRouteProps> = ({ guildId, memberI
                       </div>
                     </div>
                     {
-                      warns?.length
-                        ? warns
-                          ?.filter(one => one.member === member?.user.id)
-                          .sort((a, b) => new Date(b.dt).getTime() - new Date(a.dt).getTime())
-                          .map(one => (
-                            <Card key={one.uuid} bg="dark" className="mb-2 shadow-sm shadow">
-                              <Card.Body as={Row} className="py-1 d-flex justify-content-between">
-                                <Col xs={9} className="d-flex">
-                                  <FontAwesomeIcon icon={faExclamationTriangle} className="mr-3 my-auto" />
-                                  <div className="my-auto d-inline-block text-truncate">
-                                    {one.reason}
-                                  </div>
-                                </Col>
-                                <Col xs={3} className="d-flex align-items-center my-0 justify-content-end">
-                                  <div className="my-auto small" style={{
-                                    color: 'lightgrey'
-                                  }}>
-                                    <div className="text-right">
-                                      {one.count}회
-                                      </div>
-                                    <div className="text-right">
-                                      {dayjs.utc(one.dt).local().fromNow()}
-                                    </div>
-                                  </div>
-                                </Col>
-                              </Card.Body>
-                            </Card>
-                          ))
-                        : <div className="d-flex align-items-center justify-content-center h-75">
-                          <div className="my-4" style={{ color: 'lightgray' }}>경고가 하나도 없습니다! 평화롭네요.</div>
-                        </div>
+                      memberWarns?.length
+                      ? memberWarns
+                      : <div className="d-flex align-items-center justify-content-center h-75">
+                        <div className="my-4" style={{ color: 'lightgray' }}>경고가 하나도 없습니다! 평화롭네요.</div>
+                      </div>
                     }
                   </Col>
                   <Col className="pb-5" xs={12} xl={6}>
                     <h4 className="mb-3">티켓</h4>
                     <Alert variant="aztra">
-                      현재 이 멤버에 열린 티켓이 없습니다!
+                      개발 중인 기능입니다!
                     </Alert>
                   </Col>
                 </Row>
