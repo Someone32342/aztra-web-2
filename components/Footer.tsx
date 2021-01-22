@@ -1,6 +1,6 @@
 import React from 'react';
 import { Container, Row, Col } from 'react-bootstrap'
-import links from 'datas/links.json'
+import links from 'datas/links'
 
 import styles from 'styles/components/Footer.module.scss'
 import classNames from 'classnames/bind'

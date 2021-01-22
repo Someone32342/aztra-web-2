@@ -14,6 +14,7 @@ import Cookies from 'universal-cookie'
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import useSWR from 'swr';
+import links from 'datas/links'
 
 export default function Servers() {
   const router = useRouter()
@@ -31,7 +32,8 @@ export default function Servers() {
     {
       onError: () => {
         setShowError(true)
-      }
+      },
+      refreshInterval: 5000
     }
   )
 
@@ -78,7 +80,9 @@ export default function Servers() {
                         </Button>
                       </Link>
                     )
-                    : <Button variant="dark" size="sm">초대하기</Button>
+                    : <Button variant="dark" size="sm" target="_blank" href={links.invite[process.env.NODE_ENV] + `&guild_id=${one.id}&disable_guild_select=true`}>
+                      초대하기
+                    </Button>
                 }
               </Col>
             </Row>

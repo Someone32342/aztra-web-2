@@ -4,7 +4,7 @@ import { Link as ScrollLink } from 'react-scroll'
 import styles from 'styles/Home.module.scss'
 import classNames from 'classnames/bind';
 import Layout from 'components/Layout';
-import links from 'datas/links.json'
+import links from 'datas/links'
 
 const cx = classNames.bind(styles)
 
@@ -26,7 +26,7 @@ export default function Home() {
               다채롭고 깔끔한 디스코드 서버를 만들 수 있도록 도와드리겠습니다.
             </h2>
             <div className="text-center text-md-left">
-              <Button variant="aztra" size="lg" className={cx("MainButton", "shadow-lg", "mr-md-3")} href={links.invite} target="_blank">
+              <Button variant="aztra" size="lg" className={cx("MainButton", "shadow-lg", "mr-md-3")} href={links.invite[process.env.NODE_ENV]} target="_blank">
                 초대하기
               </Button>
               <Button className={cx("MainButton", "shadow-lg", "mx-2")} as={ScrollLink} to="features-begin" spy={true} smooth={true} offset={50} duration={500} variant="dark" size="lg">
