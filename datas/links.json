@@ -1,4 +1,5 @@
 {
     "teamsite": "https://inft.kr",
-    "privacy": "https://inft.kr/privacy"
+    "privacy": "https://inft.kr/privacy",
+    "invite": "https://discord.com/api/oauth2/authorize?client_id=751339721782722570&permissions=0&scope=bot"
 }
