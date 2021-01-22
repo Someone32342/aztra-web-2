@@ -47,7 +47,10 @@ const WarnsMain: NextPage<WarnsMainRouterProps> = ({ guildId }) => {
         Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
       }
     })
-      .then(r => r.data)
+      .then(r => r.data),
+    {
+      refreshInterval: 5000
+    }
   )
 
   const { data: members } = useSWR<MemberMinimal[], AxiosError>(
@@ -57,7 +60,10 @@ const WarnsMain: NextPage<WarnsMainRouterProps> = ({ guildId }) => {
         Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
       }
     })
-      .then(r => r.data)
+      .then(r => r.data),
+    {
+      refreshInterval: 5000
+    }
   )
 
   useEffect(() => {

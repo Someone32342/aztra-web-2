@@ -7,7 +7,7 @@ import Layout from 'components/Layout'
 import api from 'datas/api'
 import { GetServerSideProps, NextPage } from 'next'
 import React, { useState } from 'react'
-import { Alert, Button, Card, Col, Container, Form, FormCheckProps, Row, Spinner } from 'react-bootstrap'
+import { Alert, Badge, Button, Card, Col, Container, Form, FormCheckProps, Row, Spinner } from 'react-bootstrap'
 import useSWR from 'swr'
 import { LoggingSet as LoggingSetType } from 'types/dbtypes'
 import { ChannelMinimal } from 'types/DiscordTypes'
@@ -199,7 +199,10 @@ const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
             <div>
               <Row className="dashboard-section">
                 <div>
-                  <h3>로깅 설정</h3>
+                  <h3 className="d-flex">
+                    로깅 설정
+                    <Badge variant="aztra" className="ml-2 mb-auto mt-1" style={{ fontSize: 15 }}>베타</Badge>
+                  </h3>
                   <div className="py-2">
                     서버에서 무언가 새로 추가되거나, 변경되거나, 제거되었을 때 그 내용을 특정 채널에 기록합니다.
                     </div>
@@ -214,7 +217,7 @@ const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
                         label={
                           <div className="pl-2 font-weight-bold">
                             로깅 사용하기
-                            </div>
+                          </div>
                         }
                         checked={useLogging}
                         onChange={() => setUseLogging(!useLogging)}

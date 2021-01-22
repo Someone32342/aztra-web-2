@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 
 import axios, { AxiosError } from 'axios'
 import api from 'datas/api'
@@ -54,7 +54,10 @@ const MemberDashboard: NextPage<MemberDashboardRouteProps> = ({ guildId, memberI
         Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
       }
     })
-      .then(r => r.data)
+      .then(r => r.data),
+    {
+      refreshInterval: 5000
+    }
   )
 
   const { data: warns } = useSWR<Warns[], AxiosError>(
@@ -64,7 +67,10 @@ const MemberDashboard: NextPage<MemberDashboardRouteProps> = ({ guildId, memberI
         Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
       }
     })
-      .then(r => r.data)
+      .then(r => r.data),
+    {
+      refreshInterval: 5000
+    }
   )
 
   const { data: exps } = useSWR<Exp[], AxiosError>(
@@ -74,7 +80,10 @@ const MemberDashboard: NextPage<MemberDashboardRouteProps> = ({ guildId, memberI
         Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
       }
     })
-      .then(r => r.data)
+      .then(r => r.data),
+    {
+      refreshInterval: 5000
+    }
   )
 
   useEffect(() => {
@@ -84,6 +93,10 @@ const MemberDashboard: NextPage<MemberDashboardRouteProps> = ({ guildId, memberI
       window.location.assign('/login')
     }
   }, [])
+
+  useLayoutEffect(() => {
+    setTimeout(() => setShowPercent(true), 500)
+  }, [member])
 
   var statusColor: string | null = null
   var statusName: string | null = null
@@ -368,10 +381,10 @@ const MemberDashboard: NextPage<MemberDashboardRouteProps> = ({ guildId, memberI
                     </div>
                     {
                       memberWarns?.length
-                      ? memberWarns
-                      : <div className="d-flex align-items-center justify-content-center h-75">
-                        <div className="my-4" style={{ color: 'lightgray' }}>경고가 하나도 없습니다! 평화롭네요.</div>
-                      </div>
+                        ? memberWarns
+                        : <div className="d-flex align-items-center justify-content-center h-75">
+                          <div className="my-4" style={{ color: 'lightgray' }}>경고가 하나도 없습니다! 평화롭네요.</div>
+                        </div>
                     }
                   </Col>
                   <Col className="pb-5" xs={12} xl={6}>

@@ -97,30 +97,26 @@ export default function Servers() {
         <Container fluid="sm" className="text-center">
           {
             !error && guild_cards?.length === 0
-              ? <>
-                <h2 className="text-white" style={{ marginTop: 120, marginBottom: 120 }}>
-                  관리할 수 있는 서버가 하나도 없습니다!
+              ?
+              <h2 className="text-white" style={{ marginTop: 120, marginBottom: 120 }}>
+                관리할 수 있는 서버가 하나도 없습니다!
                   <h4 className="text-white mt-5" >관리자 권한이 있는 서버만 표시됩니다.</h4>
-                </h2>
-                <Button variant="aztra" onClick={() => mutate()}>
-                  <RefreshIcon className="mr-2" />
-                    새로고침
-                  </Button>
-              </>
+              </h2>
               : <h2 className="text-white" style={{ marginTop: 120, marginBottom: 120 }}>서버를 선택하세요</h2>
           }
         </Container>
         <Container fluid="sm" style={{ marginBottom: 160 }}>
           {
             !(data || error)
-              ? <div style={{ color: 'whitesmoke', paddingTop: 80, paddingBottom: 300 }} className="text-center">
+              ?
+              <div style={{ color: 'whitesmoke', paddingTop: 80, paddingBottom: 300 }} className="text-center">
                 <Spinner animation="border" variant="aztra" style={{
                   height: 50,
                   width: 50
                 }} />
                 <h3 className="pt-5">
                   서버 목록을 가져오고 있습니다...
-                  </h3>
+                </h3>
               </div>
               : guild_cards
           }

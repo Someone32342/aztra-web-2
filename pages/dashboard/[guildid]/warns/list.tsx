@@ -4,15 +4,15 @@ import axios, { AxiosError } from 'axios'
 import api from 'datas/api'
 import { Warns as WarnsType } from 'types/dbtypes';
 import MobileAlert from 'components/MobileAlert'
-import { Row, Col, Form, Container, Spinner, Button, Table, ButtonGroup, OverlayTrigger, Tooltip, Popover, Modal, Overlay } from 'react-bootstrap';
+import { Row, Col, Form, Container, Spinner, Button, Table, ButtonGroup, OverlayTrigger, Tooltip, Popover, Modal, Overlay, Collapse } from 'react-bootstrap';
 import { MemberMinimal } from 'types/DiscordTypes';
-import { RemoveCircleOutline, FileCopy as FileCopyIcon, OpenInNew as OpenInNewIcon } from '@material-ui/icons'
+import { RemoveCircleOutline, FileCopy as FileCopyIcon, OpenInNew as OpenInNewIcon, Delete as DeleteIcon } from '@material-ui/icons'
 import BackTo from 'components/BackTo';
 import { GetServerSideProps, NextPage } from 'next';
 import Cookies from 'universal-cookie';
 import Layout from 'components/Layout';
 import DashboardLayout from 'components/DashboardLayout';
-import useSWR from 'swr';
+import useSWR, { mutate } from 'swr';
 import urljoin from 'url-join';
 
 export interface WarnsListRouteProps {
@@ -72,10 +72,12 @@ interface WarnsListCardProps {
   warnby: MemberMinimal
   warn: WarnsType
   guildId: string
-  onDelete: Function
+  onDelete?: Function
+  onCheckChange?: ((event: React.ChangeEvent<HTMLInputElement>) => void)
+  checked?: boolean
 }
 
-const WarnsListCard: React.FC<WarnsListCardProps> = ({ target, warnby, warn, guildId, onDelete }) => {
+const WarnsListCard: React.FC<WarnsListCardProps> = ({ target, warnby, warn, guildId, onDelete, onCheckChange, checked }) => {
   const [showInfo, setShowInfo] = useState(false)
   const [showDel, setShowDel] = useState(false)
   const [copied, setCopied] = useState(false)
@@ -83,21 +85,31 @@ const WarnsListCard: React.FC<WarnsListCardProps> = ({ target, warnby, warn, gui
   const copyButtonRef = useRef<HTMLButtonElement>(null)
 
   const delWarn = (uuid: string) => {
-    axios.delete(`${api}/servers/${guildId}/warns/${uuid}`, {
+    axios.delete(`${api}/servers/${guildId}/warns`, {
+      data: {
+        warns: [uuid]
+      },
       headers: {
         Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
       }
     })
-      .then(() => onDelete())
+      .then(() => {
+        if (onDelete) onDelete()
+      })
   }
 
   return (
     <tr>
       <td className="align-middle text-center">
-        <Form.Check style={{
-          transform: 'scale(1.25)',
-          WebkitTransform: 'scale(1.25)'
-        }} />
+        <Form.Check
+          type="checkbox"
+          checked={checked}
+          onChange={onCheckChange}
+          style={{
+            transform: "scale(1.25)",
+            WebkitTransform: "scale(1.25)"
+          }}
+        />
       </td>
       <td className="align-middle">
         <div className="d-flex justify-content-center justify-content-lg-start">
@@ -114,7 +126,7 @@ const WarnsListCard: React.FC<WarnsListCardProps> = ({ target, warnby, warn, gui
             }}>
               <Popover.Title className="font-weight-bold">
                 경고 사유 자세히
-            </Popover.Title>
+              </Popover.Title>
               <Popover.Content>
                 <div className="p-1">
                   {warn.reason}
@@ -122,8 +134,8 @@ const WarnsListCard: React.FC<WarnsListCardProps> = ({ target, warnby, warn, gui
                 <div className="d-flex my-2">
                   <Button size="sm" variant="secondary" className="d-flex align-items-center">
                     <FileCopyIcon className="mr-1" style={{ transform: 'scale(0.8)' }} />
-                  복사하기
-                </Button>
+                    복사하기
+                  </Button>
                 </div>
               </Popover.Content>
             </Popover>
@@ -169,7 +181,7 @@ const WarnsListCard: React.FC<WarnsListCardProps> = ({ target, warnby, warn, gui
             </Modal.Body>
             <Modal.Footer className="justify-content-end">
               <Button variant="aztra" onClick={async () => {
-                await setShowDel(false)
+                setShowDel(false)
                 delWarn(warn.uuid)
               }}>
                 확인
@@ -248,7 +260,7 @@ const WarnsListCard: React.FC<WarnsListCardProps> = ({ target, warnby, warn, gui
                   navigator.clipboard.writeText(warn.reason)
                     .then(async () => {
                       if (!copied) {
-                        await setCopied(true)
+                        setCopied(true)
                         await setTimeout(() => setCopied(false), 800)
                       }
                     })
@@ -288,6 +300,8 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
   const [warnSearch, setWarnSearch] = useState('')
   const [searchType, setSearchType] = useState<WarnSearchType>('reason')
   const [sortType, setSortType] = useState<WarnSortType>('latest')
+  const [selectedWarns, setSelectedWarns] = useState<Set<string>>(new Set)
+  const [showSelectedDel, setShowSelectedDel] = useState(false)
 
   const searchRef = useRef<HTMLInputElement>(null)
 
@@ -305,7 +319,10 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
         Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
       }
     })
-      .then(r => r.data)
+      .then(r => r.data),
+    {
+      refreshInterval: 5000
+    }
   )
 
   const { data: members, mutate: membersMutate } = useSWR<MemberMinimal[], AxiosError>(
@@ -315,7 +332,10 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
         Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
       }
     })
-      .then(r => r.data)
+      .then(r => r.data),
+    {
+      refreshInterval: 5000
+    }
   )
 
   useEffect(() => {
@@ -380,9 +400,49 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
     (filterSortWarns(warnSearch) || warns)?.map(one => {
       const target = members?.find(m => m.user.id === one.member)
       const warnby = members?.find(m => m.user.id === one.warnby)
-      return <WarnsListCard key={one.uuid} target={target!} warnby={warnby!} warn={one} guildId={guildId} onDelete={() => warnsMutate()} />
+      return (
+        <WarnsListCard
+          key={one.uuid}
+          target={target!}
+          warnby={warnby!}
+          warn={one}
+          guildId={guildId}
+          onDelete={() => warnsMutate()}
+          checked={selectedWarns.has(one.uuid)}
+          onCheckChange={() => {
+            console.log(selectedWarns.has(one.uuid))
+            let sel = new Set(selectedWarns)
+
+            if (sel.has(one.uuid)) {
+              sel.delete(one.uuid)
+            }
+            else {
+              sel.add(one.uuid)
+            }
+
+            setSelectedWarns(sel)
+          }}
+        />
+      )
     })
   )
+
+  const delSelectedWarns = () => {
+    axios.delete(`${api}/servers/${guildId}/warns`, {
+      data: {
+        warns: Array.from(selectedWarns)
+      },
+      headers: {
+        Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
+      }
+    })
+      .then(() => {
+        setSelectedWarns(new Set)
+        warnsMutate()
+      })
+  }
+
+  const warnsSet = new Set(warns?.map(o => o.uuid))
 
   return (
     <Layout>
@@ -420,7 +480,7 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
                               style={{
                                 fontSize: '12pt'
                               }}>
-                              전체 경고 {warns?.length} 건{warnSearch && `, ${warns.length}건 검색됨`}
+                              전체 경고 {warns?.length} 건{selectedWarns.size ? selectedWarns.size === warns.length ? ', 모두 선택됨' : `, ${selectedWarns.size}건 선택됨` : null}{warnSearch && `, ${filteredWarns.length}건 검색됨`}
                             </Col>
                             <Col
                               className="px-0"
@@ -453,11 +513,52 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
                           </Row>
 
                           <Row className="mb-2">
-                            <input hidden={true} />
+                            <input hidden />
                             <Form.Control ref={searchRef} type="text" placeholder="경고 검색" defaultValue={warnSearch} onChange={e => {
                               setWarnSearch(e.target.value)
                             }} />
                           </Row>
+
+                          <Row className="align-items-center">
+                            <Collapse in={!!selectedWarns.size}>
+                              <div>
+                                <div className="pb-2">
+                                  <span className="mr-3">선택한 것들을({selectedWarns.size}개):</span>
+                                  <Button variant="danger" size="sm" onClick={() => {
+                                    setShowSelectedDel(true)
+                                  }}>
+                                    <DeleteIcon style={{ marginLeft: '-5px', transform: "scale(0.9)", WebkitTransform: "scale(0.9)" }} />
+                                    제거하기
+                                  </Button>
+                                </div>
+                              </div>
+                            </Collapse>
+                          </Row>
+
+                          <Modal className="modal-dark" show={showSelectedDel} onHide={() => setShowSelectedDel(false)} centered>
+                            <Modal.Header closeButton>
+                              <Modal.Title style={{
+                                fontFamily: "NanumSquare",
+                                fontWeight: 900,
+                              }}>
+                                경고 취소하기
+                              </Modal.Title>
+                            </Modal.Header>
+                            <Modal.Body className="py-4">
+                              선택한 경고 {selectedWarns.size}개를 취소하시겠습니까?
+                            </Modal.Body>
+                            <Modal.Footer className="justify-content-end">
+                              <Button variant="danger" onClick={async () => {
+                                setShowSelectedDel(false)
+                                delSelectedWarns()
+                              }}>
+                                확인
+                              </Button>
+                              <Button variant="dark" onClick={() => setShowSelectedDel(false)}>
+                                닫기
+                              </Button>
+                            </Modal.Footer>
+                          </Modal>
 
                           <Row className="flex-column">
                             <Table id="warn-list-table" variant="dark" style={{
@@ -466,10 +567,22 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
                               <thead>
                                 <tr>
                                   <th className="align-middle text-center" style={{ width: 50 }}>
-                                    <Form.Check style={{
-                                      transform: 'scale(1.25)',
-                                      WebkitTransform: 'scale(1.25)'
-                                    }} />
+                                    <Form.Check
+                                      type="checkbox"
+                                      checked={!!warns.length && warnsSet.size === selectedWarns.size && Array.from(warnsSet).every(value => selectedWarns.has(value))}
+                                      onChange={() => {
+                                        if (warnsSet.size === selectedWarns.size && Array.from(warnsSet).every(value => selectedWarns.has(value))) {
+                                          setSelectedWarns(new Set)
+                                        }
+                                        else {
+                                          setSelectedWarns(warnsSet)
+                                        }
+                                      }}
+                                      style={{
+                                        transform: 'scale(1.25)',
+                                        WebkitTransform: 'scale(1.25)'
+                                      }}
+                                    />
                                   </th>
                                   <th className="text-center text-md-left" style={{ width: '17%' }}>대상 멤버</th>
                                   <th className="text-center text-md-left d-none d-md-table-cell">경고 사유</th>

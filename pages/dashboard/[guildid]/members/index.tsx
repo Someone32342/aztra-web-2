@@ -39,7 +39,10 @@ const Members: NextPage<MembersRouterProps> = ({ guildId }) => {
         Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
       }
     })
-      .then(r => r.data)
+      .then(r => r.data),
+    {
+      refreshInterval: 5000
+    }
   )
 
   useEffect(() => {
