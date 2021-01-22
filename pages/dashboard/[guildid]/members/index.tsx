@@ -120,7 +120,7 @@ const Members: NextPage<MembersRouterProps> = ({ guildId }) => {
                               style={{
                                 fontSize: '12pt'
                               }}>
-                              멤버 전체 {members?.length} 명{memberSearch && `, ${members.length}명 검색됨`}
+                              멤버 전체 {members?.length} 명{memberSearch && `, ${filteredMembers.length}명 검색됨`}
                             </Col>
                             <Col
                               className="px-0"
