@@ -46,7 +46,7 @@ export default function Home() {
         }}>
           <Container className="d-lg-flex align-items-center justify-content-between">
             <div className="d-flex justify-content-center">
-              <Image className="shadow mx-auto" alt="경고 설정" src="/assets/images/Home/feat-warn.png" width={366} height={284} />
+              <Image className="shadow mx-auto" alt="경고 설정" src="/assets/images/Home/feat-warn.png" priority width={366} height={284} />
             </div>
             <div className={cx("MainFeaturesItemContent")}>
               <h1>국내 최초 대시보드 지원 관리봇</h1>
@@ -59,7 +59,7 @@ export default function Home() {
         }}>
           <Container className="d-lg-flex align-items-center justify-content-between flex-row-reverse">
             <div className="d-flex justify-content-center">
-              <Image className="text-lg-right" alt="모바일 환경" src="/assets/images/Home/mobile.png" width={300} height={611.34} />
+              <Image className="text-lg-right" alt="모바일 환경" src="/assets/images/Home/mobile.png" priority width={300} height={611.34} />
             </div>
             <div className={cx("MainFeaturesItemContent")}>
               <h1>모바일에서도 불편함 없이 사용하세요</h1>
@@ -72,7 +72,7 @@ export default function Home() {
         }}>
           <Container className="d-lg-flex align-items-center justify-content-between">
             <div className="d-flex justify-content-center">
-              <Image className="shadow" alt="멤버 관리" src="/assets/images/Home/member-manage.png" width={500} height={281.25} />
+              <Image className="shadow" alt="멤버 관리" src="/assets/images/Home/member-manage.png" priority width={500} height={281.25} />
             </div>
             <div className={cx("MainFeaturesItemContent", "ml-lg-5")}>
               <h1>다양한 기능을 제공합니다</h1>

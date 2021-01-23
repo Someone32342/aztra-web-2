@@ -180,24 +180,28 @@ const WarnsMain: NextPage<WarnsMainRouterProps> = ({ guildId }) => {
                   </div>
                   <div>
                     {
-                      warnsRankArray
-                        .slice(0, 3)
-                        .map(one => {
-                          const rank = warnsRankArray.map(o => o[1]).indexOf(one[1]) + 1
-                          const target = members?.find(m => m.user.id === one[0])
-                          return (
-                            <Card bg="dark" key={rank} className="mb-2 shadow-sm shadow">
-                              <Card.Body className="py-2">
-                                <FontAwesomeIcon icon={faTrophy} className="mr-2" color={rank === 1 ? "gold" : rank === 2 ? "silver" : rank === 3 ? "chocolate" : undefined} />
-                                {`${rank}위 - `}
-                                <Link href={`/dashboard/${guildId}/members/${target?.user.id}`}>
-                                  <span className="font-weight-bold">{target?.displayName}</span>
-                                </Link>
-                                {` (${one[1]}회)`}
-                              </Card.Body>
-                            </Card>
-                          )
-                        })
+                      warnsRankArray.length
+                        ? warnsRankArray
+                          .slice(0, 3)
+                          .map(one => {
+                            const rank = warnsRankArray.map(o => o[1]).indexOf(one[1]) + 1
+                            const target = members?.find(m => m.user.id === one[0])
+                            return (
+                              <Card bg="dark" key={rank} className="mb-2 shadow-sm shadow">
+                                <Card.Body className="py-2">
+                                  <FontAwesomeIcon icon={faTrophy} className="mr-2" color={rank === 1 ? "gold" : rank === 2 ? "silver" : rank === 3 ? "chocolate" : undefined} />
+                                  {`${rank}위 - `}
+                                  <Link href={`/dashboard/${guildId}/members/${target?.user.id}`}>
+                                    <span className="font-weight-bold">{target?.displayName}</span>
+                                  </Link>
+                                  {` (${one[1]}회)`}
+                                </Card.Body>
+                              </Card>
+                            )
+                          })
+                        : <div className="d-flex align-items-center justify-content-center h-75">
+                          <div className="my-4" style={{ color: 'lightgray' }}>순위 정보가 없습니다!</div>
+                        </div>
                     }
                   </div>
                 </Col>

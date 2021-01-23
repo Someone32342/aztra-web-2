@@ -30,8 +30,6 @@ const Members: NextPage<MembersRouterProps> = ({ guildId }) => {
   const [memberSearch, setMemberSearch] = useState('')
   const [memberSearchType, setMemberSearchType] = useState<MemberSearchType>('nick-and-tag')
 
-  const searchRef = useRef<HTMLInputElement>(null)
-
   const { data: members } = useSWR<MemberMinimal[], AxiosError>(
     new Cookies().get('ACCESS_TOKEN') ? urljoin(api, `/discord/guilds/${guildId}/members`) : null,
     url => axios.get(url, {
@@ -80,10 +78,7 @@ const Members: NextPage<MembersRouterProps> = ({ guildId }) => {
 
   const handleMemberSearchTypeOnChange = (searchType: MemberSearchType) => {
     setMemberSearchType(searchType)
-    if (searchRef.current) {
-      searchRef.current.value = ''
-      setMemberSearch('')
-    }
+    setMemberSearch('')
   }
 
   const filteredMembers = (
@@ -136,6 +131,8 @@ const Members: NextPage<MembersRouterProps> = ({ guildId }) => {
                                 <span>검색 조건:</span>
                                 <div className="d-lg-flex">
                                   <Form.Check
+                                    id="member-search-by-name-and-nick"
+                                    custom
                                     className="ml-4"
                                     type="radio"
                                     label="이름 및 닉네임"
@@ -144,6 +141,8 @@ const Members: NextPage<MembersRouterProps> = ({ guildId }) => {
                                     onChange={() => handleMemberSearchTypeOnChange('nick-and-tag')}
                                   />
                                   <Form.Check
+                                    id="member-search-by-user-id"
+                                    custom
                                     className="ml-4"
                                     type="radio"
                                     label="사용자 ID"
@@ -158,7 +157,8 @@ const Members: NextPage<MembersRouterProps> = ({ guildId }) => {
 
                           <Row className="mb-2">
                             <input hidden={true} />
-                            <Form.Control ref={searchRef} type="text" placeholder="멤버 검색" onChange={e => {
+                            <Form.Control type="text" placeholder={memberSearchType === "id" ? "멤버 아이디 검색 (숫자만 입력할 수 있습니다)" : "멤버 검색"} value={memberSearch} onChange={e => {
+                              if (memberSearchType === "id" && isNaN(Number(e.target.value))) return
                               setMemberSearch(e.target.value)
                             }} />
                           </Row>

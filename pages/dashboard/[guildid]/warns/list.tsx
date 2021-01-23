@@ -102,13 +102,11 @@ const WarnsListCard: React.FC<WarnsListCardProps> = ({ target, warnby, warn, gui
     <tr>
       <td className="align-middle text-center">
         <Form.Check
+          id={`warn-check-${warn.uuid}`}
           type="checkbox"
+          custom
           checked={checked}
           onChange={onCheckChange}
-          style={{
-            transform: "scale(1.25)",
-            WebkitTransform: "scale(1.25)"
-          }}
         />
       </td>
       <td className="align-middle">
@@ -133,7 +131,7 @@ const WarnsListCard: React.FC<WarnsListCardProps> = ({ target, warnby, warn, gui
                 </div>
                 <div className="d-flex my-2">
                   <Button size="sm" variant="secondary" className="d-flex align-items-center">
-                    <FileCopyIcon className="mr-1" style={{ transform: 'scale(0.8)' }} />
+                    <FileCopyIcon className="mr-1" />
                     복사하기
                   </Button>
                 </div>
@@ -178,6 +176,9 @@ const WarnsListCard: React.FC<WarnsListCardProps> = ({ target, warnby, warn, gui
             </Modal.Header>
             <Modal.Body className="py-4">
               이 경고를 취소하시겠습니까?
+              <div className="pt-3">
+                <span className="font-weight-bold">경고 사유</span>: {warn.reason}
+              </div>
             </Modal.Body>
             <Modal.Footer className="justify-content-end">
               <Button variant="aztra" onClick={async () => {
@@ -495,18 +496,18 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
                               <div className="d-flex">
                                 <span>검색 조건:</span>
                                 <div className="d-lg-flex">
-                                  <Form.Check className="ml-4" type="radio" label="경고 사유" checked={searchType === 'reason'} style={{ wordBreak: 'keep-all' }} onChange={() => handleSearchTypeOnChange('reason')} />
-                                  <Form.Check className="ml-4" type="radio" label="대상 멤버" checked={searchType === 'target'} style={{ wordBreak: 'keep-all' }} onChange={() => handleSearchTypeOnChange('target')} />
-                                  <Form.Check className="ml-4" type="radio" label="경고 부여자" checked={searchType === 'warnby'} style={{ wordBreak: 'keep-all' }} onChange={() => handleSearchTypeOnChange('warnby')} />
+                                  <Form.Check className="ml-4" type="radio" id="radio-search-by-reason" custom label="경고 사유" checked={searchType === 'reason'} style={{ wordBreak: 'keep-all' }} onChange={() => handleSearchTypeOnChange('reason')} />
+                                  <Form.Check className="ml-4" type="radio" id="radio-search-by-target" custom label="대상 멤버" checked={searchType === 'target'} style={{ wordBreak: 'keep-all' }} onChange={() => handleSearchTypeOnChange('target')} />
+                                  <Form.Check className="ml-4" type="radio" id="radio-search-by-warnby" custom label="경고 부여자" checked={searchType === 'warnby'} style={{ wordBreak: 'keep-all' }} onChange={() => handleSearchTypeOnChange('warnby')} />
                                 </div>
                               </div>
                               <div className="d-flex mt-4 mt-lg-0">
                                 <span>정렬 조건:</span>
                                 <div className="d-lg-flex">
-                                  <Form.Check className="ml-4" type="radio" label="최신순" checked={sortType === 'latest'} style={{ wordBreak: 'keep-all' }} onChange={() => handleSortTypeOnChange('latest')} />
-                                  <Form.Check className="ml-4" type="radio" label="과거순" checked={sortType === 'oldest'} style={{ wordBreak: 'keep-all' }} onChange={() => handleSortTypeOnChange('oldest')} />
-                                  <Form.Check className="ml-4" type="radio" label="경고수 많은순" checked={sortType === 'count'} style={{ wordBreak: 'keep-all' }} onChange={() => handleSortTypeOnChange('count')} />
-                                  <Form.Check className="ml-4" type="radio" label="경고수 적은순" checked={sortType === 'count_least'} style={{ wordBreak: 'keep-all' }} onChange={() => handleSortTypeOnChange('count_least')} />
+                                  <Form.Check className="ml-4" type="radio" id="radio-sort-latest" custom label="최신순" checked={sortType === 'latest'} style={{ wordBreak: 'keep-all' }} onChange={() => handleSortTypeOnChange('latest')} />
+                                  <Form.Check className="ml-4" type="radio" id="radio-sort-oldest" custom label="과거순" checked={sortType === 'oldest'} style={{ wordBreak: 'keep-all' }} onChange={() => handleSortTypeOnChange('oldest')} />
+                                  <Form.Check className="ml-4" type="radio" id="radio-sort-count" custom label="경고수 많은순" checked={sortType === 'count'} style={{ wordBreak: 'keep-all' }} onChange={() => handleSortTypeOnChange('count')} />
+                                  <Form.Check className="ml-4" type="radio" id="radio-sort-count-least" custom label="경고수 적은순" checked={sortType === 'count_least'} style={{ wordBreak: 'keep-all' }} onChange={() => handleSortTypeOnChange('count_least')} />
                                 </div>
                               </div>
                             </Col>
@@ -568,6 +569,8 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
                                 <tr>
                                   <th className="align-middle text-center" style={{ width: 50 }}>
                                     <Form.Check
+                                      id="warn-select-all"
+                                      custom
                                       type="checkbox"
                                       checked={!!warns.length && warnsSet.size === selectedWarns.size && Array.from(warnsSet).every(value => selectedWarns.has(value))}
                                       onChange={() => {
@@ -577,10 +580,6 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
                                         else {
                                           setSelectedWarns(warnsSet)
                                         }
-                                      }}
-                                      style={{
-                                        transform: 'scale(1.25)',
-                                        WebkitTransform: 'scale(1.25)'
                                       }}
                                     />
                                   </th>
