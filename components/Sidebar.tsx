@@ -7,7 +7,8 @@ import {
   Group as GroupIcon,
   ReportProblemRounded as ReportProblemRoundedIcon,
   DataUsage as DataUsageIcon,
-  History as HistoryIcon
+  History as HistoryIcon,
+  TrendingUp as TrendingUpIcon
 } from '@material-ui/icons'
 import Link from 'next/link'
 
@@ -124,6 +125,24 @@ export default function Sidebar(props: SidebarProps) {
             </Nav.Link>
           </Link>
         </Nav.Item>
+        {
+          process.env.NODE_ENV === "development" && (
+            <Nav.Item>
+              <Link href={`/dashboard/${guild?.id}/statistics`} shallow={true}>
+                <Nav.Link
+                  className="d-flex mb-1"
+                  href={`/dashboard/${guild?.id}/statistics`}
+                  active={location?.pathname.startsWith(`/dashboard/${guild?.id}/statistics`)}
+                >
+                  <div style={iconStyle} className="mr-3">
+                    <TrendingUpIcon style={{ transform: 'scale(1.1)' }} />
+                  </div>
+                  통계
+                </Nav.Link>
+              </Link>
+            </Nav.Item>
+          )
+        }
       </Nav>
     </>
   )
