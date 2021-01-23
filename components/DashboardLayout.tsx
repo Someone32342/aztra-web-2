@@ -1,5 +1,5 @@
 import React, { Component, createRef } from 'react'
-import { Container, Row, Col, Button } from 'react-bootstrap'
+import { Container, Row, Col, Button, Modal } from 'react-bootstrap'
 
 import Sidebar from './Sidebar'
 import axios from 'axios'
@@ -51,7 +51,7 @@ export default class DashboardLayout extends Component<DashboardLayoutProps, Das
           .find((one: PartialGuild) => one.id === this.props.guildId)
 
         if (this.mounted) this.setState({ guild: guild, guildCache: guild })
-        localStorage.setItem('guildCache', JSON.stringify(guild))
+        if (this.state.guild) localStorage.setItem('guildCache', JSON.stringify(guild))
       })
       .catch(e => {
         if (this.mounted) this.setState({ guild: null })
@@ -96,25 +96,6 @@ export default class DashboardLayout extends Component<DashboardLayoutProps, Das
 
     const isXSsize = (this.state?.winWidth || 0) < 768
 
-
-    if (this.state.fetchDone && !guild) {
-      swal(
-        <div>
-          <h2>서버를 찾을 수 없습니다!</h2>
-          <p className="px-3">
-            사용자가 들어가있지 않는 서버이거나 존재하지 않는 서버입니다
-          </p>
-          <Button variant="danger" href="/servers">서버 목록으로</Button>
-        </div>,
-        {
-          icon: "error",
-          button: false,
-          closeOnClickOutside: false,
-          closeOnEsc: false
-        }
-      )
-    }
-
     return (
       <Container fluid>
         <Row>
@@ -134,7 +115,7 @@ export default class DashboardLayout extends Component<DashboardLayoutProps, Das
                     {
                       ((guildCache || guild)?.id === this.props.guildId) && (
                         <img
-                          alt="서버 아이콘"
+                          alt=""
                           src={
                             guildCache?.id === this.props.guildId
                               ? `https://cdn.discordapp.com/icons/${guildCache?.id}/${guildCache?.icon}.png`
@@ -198,6 +179,19 @@ export default class DashboardLayout extends Component<DashboardLayoutProps, Das
             {children ? children(guild) : null}
           </Col>
         </Row>
+        <Modal className="modal-dark" show={this.state.fetchDone && !guild} centered onHide={() => { }}>
+          <Modal.Header>
+            <Modal.Title style={{ fontFamily: "NanumSquare" }}>
+              서버를 찾을 수 없습니다!
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            사용자가 들어가있지 않는 서버이거나 관리자 권한이 없는 서버입니다!
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="info" href="/servers">서버 목록으로</Button>
+          </Modal.Footer>
+        </Modal>
       </Container>
     )
   }

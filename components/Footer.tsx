@@ -4,6 +4,7 @@ import links from 'datas/links'
 
 import styles from 'styles/components/Footer.module.scss'
 import classNames from 'classnames/bind'
+import Link from 'next/link';
 
 const cx = classNames.bind(styles)
 
@@ -26,7 +27,10 @@ export default function Footer() {
             <h5>사이트</h5>
             <ul className="list-unstyled">
               <li>
-                <a href="/">홈</a>
+                <Link href="/">홈</Link>
+              </li>
+              <li>
+                <Link href="/servers">대시보드</Link>
               </li>
             </ul>
           </Col>
@@ -44,12 +48,15 @@ export default function Footer() {
               <li>
                 <a href={links.privacy}>개인정보 처리방침</a>
               </li>
+              <li>
+                <Link href="/docs">봇 가이드</Link>
+              </li>
             </ul>
           </Col>
         </Row>
         <div className={cx("FooterCopyright", "text-center")}>
           Copyright © 2020 InfiniteTeam All rights reserved.
-          </div>
+        </div>
       </Container>
     </footer>
   )
