@@ -191,11 +191,13 @@ const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
     }
   }
 
+  console.log(data)
+
   return (
     <Layout>
       <DashboardLayout guildId={guildId}>
         {
-          () => (
+          () => data !== undefined ? (
             <div>
               <Row className="dashboard-section">
                 <div>
@@ -371,6 +373,12 @@ const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
               </Row>
             </div>
           )
+            : <Container className="d-flex align-items-center justify-content-center flex-column" style={{
+              height: '500px'
+            }}>
+              <h3 className="pb-4">불러오는 중</h3>
+              <Spinner animation="border" variant="aztra" />
+            </Container>
         }
       </DashboardLayout>
     </Layout>

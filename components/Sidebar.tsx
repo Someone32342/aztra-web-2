@@ -8,7 +8,8 @@ import {
   ReportProblemRounded as ReportProblemRoundedIcon,
   DataUsage as DataUsageIcon,
   History as HistoryIcon,
-  TrendingUp as TrendingUpIcon
+  TrendingUp as TrendingUpIcon,
+  EventNote as EventNoteIcon
 } from '@material-ui/icons'
 import Link from 'next/link'
 
@@ -120,27 +121,45 @@ export default function Sidebar(props: SidebarProps) {
               <div style={iconStyle} className="mr-3">
                 <HistoryIcon style={{ transform: 'scale(1.1)' }} />
               </div>
-              로깅 설정
-              <Badge variant="aztra" className="ml-2 my-auto" style={{ fontSize: 14 }}>베타</Badge>
+              <div>
+                로깅 설정
+                <Badge variant="aztra" className="ml-2 my-auto" style={{ fontSize: 14 }}>베타</Badge>
+              </div>
             </Nav.Link>
           </Link>
         </Nav.Item>
         {
           process.env.NODE_ENV === "development" && (
-            <Nav.Item>
-              <Link href={`/dashboard/${guild?.id}/statistics`} shallow={true}>
-                <Nav.Link
-                  className="d-flex mb-1"
-                  href={`/dashboard/${guild?.id}/statistics`}
-                  active={location?.pathname.startsWith(`/dashboard/${guild?.id}/statistics`)}
-                >
-                  <div style={iconStyle} className="mr-3">
-                    <TrendingUpIcon style={{ transform: 'scale(1.1)' }} />
-                  </div>
-                  통계
-                </Nav.Link>
-              </Link>
-            </Nav.Item>
+            <>
+              <Nav.Item>
+                <Link href={`/dashboard/${guild?.id}/autotasking`} shallow={true}>
+                  <Nav.Link
+                    className="d-flex mb-1"
+                    href={`/dashboard/${guild?.id}/autotasking`}
+                    active={location?.pathname.startsWith(`/dashboard/${guild?.id}/autotasking`)}
+                  >
+                    <div style={iconStyle} className="mr-3">
+                      <EventNoteIcon style={{ transform: 'scale(1.1)' }} />
+                    </div>
+                    자동 작업 수행
+                  </Nav.Link>
+                </Link>
+              </Nav.Item>
+              <Nav.Item>
+                <Link href={`/dashboard/${guild?.id}/statistics`} shallow={true}>
+                  <Nav.Link
+                    className="d-flex mb-1"
+                    href={`/dashboard/${guild?.id}/statistics`}
+                    active={location?.pathname.startsWith(`/dashboard/${guild?.id}/statistics`)}
+                  >
+                    <div style={iconStyle} className="mr-3">
+                      <TrendingUpIcon style={{ transform: 'scale(1.1)' }} />
+                    </div>
+                    통계
+                  </Nav.Link>
+                </Link>
+              </Nav.Item>
+            </>
           )
         }
       </Nav>
