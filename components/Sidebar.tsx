@@ -141,7 +141,10 @@ export default function Sidebar(props: SidebarProps) {
                     <div style={iconStyle} className="mr-3">
                       <EventNoteIcon style={{ transform: 'scale(1.1)' }} />
                     </div>
-                    자동 작업 수행
+                    <div>
+                      자동 작업 수행
+                      <Badge variant="aztra" className="ml-2 my-auto" style={{ fontSize: 14 }}>베타</Badge>
+                    </div>
                   </Nav.Link>
                 </Link>
               </Nav.Item>
