@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from 'react'
 import axios, { AxiosError } from 'axios'
-import { Button, Col, Container, Form, Row, Spinner, Table } from 'react-bootstrap'
+import { Button, Col, Form, Row, Spinner, Table } from 'react-bootstrap'
+import { Add as AddIcon, Delete as DeleteIcon } from '@material-ui/icons'
 import api from 'datas/api'
 
-import { ServerData } from 'types/dbtypes'
 import { GetServerSideProps, NextPage } from 'next'
 import Cookies from 'universal-cookie'
 import Layout from 'components/Layout'
 import DashboardLayout from 'components/DashboardLayout'
 import useSWR from 'swr'
 import urljoin from 'url-join'
+import { TaskSet } from 'types/AutoTasking'
+import { MemberMinimal, Role } from 'types/DiscordTypes'
 
 interface AutoTaskingRouterProps {
   guildId: string
@@ -27,38 +29,88 @@ export const getServerSideProps: GetServerSideProps<AutoTaskingRouterProps> = as
 interface TaskListCardProps {
   onCheckChange?: ((event: React.ChangeEvent<HTMLInputElement>) => void)
   checked?: boolean
-  event: React.ReactNode
-  task: React.ReactNode
-}
-
-const TaskListCard: React.FC<TaskListCardProps> = ({ event, task, onCheckChange, checked }) => {
-  return (
-    <tr>
-      <td className="align-middle text-center">
-        <Form.Check
-          id={`warn-check-${event}`}
-          type="checkbox"
-          custom
-        />
-      </td>
-      <td className="align-middle d-none d-md-table-cell">
-        <span className="d-inline-block text-truncate mw-100 align-middle cursor-pointer">
-          {event}
-        </span>
-      </td>
-      <td className="align-middle d-none d-md-table-cell">
-        <span className="d-inline-block text-truncate mw-100 align-middle cursor-pointer">
-          {task}
-        </span>
-      </td>
-    </tr>
-  )
+  taskset: TaskSet
 }
 
 const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
-  const [useLevelupMessage, setUseLevelupMessage] = useState(false)
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState(false)
+
+  const { data } = useSWR<TaskSet[], AxiosError>(
+    new Cookies().get('ACCESS_TOKEN') ? urljoin(api, `/servers/${guildId}/autotasking`) : null,
+    url => axios.get(url, {
+      headers: {
+        Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
+      }
+    })
+      .then(r => r.data)
+  )
+
+  const { data: members } = useSWR<MemberMinimal[], AxiosError>(
+    new Cookies().get('ACCESS_TOKEN') ? urljoin(api, `/discord/guilds/${guildId}/members`) : null,
+    url => axios.get(url, {
+      headers: {
+        Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
+      }
+    })
+      .then(r => r.data),
+  )
+
+  const { data: roles } = useSWR<Role[], AxiosError>(
+    new Cookies().get('ACCESS_TOKEN') ? urljoin(api, `/discord/guilds/${guildId}/roles`) : null,
+    url => axios.get(url, {
+      headers: {
+        Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
+      }
+    })
+      .then(r => r.data)
+  )
+
+  const TaskListCard: React.FC<TaskListCardProps> = ({ taskset, onCheckChange, checked }) => {
+    let eventName = `(알 수 없는 이벤트: ${taskset.event})`
+
+    switch (taskset.event) {
+      case 'reaction_add':
+        eventName = "메시지에 반응이 추가되었을 때"
+        break
+    }
+
+    return (
+      <tr>
+        <td className="align-middle text-center">
+          <Form.Check
+            id={`taskset-check-${taskset.uuid}`}
+            type="checkbox"
+            custom
+          />
+        </td>
+        <td className="align-middle d-none d-md-table-cell">
+          <span className="d-inline-block text-truncate mw-100 align-middle cursor-pointer font-weight-bold">
+            {eventName}
+          </span>
+        </td>
+        <td className="align-middle d-none d-md-table-cell">
+          <div className="mw-100 align-middle cursor-pointer font-weight-bold">
+            {
+              taskset.task.map(o => {
+                switch (o.taskcode) {
+                  case 'add_roles':
+                    return <div>
+                      <span></span>
+                      - {o.data.members.map((id: string) => members?.find(o => o.user.id === id)?.user.username).join(', ')} 멤버로부터 {o.data.roles.join(', ')} 역할 추가하기
+                    </div>
+                  case 'remove_roles':
+                    return <div>- {o.data.members.map((id: string) => members?.find(o => o.user.id === id)?.user.username).join(', ')} 멤버로부터 {o.data.roles.join(', ')} 역할 제거하기</div>
+                  default:
+                    return <div>- (알 수 없는 작업: {o.taskcode})</div>
+                }
+              })
+            }
+          </div>
+        </td>
+      </tr>
+    )
+  }
 
   return (
     <Layout>
@@ -95,22 +147,20 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                           </tr>
                         </thead>
                         <tbody>
-                          <TaskListCard
-                            event={<>
-                              <span className="font-weight-bold">
-                                <u>메시지</u>
-                              </span>
-                              {" "}에 반응이 추가되었을 때
-                            </>}
-                            task={<>
-                              <span className="font-weight-bold" style={{ color: "limegreen" }}>
-                                @USER
-                              </span>
-                              {" "}역할 추가하기 외 2개
-                            </>}
-                          />
+                          {data?.map(one => <TaskListCard taskset={one} />)}
                         </tbody>
                       </Table>
+                    </Row>
+
+                    <Row className="justify-content-end">
+                      <Button variant="aztra" size="sm" className="d-flex align-items-center mr-3">
+                        <AddIcon className="mr-1" />
+                        새로 추가
+                      </Button>
+                      <Button variant="danger" size="sm" className="d-flex align-items-center">
+                        <DeleteIcon className="mr-1" />
+                        선택 항목 삭제
+                      </Button>
                     </Row>
 
                     <Row className="mt-4">

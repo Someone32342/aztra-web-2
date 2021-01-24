@@ -115,34 +115,9 @@ const WarnsListCard: React.FC<WarnsListCardProps> = ({ target, warnby, warn, gui
         </div>
       </td>
       <td className="align-middle d-none d-md-table-cell">
-        <OverlayTrigger
-          trigger="click"
-          placement="top"
-          overlay={
-            <Popover id={`member-${warn.member}-warn-reason-details`} style={{
-              maxWidth: 500
-            }}>
-              <Popover.Title className="font-weight-bold">
-                경고 사유 자세히
-              </Popover.Title>
-              <Popover.Content>
-                <div className="p-1">
-                  {warn.reason}
-                </div>
-                <div className="d-flex my-2">
-                  <Button size="sm" variant="secondary" className="d-flex align-items-center">
-                    <FileCopyIcon className="mr-1" />
-                    복사하기
-                  </Button>
-                </div>
-              </Popover.Content>
-            </Popover>
-          }
-        >
-          <span className="d-inline-block text-truncate mw-100 align-middle cursor-pointer">
-            {warn.reason}
-          </span>
-        </OverlayTrigger>
+        <span className="d-inline-block text-truncate mw-100 align-middle">
+          {warn.reason}
+        </span>
       </td>
       <td className="align-middle">{warn.count}회</td>
       <td className="align-middle">

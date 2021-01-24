@@ -7,6 +7,8 @@ import { User } from 'types/DiscordTypes'
 import Link from 'next/link'
 import classNames from 'classnames/bind'
 import styles from 'styles/components/Navibar.module.scss'
+import links from 'datas/links'
+import Image from 'next/image'
 
 import MenuIcon from '@material-ui/icons/Menu';
 
@@ -117,6 +119,12 @@ export default class Navibar extends React.Component<{}, NavibarState> {
                     봇 가이드
                   </Nav.Link>
                 </Link>
+                <NavDropdown title="지원 및 문의" id="navdropdown-support" className={cx("dropdown-menu-dark", "Navlink", "NavDropdownWhiteTitle")}>
+                  <NavDropdown.Item className="dropdown-item-dark pl-3" href={links.support} target="_blank">
+                    <img src="/assets/images/discord-logo-white.png" className="mr-2" style={{ width: 25, height: 25 }} />
+                    디스코드 서포트 서버
+                  </NavDropdown.Item>
+                </NavDropdown>
               </Nav>
               <Nav>
                 {
@@ -134,7 +142,7 @@ export default class Navibar extends React.Component<{}, NavibarState> {
                           }
                           style={{ maxHeight: 30 }}
                         />
-                        <NavDropdown id="nav-dropdown" className="dropdown-menu-dark NavDropdown" title={
+                        <NavDropdown id="nav-dropdown" className="dropdown-menu-dark" title={
                           <>
                             <span style={{
                               fontSize: '12.5pt',
