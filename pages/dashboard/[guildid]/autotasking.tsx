@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import axios, { AxiosError } from 'axios'
-import { Button, Col, Form, Row, Spinner, Table } from 'react-bootstrap'
-import { Add as AddIcon, Delete as DeleteIcon } from '@material-ui/icons'
+import { Button, ButtonGroup, Card, Col, Form, OverlayTrigger, Row, Spinner, Table, Tooltip } from 'react-bootstrap'
+import { Add as AddIcon, Delete as DeleteIcon, RemoveCircleOutline, OpenInNew as OpenInNewIcon, Close as CloseIcon } from '@material-ui/icons'
 import api from 'datas/api'
 
 import { GetServerSideProps, NextPage } from 'next'
@@ -10,9 +10,10 @@ import Layout from 'components/Layout'
 import DashboardLayout from 'components/DashboardLayout'
 import useSWR from 'swr'
 import urljoin from 'url-join'
-import { TaskSet } from 'types/AutoTasking'
 import { MemberMinimal, Role } from 'types/DiscordTypes'
 import Head from 'next/head'
+import { TaskSet } from 'types/autotask'
+import { EmojiRoleData } from 'types/autotask/action_data'
 
 interface AutoTaskingRouterProps {
   guildId: string
@@ -34,6 +35,7 @@ interface TaskListCardProps {
 }
 
 const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
+  const [addNew, setAddNew] = useState(false)
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState(false)
 
@@ -68,11 +70,21 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
   )
 
   const TaskListCard: React.FC<TaskListCardProps> = ({ taskset, onCheckChange, checked }) => {
-    let eventName = `(알 수 없는 이벤트: ${taskset.event})`
+    let eventName = `(알 수 없는 동작: ${taskset.type})`
 
-    switch (taskset.event) {
-      case 'reaction_add':
-        eventName = "메시지에 반응이 추가되었을 때"
+    let taskContent: React.ReactNode
+
+    switch (taskset.type) {
+      case 'emoji_role':
+        eventName = "반응 역할 추가/제거"
+        let taskdata: EmojiRoleData[] = taskset.data
+        taskContent = taskdata.map(o => (
+          <>
+            <div>{o.emoji} 로 반응했을 때:</div>
+            {o.add && <div className="pl-3">- 역할 추가: {o.add.map(r => roles?.find(p => p.id === r)?.name).join(', ')}</div>}
+            {o.remove && <div className="pl-3">- 역할 제거: {o.remove.map(r => roles?.find(p => p.id === r)?.name).join(', ')}</div>}
+          </>
+        ))
         break
     }
 
@@ -92,22 +104,38 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
         </td>
         <td className="align-middle d-none d-md-table-cell">
           <div className="mw-100 align-middle cursor-pointer font-weight-bold">
-            {
-              taskset.task.map(o => {
-                switch (o.taskcode) {
-                  case 'add_roles':
-                    return <div>
-                      <span></span>
-                      - {o.data.members.map((id: string) => members?.find(o => o.user.id === id)?.user.username).join(', ')} 멤버로부터 {o.data.roles.join(', ')} 역할 추가하기
-                    </div>
-                  case 'remove_roles':
-                    return <div>- {o.data.members.map((id: string) => members?.find(o => o.user.id === id)?.user.username).join(', ')} 멤버로부터 {o.data.roles.join(', ')} 역할 제거하기</div>
-                  default:
-                    return <div>- (알 수 없는 작업: {o.taskcode})</div>
-                }
-              })
-            }
+            {taskContent}
           </div>
+        </td>
+        <td className="align-middle text-center">
+          <ButtonGroup>
+            <OverlayTrigger
+              placement="top"
+              overlay={
+                <Tooltip id="warn-list-row-remove-warn">
+                  이 작업 제거하기
+                </Tooltip>
+              }
+            >
+              <Button variant="dark" className="d-flex px-1 remove-before">
+                <RemoveCircleOutline />
+              </Button>
+            </OverlayTrigger>
+
+            <OverlayTrigger
+              placement="top"
+              overlay={
+                <Tooltip id="warn-list-row-remove-warn">
+                  작업 자세히 보기
+                </Tooltip>
+              }
+            >
+              <Button variant="dark" className="d-flex px-1 remove-before">
+                <OpenInNewIcon />
+              </Button>
+            </OverlayTrigger>
+
+          </ButtonGroup>
         </td>
       </tr>
     )
@@ -128,7 +156,7 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                     <h3>자동 작업 설정</h3>
                     <div className="py-2">
                       어떤 동작이 발생했을 때, 또는 주기적으로 여러가지 작업을 자동으로 수행할 수 있습니다.
-                  </div>
+                    </div>
                   </div>
                 </Row>
                 <Row>
@@ -147,8 +175,9 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                                   type="checkbox"
                                 />
                               </th>
-                              <th className="text-center text-md-left" style={{ width: '20%' }}>이벤트</th>
-                              <th className="text-center text-md-left d-none d-md-table-cell">수행할 작업</th>
+                              <th className="text-center text-md-left" style={{ width: '20%' }}>작업 유형</th>
+                              <th className="text-center text-md-left d-none d-md-table-cell">작업 내용</th>
+                              <th style={{ width: 100 }} />
                             </tr>
                           </thead>
                           <tbody>
@@ -158,17 +187,48 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                       </Row>
 
                       <Row className="justify-content-end">
-                        <Button variant="aztra" size="sm" className="d-flex align-items-center mr-3">
+                        <Button variant="aztra" size="sm" className="d-flex align-items-center mr-3" onClick={() => setAddNew(true)}>
                           <AddIcon className="mr-1" />
-                        새로 추가
-                      </Button>
+                          새로 추가
+                        </Button>
                         <Button variant="danger" size="sm" className="d-flex align-items-center">
                           <DeleteIcon className="mr-1" />
-                        선택 항목 삭제
-                      </Button>
+                          선택 항목 삭제
+                        </Button>
                       </Row>
 
-                      <Row className="mt-4">
+                      {
+                        addNew &&
+                        <Row className="mt-4">
+                          <Col>
+                            <Card bg="dark">
+                              <Card.Header className="d-flex justify-content-between align-items-center">
+                                <span className="font-weight-bold">새 작업 추가</span>
+                                <Button variant="dark" size="sm" className="d-flex align-items-center"><CloseIcon fontSize="small" /></Button>
+                              </Card.Header>
+                              <Card.Body>
+                                <Form>
+                                  <Form.Group className="d-flex">
+                                    <Form.Label column sm="auto">작업 유형 선택</Form.Label>
+                                    <Col sm="3">
+                                      <Form.Control as="select">
+                                        <option>{" "}</option>
+                                        <option>반응 역할 추가/제거</option>
+                                      </Form.Control>
+                                    </Col>
+                                  </Form.Group>
+                                  <Button variant="aztra" className="mx-3">
+                                    <AddIcon className="mr-1" />
+                                    추가하기
+                                  </Button>
+                                </Form>
+                              </Card.Body>
+                            </Card>
+                          </Col>
+                        </Row>
+                      }
+
+                      <Row className="mt-5">
                         <Button
                           variant={saveError ? "danger" : "aztra"}
                           style={{
