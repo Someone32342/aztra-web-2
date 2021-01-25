@@ -10,6 +10,7 @@ import Layout from 'components/Layout'
 import DashboardLayout from 'components/DashboardLayout'
 import useSWR from 'swr'
 import urljoin from 'url-join'
+import Head from 'next/head'
 
 interface LevelingRouterProps {
   guildId: string
@@ -92,73 +93,78 @@ const Leveling: NextPage<LevelingRouterProps> = ({ guildId }) => {
 
 
   return (
-    <Layout>
-      <DashboardLayout guildId={guildId}>
-        {
-          () => data ? (
-            <div>
-              <Row className="dashboard-section">
-                <div>
-                  <h3>레벨링 설정</h3>
-                  <div className="py-2">
-                    멤버가 메시지를 보낼 때 마다 경험치를 얻고, 레벨을 올릴 수 있습니다.
+    <>
+      <Head>
+        <title>레벨링 설정 - Aztra 대시보드</title>
+      </Head>
+      <Layout>
+        <DashboardLayout guildId={guildId}>
+          {
+            () => data ? (
+              <div>
+                <Row className="dashboard-section">
+                  <div>
+                    <h3>레벨링 설정</h3>
+                    <div className="py-2">
+                      멤버가 메시지를 보낼 때 마다 경험치를 얻고, 레벨을 올릴 수 있습니다.
                     </div>
-                </div>
-              </Row>
-              <Row>
-                <Col>
-                  <Form noValidate>
-                    <Row className="pb-2">
-                      <h4>레벨 메시지 설정</h4>
-                    </Row>
+                  </div>
+                </Row>
+                <Row>
+                  <Col>
+                    <Form noValidate>
+                      <Row className="pb-2">
+                        <h4>레벨 메시지 설정</h4>
+                      </Row>
 
-                    <Form.Group controlId="levelingSetting">
-                      <Form.Check
-                        type="switch"
-                        label={
-                          <div className="pl-2">
-                            멤버의 레벨이 올랐을 때 메시지 보내기
+                      <Form.Group controlId="levelingSetting">
+                        <Form.Check
+                          type="switch"
+                          label={
+                            <div className="pl-2">
+                              멤버의 레벨이 올랐을 때 메시지 보내기
                           </div>
-                        }
-                        checked={useLevelupMessage}
-                        onChange={() => setUseLevelupMessage(!useLevelupMessage)}
-                        aria-controls="incomingForm"
-                        aria-expanded={!!useLevelupMessage}
-                      />
-                    </Form.Group>
+                          }
+                          checked={useLevelupMessage}
+                          onChange={() => setUseLevelupMessage(!useLevelupMessage)}
+                          aria-controls="incomingForm"
+                          aria-expanded={!!useLevelupMessage}
+                        />
+                      </Form.Group>
 
-                    <Row className="mt-4">
-                      <Button
-                        variant={saveError ? "danger" : "aztra"}
-                        disabled={saving || saveError || !isChanged()}
-                        onClick={handleSubmit}
-                        style={{
-                          minWidth: 140
-                        }}
-                      >
-                        {
-                          saving
-                            ? <>
-                              <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
-                              <span className="pl-2">저장 중...</span>
-                            </>
-                            : <span>{saveError ? "오류" : isChanged() ? "저장하기" : "저장됨"}</span>
-                        }
-                      </Button>
-                    </Row>
-                  </Form>
-                </Col>
-              </Row>
-            </div>
-          ) : <Container className="d-flex align-items-center justify-content-center flex-column" style={{
-            height: '500px'
-          }}>
-              <h3 className="pb-4">불러오는 중</h3>
-              <Spinner animation="border" variant="aztra" />
-            </Container>
-        }
-      </DashboardLayout>
-    </Layout>
+                      <Row className="mt-4">
+                        <Button
+                          variant={saveError ? "danger" : "aztra"}
+                          disabled={saving || saveError || !isChanged()}
+                          onClick={handleSubmit}
+                          style={{
+                            minWidth: 140
+                          }}
+                        >
+                          {
+                            saving
+                              ? <>
+                                <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
+                                <span className="pl-2">저장 중...</span>
+                              </>
+                              : <span>{saveError ? "오류" : isChanged() ? "저장하기" : "저장됨"}</span>
+                          }
+                        </Button>
+                      </Row>
+                    </Form>
+                  </Col>
+                </Row>
+              </div>
+            ) : <Container className="d-flex align-items-center justify-content-center flex-column" style={{
+              height: '500px'
+            }}>
+                <h3 className="pb-4">불러오는 중</h3>
+                <Spinner animation="border" variant="aztra" />
+              </Container>
+          }
+        </DashboardLayout>
+      </Layout>
+    </>
   )
 }
 

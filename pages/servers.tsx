@@ -15,6 +15,7 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import useSWR from 'swr';
 import links from 'datas/links'
+import Head from 'next/head';
 
 export default function Servers() {
   const router = useRouter()
@@ -92,52 +93,57 @@ export default function Servers() {
     ))
 
   return (
-    <Layout>
-      <div className="min-vh-100">
-        <Container fluid="sm" className="text-center">
-          {
-            !error && guild_cards?.length === 0
-              ?
-              <h2 className="text-white" style={{ marginTop: 120, marginBottom: 120 }}>
-                관리할 수 있는 서버가 하나도 없습니다!
+    <>
+      <Head>
+        <title>Aztra - 서버 선택</title>
+      </Head>
+      <Layout>
+        <div className="min-vh-100">
+          <Container fluid="sm" className="text-center">
+            {
+              !error && guild_cards?.length === 0
+                ?
+                <h2 className="text-white" style={{ marginTop: 120, marginBottom: 120 }}>
+                  관리할 수 있는 서버가 하나도 없습니다!
                   <h4 className="text-white mt-5" >관리자 권한이 있는 서버만 표시됩니다.</h4>
-              </h2>
-              : <h2 className="text-white" style={{ marginTop: 120, marginBottom: 120 }}>서버를 선택하세요</h2>
-          }
-        </Container>
-        <Container fluid="sm" style={{ marginBottom: 160 }}>
-          {
-            !(data || error)
-              ?
-              <div style={{ color: 'whitesmoke', paddingTop: 80, paddingBottom: 300 }} className="text-center">
-                <Spinner animation="border" variant="aztra" style={{
-                  height: 50,
-                  width: 50
-                }} />
-                <h3 className="pt-5">
-                  서버 목록을 가져오고 있습니다...
+                </h2>
+                : <h2 className="text-white" style={{ marginTop: 120, marginBottom: 120 }}>서버를 선택하세요</h2>
+            }
+          </Container>
+          <Container fluid="sm" style={{ marginBottom: 160 }}>
+            {
+              !(data || error)
+                ?
+                <div style={{ color: 'whitesmoke', paddingTop: 80, paddingBottom: 300 }} className="text-center">
+                  <Spinner animation="border" variant="aztra" style={{
+                    height: 50,
+                    width: 50
+                  }} />
+                  <h3 className="pt-5">
+                    서버 목록을 가져오고 있습니다...
                 </h3>
-              </div>
-              : guild_cards
-          }
-        </Container>
-      </div>
-      <Modal className="modal-dark" show={showError} centered onHide={() => { }}>
-        <Modal.Body>
-          서버 정보를 가져오는 데 실패했습니다!
+                </div>
+                : guild_cards
+            }
+          </Container>
+        </div>
+        <Modal className="modal-dark" show={showError} centered onHide={() => { }}>
+          <Modal.Body>
+            서버 정보를 가져오는 데 실패했습니다!
         </Modal.Body>
-        <Modal.Footer>
-          <Button variant="dark" onClick={() => router.push('/')}>
-            메인으로
+          <Modal.Footer>
+            <Button variant="dark" onClick={() => router.push('/')}>
+              메인으로
           </Button>
-          <Button variant="danger" onClick={() => {
-            setShowError(false)
-            mutate()
-          }}>
-            다시 시도하기
+            <Button variant="danger" onClick={() => {
+              setShowError(false)
+              mutate()
+            }}>
+              다시 시도하기
           </Button>
-        </Modal.Footer>
-      </Modal>
-    </Layout>
+          </Modal.Footer>
+        </Modal>
+      </Layout>
+    </>
   )
 }

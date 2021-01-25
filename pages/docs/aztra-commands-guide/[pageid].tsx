@@ -2,6 +2,8 @@ import src from "docs/aztra-commands-guide"
 import DocViewWithNav from "components/docs/DocViewWithNav"
 import { GetServerSideProps } from "next"
 import Layout from "components/Layout"
+import React from "react"
+import Head from "next/head"
 
 interface Props {
   pageId: string
@@ -19,9 +21,14 @@ export const getServerSideProps: GetServerSideProps<Props> = async context => {
 
 const AztraCommandGuide: React.FC<Props> = ({ pageId }) => {
   return (
-    <Layout>
-      <DocViewWithNav index={src} pageId={pageId} />
-    </Layout>
+    <>
+      <Head>
+        <title>명령어 가이드 - Aztra</title>
+      </Head>
+      <Layout>
+        <DocViewWithNav index={src} pageId={pageId} />
+      </Layout>
+    </>
   )
 }
 

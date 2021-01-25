@@ -31,3 +31,10 @@ export interface LoggingSet {
   channel: string
   flags: string
 }
+
+export interface Billboard {
+  uuid: string
+  guild: string
+  channel: string
+  value: string
+}

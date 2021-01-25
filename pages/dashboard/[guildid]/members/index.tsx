@@ -10,6 +10,7 @@ import Layout from 'components/Layout';
 import DashboardLayout from 'components/DashboardLayout';
 import useSWR from 'swr';
 import urljoin from 'url-join';
+import Head from 'next/head';
 
 interface MembersRouterProps {
   guildId: string
@@ -86,102 +87,107 @@ const Members: NextPage<MembersRouterProps> = ({ guildId }) => {
   )
 
   return (
-    <Layout>
-      <DashboardLayout guildId={guildId}>
-        {
-          () => (
-            <div style={{
-              fontFamily: 'NanumBarunGothic'
-            }}>
-              <Row className="dashboard-section">
-                <h3>멤버 목록</h3>
-              </Row>
-              <Row>
-                <Col>
-                  {
-                    members
-                      ? <Form>
-                        <Form.Group>
-                          <Row className="pb-2 justify-content-between">
-                            <Col
-                              className="d-flex align-items-end mt-4 mt-xl-0 px-0"
-                              xs={{
-                                span: 0,
-                                order: "last"
-                              }}
-                              xl={{
-                                order: "first"
-                              }}
-                              style={{
-                                fontSize: '12pt'
-                              }}>
-                              멤버 전체 {members?.length} 명{memberSearch && `, ${filteredMembers.length}명 검색됨`}
-                            </Col>
-                            <Col
-                              className="px-0"
-                              xs={{
-                                span: "auto",
-                                order: "first"
-                              }}
-                              xl={{
-                                span: "auto",
-                                order: "last"
-                              }}>
-                              <div className="d-flex">
-                                <span>검색 조건:</span>
-                                <div className="d-lg-flex">
-                                  <Form.Check
-                                    id="member-search-by-name-and-nick"
-                                    custom
-                                    className="ml-4"
-                                    type="radio"
-                                    label="이름 및 닉네임"
-                                    checked={memberSearchType === 'nick-and-tag'}
-                                    style={{ wordBreak: 'keep-all' }}
-                                    onChange={() => handleMemberSearchTypeOnChange('nick-and-tag')}
-                                  />
-                                  <Form.Check
-                                    id="member-search-by-user-id"
-                                    custom
-                                    className="ml-4"
-                                    type="radio"
-                                    label="사용자 ID"
-                                    checked={memberSearchType === 'id'}
-                                    style={{ wordBreak: 'keep-all' }}
-                                    onChange={() => handleMemberSearchTypeOnChange('id')}
-                                  />
+    <>
+      <Head>
+        <title>멤버 목록 - Aztra 대시보드</title>
+      </Head>
+      <Layout>
+        <DashboardLayout guildId={guildId}>
+          {
+            () => (
+              <div style={{
+                fontFamily: 'NanumBarunGothic'
+              }}>
+                <Row className="dashboard-section">
+                  <h3>멤버 목록</h3>
+                </Row>
+                <Row>
+                  <Col>
+                    {
+                      members
+                        ? <Form>
+                          <Form.Group>
+                            <Row className="pb-2 justify-content-between">
+                              <Col
+                                className="d-flex align-items-end mt-4 mt-xl-0 px-0"
+                                xs={{
+                                  span: 0,
+                                  order: "last"
+                                }}
+                                xl={{
+                                  order: "first"
+                                }}
+                                style={{
+                                  fontSize: '12pt'
+                                }}>
+                                멤버 전체 {members?.length} 명{memberSearch && `, ${filteredMembers.length}명 검색됨`}
+                              </Col>
+                              <Col
+                                className="px-0"
+                                xs={{
+                                  span: "auto",
+                                  order: "first"
+                                }}
+                                xl={{
+                                  span: "auto",
+                                  order: "last"
+                                }}>
+                                <div className="d-flex">
+                                  <span>검색 조건:</span>
+                                  <div className="d-lg-flex">
+                                    <Form.Check
+                                      id="member-search-by-name-and-nick"
+                                      custom
+                                      className="ml-4"
+                                      type="radio"
+                                      label="이름 및 닉네임"
+                                      checked={memberSearchType === 'nick-and-tag'}
+                                      style={{ wordBreak: 'keep-all' }}
+                                      onChange={() => handleMemberSearchTypeOnChange('nick-and-tag')}
+                                    />
+                                    <Form.Check
+                                      id="member-search-by-user-id"
+                                      custom
+                                      className="ml-4"
+                                      type="radio"
+                                      label="사용자 ID"
+                                      checked={memberSearchType === 'id'}
+                                      style={{ wordBreak: 'keep-all' }}
+                                      onChange={() => handleMemberSearchTypeOnChange('id')}
+                                    />
+                                  </div>
                                 </div>
-                              </div>
-                            </Col>
-                          </Row>
+                              </Col>
+                            </Row>
 
-                          <Row className="mb-2">
-                            <input hidden={true} />
-                            <Form.Control type="text" placeholder={memberSearchType === "id" ? "멤버 아이디 검색 (숫자만 입력할 수 있습니다)" : "멤버 검색"} value={memberSearch} onChange={e => {
-                              if (memberSearchType === "id" && isNaN(Number(e.target.value))) return
-                              setMemberSearch(e.target.value)
-                            }} />
-                          </Row>
+                            <Row className="mb-2">
+                              <input hidden={true} />
+                              <Form.Control type="text" placeholder={memberSearchType === "id" ? "멤버 아이디 검색 (숫자만 입력할 수 있습니다)" : "멤버 검색"} value={memberSearch} onChange={e => {
+                                if (memberSearchType === "id" && isNaN(Number(e.target.value))) return
+                                setMemberSearch(e.target.value)
+                              }} />
+                            </Row>
 
-                          <Row className="flex-column">
-                            {filteredMembers}
-                          </Row>
-                        </Form.Group>
-                      </Form>
-                      : <Container className="d-flex align-items-center justify-content-center flex-column" style={{
-                        height: '500px'
-                      }}>
-                        <h3 className="pb-4 text-center">멤버 목록을 가져오고 있습니다...</h3>
-                        <Spinner animation="border" variant="aztra" />
-                      </Container>
-                  }
-                </Col>
-              </Row>
-            </div>
-          )
-        }
-      </DashboardLayout>
-    </Layout>
+                            <Row className="flex-column">
+                              {filteredMembers}
+                            </Row>
+                          </Form.Group>
+                        </Form>
+                        : <Container className="d-flex align-items-center justify-content-center flex-column" style={{
+                          height: '500px'
+                        }}>
+                          <h3 className="pb-4 text-center">멤버 목록을 가져오고 있습니다...</h3>
+                          <Spinner animation="border" variant="aztra" />
+                        </Container>
+                    }
+                  </Col>
+                </Row>
+              </div>
+            )
+          }
+        </DashboardLayout>
+      </Layout>
+    </>
   )
 }
 

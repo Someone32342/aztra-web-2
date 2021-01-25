@@ -12,6 +12,7 @@ import useSWR from 'swr'
 import urljoin from 'url-join'
 import { TaskSet } from 'types/AutoTasking'
 import { MemberMinimal, Role } from 'types/DiscordTypes'
+import Head from 'next/head'
 
 interface AutoTaskingRouterProps {
   guildId: string
@@ -113,81 +114,86 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
   }
 
   return (
-    <Layout>
-      <DashboardLayout guildId={guildId}>
-        {
-          () => (
-            <div>
-              <Row className="dashboard-section">
-                <div>
-                  <h3>자동 작업 설정</h3>
-                  <div className="py-2">
-                    어떤 동작이 발생했을 때, 또는 주기적으로 여러가지 작업을 자동으로 수행할 수 있습니다.
+    <>
+      <Head>
+        <title>자동 작업 설정 - Aztra 대시보드</title>
+      </Head>
+      <Layout>
+        <DashboardLayout guildId={guildId}>
+          {
+            () => (
+              <div>
+                <Row className="dashboard-section">
+                  <div>
+                    <h3>자동 작업 설정</h3>
+                    <div className="py-2">
+                      어떤 동작이 발생했을 때, 또는 주기적으로 여러가지 작업을 자동으로 수행할 수 있습니다.
                   </div>
-                </div>
-              </Row>
-              <Row>
-                <Col>
-                  <Form noValidate>
-                    <Row className="flex-column">
-                      <Table id="warn-list-table" variant="dark" style={{
-                        tableLayout: 'fixed'
-                      }} >
-                        <thead>
-                          <tr>
-                            <th className="align-middle text-center" style={{ width: 50 }}>
-                              <Form.Check
-                                id="warn-select-all"
-                                custom
-                                type="checkbox"
-                              />
-                            </th>
-                            <th className="text-center text-md-left" style={{ width: '20%' }}>이벤트</th>
-                            <th className="text-center text-md-left d-none d-md-table-cell">수행할 작업</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {data?.map(one => <TaskListCard taskset={one} />)}
-                        </tbody>
-                      </Table>
-                    </Row>
+                  </div>
+                </Row>
+                <Row>
+                  <Col>
+                    <Form noValidate>
+                      <Row className="flex-column">
+                        <Table id="warn-list-table" variant="dark" style={{
+                          tableLayout: 'fixed'
+                        }} >
+                          <thead>
+                            <tr>
+                              <th className="align-middle text-center" style={{ width: 50 }}>
+                                <Form.Check
+                                  id="warn-select-all"
+                                  custom
+                                  type="checkbox"
+                                />
+                              </th>
+                              <th className="text-center text-md-left" style={{ width: '20%' }}>이벤트</th>
+                              <th className="text-center text-md-left d-none d-md-table-cell">수행할 작업</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {data?.map(one => <TaskListCard taskset={one} />)}
+                          </tbody>
+                        </Table>
+                      </Row>
 
-                    <Row className="justify-content-end">
-                      <Button variant="aztra" size="sm" className="d-flex align-items-center mr-3">
-                        <AddIcon className="mr-1" />
+                      <Row className="justify-content-end">
+                        <Button variant="aztra" size="sm" className="d-flex align-items-center mr-3">
+                          <AddIcon className="mr-1" />
                         새로 추가
                       </Button>
-                      <Button variant="danger" size="sm" className="d-flex align-items-center">
-                        <DeleteIcon className="mr-1" />
+                        <Button variant="danger" size="sm" className="d-flex align-items-center">
+                          <DeleteIcon className="mr-1" />
                         선택 항목 삭제
                       </Button>
-                    </Row>
+                      </Row>
 
-                    <Row className="mt-4">
-                      <Button
-                        variant={saveError ? "danger" : "aztra"}
-                        style={{
-                          minWidth: 140
-                        }}
-                      >
-                        {
-                          saving
-                            ? <>
-                              <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
-                              <span className="pl-2">저장 중...</span>
-                            </>
-                            : <span>저장하기</span>
-                        }
-                      </Button>
-                    </Row>
-                  </Form>
-                </Col>
-              </Row>
-            </div>
-          )
-        }
-      </DashboardLayout>
-    </Layout>
+                      <Row className="mt-4">
+                        <Button
+                          variant={saveError ? "danger" : "aztra"}
+                          style={{
+                            minWidth: 140
+                          }}
+                        >
+                          {
+                            saving
+                              ? <>
+                                <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
+                                <span className="pl-2">저장 중...</span>
+                              </>
+                              : <span>저장하기</span>
+                          }
+                        </Button>
+                      </Row>
+                    </Form>
+                  </Col>
+                </Row>
+              </div>
+            )
+          }
+        </DashboardLayout>
+      </Layout>
+    </>
   )
 }
 

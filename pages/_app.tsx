@@ -31,7 +31,6 @@ export default class MyApp extends App {
       <>
         <Head>
           <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <title>Aztra - 아즈트라</title>
         </Head>
         <Component {...pageProps} />
       </>

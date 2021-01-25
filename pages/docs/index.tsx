@@ -3,54 +3,60 @@ import { Card, Col, Container, Row } from 'react-bootstrap'
 import { ArrowForward as ArrowForwardIcon } from '@material-ui/icons'
 import Link from 'next/link'
 import Layout from 'components/Layout'
+import Head from 'next/head'
 
 const DocsMain: React.FC = () => {
   return (
-    <Layout>
-      <Container fluid style={{
-        backgroundColor: 'rgb(242, 242, 245)'
-      }}>
-        <Container fluid="sm" className="py-5" style={{ minHeight: '100vh' }}>
-          <Row className="justify-content-center" style={{ padding: '40px 0' }}>
-            <Col>
-              <div className="text-center">
-                <h2>Aztra 봇 가이드</h2>
-                <div style={{ wordBreak: 'keep-all' }}>Aztra를 더 똑똑하게 사용하는 방법들을 살펴보세요.</div>
-              </div>
-            </Col>
-          </Row>
+    <>
+      <Head>
+        <title>봇 가이드 - Aztra</title>
+      </Head>
+      <Layout>
+        <Container fluid style={{
+          backgroundColor: 'rgb(242, 242, 245)'
+        }}>
+          <Container fluid="sm" className="py-5" style={{ minHeight: '100vh' }}>
+            <Row className="justify-content-center" style={{ padding: '40px 0' }}>
+              <Col>
+                <div className="text-center">
+                  <h2>Aztra 봇 가이드</h2>
+                  <div style={{ wordBreak: 'keep-all' }}>Aztra를 더 똑똑하게 사용하는 방법들을 살펴보세요.</div>
+                </div>
+              </Col>
+            </Row>
 
-          <Row>
-            <Col xs={12} md={6} lg={4} >
-              <Link href="/docs/aztra-commands-guide/getting-started">
-                <Card
-                  className="shadow-sm cursor-pointer text-dark text-decoration-none" style={{
-                    border: 'none'
-                  }}>
-                  <Card.Body className="d-flex">
-                    <div>
-                      <Card.Title>
-                        Aztra 명령어 가이드
+            <Row>
+              <Col xs={12} md={6} lg={4} >
+                <Link href="/docs/aztra-commands-guide/getting-started">
+                  <Card
+                    className="shadow-sm cursor-pointer text-dark text-decoration-none" style={{
+                      border: 'none'
+                    }}>
+                    <Card.Body className="d-flex">
+                      <div>
+                        <Card.Title>
+                          Aztra 명령어 가이드
                       </Card.Title>
-                      <Card.Text>
-                        Aztra 전체 명령어 가이드
+                        <Card.Text>
+                          Aztra 전체 명령어 가이드
                       </Card.Text>
-                    </div>
-                    <div className="my-auto ml-auto" style={{ transform: 'scale(1.5)' }}>
-                      <ArrowForwardIcon />
-                    </div>
-                  </Card.Body>
-                </Card>
-              </Link>
-            </Col>
-          </Row>
+                      </div>
+                      <div className="my-auto ml-auto" style={{ transform: 'scale(1.5)' }}>
+                        <ArrowForwardIcon />
+                      </div>
+                    </Card.Body>
+                  </Card>
+                </Link>
+              </Col>
+            </Row>
 
-          <Row className="justify-content-center" style={{ marginTop: 120 }}>
-            <small>가독성 향상을 위해 화이트 모드가 적용됩니다.</small>
-          </Row>
+            <Row className="justify-content-center" style={{ marginTop: 120 }}>
+              <small>가독성 향상을 위해 화이트 모드가 적용됩니다.</small>
+            </Row>
+          </Container>
         </Container>
-      </Container>
-    </Layout>
+      </Layout>
+    </>
   )
 }
 

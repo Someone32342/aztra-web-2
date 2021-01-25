@@ -9,7 +9,8 @@ import {
   DataUsage as DataUsageIcon,
   History as HistoryIcon,
   TrendingUp as TrendingUpIcon,
-  EventNote as EventNoteIcon
+  EventNote as EventNoteIcon,
+  List as ListIcon
 } from '@material-ui/icons'
 import Link from 'next/link'
 
@@ -132,6 +133,23 @@ export default function Sidebar(props: SidebarProps) {
           process.env.NODE_ENV === "development" && (
             <>
               <Nav.Item>
+                <Link href={`/dashboard/${guild?.id}/billboards`} shallow={true}>
+                  <Nav.Link
+                    className="d-flex mb-1"
+                    href={`/dashboard/${guild?.id}/billboards`}
+                    active={location?.pathname.startsWith(`/dashboard/${guild?.id}/billboards`)}
+                  >
+                    <div style={iconStyle} className="mr-3">
+                      <ListIcon style={{ transform: 'scale(1.1)' }} />
+                    </div>
+                    <div>
+                      전광판 채널
+                      <Badge variant="aztra" className="ml-2 my-auto" style={{ fontSize: 14 }}>베타</Badge>
+                    </div>
+                  </Nav.Link>
+                </Link>
+              </Nav.Item>
+              <Nav.Item>
                 <Link href={`/dashboard/${guild?.id}/autotasking`} shallow={true}>
                   <Nav.Link
                     className="d-flex mb-1"
@@ -142,8 +160,8 @@ export default function Sidebar(props: SidebarProps) {
                       <EventNoteIcon style={{ transform: 'scale(1.1)' }} />
                     </div>
                     <div>
-                      자동 작업 수행
-                      <Badge variant="aztra" className="ml-2 my-auto" style={{ fontSize: 14 }}>베타</Badge>
+                      자동 작업
+                      <Badge variant="danger" className="ml-2 my-auto" style={{ fontSize: 14 }}>개발중</Badge>
                     </div>
                   </Nav.Link>
                 </Link>
@@ -158,7 +176,10 @@ export default function Sidebar(props: SidebarProps) {
                     <div style={iconStyle} className="mr-3">
                       <TrendingUpIcon style={{ transform: 'scale(1.1)' }} />
                     </div>
-                    통계
+                    <div>
+                      통계
+                      <Badge variant="danger" className="ml-2 my-auto" style={{ fontSize: 14 }}>개발중</Badge>
+                    </div>
                   </Nav.Link>
                 </Link>
               </Nav.Item>
