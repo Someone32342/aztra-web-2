@@ -253,7 +253,7 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                                                       역할 A
                                                     </td>
                                                     <td className="align-middle">
-                                                      역할 B, 역할 C <RoleBadge />
+                                                      <RoleBadge />
                                                     </td>
                                                     <td className="align-middle">
                                                       <Button variant="success" className="w-100">
