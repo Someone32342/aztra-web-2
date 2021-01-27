@@ -30,6 +30,10 @@ dayjs.locale('ko')
 dayjs.extend(dayjsRelativeTime)
 dayjs.extend(dayjsUTC)
 
+function numberWithCommas(x: number) {
+  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
 interface MemberDashboardRouteProps {
   guildId: string
   memberId: string
@@ -133,6 +137,7 @@ const MemberDashboard: NextPage<MemberDashboardRouteProps> = ({ guildId, memberI
   const reqCompleted = (reqExp || 0) - accuExp + exp
   let expIndex = exps?.sort((a, b) => b.exp - a.exp).findIndex(m => m.id === member?.user.id)
 
+  console.log(reqExp, accuExp, exp)
 
   let expRank: number | undefined
   switch (expIndex) {
@@ -295,7 +300,7 @@ const MemberDashboard: NextPage<MemberDashboardRouteProps> = ({ guildId, memberI
                               <div style={{
                                 fontSize: "1.5rem"
                               }}>
-                                {reqExp ? reqCompleted.toLocaleString() : '--'}/{reqExp ? reqExp.toLocaleString() : '--'} P
+                                {reqExp ? numberWithCommas(reqCompleted) : '--'}/{reqExp ? numberWithCommas(reqExp) : '--'} P
                           </div>
                             </div>
                           </CircularProgressbarWithChildren>
@@ -316,7 +321,7 @@ const MemberDashboard: NextPage<MemberDashboardRouteProps> = ({ guildId, memberI
                               <span style={{
                                 fontSize: '17pt'
                               }}>
-                                {exp.toLocaleString()}
+                                {numberWithCommas(exp)}
                               </span>
                             </div>
                           </div>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import axios, { AxiosError } from 'axios'
-import { Button, ButtonGroup, Card, Col, Form, OverlayTrigger, Row, Spinner, Table, Tooltip } from 'react-bootstrap'
+import { Button, ButtonGroup, Card, Col, Fade, Form, OverlayTrigger, Row, Spinner, Table, Tooltip } from 'react-bootstrap'
 import { Add as AddIcon, Delete as DeleteIcon, RemoveCircleOutline, OpenInNew as OpenInNewIcon, Close as CloseIcon } from '@material-ui/icons'
 import api from 'datas/api'
 
@@ -36,6 +36,7 @@ interface TaskListCardProps {
 
 const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
   const [addNew, setAddNew] = useState(false)
+  const [taskType, setTaskType] = useState<string | number>(0)
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState(false)
 
@@ -76,7 +77,7 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
 
     switch (taskset.type) {
       case 'emoji_role':
-        eventName = "반응 역할 추가/제거"
+        eventName = "반응했을 때 역할 추가/제거"
         let taskdata: EmojiRoleData[] = taskset.data
         taskContent = taskdata.map(o => (
           <>
@@ -162,7 +163,69 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                 <Row>
                   <Col>
                     <Form noValidate>
-                      <Row className="flex-column">
+                      {
+                        addNew &&
+                        <Row className="mb-5">
+                          <Col className="p-0">
+                            <Card bg="dark" className="m-0">
+                              <Card.Header className="d-flex justify-content-between align-items-center">
+                                <span className="font-weight-bold" style={{ fontFamily: "NanumSquare", fontSize: 18 }}>새 작업 추가</span>
+                                <Button variant="danger" size="sm" className="d-flex align-items-center" onClick={() => setAddNew(false)}><CloseIcon fontSize="small" /></Button>
+                              </Card.Header>
+                              <Card.Body>
+                                <Form>
+                                  <Form.Group className="d-flex">
+                                    <Row className="align-items-center">
+                                      <Form.Label column sm="auto">작업 유형 선택</Form.Label>
+                                      <Col>
+                                        <Form.Control className="shadow-sm" style={{ fontSize: 15 }} as="select" onChange={e => setTaskType(e.target.value)}>
+                                          <option value={0}>유형 선택</option>
+                                          <option value="emoji_role">반응했을 때 역할 추가/제거</option>
+                                        </Form.Control>
+                                      </Col>
+                                    </Row>
+                                  </Form.Group>
+                                  {
+                                    taskType &&
+                                    <Form.Group>
+                                      {
+                                        taskType === "emoji_role" &&
+                                        <Row className="align-items-center">
+                                          <Form.Label column sm="auto">추가한 이모지</Form.Label>
+                                          <Col>
+                                            <Button variant="dark" size="sm" className="d-flex align-items-center">
+                                              <AddIcon className="mr-1" fontSize="small" />
+                                              이모지 추가
+                                          </Button>
+                                          </Col>
+                                        </Row>
+                                      }
+                                    </Form.Group>
+                                  }
+                                  <hr className="mt-4" style={{ borderColor: '#4e5058', borderWidth: 2 }} />
+                                  <Button variant="aztra" className="pl-2">
+                                    <AddIcon className="mr-1" />
+                                    추가하기
+                                  </Button>
+                                </Form>
+                              </Card.Body>
+                            </Card>
+                          </Col>
+                        </Row>
+                      }
+
+                      <Row className="justify-content-end">
+                        <Button variant="aztra" size="sm" className="d-flex align-items-center mr-3" onClick={() => setAddNew(true)}>
+                          <AddIcon className="mr-1" />
+                          새로 추가
+                        </Button>
+                        <Button variant="danger" size="sm" className="d-flex align-items-center">
+                          <DeleteIcon className="mr-1" />
+                          선택 항목 삭제
+                        </Button>
+                      </Row>
+
+                      <Row className="flex-column mt-4">
                         <Table id="warn-list-table" variant="dark" style={{
                           tableLayout: 'fixed'
                         }} >
@@ -185,48 +248,6 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                           </tbody>
                         </Table>
                       </Row>
-
-                      <Row className="justify-content-end">
-                        <Button variant="aztra" size="sm" className="d-flex align-items-center mr-3" onClick={() => setAddNew(true)}>
-                          <AddIcon className="mr-1" />
-                          새로 추가
-                        </Button>
-                        <Button variant="danger" size="sm" className="d-flex align-items-center">
-                          <DeleteIcon className="mr-1" />
-                          선택 항목 삭제
-                        </Button>
-                      </Row>
-
-                      {
-                        addNew &&
-                        <Row className="mt-4">
-                          <Col>
-                            <Card bg="dark">
-                              <Card.Header className="d-flex justify-content-between align-items-center">
-                                <span className="font-weight-bold">새 작업 추가</span>
-                                <Button variant="dark" size="sm" className="d-flex align-items-center"><CloseIcon fontSize="small" /></Button>
-                              </Card.Header>
-                              <Card.Body>
-                                <Form>
-                                  <Form.Group className="d-flex">
-                                    <Form.Label column sm="auto">작업 유형 선택</Form.Label>
-                                    <Col sm="3">
-                                      <Form.Control as="select">
-                                        <option>{" "}</option>
-                                        <option>반응 역할 추가/제거</option>
-                                      </Form.Control>
-                                    </Col>
-                                  </Form.Group>
-                                  <Button variant="aztra" className="mx-3">
-                                    <AddIcon className="mr-1" />
-                                    추가하기
-                                  </Button>
-                                </Form>
-                              </Card.Body>
-                            </Card>
-                          </Col>
-                        </Row>
-                      }
 
                       <Row className="mt-5">
                         <Button
