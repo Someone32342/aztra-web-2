@@ -2,16 +2,6 @@
 @import "bootstrap/scss/variables";
 @import "bootstrap/scss/mixins";
 
-.Twemoji {
-    width: 1rem !important;
-    height: 1rem !important;
-}
-
-.Twemoji-lg {
-    width: 1.5rem !important;
-    height: 1.5rem !important;
-}
-
 .EmojiRole-TableHead {
     display: none;
     @include media-breakpoint-up(lg) {

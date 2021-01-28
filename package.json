@@ -21,6 +21,7 @@
     "classnames": "^2.2.6",
     "cookie": "^0.4.1",
     "dayjs": "^1.10.3",
+    "emoji-mart": "^3.0.0",
     "next": "10.0.4",
     "preval.macro": "^5.0.0",
     "raw-loader": "^4.0.2",
@@ -40,6 +41,7 @@
     "url-join": "^4.0.1"
   },
   "devDependencies": {
+    "@types/emoji-mart": "^3.0.4",
     "@types/node": "^14.14.19",
     "@types/react": "^17.0.0",
     "@types/react-scroll": "^1.8.2",

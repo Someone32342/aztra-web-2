@@ -1,11 +1,9 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import axios, { AxiosError } from 'axios'
 import { Button, ButtonGroup, Card, Col, Form, OverlayTrigger, Row, Spinner, Table, Tooltip } from 'react-bootstrap'
-import { Add as AddIcon, Delete as DeleteIcon, RemoveCircleOutline, OpenInNew as OpenInNewIcon, Close as CloseIcon } from '@material-ui/icons'
+import { Add as AddIcon, Delete as DeleteIcon, RemoveCircleOutline, OpenInNew as OpenInNewIcon, Close as CloseIcon, Check as CheckIcon } from '@material-ui/icons'
 import Twemoji from 'react-twemoji'
 import api from 'datas/api'
-import styles from 'styles/dashboard/autotasking.module.scss'
-import classNames from 'classnames/bind'
 
 import { GetServerSideProps, NextPage } from 'next'
 import Cookies from 'universal-cookie'
@@ -17,10 +15,7 @@ import { MemberMinimal, Role } from 'types/DiscordTypes'
 import Head from 'next/head'
 import { TaskSet } from 'types/autotask'
 import { EmojiRoleData } from 'types/autotask/action_data'
-import { parse } from 'cookie'
-import RoleBadge from 'components/forms/RoleBadge'
-
-const cx = classNames.bind(styles)
+import EmojiRole from 'components/autotasking/EmojiRole'
 
 interface AutoTaskingRouterProps {
   guildId: string
@@ -44,10 +39,9 @@ interface TaskListCardProps {
 const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
   const [addNew, setAddNew] = useState(false)
   const [taskType, setTaskType] = useState<string | number>(0)
+  
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState(false)
-
-  const [emojiRoleNewData, setEmojiRoleNewData] = useState<EmojiRoleData[]>([])
 
   const { data } = useSWR<TaskSet[], AxiosError>(
     new Cookies().get('ACCESS_TOKEN') ? urljoin(api, `/servers/${guildId}/autotasking`) : null,
@@ -114,7 +108,7 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
         </td>
         <td className="align-middle d-none d-md-table-cell">
           <div className="mw-100 align-middle cursor-pointer font-weight-bold">
-            <Twemoji options={{ className: cx("Twemoji") }}>
+            <Twemoji options={{ className: "Twemoji" }}>
               {taskContent}
             </Twemoji>
           </div>
@@ -199,81 +193,13 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                                   {
                                     !!taskType &&
                                     <Form.Group className="mb-0">
-                                      {
-                                        taskType === "emoji_role" &&
-                                        <>
-                                          <Form.Label className="pt-2">추가한 이모지:</Form.Label>
-                                          <Row className="mt-3">
-                                            <Col>
-                                              <Table id="warn-list-table" className="mb-0" variant="dark" style={{
-                                                tableLayout: 'fixed'
-                                              }} >
-                                                <thead className={cx("EmojiRole-TableHead")} style={{ fontFamily: "NanumSquare" }}>
-                                                  <tr>
-                                                    <th className="d-lg-none" />
-                                                    <th style={{ fontSize: 17, width: '10%' }} className="text-center d-none d-lg-table-cell">이모지</th>
-                                                    <th style={{ fontSize: 17 }}>추가할 역할</th>
-                                                    <th style={{ fontSize: 17 }}>제거할 역할</th>
-                                                    <th style={{ width: 120 }} />
-                                                  </tr>
-                                                </thead>
-                                                <tbody>
-
-                                                  <tr className="d-lg-none">
-                                                    <td className="text-lg-center align-middle">
-                                                      <p>
-                                                        <Twemoji options={{ className: cx("Twemoji-lg") }}>
-                                                          <span className="font-weight-bold pr-2">이모지:</span>
-                                                          ❤
-                                                        </Twemoji>
-                                                      </p>
-                                                      <p>
-                                                        <div className="font-weight-bold">추가할 역할:</div>
-                                                        역할 A
-                                                      </p>
-                                                      <p>
-                                                        <div className="font-weight-bold">제거할 역할:</div>
-                                                        역할 B, 역할 C
-                                                      </p>
-                                                      <div className="mt-2">
-                                                        <Button variant="success" className="w-100">
-                                                          <AddIcon className="mr-1" fontSize="small" />
-                                                          추가
-                                                        </Button>
-                                                      </div>
-                                                    </td>
-                                                  </tr>
-                                                  <tr className="d-none d-lg-table-row">
-                                                    <td className="text-lg-center align-middle">
-                                                      <Twemoji options={{ className: cx("Twemoji-lg") }}>
-                                                        ❤
-                                                      </Twemoji>
-                                                    </td>
-                                                    <td className="align-middle">
-                                                      역할 A
-                                                    </td>
-                                                    <td className="align-middle">
-                                                      <RoleBadge />
-                                                    </td>
-                                                    <td className="align-middle">
-                                                      <Button variant="success" className="w-100">
-                                                        <AddIcon className="mr-1" fontSize="small" />
-                                                        추가
-                                                      </Button>
-                                                    </td>
-                                                  </tr>
-                                                </tbody>
-                                              </Table>
-                                            </Col>
-                                          </Row>
-                                        </>
-                                      }
+                                      {taskType === "emoji_role" && <EmojiRole/>}
                                     </Form.Group>
                                   }
                                   <hr className="mt-0" style={{ borderColor: '#4e5058', borderWidth: 2 }} />
                                   <Button variant="aztra" className="pl-2">
-                                    <AddIcon className="mr-1" />
-                                    추가하기
+                                    <CheckIcon className="mr-1" />
+                                    설정 완료하기
                                   </Button>
                                 </Form>
                               </Card.Body>
