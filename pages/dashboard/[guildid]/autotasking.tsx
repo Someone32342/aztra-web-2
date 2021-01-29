@@ -193,7 +193,7 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                                   {
                                     !!taskType &&
                                     <Form.Group className="mb-0">
-                                      {taskType === "emoji_role" && <EmojiRole/>}
+                                      {taskType === "emoji_role" && <EmojiRole guildId={guildId} roles={roles ?? []} />}
                                     </Form.Group>
                                   }
                                   <hr className="mt-0" style={{ borderColor: '#4e5058', borderWidth: 2 }} />

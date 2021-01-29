@@ -116,18 +116,17 @@ button:focus {
         background-color: #464c57 !important;
     }
     .dropdown-item {
-        color: white !important;
+        color: white;
+    }
+    .dropdown-item:hover,
+    .dropdown-item:focus {
+        color: white;
+        text-decoration: none;
+        background-color: rgb(84, 86, 105);
     }
     .dropdown-header {
         color: rgb(143, 143, 143) !important;
     }
-}
-
-.dropdown-item-dark:hover,
-.dropdown-item-dark:focus {
-    color: white;
-    text-decoration: none;
-    background-color: #595a6d;
 }
 
 .modal-dark {
@@ -165,7 +164,6 @@ button:focus {
         color: darkslategrey;
     }
 }
-
 
 .Twemoji {
     width: 1rem !important;

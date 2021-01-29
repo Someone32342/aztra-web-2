@@ -1,19 +1,23 @@
 @import "bootstrap/scss/functions";
 @import "bootstrap/scss/variables";
 @import "bootstrap/scss/mixins";
-@import '../../colors.scss';
+@import "../../colors.scss";
 
-.X-button {
-    display: none;
+.X-circle {
+    .X-button {
+        opacity: 0;
+    }
 }
 
-.X-button:hover {
-    display: block;
+.X-circle:hover {
+    .X-button {
+        opacity: 100;
+    }
 }
 
 .X-45 {
-    height: 10px;
-    width: 1px;
+    height: 11px;
+    width: 0;
 
     border: solid $dark;
     border-width: 0 1px 0px 0;
@@ -21,8 +25,8 @@
 }
 
 .X-90 {
-    height: 10px;
-    width: 1px;
+    height: 11px;
+    width: 0;
 
     border: solid $dark;
     border-width: 0 1px 0px 0;
