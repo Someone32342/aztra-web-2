@@ -327,7 +327,7 @@ const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
                                         <Form.Control type="text" placeholder="채널 검색" onChange={(e) => setChannelSearch(e.target.value)} />
                                         <Form.Text className="py-1">
                                           {channels?.length}개 채널 찾음
-                                    </Form.Text>
+                                        </Form.Text>
                                       </Row>
                                       <Row style={{
                                         maxHeight: 220,

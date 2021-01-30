@@ -17,11 +17,14 @@ const RoleBadge: React.FC<RoleBadgeProps> = ({ className, name, color, fontSize,
     <span className={`d-inline-block ${className}`}>
       <div className="d-flex pr-2 align-items-center" style={{ border: `1px solid ${color}`, borderRadius: '50px' }}>
         <div className={cx("rounded-circle", "d-flex", "align-items-center", "justify-content-center", "X-circle")} onClick={removeable ? onRemove : undefined} style={{ width: 16, height: 16, margin: 5, backgroundColor: color, fontSize, fontFamily }}>
-          <div className={cx('X-button')}>
-            <div className={cx("X-45")}>
-              <div className={cx("X-90")} />
+          {
+            removeable &&
+            <div className={cx('X-button')}>
+              <div className={cx("X-45")}>
+                <div className={cx("X-90")} />
+              </div>
             </div>
-          </div>
+          }
         </div>
         {name}
       </div>
