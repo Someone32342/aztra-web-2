@@ -30,6 +30,7 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guildId, channels, roles, saving,
   const [newAddedData, setNewAddedData] = useState<EmojiRoleData[]>([])
   const [newData, setNewData] = useState<Omit<EmojiRoleData, 'emoji'> & { emoji?: string | null }>({ add: [], remove: [] })
   const [channelSearch, setChannelSearch] = useState('')
+  const [inputMessageId, setInputMessageId] = useState(false)
 
   const filterChannels = () => {
     return channels
@@ -103,12 +104,31 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guildId, channels, roles, saving,
       <Row>
         <Col>
           <Form.Label className="pt-3 h5 font-weight-bold">메시지 아이디:</Form.Label>
-          <Form.Text className="pb-2">대상이 되는 메시지의 아이디를 입력하세요</Form.Text>
-          <Form.Control as="input" type="text" placeholder="메시지 아이디" value={newParams.message ?? ''} onChange={e => {
-            if (isNaN(Number(e.target.value))) return
-            setNewParams({ ...newParams, message: e.target.value })
-          }} />
+          <Form.Text className="pb-2">
+            {
+              inputMessageId
+                ? <>대상이 되는 메시지 아이디를 입력하세요. 또는 <a className="cursor-pointer" style={{ color: "DeepSkyBlue" }} onClick={() => setInputMessageId(false)}>빠르게 메시지 선택하기</a></>
+                : <>메시지 선택하기 버튼으로 빠르게 메시지를 선택할 수 있습니다. 또는 <a className="cursor-pointer" style={{ color: "DeepSkyBlue" }} onClick={() => setInputMessageId(true)}>직접 아이디 입력하기</a></>
+            }
+          </Form.Text>
         </Col>
+      </Row>
+      <Row>
+        {
+          inputMessageId &&
+          <Col xs="auto" sm={4} className="pr-0">
+            <Form.Control className="mb-2" as="input" type="text" placeholder="메시지 아이디" value={newParams.message ?? ''} onChange={e => {
+              if (isNaN(Number(e.target.value))) return
+              setNewParams({ ...newParams, message: e.target.value })
+            }} />
+          </Col>
+        }
+        {
+          !inputMessageId &&
+          <Col>
+            <Button variant="aztra">메시지 선택하기</Button>
+          </Col>
+        }
       </Row>
       <Row className="pt-3">
         <Col>
@@ -128,28 +148,32 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guildId, channels, roles, saving,
             </thead>
             <tbody>
               <tr className="d-lg-none">
-                <td className="text-lg-center align-middle">
-                  <p>
-                    <Twemoji options={{ className: cx("Twemoji-lg") }}>
-                      <span className="font-weight-bold pr-2">이모지:</span>
+                {
+                  process.env.NODE_ENV === "development"
+                    ? <td className="text-lg-center align-middle">
+                      <p>
+                        <Twemoji options={{ className: cx("Twemoji-lg") }}>
+                          <span className="font-weight-bold pr-2">이모지:</span>
                       ❤
                     </Twemoji>
-                  </p>
-                  <p>
-                    <div className="font-weight-bold">추가할 역할:</div>
+                      </p>
+                      <p>
+                        <div className="font-weight-bold">추가할 역할:</div>
                     역할 A
                   </p>
-                  <p>
-                    <div className="font-weight-bold">제거할 역할:</div>
+                      <p>
+                        <div className="font-weight-bold">제거할 역할:</div>
                     역할 B, 역할 C
                   </p>
-                  <div className="mt-2">
-                    <Button variant="success" className="w-100">
-                      <AddIcon className="mr-1" fontSize="small" />
+                      <div className="mt-2">
+                        <Button variant="success" className="w-100">
+                          <AddIcon className="mr-1" fontSize="small" />
                       추가
                     </Button>
-                  </div>
-                </td>
+                      </div>
+                    </td>
+                    : "모바일에서는 현재 개발중입니다! PC 버전에서 사용해주세요!"
+                }
               </tr>
               <tr className="d-none d-lg-table-row">
                 <td className="text-lg-center align-middle position-relative">

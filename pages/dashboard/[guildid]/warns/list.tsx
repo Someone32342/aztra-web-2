@@ -509,8 +509,8 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
                                       setShowSelectedDel(true)
                                     }}>
                                       <DeleteIcon style={{ marginLeft: '-5px', transform: "scale(0.9)", WebkitTransform: "scale(0.9)" }} />
-                                    제거하기
-                                  </Button>
+                                      제거하기
+                                    </Button>
                                   </div>
                                 </div>
                               </Collapse>
@@ -527,7 +527,7 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
                               </Modal.Header>
                               <Modal.Body className="py-4">
                                 선택한 경고 {selectedWarns.size}개를 취소하시겠습니까?
-                            </Modal.Body>
+                              </Modal.Body>
                               <Modal.Footer className="justify-content-end">
                                 <Button variant="danger" onClick={async () => {
                                   setShowSelectedDel(false)
