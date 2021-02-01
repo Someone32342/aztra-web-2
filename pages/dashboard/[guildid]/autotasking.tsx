@@ -423,7 +423,7 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                         : <Container className="d-flex align-items-center justify-content-center flex-column" style={{
                           height: '500px'
                         }}>
-                          <h3 className="pb-4 text-center">경고 목록을 가져오고 있습니다...</h3>
+                          <h3 className="pb-4 text-center">자동작업 목록을 가져오고 있습니다...</h3>
                           <Spinner animation="border" variant="aztra" />
                         </Container>
                     }
