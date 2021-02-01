@@ -93,11 +93,22 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
   const TaskListCard: React.FC<TaskListCardProps> = ({ taskset, onCheckChange, checked }) => {
     let eventName = `(알 수 없는 동작: ${taskset.type})`
 
-    let taskContent: React.ReactNode
+    let eventContent, taskContent: React.ReactNode
 
     switch (taskset.type) {
       case 'emoji_role':
         eventName = "반응했을 때 역할 추가/제거"
+
+        let taskparams: EmojiRoleParams = taskset.params
+        eventContent = (
+          <div className="pl-3">
+            <div className="font-weight-bold">
+              - 메시지 아이디:
+            </div>
+            {taskparams.message}
+          </div>
+        )
+
         let taskdata: EmojiRoleData[] = taskset.data
         taskContent = taskdata.map(o => (
           <div key={o.emoji}>
@@ -107,8 +118,8 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
             </div>
             {
               o.add &&
-              <div className="d-flex pb-1">
-                <span className="font-weight-bold pl-3 pr-2">- 역할 추가:</span>
+              <div className="d-flex flex-wrap pb-1 pl-3">
+                <span className="font-weight-bold pr-2">- 역할 추가:</span>
                 {o.add.map(r => {
                   const role = roles?.find(one => one.id === r)
                   return <RoleBadge key={r} name={role?.name ?? '(알 수 없음)'} color={'#' + (role?.color ? role?.color.toString(16) : 'fff')} />
@@ -117,8 +128,8 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
             }
             {
               o.remove &&
-              <div className="d-flex pb-1">
-                <span className="font-weight-bold pl-3 pr-2">- 역할 제거:</span>
+              <div className="d-flex flex-wrap pb-1 pl-3">
+                <span className="font-weight-bold pr-2">- 역할 제거:</span>
                 {o.remove.map(r => {
                   const role = roles?.find(one => one.id === r)
                   return <RoleBadge key={r} name={role?.name ?? '(알 수 없음)'} color={'#' + (role?.color ? role?.color.toString(16) : 'fff')} />
@@ -141,12 +152,31 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
             onChange={onCheckChange}
           />
         </td>
-        <td className="align-middle d-none d-md-table-cell">
-          <span className="d-inline-block text-truncate mw-100 align-middle cursor-pointer font-weight-bold">
+
+        <td className="align-middle d-lg-none">
+          <span className="d-inline-block mw-100 font-weight-bold">
             {eventName}
           </span>
+          <div>
+            {eventContent}
+          </div>
+          <hr className="my-2" style={{ borderColor: '#4e5058', borderWidth: 2 }} />
+          <div className="mw-100 align-middle cursor-pointer">
+            <Twemoji options={{ className: "Twemoji" }}>
+              {taskContent}
+            </Twemoji>
+          </div>
         </td>
-        <td className="align-middle d-none d-md-table-cell">
+
+        <td className="align-middle d-none d-lg-table-cell">
+          <span className="d-inline-block mw-100 font-weight-bold">
+            {eventName}
+          </span>
+          <div>
+            {eventContent}
+          </div>
+        </td>
+        <td className="align-middle d-none d-lg-table-cell">
           <div className="mw-100 align-middle cursor-pointer">
             <Twemoji options={{ className: "Twemoji" }}>
               {taskContent}
@@ -214,8 +244,6 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
 
   const tasksSet = new Set(data?.map(o => o.uuid))
 
-  console.log(selectedTasks)
-
   return (
     <>
       <Head>
@@ -224,7 +252,7 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
       <Layout>
         <DashboardLayout guildId={guildId}>
           {
-            () => (
+            guild => (
               <div>
                 <Row className="dashboard-section">
                   <div>
@@ -264,7 +292,7 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                                       {
                                         !!taskType &&
                                         <Form.Group className="mb-0">
-                                          {taskType === "emoji_role" && <EmojiRole guildId={guildId} channels={channels ?? []} roles={roles ?? []} saving={saving} saveError={saveError} onSubmit={({ data, params }) => {
+                                          {taskType === "emoji_role" && <EmojiRole guild={guild} channels={channels ?? []} roles={roles ?? []} saving={saving} saveError={saveError} onSubmit={({ data, params }) => {
                                             const postData: Omit<TaskSet<EmojiRoleParams, EmojiRoleData[]>, 'uuid'> = {
                                               type: taskType,
                                               params: params,
@@ -361,8 +389,9 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                                       }}
                                     />
                                   </th>
-                                  <th className="text-center text-md-left" style={{ width: 250 }}>작업 유형</th>
-                                  <th className="text-center text-md-left d-none d-md-table-cell">작업 내용</th>
+                                  <th className="d-lg-none" />
+                                  <th className="text-center text-lg-left d-none d-lg-table-cell" style={{ width: 250 }}>작업 유형</th>
+                                  <th className="text-center text-lg-left d-none d-lg-table-cell">작업 내용</th>
                                   <th style={{ width: 100 }} />
                                 </tr>
                               </thead>
@@ -374,7 +403,6 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                                       taskset={one}
                                       checked={selectedTasks.has(one.uuid)}
                                       onCheckChange={() => {
-                                        console.log(selectedTasks.has(one.uuid))
                                         let sel = new Set(selectedTasks)
 
                                         if (sel.has(one.uuid)) {

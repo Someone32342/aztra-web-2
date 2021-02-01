@@ -131,40 +131,38 @@ export default class Navibar extends React.Component<{}, NavibarState> {
                   user
                     ?
                     <>
-                      <div className="d-flex align-items-center">
-                        <img
-                          className="rounded-circle overflow-hidden"
-                          alt={user.username}
-                          src={
-                            user.avatar
-                              ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}`
-                              : `https://cdn.discordapp.com/embed/avatars/${Number(user.discriminator) % 5}.png`
-                          }
-                          style={{ maxHeight: 30 }}
-                        />
-                        <NavDropdown id="nav-dropdown" className="dropdown-menu-dark" title={
-                          <>
-                            <span style={{
-                              fontSize: '12.5pt',
-                              fontFamily: 'NanumSquare',
-                              color: 'whitesmoke'
-                            }}>
-                              {user.username}
-                            </span>
-                            <span style={{
-                              fontSize: '10.5pt',
-                              fontFamily: 'NanumSquare',
-                              color: '#9f9f9f'
-                            }}>
-                              #{user.discriminator}
-                            </span>
-                          </>
-                        } >
-                          <NavDropdown.Item className="dropdown-item-dark" onClick={this.handleLogout}>
-                            로그아웃
+                      <NavDropdown id="nav-dropdown" className="dropdown-menu-dark" title={
+                        <>
+                          <img
+                            className="rounded-circle overflow-hidden mr-2"
+                            alt={user.username}
+                            src={
+                              user.avatar
+                                ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}`
+                                : `https://cdn.discordapp.com/embed/avatars/${Number(user.discriminator) % 5}.png`
+                            }
+                            style={{ maxHeight: 30 }}
+                          />
+                          <span style={{
+                            fontSize: '12.5pt',
+                            fontFamily: 'NanumSquare',
+                            color: 'whitesmoke'
+                          }}>
+                            {user.username}
+                          </span>
+                          <span style={{
+                            fontSize: '10.5pt',
+                            fontFamily: 'NanumSquare',
+                            color: '#9f9f9f'
+                          }}>
+                            #{user.discriminator}
+                          </span>
+                        </>
+                      } >
+                        <NavDropdown.Item className="dropdown-item-dark" onClick={this.handleLogout}>
+                          로그아웃
                           </NavDropdown.Item>
-                        </NavDropdown>
-                      </div>
+                      </NavDropdown>
                     </>
                     : <Nav.Link onClick={this.handleLogin}>로그인</Nav.Link>
                 }

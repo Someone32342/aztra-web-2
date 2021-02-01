@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { Button, ButtonGroup, Card, Col, Container, Dropdown, Form, OverlayTrigger, Row, Spinner, Table, Tooltip } from "react-bootstrap"
+import { Button, ButtonGroup, Card, Col, Container, Dropdown, Form, Modal, OverlayTrigger, Row, Spinner, Table, Tooltip } from "react-bootstrap"
 import { Add as AddIcon, RemoveCircleOutline, Check as CheckIcon } from '@material-ui/icons'
 import Twemoji from 'react-twemoji'
 import RoleBadge, { AddRole } from "components/forms/RoleBadge"
@@ -9,15 +9,19 @@ import { Emoji, Picker } from "emoji-mart"
 import styles from 'styles/components/autotasking/EmojiRole.module.scss'
 import classNames from 'classnames/bind'
 import { EmojiRoleData } from "types/autotask/action_data"
-import { ChannelMinimal, Role } from "types/DiscordTypes"
+import { ChannelMinimal, PartialGuild, Role } from "types/DiscordTypes"
 import { EmojiRoleParams } from "types/autotask/params"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faHashtag } from "@fortawesome/free-solid-svg-icons"
 import ChannelSelectCard from "components/forms/ChannelSelectCard"
+import axios, { AxiosError, CancelTokenSource } from "axios"
+import api from "datas/api"
+import prefixes from 'datas/prefixes'
+import Cookies from "universal-cookie"
 const cx = classNames.bind(styles)
 
 interface EmojiRoleProps {
-  guildId: string
+  guild: PartialGuild | null
   channels: ChannelMinimal[]
   roles: Role[]
   saving?: boolean
@@ -25,12 +29,17 @@ interface EmojiRoleProps {
   onSubmit?: (data: { params: EmojiRoleParams, data: EmojiRoleData[] }, event: React.MouseEvent<HTMLElement, MouseEvent>) => void
 }
 
-const EmojiRole: React.FC<EmojiRoleProps> = ({ guildId, channels, roles, saving, saveError, onSubmit }) => {
+const EmojiRole: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, saveError, onSubmit }) => {
   const [newParams, setNewParams] = useState<Partial<EmojiRoleParams>>({})
   const [newAddedData, setNewAddedData] = useState<EmojiRoleData[]>([])
   const [newData, setNewData] = useState<Omit<EmojiRoleData, 'emoji'> & { emoji?: string | null }>({ add: [], remove: [] })
   const [channelSearch, setChannelSearch] = useState('')
   const [inputMessageId, setInputMessageId] = useState(false)
+
+  const [selectMessage, setSelectMessage] = useState(false)
+  const [selectMessageToken, setSelectMessageToken] = useState<string | null>(null)
+  const [selectMessageStatus, setSelectMessageStatus] = useState<'pending' | 'done' | 'timeout' | 'error' | null>(null)
+  const [cancelSelectMessage, setCancelSelectMessage] = useState<CancelTokenSource | null>(null)
 
   const filterChannels = () => {
     return channels
@@ -51,6 +60,45 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guildId, channels, roles, saving,
   }
 
   const filteredChannels = filterChannels()
+
+  const MessageSelectionReq = () => {
+    const token = (Math.floor(Math.random() * 100000)).toString() // Math.random().toString(36).slice(2, 7)
+    setSelectMessageToken(token)
+
+    const source = axios.CancelToken.source()
+    setCancelSelectMessage(source)
+
+    setSelectMessageStatus("pending")
+
+    axios.get(`${api}/discord/guilds/${guild?.id}/channels/${newParams.channel}/select-message?token=${token}`, {
+      headers: {
+        Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
+      },
+      cancelToken: source.token
+    })
+      .then(({ data }) => {
+        setSelectMessageToken(null)
+        setSelectMessageStatus("done")
+        setNewParams({ ...newParams, message: data.messageID })
+        console.log(data.messageID)
+      })
+      .catch(_e => {
+        if (_e.isAxiosError) {
+          const e: AxiosError = _e
+          if (e.response?.data.message === "AWAIT_TIMEOUT") {
+            setSelectMessageStatus('timeout')
+          }
+          else {
+            setSelectMessageStatus('error')
+          }
+        }
+      })
+  }
+
+  const CancelMessageSelectionReq = () => {
+    setSelectMessage(false)
+    if (cancelSelectMessage) cancelSelectMessage.cancel()
+  }
 
   return (
     <>
@@ -115,8 +163,8 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guildId, channels, roles, saving,
       </Row>
       <Row>
         {
-          inputMessageId &&
-          <Col xs="auto" sm={4} className="pr-0">
+          (inputMessageId || newParams.message) &&
+          <Col sm="auto" md={4} className="pr-sm-0">
             <Form.Control className="mb-2" as="input" type="text" placeholder="메시지 아이디" value={newParams.message ?? ''} onChange={e => {
               if (isNaN(Number(e.target.value))) return
               setNewParams({ ...newParams, message: e.target.value })
@@ -126,7 +174,75 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guildId, channels, roles, saving,
         {
           !inputMessageId &&
           <Col>
-            <Button variant="aztra">메시지 선택하기</Button>
+            <Button variant="aztra" disabled={selectMessage || !newParams.channel} onClick={() => setSelectMessage(true)}>
+              메시지 {newParams.message && "다시"} 선택하기
+            </Button>
+
+            <Modal
+              className="modal-dark"
+              show={selectMessage}
+              centered
+              size="lg"
+              onShow={MessageSelectionReq}
+              onHide={CancelMessageSelectionReq}
+            >
+              <Modal.Header closeButton>
+                <Modal.Title style={{
+                  fontFamily: "NanumSquare",
+                  fontWeight: 900,
+                }}>
+                  메시지 선택하기
+                </Modal.Title>
+              </Modal.Header>
+              <Modal.Body className="p-4">
+                {
+                  selectMessageStatus !== "done" &&
+                  <div>
+                    <h5>1. 메시지 답장 버튼 누르기</h5>
+                    <p className="pl-2">
+                      <span className="font-weight-bold h5">{guild?.name}</span> 서버에서 <span className="font-weight-bold h5">#{channels.find(o => o.id === newParams.channel)?.name}</span> 채널에서 원하는 메시지를 우클릭해 표시되는 메뉴에서 <b>답장</b>을 클릭합니다.
+                    </p>
+                    <h5>2. 명령어 입력</h5>
+                    <p className="pl-2 mb-4">
+                      <span className="font-weight-bold text-monospace p-1" style={{ backgroundColor: '#4e5052', borderRadius: 8 }}>{`${prefixes}메시지설정 ${selectMessageToken}`}</span> 을 입력합니다.{" "}
+                      <a className="cursor-pointer" style={{ color: "DeepSkyBlue" }} onClick={e => {
+                        navigator.clipboard.writeText(`${prefixes}메시지설정 ${selectMessageToken}`)
+                      }}>
+                        복사하기
+                      </a>
+                    </p>
+                  </div>
+                }
+                <div className="text-center">
+                  {
+                    selectMessageStatus === "pending" &&
+                    <div className="d-flex justify-content-center align-items-center">
+                      <Spinner animation="grow" variant="aztra" />
+                      <span className="h5 ml-2 my-auto">명령어 대기 중</span>
+                    </div>
+                  }
+                  {
+                    selectMessageStatus === "timeout" && "오류! 시간이 초과되었습니다."
+                  }
+                  {
+                    selectMessageStatus === "done" &&
+                    <>
+                      <b>메시지를 찾았어요! 확인 버튼을 눌러 계속하세요!</b>
+                      <div>(메시지 아이디: {newParams.message})</div>
+                    </>
+                  }
+                  {
+                    selectMessageStatus === "error" &&
+                    <b>오류가 발생했습니다!</b>
+                  }
+                </div>
+              </Modal.Body>
+              <Modal.Footer className="justify-content-end">
+                <Button variant={selectMessageStatus === "done" ? "success" : "dark"} onClick={CancelMessageSelectionReq}>
+                  {selectMessageStatus === "done" ? <><CheckIcon className="mr-2" />완료하기</> : "취소하고 닫기"}
+                </Button>
+              </Modal.Footer>
+            </Modal>
           </Col>
         }
       </Row>
@@ -147,34 +263,217 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guildId, channels, roles, saving,
               </tr>
             </thead>
             <tbody>
+              {/* 모바일 전용 */}
               <tr className="d-lg-none">
                 {
-                  process.env.NODE_ENV === "development"
-                    ? <td className="text-lg-center align-middle">
-                      <p>
-                        <Twemoji options={{ className: cx("Twemoji-lg") }}>
-                          <span className="font-weight-bold pr-2">이모지:</span>
-                      ❤
-                    </Twemoji>
-                      </p>
-                      <p>
-                        <div className="font-weight-bold">추가할 역할:</div>
-                    역할 A
-                  </p>
-                      <p>
-                        <div className="font-weight-bold">제거할 역할:</div>
-                    역할 B, 역할 C
-                  </p>
-                      <div className="mt-2">
-                        <Button variant="success" className="w-100">
-                          <AddIcon className="mr-1" fontSize="small" />
-                      추가
-                    </Button>
-                      </div>
-                    </td>
-                    : "모바일에서는 현재 개발중입니다! PC 버전에서 사용해주세요!"
+                  <td className="align-middle w-100">
+                    <div className="position-relative mb-3 d-flex align-items-center">
+                      {newData?.emoji && <span className="mr-3"><Emoji emoji={newData.emoji} set="twitter" size={28} /></span>}
+                      <Dropdown>
+                        <Dropdown.Toggle id="ds" size="sm" variant="secondary" className="remove-after">
+                          이모지 선택하기
+                          </Dropdown.Toggle>
+                        <Dropdown.Menu className="py-0">
+                          <Picker showSkinTones={false} showPreview={false} i18n={EmojiPickerI18n} theme="dark" set="twitter" onClick={emoji => {
+                            setNewData({
+                              ...newData,
+                              emoji: emoji.id ?? null
+                            })
+                          }} />
+                        </Dropdown.Menu>
+                      </Dropdown>
+                    </div>
+
+                    <div className="d-flex flex-wrap align-items-center mb-2">
+                      <span className="pr-2">추가할 역할:</span>
+                      {
+                        newData?.add?.map(one => {
+                          const role = roles.find(r => r.id === one)
+                          return <RoleBadge key={one} className="pr-2 py-1" name={role?.name ?? ''} color={'#' + (role?.color ? role?.color.toString(16) : 'fff')} removeable onRemove={() => {
+                            setNewData({
+                              ...newData,
+                              add: newData?.add?.filter(r => r !== one)
+                            })
+                          }} />
+                        })
+                      }
+                      <Dropdown className="dropdown-menu-dark" onSelect={key => {
+                        if (newData.add.includes(key!)) return
+                        setNewData({
+                          ...newData,
+                          add: newData?.add?.concat(key!) ?? newData?.add
+                        })
+                      }}>
+                        <Dropdown.Toggle className="remove-after py-1" as={AddRole} id="add-role-select-toggle" />
+                        <Dropdown.Menu style={{ maxHeight: 300, overflowY: 'scroll' }}>
+                          {
+                            roles.filter(r => r.id !== guild?.id && !r.managed).sort((a, b) => b.position - a.position).map(r => (
+                              <Dropdown.Item key={r.id} eventKey={r.id} style={{ color: '#' + r.color.toString(16) }}>
+                                {r.name}
+                              </Dropdown.Item>
+                            ))
+                          }
+                        </Dropdown.Menu>
+                      </Dropdown>
+                    </div>
+
+                    <div className="d-flex flex-wrap align-items-center mb-2">
+                      <span className="pr-2">제거할 역할:</span>
+                      {
+                        newData?.remove?.map(o => {
+                          const role = roles.find(r => r.id === o)
+                          return <RoleBadge key={o} className="pr-2 py-1" name={role?.name ?? ''} color={'#' + (role?.color ? role?.color.toString(16) : 'fff')} removeable onRemove={() => {
+                            setNewData({
+                              ...newData,
+                              remove: newData?.remove?.filter(r => r !== o)
+                            })
+                          }} />
+                        })
+                      }
+                      <Dropdown className="dropdown-menu-dark" onSelect={key => {
+                        if (newData.remove.includes(key!)) return
+                        setNewData({
+                          ...newData,
+                          remove: newData?.remove?.concat(key!) ?? newData?.remove
+                        })
+                      }}>
+                        <Dropdown.Toggle className="remove-after py-1" as={AddRole} id="remove-role-select-toggle" />
+                        <Dropdown.Menu style={{ maxHeight: 300, overflowY: 'scroll' }}>
+                          {
+                            roles.filter(r => r.id !== guild?.id && !r.managed).sort((a, b) => b.position - a.position).map(r => (
+                              <Dropdown.Item key={r.id} eventKey={r.id} style={{ color: '#' + r.color.toString(16) }}>
+                                {r.name}
+                              </Dropdown.Item>
+                            ))
+                          }
+                        </Dropdown.Menu>
+                      </Dropdown>
+                    </div>
+
+                    <div className="mt-2">
+                      <Button variant="success" className="d-flex justify-content-center align-items-center w-100" disabled={!(newData.emoji && (newData.add.length || newData.remove.length))} onClick={() => {
+                        setNewAddedData(newAddedData.filter(o => o.emoji !== newData.emoji).concat(newData as EmojiRoleData))
+                        setNewData({ add: [], remove: [] })
+                      }}>
+                        <AddIcon className="mr-1" fontSize="small" />
+                          추가
+                        </Button>
+                    </div>
+                  </td>
                 }
               </tr>
+
+              {
+                newAddedData.map((o, idx) => (
+                  <tr key={o.emoji} className="d-lg-none">
+                    <td className="align-middle w-100">
+                      <div className="position-relative d-flex align-items-center my-2">
+                        {o.emoji && <span className="mr-3"><Emoji emoji={o.emoji} set="twitter" size={28} /></span>}
+                        <Dropdown>
+                          <Dropdown.Toggle id="ds" size="sm" variant="secondary" className="remove-after">
+                            이모지 변경하기
+                          </Dropdown.Toggle>
+                          <Dropdown.Menu className="py-0">
+                            <Picker showSkinTones={false} showPreview={false} i18n={EmojiPickerI18n} theme="dark" set="twitter" onClick={emoji => {
+                              const data = { ...o }
+                              data.emoji = emoji.id!
+
+                              const datas = newAddedData.filter(a => a.emoji !== o.emoji ? a.emoji !== emoji.id : false)
+                              datas.splice(idx, 0, data)
+                              setNewAddedData(datas)
+                            }} />
+                          </Dropdown.Menu>
+                        </Dropdown>
+                      </div>
+
+                      <div className="d-flex flex-wrap align-items-center position-relative my-1">
+                        <span className="pr-2">추가할 역할:</span>
+                        {
+                          o.add.map(one => {
+                            const role = roles.find(r => r.id === one)
+                            return <RoleBadge key={one} className="pr-2 py-1" name={role?.name ?? ''} color={'#' + (role?.color ? role?.color.toString(16) : 'fff')} removeable onRemove={() => {
+                              const data = { ...o }
+                              data.add = o.add.filter(r => r !== one)
+
+                              const datas = newAddedData.filter(a => a.emoji !== o.emoji)
+                              datas.splice(idx, 0, data)
+                              setNewAddedData(datas)
+                            }} />
+                          })
+                        }
+                        <Dropdown className="dropdown-menu-dark" onSelect={key => {
+                          const data = { ...o }
+                          data.add = o.add.concat(key!) ?? o.add
+
+                          const datas = newAddedData.filter(a => a.emoji !== o.emoji)
+                          datas.splice(idx, 0, data)
+                          setNewAddedData(datas)
+                        }}>
+                          <Dropdown.Toggle className="remove-after py-1" as={AddRole} id="add-role-select-toggle" />
+                          <Dropdown.Menu style={{ maxHeight: 300, overflowY: 'scroll' }}>
+                            {
+                              roles.filter(r => r.id !== guild?.id && !r.managed).sort((a, b) => b.position - a.position).map(r => (
+                                <Dropdown.Item key={r.id} eventKey={r.id} style={{ color: '#' + r.color.toString(16) }}>
+                                  {r.name}
+                                </Dropdown.Item>
+                              ))
+                            }
+                          </Dropdown.Menu>
+                        </Dropdown>
+                      </div>
+
+                      <div className="d-flex flex-wrap align-items-center position-relative my-1">
+                        <span className="pr-2">제거할 역할:</span>
+                        {
+                          o.remove.map(one => {
+                            const role = roles.find(r => r.id === one)
+                            return <RoleBadge key={one} className="pr-2 py-1" name={role?.name ?? ''} color={'#' + (role?.color ? role?.color.toString(16) : 'fff')} removeable onRemove={() => {
+                              const data = { ...o }
+                              data.remove = o.remove.filter(r => r !== one)
+
+                              const datas = newAddedData.filter(a => a.emoji !== o.emoji)
+                              datas.splice(idx, 0, data)
+                              setNewAddedData(datas)
+                            }} />
+                          })
+                        }
+                        <Dropdown className="dropdown-menu-dark" onSelect={key => {
+                          const data = { ...o }
+                          data.remove = o.remove.concat(key!) ?? o.remove
+
+                          const datas = newAddedData.filter(a => a.emoji !== o.emoji)
+                          datas.splice(idx, 0, data)
+                          setNewAddedData(datas)
+                        }}>
+                          <Dropdown.Toggle className="remove-after py-1" as={AddRole} id="remove-role-select-toggle" />
+                          <Dropdown.Menu style={{ maxHeight: 300, overflowY: 'scroll' }}>
+                            {
+                              roles.filter(r => r.id !== guild?.id && !r.managed).sort((a, b) => b.position - a.position).map(r => (
+                                <Dropdown.Item key={r.id} eventKey={r.id} style={{ color: '#' + r.color.toString(16) }}>
+                                  {r.name}
+                                </Dropdown.Item>
+                              ))
+                            }
+                          </Dropdown.Menu>
+                        </Dropdown>
+                      </div>
+
+                      <div className="my-2">
+                        <ButtonGroup>
+                          <Button variant="outline-warning" size="sm" className="d-flex remove-before align-items-center" onClick={() => {
+                            setNewAddedData(newAddedData.filter(one => one.emoji !== o.emoji))
+                          }}>
+                            <RemoveCircleOutline className="mr-2" />
+                            삭제
+                          </Button>
+                        </ButtonGroup>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              }
+
+              {/* PC 전용 */}
               <tr className="d-none d-lg-table-row">
                 <td className="text-lg-center align-middle position-relative">
                   <Dropdown>
@@ -196,7 +495,7 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guildId, channels, roles, saving,
                   </Dropdown>
                 </td>
                 <td className="align-middle">
-                  <div className="d-flex flex-wrap align-items-center position-relative" >
+                  <div className="d-flex flex-wrap align-items-center" >
                     {
                       newData?.add?.map(one => {
                         const role = roles.find(r => r.id === one)
@@ -218,7 +517,7 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guildId, channels, roles, saving,
                       <Dropdown.Toggle className="remove-after py-1" as={AddRole} id="add-role-select-toggle" />
                       <Dropdown.Menu style={{ maxHeight: 300, overflowY: 'scroll' }}>
                         {
-                          roles.filter(r => r.id !== guildId && !r.managed).sort((a, b) => b.position - a.position).map(r => (
+                          roles.filter(r => r.id !== guild?.id && !r.managed).sort((a, b) => b.position - a.position).map(r => (
                             <Dropdown.Item key={r.id} eventKey={r.id} style={{ color: '#' + r.color.toString(16) }}>
                               {r.name}
                             </Dropdown.Item>
@@ -229,7 +528,7 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guildId, channels, roles, saving,
                   </div>
                 </td>
                 <td className="align-middle">
-                  <div className="d-flex flex-wrap align-items-center position-relative" >
+                  <div className="d-flex flex-wrap align-items-center" >
                     {
                       newData?.remove?.map(o => {
                         const role = roles.find(r => r.id === o)
@@ -251,7 +550,7 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guildId, channels, roles, saving,
                       <Dropdown.Toggle className="remove-after py-1" as={AddRole} id="remove-role-select-toggle" />
                       <Dropdown.Menu style={{ maxHeight: 300, overflowY: 'scroll' }}>
                         {
-                          roles.filter(r => r.id !== guildId && !r.managed).sort((a, b) => b.position - a.position).map(r => (
+                          roles.filter(r => r.id !== guild?.id && !r.managed).sort((a, b) => b.position - a.position).map(r => (
                             <Dropdown.Item key={r.id} eventKey={r.id} style={{ color: '#' + r.color.toString(16) }}>
                               {r.name}
                             </Dropdown.Item>
@@ -269,7 +568,7 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guildId, channels, roles, saving,
                     }}>
                       <AddIcon className="mr-1" fontSize="small" />
                       추가
-                  </Button>
+                    </Button>
                   </div>
                 </td>
               </tr>
@@ -278,7 +577,7 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guildId, channels, roles, saving,
 
               {
                 newAddedData.map((o, idx) => (
-                  <tr key={o.emoji}>
+                  <tr key={o.emoji} className="d-none d-lg-table-row">
                     <td className="text-lg-center align-middle position-relative" >
                       <Dropdown>
                         <Dropdown.Toggle id="ds" size="sm" variant="dark" className="remove-after">
@@ -326,7 +625,7 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guildId, channels, roles, saving,
                           <Dropdown.Toggle className="remove-after py-1" as={AddRole} id="add-role-select-toggle" />
                           <Dropdown.Menu style={{ maxHeight: 300, overflowY: 'scroll' }}>
                             {
-                              roles.filter(r => r.id !== guildId && !r.managed).sort((a, b) => b.position - a.position).map(r => (
+                              roles.filter(r => r.id !== guild?.id && !r.managed).sort((a, b) => b.position - a.position).map(r => (
                                 <Dropdown.Item key={r.id} eventKey={r.id} style={{ color: '#' + r.color.toString(16) }}>
                                   {r.name}
                                 </Dropdown.Item>
@@ -362,7 +661,7 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guildId, channels, roles, saving,
                           <Dropdown.Toggle className="remove-after py-1" as={AddRole} id="remove-role-select-toggle" />
                           <Dropdown.Menu style={{ maxHeight: 300, overflowY: 'scroll' }}>
                             {
-                              roles.filter(r => r.id !== guildId && !r.managed).sort((a, b) => b.position - a.position).map(r => (
+                              roles.filter(r => r.id !== guild?.id && !r.managed).sort((a, b) => b.position - a.position).map(r => (
                                 <Dropdown.Item key={r.id} eventKey={r.id} style={{ color: '#' + r.color.toString(16) }}>
                                   {r.name}
                                 </Dropdown.Item>
