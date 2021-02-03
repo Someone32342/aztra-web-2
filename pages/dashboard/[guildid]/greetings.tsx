@@ -276,7 +276,7 @@ const Greetings: NextPage<GreetingsRouterProps> = ({ guildId }) => {
                             isInvalid={validIT === false}
                             as={TextareaAutosize}
                             type="text"
-                            placeholder="예) {user}님, 안녕하세요!"
+                            placeholder="예) ${username}님, 안녕하세요!"
                             defaultValue={data?.join_title_format || undefined}
                             onChange={async (e) => {
                               setValidate("incomingTitle")
@@ -293,7 +293,7 @@ const Greetings: NextPage<GreetingsRouterProps> = ({ guildId }) => {
                             isInvalid={validID === false}
                             as={TextareaAutosize}
                             type="text"
-                            placeholder="예) {guild}에 오신 것을 환영합니다."
+                            placeholder="예) ${guild}에 오신 것을 환영합니다."
                             defaultValue={data?.join_desc_format || undefined}
                             onChange={async (e) => {
                               setValidate("incomingDesc")
@@ -327,7 +327,7 @@ const Greetings: NextPage<GreetingsRouterProps> = ({ guildId }) => {
                             isInvalid={validOT === false}
                             as={TextareaAutosize}
                             type="text"
-                            placeholder="예) {user}님, 안녕히가세요"
+                            placeholder="예) ${username}님, 안녕히가세요"
                             defaultValue={data?.leave_title_format || undefined}
                             onChange={async (e) => {
                               setValidate("outgoingTitle")
@@ -344,7 +344,7 @@ const Greetings: NextPage<GreetingsRouterProps> = ({ guildId }) => {
                             isInvalid={validOD === false}
                             as={TextareaAutosize}
                             type="text"
-                            placeholder="예) {user}님이 나갔습니다."
+                            placeholder="예) ${username}님이 나갔습니다."
                             defaultValue={data?.leave_desc_format || undefined}
                             onChange={async (e) => {
                               setValidate("outgoingDesc")
