@@ -102,10 +102,14 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
         let taskparams: EmojiRoleParams = taskset.params
         eventContent = (
           <div className="pl-3">
-            <div className="font-weight-bold">
-              - 메시지 아이디:
+            <div>
+              <span className="font-weight-bold">- 채널: </span>
+              <span>#{channels?.find(o => o.id === taskparams.channel)?.name}</span>
             </div>
-            {taskparams.message}
+            <div>
+              <span className="font-weight-bold">- 메시지 아이디: </span>
+              <div>{taskparams.message}</div>
+            </div>
           </div>
         )
 
@@ -114,12 +118,12 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
           <div key={o.emoji}>
             <div className="py-1 font-weight-bold d-flex align-items-center">
               <Emoji emoji={o.emoji} set="twitter" size={22} />
-              <span className="pl-2">{" "}로 반응했을 때:</span>
+              <span className="pl-2">{" "} 이모지에서:</span>
             </div>
             {
               o.add &&
               <div className="d-flex flex-wrap pb-1 pl-3">
-                <span className="font-weight-bold pr-2">- 역할 추가:</span>
+                <span className="font-weight-bold pr-2">- 반응 추가시 역할 추가:</span>
                 {o.add.map(r => {
                   const role = roles?.find(one => one.id === r)
                   return <RoleBadge key={r} name={role?.name ?? '(알 수 없음)'} color={'#' + (role?.color ? role?.color.toString(16) : 'fff')} />
@@ -129,7 +133,7 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
             {
               o.remove &&
               <div className="d-flex flex-wrap pb-1 pl-3">
-                <span className="font-weight-bold pr-2">- 역할 제거:</span>
+                <span className="font-weight-bold pr-2">- 반응 제거시 역할 제거:</span>
                 {o.remove.map(r => {
                   const role = roles?.find(one => one.id === r)
                   return <RoleBadge key={r} name={role?.name ?? '(알 수 없음)'} color={'#' + (role?.color ? role?.color.toString(16) : 'fff')} />

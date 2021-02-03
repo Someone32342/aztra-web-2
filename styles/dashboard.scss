@@ -204,6 +204,11 @@
     color: rgb(121, 117, 134);
 }
 
+.form-control[readonly] {
+    background-color: rgb(51, 52, 59);
+    color: rgb(121, 117, 134);
+}
+
 .form-control:disabled::placeholder {
     color: rgb(116, 113, 126);
 }

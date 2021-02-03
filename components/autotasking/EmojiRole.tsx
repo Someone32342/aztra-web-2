@@ -165,7 +165,7 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, s
         {
           (inputMessageId || newParams.message) &&
           <Col sm="auto" md={4} className="pr-sm-0">
-            <Form.Control className="mb-2" as="input" type="text" placeholder="메시지 아이디" value={newParams.message ?? ''} onChange={e => {
+            <Form.Control className="mb-2" as="input" type="text" placeholder="메시지 아이디" value={newParams.message ?? ''} readOnly={!inputMessageId} onChange={e => {
               if (isNaN(Number(e.target.value))) return
               setNewParams({ ...newParams, message: e.target.value })
             }} />
@@ -257,8 +257,8 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, s
               <tr>
                 <th className="d-lg-none" />
                 <th style={{ fontSize: 17, width: 100 }} className="text-center d-none d-lg-table-cell">이모지</th>
-                <th style={{ fontSize: 17 }}>추가할 역할</th>
-                <th style={{ fontSize: 17 }}>제거할 역할</th>
+                <th style={{ fontSize: 17 }}>반응했을 때 추가할 역할</th>
+                <th style={{ fontSize: 17 }}>반응 제거했을 때 제거할 역할</th>
                 <th style={{ width: 120 }} />
               </tr>
             </thead>
@@ -285,7 +285,7 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, s
                     </div>
 
                     <div className="d-flex flex-wrap align-items-center mb-2">
-                      <span className="pr-2">추가할 역할:</span>
+                      <span className="pr-2">반응했을 때 추가할 역할:</span>
                       {
                         newData?.add?.map(one => {
                           const role = roles.find(r => r.id === one)
@@ -318,7 +318,7 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, s
                     </div>
 
                     <div className="d-flex flex-wrap align-items-center mb-2">
-                      <span className="pr-2">제거할 역할:</span>
+                      <span className="pr-2">반응 제거했을 때 제거할 역할:</span>
                       {
                         newData?.remove?.map(o => {
                           const role = roles.find(r => r.id === o)
@@ -387,7 +387,7 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, s
                       </div>
 
                       <div className="d-flex flex-wrap align-items-center position-relative my-1">
-                        <span className="pr-2">추가할 역할:</span>
+                        <span className="pr-2">반응했을 때 추가할 역할:</span>
                         {
                           o.add.map(one => {
                             const role = roles.find(r => r.id === one)
@@ -423,7 +423,7 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, s
                       </div>
 
                       <div className="d-flex flex-wrap align-items-center position-relative my-1">
-                        <span className="pr-2">제거할 역할:</span>
+                        <span className="pr-2">반응 제거했을 때 제거할 역할:</span>
                         {
                           o.remove.map(one => {
                             const role = roles.find(r => r.id === one)
