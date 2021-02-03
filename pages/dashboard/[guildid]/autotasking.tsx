@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import axios, { AxiosError } from 'axios'
-import { Button, ButtonGroup, Card, Col, Container, Form, Modal, OverlayTrigger, Row, Spinner, Table, Tooltip } from 'react-bootstrap'
+import { Badge, Button, ButtonGroup, Card, Col, Container, Form, Modal, OverlayTrigger, Row, Spinner, Table, Tooltip } from 'react-bootstrap'
 import { Add as AddIcon, Delete as DeleteIcon, RemoveCircleOutline, OpenInNew as OpenInNewIcon, Close as CloseIcon } from '@material-ui/icons'
 import Twemoji from 'react-twemoji'
 import api from 'datas/api'
@@ -260,7 +260,10 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
               <div>
                 <Row className="dashboard-section">
                   <div>
-                    <h3>자동 작업 설정</h3>
+                    <h3>
+                      자동 작업 설정
+                      <Badge variant="aztra" className="ml-2 mb-auto mt-1" style={{ fontSize: 15 }}>베타</Badge>
+                    </h3>
                     <div className="py-2">
                       어떤 동작이 발생했을 때 여러가지 작업을 자동으로 수행할 수 있습니다.
                     </div>
