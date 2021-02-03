@@ -129,26 +129,26 @@ export default function Sidebar(props: SidebarProps) {
             </Nav.Link>
           </Link>
         </Nav.Item>
+        <Nav.Item>
+          <Link href={`/dashboard/${guild?.id}/autotasking`} shallow={true}>
+            <Nav.Link
+              className="d-flex mb-1"
+              href={`/dashboard/${guild?.id}/autotasking`}
+              active={location?.pathname.startsWith(`/dashboard/${guild?.id}/autotasking`)}
+            >
+              <div style={iconStyle} className="mr-3">
+                <EventNoteIcon style={{ transform: 'scale(1.1)' }} />
+              </div>
+              <div>
+                자동 작업
+                <Badge variant="aztra" className="ml-2 my-auto" style={{ fontSize: 14 }}>베타</Badge>
+              </div>
+            </Nav.Link>
+          </Link>
+        </Nav.Item>
         {
           process.env.NODE_ENV === "development" && (
             <>
-              <Nav.Item>
-                <Link href={`/dashboard/${guild?.id}/autotasking`} shallow={true}>
-                  <Nav.Link
-                    className="d-flex mb-1"
-                    href={`/dashboard/${guild?.id}/autotasking`}
-                    active={location?.pathname.startsWith(`/dashboard/${guild?.id}/autotasking`)}
-                  >
-                    <div style={iconStyle} className="mr-3">
-                      <EventNoteIcon style={{ transform: 'scale(1.1)' }} />
-                    </div>
-                    <div>
-                      자동 작업
-                      <Badge variant="aztra" className="ml-2 my-auto" style={{ fontSize: 14 }}>베타</Badge>
-                    </div>
-                  </Nav.Link>
-                </Link>
-              </Nav.Item>
               <Nav.Item>
                 <Link href={`/dashboard/${guild?.id}/billboards`} shallow={true}>
                   <Nav.Link
