@@ -121,9 +121,9 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
               <span className="pl-2">{" "} 이모지에서:</span>
             </div>
             {
-              o.add &&
+              !!o.add.length &&
               <div className="d-flex flex-wrap pb-1 pl-3">
-                <span className="font-weight-bold pr-2">- 반응 추가시 역할 추가:</span>
+                <span className="font-weight-bold pr-2" style={{ color: 'limegreen' }}>- 반응 추가시 역할 추가:</span>
                 {o.add.map(r => {
                   const role = roles?.find(one => one.id === r)
                   return <RoleBadge key={r} name={role?.name ?? '(알 수 없음)'} color={'#' + (role?.color ? role?.color.toString(16) : 'fff')} />
@@ -131,9 +131,9 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
               </div>
             }
             {
-              o.remove &&
+              !!o.remove.length &&
               <div className="d-flex flex-wrap pb-1 pl-3">
-                <span className="font-weight-bold pr-2">- 반응 제거시 역할 제거:</span>
+                <span className="font-weight-bold pr-2" style={{ color: 'salmon' }}>- 반응 제거시 역할 제거:</span>
                 {o.remove.map(r => {
                   const role = roles?.find(one => one.id === r)
                   return <RoleBadge key={r} name={role?.name ?? '(알 수 없음)'} color={'#' + (role?.color ? role?.color.toString(16) : 'fff')} />
@@ -281,7 +281,12 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                                 <Card bg="dark" className="m-0 shadow">
                                   <Card.Header className="d-flex justify-content-between align-items-center">
                                     <span className="font-weight-bold" style={{ fontFamily: "NanumSquare", fontSize: 18 }}>새 작업 추가</span>
-                                    <Button variant="danger" size="sm" className="d-flex align-items-center" onClick={() => setAddNew(false)}><CloseIcon fontSize="small" /></Button>
+                                    <Button variant="danger" size="sm" className="d-flex align-items-center" onClick={() => {
+                                      setAddNew(false)
+                                      setTaskType(0)
+                                    }}>
+                                      <CloseIcon fontSize="small" />
+                                    </Button>
                                   </Card.Header>
                                   <Card.Body>
                                     <Form>
@@ -337,7 +342,12 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                           }
 
                           <Row className="justify-content-end">
-                            <Button variant="aztra" size="sm" className="d-flex align-items-center mr-3" onClick={() => setAddNew(true)}>
+                            <Button variant="aztra" size="sm" className="d-flex align-items-center mr-3" onClick={() => {
+                              setAddNew(true)
+                              animateScroll.scrollToTop({
+                                duration: 500,
+                              })
+                            }}>
                               <AddIcon className="mr-1" />
                               새로 추가
                             </Button>
@@ -425,6 +435,22 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                                 }
                               </tbody>
                             </Table>
+                          </Row>
+                          <Row className="justify-content-center">
+                            {
+                              !data.length &&
+                              <div className="my-5" style={{ color: 'lightgray' }}>
+                                설정된 자동작업이 없습니다! <span className="cursor-pointer" style={{ color: 'deepskyblue' }} onClick={() => {
+                                  setAddNew(true)
+                                  animateScroll.scrollToTop({
+                                    duration: 500,
+                                  })
+                                }}>
+                                  새로 추가
+                                  </span>
+                                  해보세요!
+                            </div>
+                            }
                           </Row>
                         </Form>
                         : <Container className="d-flex align-items-center justify-content-center flex-column" style={{

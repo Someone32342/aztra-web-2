@@ -1,7 +1,6 @@
 import React, { useState } from "react"
 import { Button, ButtonGroup, Card, Col, Container, Dropdown, Form, Modal, OverlayTrigger, Row, Spinner, Table, Tooltip } from "react-bootstrap"
 import { Add as AddIcon, RemoveCircleOutline, Check as CheckIcon } from '@material-ui/icons'
-import Twemoji from 'react-twemoji'
 import RoleBadge, { AddRole } from "components/forms/RoleBadge"
 import EmojiPickerI18n from "defs/EmojiPickerI18n"
 import { Emoji, Picker } from "emoji-mart"
@@ -62,7 +61,7 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, s
   const filteredChannels = filterChannels()
 
   const MessageSelectionReq = () => {
-    const token = (Math.floor(Math.random() * 100000)).toString() // Math.random().toString(36).slice(2, 7)
+    const token = (Math.floor(Math.random() * 100000)).toString().padStart(5, "0") // Math.random().toString(36).slice(2, 7)
     setSelectMessageToken(token)
 
     const source = axios.CancelToken.source()
@@ -105,14 +104,14 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, s
       <Row>
         <Col>
           <Form.Label className="pt-2 h5 font-weight-bold">메시지 채널:</Form.Label>
-          <Form.Text className="pb-2">대상이 되는 메시지가 있는 채널을 선택하세요</Form.Text>
+          <Form.Text className="pb-3">대상이 되는 메시지가 있는 채널을 선택하세요</Form.Text>
           <Form.Group className="p-2" style={{ backgroundColor: '#424752', borderRadius: 10 }}>
             <Container fluid>
-              <Row className="mb-3 flex-column">
+              <Row className="align-items-center mb-2">
                 {
                   newParams.channel
                     ? <>
-                      <Card bg="secondary">
+                      <Card bg="secondary" className="w-100">
                         <Card.Header className="py-1 px-3" style={{
                           fontFamily: 'NanumSquare',
                           fontSize: '13pt'
@@ -122,7 +121,7 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, s
                         </Card.Header>
                       </Card>
                     </>
-                    : <Form.Label className="font-weight-bold">선택된 채널이 없습니다!</Form.Label>
+                    : <Form.Label className="font-weight-bold pl-2 my-auto">선택된 채널이 없습니다!</Form.Label>
                 }
 
               </Row>
@@ -152,7 +151,7 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, s
       <Row>
         <Col>
           <Form.Label className="pt-3 h5 font-weight-bold">메시지 아이디:</Form.Label>
-          <Form.Text className="pb-2">
+          <Form.Text className="pb-3">
             {
               inputMessageId
                 ? <>대상이 되는 메시지 아이디를 입력하세요. 또는 <a className="cursor-pointer" style={{ color: "DeepSkyBlue" }} onClick={() => setInputMessageId(false)}>빠르게 메시지 선택하기</a></>
@@ -173,20 +172,25 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, s
         }
         {
           !inputMessageId &&
-          <Col>
-            <Button variant="aztra" disabled={selectMessage || !newParams.channel} onClick={() => setSelectMessage(true)}>
-              메시지 {newParams.message && "다시"} 선택하기
-            </Button>
-
+          <>
+            <Col>
+              <Button variant={newParams.channel ? "aztra" : "danger"} size={!newParams.channel ? "sm" : undefined} disabled={selectMessage || !newParams.channel} onClick={() => setSelectMessage(true)}>
+                {
+                  newParams.channel
+                    ? `메시지 ${newParams.message ? "다시" : ""} 선택하기`
+                    : "위에서 먼저 채널을 선택해주세요!"
+                }
+              </Button>
+            </Col>
             <Modal
               className="modal-dark"
               show={selectMessage}
               centered
               size="lg"
               onShow={MessageSelectionReq}
-              onHide={CancelMessageSelectionReq}
+              onHide={() => { }}
             >
-              <Modal.Header closeButton>
+              <Modal.Header>
                 <Modal.Title style={{
                   fontFamily: "NanumSquare",
                   fontWeight: 900,
@@ -203,13 +207,18 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, s
                       <span className="font-weight-bold h5">{guild?.name}</span> 서버에서 <span className="font-weight-bold h5">#{channels.find(o => o.id === newParams.channel)?.name}</span> 채널에서 원하는 메시지를 우클릭해 표시되는 메뉴에서 <b>답장</b>을 클릭합니다.
                     </p>
                     <h5>2. 명령어 입력</h5>
-                    <p className="pl-2 mb-4">
+                    <p className="pl-2">
                       <span className="font-weight-bold text-monospace p-1" style={{ backgroundColor: '#4e5052', borderRadius: 8 }}>{`${prefixes}메시지설정 ${selectMessageToken}`}</span> 을 입력합니다.{" "}
                       <a className="cursor-pointer" style={{ color: "DeepSkyBlue" }} onClick={e => {
                         navigator.clipboard.writeText(`${prefixes}메시지설정 ${selectMessageToken}`)
                       }}>
                         복사하기
                       </a>
+                    </p>
+                    <p className="mb-5">
+                      <ul>
+                        <li>Aztra가 해당 채널에서 <b>메시지 읽기</b> 권한이 있어야 합니다!</li>
+                      </ul>
                     </p>
                   </div>
                 }
@@ -238,25 +247,26 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, s
                 </div>
               </Modal.Body>
               <Modal.Footer className="justify-content-end">
-                <Button variant={selectMessageStatus === "done" ? "success" : "dark"} onClick={CancelMessageSelectionReq}>
-                  {selectMessageStatus === "done" ? <><CheckIcon className="mr-2" />완료하기</> : "취소하고 닫기"}
+                <Button variant={selectMessageStatus === "done" ? "success" : "dark"} onClick={selectMessageStatus === "error" ? MessageSelectionReq : CancelMessageSelectionReq}>
+                  {selectMessageStatus === "done" ? <><CheckIcon className="mr-2" />완료하기</> : selectMessageStatus === "error" ? "다시 시도하기" : "취소하고 닫기"}
                 </Button>
               </Modal.Footer>
             </Modal>
-          </Col>
+          </>
         }
       </Row>
-      <Row className="pt-3">
+      <Row className="pt-4">
         <Col>
-          <Form.Label className="pt-2 h5 font-weight-bold">추가한 이모지:</Form.Label>
+          <Form.Label className="pt-2 h5 font-weight-bold">이모지와 역할 추가하기:</Form.Label>
+          <Form.Text>이모지를 선택하고, 역할을 추가하세요. 오른쪽의 추가버튼을 클릭하면 이모지를 더 추가할 수 있습니다.</Form.Text>
           <Form.Text>* 이모지를 클릭하면 이모지를 변경할 수 있습니다</Form.Text>
-          <Table id="warn-list-table" className="mb-0 mt-2" variant="dark" style={{
+          <Table id="warn-list-table" className="mb-0 mt-4" variant="dark" style={{
             tableLayout: 'fixed'
           }} >
             <thead className={cx("EmojiRole-TableHead")} style={{ fontFamily: "NanumSquare" }}>
               <tr>
                 <th className="d-lg-none" />
-                <th style={{ fontSize: 17, width: 100 }} className="text-center d-none d-lg-table-cell">이모지</th>
+                <th style={{ fontSize: 17, width: 150 }} className="text-center d-none d-lg-table-cell">이모지</th>
                 <th style={{ fontSize: 17 }}>반응했을 때 추가할 역할</th>
                 <th style={{ fontSize: 17 }}>반응 제거했을 때 제거할 역할</th>
                 <th style={{ width: 120 }} />
@@ -266,13 +276,13 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, s
               {/* 모바일 전용 */}
               <tr className="d-lg-none">
                 {
-                  <td className="align-middle w-100">
+                  <td className="align-middle">
                     <div className="position-relative mb-3 d-flex align-items-center">
                       {newData?.emoji && <span className="mr-3"><Emoji emoji={newData.emoji} set="twitter" size={28} /></span>}
                       <Dropdown>
                         <Dropdown.Toggle id="ds" size="sm" variant="secondary" className="remove-after">
                           이모지 선택하기
-                          </Dropdown.Toggle>
+                        </Dropdown.Toggle>
                         <Dropdown.Menu className="py-0">
                           <Picker showSkinTones={false} showPreview={false} i18n={EmojiPickerI18n} theme="dark" set="twitter" onClick={emoji => {
                             setNewData({
@@ -284,8 +294,8 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, s
                       </Dropdown>
                     </div>
 
+                    <span className="pr-2">반응했을 때 추가할 역할:</span>
                     <div className="d-flex flex-wrap align-items-center mb-2">
-                      <span className="pr-2">반응했을 때 추가할 역할:</span>
                       {
                         newData?.add?.map(one => {
                           const role = roles.find(r => r.id === one)
@@ -317,8 +327,8 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, s
                       </Dropdown>
                     </div>
 
+                    <span className="pr-2">반응 제거했을 때 제거할 역할:</span>
                     <div className="d-flex flex-wrap align-items-center mb-2">
-                      <span className="pr-2">반응 제거했을 때 제거할 역할:</span>
                       {
                         newData?.remove?.map(o => {
                           const role = roles.find(r => r.id === o)
@@ -477,11 +487,11 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, s
               <tr className="d-none d-lg-table-row">
                 <td className="text-lg-center align-middle position-relative">
                   <Dropdown>
-                    <Dropdown.Toggle id="ds" size="sm" variant="dark" className="remove-after">
+                    <Dropdown.Toggle id="ds" size="sm" variant={newData?.emoji ? "dark" : "secondary"} className="remove-after">
                       {
                         newData?.emoji
                           ? <Emoji emoji={newData.emoji} set="twitter" size={28} />
-                          : "선택하기"
+                          : "이모지 선택하기"
                       }
                     </Dropdown.Toggle>
                     <Dropdown.Menu className="py-0">
@@ -580,11 +590,11 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, s
                   <tr key={o.emoji} className="d-none d-lg-table-row">
                     <td className="text-lg-center align-middle position-relative" >
                       <Dropdown>
-                        <Dropdown.Toggle id="ds" size="sm" variant="dark" className="remove-after">
+                        <Dropdown.Toggle id="ds" size="sm" variant={o?.emoji ? "dark" : "secondary"} className="remove-after">
                           {
                             o?.emoji
                               ? <Emoji emoji={o.emoji} set="twitter" size={28} />
-                              : "선택하기"
+                              : "이모지 선택하기"
                           }
                         </Dropdown.Toggle>
                         <Dropdown.Menu className="py-0">
@@ -704,8 +714,10 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, s
           <Button
             className="pl-2 d-flex justify-content-center align-items-center"
             variant={saveError ? "danger" : "aztra"}
-            disabled={saving || saveError || !(newParams.channel && newParams.message && newAddedData.length)}
-            onClick={event => onSubmit && onSubmit({ params: newParams as EmojiRoleParams, data: newAddedData }, event)}
+            disabled={saving || saveError || !(newParams.channel && newParams.message && (newAddedData.length || (newData.emoji && (newData.add.length || newData.remove.length))))}
+            onClick={event => onSubmit &&
+              onSubmit({ params: newParams as EmojiRoleParams, data: newAddedData.concat(newData.emoji && (newData.add.length || newData.remove.length) ? [newData as EmojiRoleData] : []) }, event)
+            }
             style={{
               minWidth: 140
             }}
