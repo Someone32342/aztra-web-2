@@ -12,6 +12,7 @@ import useSWR from 'swr';
 import axios, { AxiosError } from 'axios';
 import api from 'datas/api';
 import numberWithCommas from 'utils/numberWithCommas';
+import links from 'datas/links';
 
 const cx = classNames.bind(styles)
 
@@ -90,7 +91,7 @@ export default function Home() {
                   <div className="font-weight-bold">도움이 필요하신가요?</div>
                   <div style={{ fontSize: 16, color: "darkgray" }}>문의 처리, 봇 소식 등을 확인하실 수 있습니다.</div>
                 </div>
-                <Button className="mx-4 my-3" variant="blurple" size="lg" style={{ fontFamily: "NanumSquare", fontWeight: 'bold' }}>서포트 서버 참여하기</Button>
+                <Button className="mx-4 my-3" variant="blurple" size="lg" style={{ fontFamily: "NanumSquare", fontWeight: 'bold' }} href={links.support}>서포트 서버 참여하기</Button>
               </div>
             </Row>
           </Container>
