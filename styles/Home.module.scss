@@ -118,3 +118,38 @@
     text-align: left;
   }
 }
+
+.MainStatistics {
+  color: white;
+
+  .MainStatisticsTitle {
+    word-break: keep-all;
+    font-family: "NanumSquare";
+    font-size: 25px;
+    @include media-breakpoint-up(md) {
+      font-size: 30px;
+    }
+  }
+
+  .UsingServersTitle {
+    font-size: 20px;
+    @include media-breakpoint-up(sm) {
+      font-size: 24px;
+    }
+    font-family: 'NanumSquare';
+    font-weight: bold;
+  }
+
+  .UsingServersCount {
+    font-size: 60px;
+    @include media-breakpoint-up(sm) {
+      font-size: 80px;
+    }
+    font-family: 'Roboto', 'NanumSquare';
+    font-weight: 400;
+    line-height: 1.1;
+    span {
+      font-size: 48px;
+    }
+  }
+}

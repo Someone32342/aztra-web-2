@@ -26,13 +26,10 @@ import 'dayjs/locale/ko'
 import useSWR from 'swr';
 import urljoin from 'url-join';
 import Head from 'next/head';
+import numberWithCommas from 'utils/numberWithCommas';
 dayjs.locale('ko')
 dayjs.extend(dayjsRelativeTime)
 dayjs.extend(dayjsUTC)
-
-function numberWithCommas(x: number) {
-  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-}
 
 interface MemberDashboardRouteProps {
   guildId: string

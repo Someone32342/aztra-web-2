@@ -1,4 +1,4 @@
-import { Container, Button } from 'react-bootstrap';
+import { Container, Button, Row, Col } from 'react-bootstrap';
 import { Link as ScrollLink } from 'react-scroll'
 
 import styles from 'styles/Home.module.scss'
@@ -7,10 +7,23 @@ import Layout from 'components/Layout';
 import Link from 'next/link';
 import Image from 'next/image'
 import Head from 'next/head';
+import React from 'react';
+import useSWR from 'swr';
+import axios, { AxiosError } from 'axios';
+import api from 'datas/api';
+import numberWithCommas from 'utils/numberWithCommas';
 
 const cx = classNames.bind(styles)
 
 export default function Home() {
+  const { data } = useSWR<{ servers: number, days: number }, AxiosError>(
+    `${api}/aztra/info`,
+    url => axios.get(url).then(r => r.data),
+    {
+      refreshInterval: 10000
+    }
+  )
+
   return (
     <>
       <Head>
@@ -45,6 +58,43 @@ export default function Home() {
           </div>
         </Container>
         <div id="features-begin" style={{ marginTop: '-58px', marginBottom: 58 }} />
+        <div id="statistics" className={cx("MainStatistics")}>
+          <div style={{ background: "linear-gradient(210deg, #6799FF, #4375DB)", height: '60vh' }}>
+            <Container className="h-100">
+              <Row className="justify-content-center align-items-center h-100 py-5">
+                <Col className="text-center" sm={12} lg="auto">
+                  <div className={cx("font-weight-bold", "text-white", "MainStatisticsTitle")}>계속해서 성장하는 Aztra를 살펴보세요</div>
+                </Col>
+                <Col lg={{ offset: 1 }} className="text-center text-lg-left">
+                  <div>
+                    <div className="py-4">
+                      <div className={cx("UsingServersTitle")}>사용 중인 서버</div>
+                      <div className={cx("UsingServersCount")}>{numberWithCommas(data?.servers ?? 0)}</div>
+                    </div>
+                    <div className="py-4">
+                      <div className={cx("UsingServersTitle")}>Aztra 출시일로부터</div>
+                      <div className={cx("UsingServersCount")}>{data?.days}일</div>
+                    </div>
+                  </div>
+                </Col>
+              </Row>
+            </Container>
+          </div>
+        </div>
+        <div style={{ height: '40vh' }}>
+          <Container className="h-100">
+            <Row className="h-100 justify-content-center align-items-center">
+              <div className="d-md-flex align-items-center">
+                <img className="d-none d-md-block" src="/assets/images/discord-logo-white.png" style={{ width: 100 }} />
+                <div className="text-white px-4" style={{ fontFamily: "NanumSquare", fontSize: 30 }}>
+                  <div className="font-weight-bold">도움이 필요하신가요?</div>
+                  <div style={{ fontSize: 16, color: "darkgray" }}>문의 처리, 봇 소식 등을 확인하실 수 있습니다.</div>
+                </div>
+                <Button className="mx-4 my-3" variant="blurple" size="lg" style={{ fontFamily: "NanumSquare", fontWeight: 'bold' }}>서포트 서버 참여하기</Button>
+              </div>
+            </Row>
+          </Container>
+        </div>
         <div id="main-features" className={cx("MainFeatures")} >
           <div className={cx("MainFeaturesItem")} style={{
             background: "linear-gradient(210deg, #A566FF, #8041D9)"

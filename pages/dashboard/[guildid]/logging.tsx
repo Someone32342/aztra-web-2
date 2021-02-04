@@ -7,7 +7,7 @@ import Layout from 'components/Layout'
 import api from 'datas/api'
 import { GetServerSideProps, NextPage } from 'next'
 import Head from 'next/head'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Alert, Badge, Button, Card, Col, Container, Form, FormCheckProps, Row, Spinner } from 'react-bootstrap'
 import useSWR from 'swr'
 import { LoggingSet as LoggingSetType } from 'types/dbtypes'
@@ -192,7 +192,17 @@ const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
     }
   }
 
-  console.log(data)
+  useEffect(() => {
+    if (!new Cookies().get('ACCESS_TOKEN')) {
+      const lct = window.location
+      localStorage.setItem('loginFrom', lct.pathname + lct.search)
+      window.location.assign('/login')
+    }
+    if (data) {
+      setUseLogging(!!Number(data?.flags))
+      setFlag(data?.flags ?? '0')
+    }
+  }, [])
 
   return (
     <>

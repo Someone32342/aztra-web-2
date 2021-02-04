@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import axios, { AxiosError } from 'axios'
 import { Badge, Button, ButtonGroup, Card, Col, Container, Form, Modal, OverlayTrigger, Row, Spinner, Table, Tooltip } from 'react-bootstrap'
 import { Add as AddIcon, Delete as DeleteIcon, RemoveCircleOutline, OpenInNew as OpenInNewIcon, Close as CloseIcon } from '@material-ui/icons'
@@ -89,6 +89,14 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
     })
       .then(r => r.data)
   )
+
+  useEffect(() => {
+    if (!new Cookies().get('ACCESS_TOKEN')) {
+      const lct = window.location
+      localStorage.setItem('loginFrom', lct.pathname + lct.search)
+      window.location.assign('/login')
+    }
+  }, [])
 
   const TaskListCard: React.FC<TaskListCardProps> = ({ taskset, onCheckChange, checked }) => {
     let eventName = `(알 수 없는 동작: ${taskset.type})`
