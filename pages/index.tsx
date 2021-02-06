@@ -60,7 +60,7 @@ export default function Home() {
         </Container>
         <div id="features-begin" style={{ marginTop: '-58px', marginBottom: 58 }} />
         <div id="statistics" className={cx("MainStatistics")}>
-          <div style={{ background: "linear-gradient(210deg, #6799FF, #4375DB)", height: '60vh' }}>
+          <div style={{ background: "linear-gradient(210deg, #6799FF, #4375DB)", height: '65vh' }}>
             <Container className="h-100">
               <Row className="justify-content-center align-items-center h-100 py-5">
                 <Col className="text-center" sm={12} lg="auto">
