@@ -38,3 +38,10 @@ export interface Billboard {
   channel: string
   value: string
 }
+
+export interface MemberCount {
+  uuid: string
+  guild: string
+  dt: string
+  count: number
+}
