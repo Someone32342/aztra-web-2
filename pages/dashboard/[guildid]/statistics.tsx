@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { Button, Col, OverlayTrigger, Popover, Row } from 'react-bootstrap'
+import { Button, Col, Container, OverlayTrigger, Popover, Row, Spinner } from 'react-bootstrap'
 import { Assessment as AssessmentIcon, Image as ImageIcon, Help as HelpIcon } from '@material-ui/icons'
 import { Line } from 'react-chartjs-2'
 import { GetServerSideProps, NextPage } from 'next'
@@ -159,7 +159,7 @@ const Statistics: NextPage<StatisticsProps> = ({ guildId }) => {
       <Layout>
         <DashboardLayout guildId={guildId}>
           {
-            () => (
+            () => data ? (
               <>
                 <Row className="dashboard-section">
                   <h3>서버 통계</h3>
@@ -269,6 +269,12 @@ const Statistics: NextPage<StatisticsProps> = ({ guildId }) => {
                 </Row>
               </>
             )
+              : <Container className="d-flex align-items-center justify-content-center flex-column" style={{
+                height: '500px'
+              }}>
+                <h3 className="pb-4">불러오는 중</h3>
+                <Spinner animation="border" variant="aztra" />
+              </Container>
           }
         </DashboardLayout>
       </Layout>
