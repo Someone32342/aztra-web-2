@@ -45,3 +45,11 @@ export interface MemberCount {
   dt: string
   count: number
 }
+
+export interface MsgCount {
+  uuid: string
+  guild: string
+  member: string
+  dt: string
+  count: number
+}
