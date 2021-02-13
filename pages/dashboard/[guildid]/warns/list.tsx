@@ -384,7 +384,13 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
           warnby={warnby!}
           warn={one}
           guildId={guildId}
-          onDelete={() => warnsMutate()}
+          onDelete={() => {
+            const sel = new Set(selectedWarns)
+            sel.delete(one.uuid)
+            setSelectedWarns(sel)
+            warnsMutate()
+
+          }}
           checked={selectedWarns.has(one.uuid)}
           onCheckChange={() => {
             console.log(selectedWarns.has(one.uuid))
@@ -413,10 +419,8 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
         Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
       }
     })
-      .then(() => {
-        setSelectedWarns(new Set)
-        warnsMutate()
-      })
+      .then(() => warnsMutate())
+      .finally(() => setSelectedWarns(new Set))
   }
 
   const warnsSet = new Set(warns?.map(o => o.uuid))

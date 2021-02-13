@@ -46,7 +46,6 @@ export default function Servers() {
     }
   }, [])
 
-
   const guild_cards = data
     ?.filter(one => {
       return Number(one.permissions) & 8
@@ -81,7 +80,29 @@ export default function Servers() {
                         </Button>
                       </Link>
                     )
-                    : <Button variant="dark" size="sm" target="_blank" href={links.invite[process.env.NODE_ENV] + `&guild_id=${one.id}&disable_guild_select=true`}>
+                    : <Button variant="dark" size="sm" onClick={() => {
+                      const w = 400
+                      const h = 700
+
+                      const dualScreenLeft = window.screenLeft !== undefined ? window.screenLeft : window.screenX;
+                      const dualScreenTop = window.screenTop !== undefined ? window.screenTop : window.screenY;
+
+                      const width = window.innerWidth || document.documentElement.clientWidth || screen.width;
+                      const height = window.innerHeight || document.documentElement.clientHeight || screen.height;
+
+                      const systemZoom = width / window.screen.availWidth;
+                      const left = (width - w) / 2 / systemZoom + dualScreenLeft
+                      const top = (height - h) / 2 / systemZoom + dualScreenTop
+                      const newWindow = window.open(links.invite_with_redirect[process.env.NODE_ENV] + `&guild_id=${one.id}&disable_guild_select=true`, 'Aztra 초대하기',
+                        `
+                        width=${w / systemZoom},
+                        height=${h / systemZoom}, 
+                        top=${top}, 
+                        left=${left}
+                        `
+                      )
+                      newWindow?.focus();
+                    }}>
                       초대하기
                     </Button>
                 }

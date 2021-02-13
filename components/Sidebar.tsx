@@ -122,10 +122,7 @@ export default function Sidebar(props: SidebarProps) {
               <div style={iconStyle} className="mr-3">
                 <HistoryIcon style={{ transform: 'scale(1.1)' }} />
               </div>
-              <div>
-                로깅 설정
-                <Badge variant="aztra" className="ml-2 my-auto" style={{ fontSize: 14 }}>베타</Badge>
-              </div>
+              로깅 설정
             </Nav.Link>
           </Link>
         </Nav.Item>

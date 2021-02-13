@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import axios, { AxiosError } from 'axios'
-import { Button, Col, Form, Row, Spinner, Table } from 'react-bootstrap'
-import { Add as AddIcon, Delete as DeleteIcon } from '@material-ui/icons'
+import { Button, Card, Col, Form, Row, Spinner, Table } from 'react-bootstrap'
+import { Add as AddIcon, Delete as DeleteIcon, Close as CloseIcon } from '@material-ui/icons'
 import api from 'datas/api'
 
 import { GetServerSideProps, NextPage } from 'next'
@@ -13,6 +13,7 @@ import urljoin from 'url-join'
 import Head from 'next/head'
 import { Billboard } from 'types/dbtypes'
 import { ChannelMinimal } from 'types/DiscordTypes'
+import { animateScroll } from 'react-scroll'
 
 interface AutoTaskingRouterProps {
   guildId: string
@@ -34,6 +35,7 @@ interface BoardListCardProps {
 }
 
 const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
+  const [addNew, setAddNew] = useState(false)
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState(false)
 
@@ -104,7 +106,57 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                 <Row>
                   <Col>
                     <Form noValidate>
-                      <Row className="flex-column">
+                      {
+                        addNew &&
+                        <Row className="mb-5">
+                          <Col className="p-0">
+                            <Card bg="dark" className="m-0 shadow">
+                              <Card.Header className="d-flex justify-content-between align-items-center">
+                                <span className="font-weight-bold" style={{ fontFamily: "NanumSquare", fontSize: 18 }}>새 작업 추가</span>
+                                <Button variant="danger" size="sm" className="d-flex align-items-center" onClick={() => {
+                                  setAddNew(false)
+                                }}>
+                                  <CloseIcon fontSize="small" />
+                                </Button>
+                              </Card.Header>
+                              <Card.Body>
+                                <Form>
+                                  <Form.Group className="d-flex">
+                                    <Row className="align-items-center">
+                                      <Form.Label column sm="auto">작업 유형 선택</Form.Label>
+                                      <Col>
+                                        <Form.Control className="shadow-sm" style={{ fontSize: 15 }} as="select">
+                                          <option value={0}>유형 선택</option>
+                                          <option value="emoji_role">반응했을 때 역할 추가/제거</option>
+                                        </Form.Control>
+                                      </Col>
+                                    </Row>
+                                  </Form.Group>
+
+                                </Form>
+                              </Card.Body>
+                            </Card>
+                          </Col>
+                        </Row>
+                      }
+
+                      <Row className="justify-content-end">
+                        <Button variant="aztra" size="sm" className="d-flex align-items-center mr-3" onClick={() => {
+                          setAddNew(true)
+                          animateScroll.scrollToTop({
+                            duration: 500,
+                          })
+                        }}>
+                          <AddIcon className="mr-1" />
+                          새로 추가
+                        </Button>
+                        <Button variant="danger" size="sm" className="d-flex align-items-center">
+                          <DeleteIcon className="mr-1" />
+                          선택 항목 삭제
+                        </Button>
+                      </Row>
+
+                      <Row className="flex-column mt-4">
                         <Table id="warn-list-table" variant="dark" style={{
                           tableLayout: 'fixed'
                         }} >
@@ -125,17 +177,6 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                             {data?.map(one => <BoardListCard billboard={one} />)}
                           </tbody>
                         </Table>
-                      </Row>
-
-                      <Row className="justify-content-end">
-                        <Button variant="aztra" size="sm" className="d-flex align-items-center mr-3">
-                          <AddIcon className="mr-1" />
-                          새로 추가
-                        </Button>
-                        <Button variant="danger" size="sm" className="d-flex align-items-center">
-                          <DeleteIcon className="mr-1" />
-                          선택 항목 삭제
-                        </Button>
                       </Row>
 
                       <Row className="mt-4">
