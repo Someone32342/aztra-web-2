@@ -140,7 +140,7 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                         </Row>
                       }
 
-                      <Row className="justify-content-end">
+                      <Row className="justify-content-end pt-2">
                         <Button variant="aztra" size="sm" className="d-flex align-items-center mr-3" onClick={() => {
                           setAddNew(true)
                           animateScroll.scrollToTop({
@@ -156,7 +156,7 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                         </Button>
                       </Row>
 
-                      <Row className="flex-column mt-4">
+                      <Row className="flex-column mt-3">
                         <Table id="warn-list-table" variant="dark" style={{
                           tableLayout: 'fixed'
                         }} >

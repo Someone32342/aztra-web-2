@@ -350,19 +350,23 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                           }
 
                           <Row className="justify-content-end">
-                            <Button variant="aztra" size="sm" className="d-flex align-items-center mr-3" onClick={() => {
-                              setAddNew(true)
-                              animateScroll.scrollToTop({
-                                duration: 500,
-                              })
-                            }}>
-                              <AddIcon className="mr-1" />
-                              새로 추가
-                            </Button>
-                            <Button variant="danger" size="sm" className="d-flex align-items-center" disabled={!selectedTasks.size} onClick={() => setShowSelectedDel(true)}>
-                              <DeleteIcon className="mr-1" />
-                              선택 항목 삭제
-                            </Button>
+                            <small className="mr-auto mt-auto">*자동작업 수정 기능은 현재 개발중입니다! 그때까지 자동작업을 수정하려면 삭제 후 재추가해주세요!</small>
+                            <div className="pt-2 d-flex align-items-center">
+                              <div className="mr-4" style={{ color: data.length >= 15 ? 'gold' : 'white' }}><b>{data.length}/15</b> 개 사용됨</div>
+                              <Button variant="aztra" size="sm" className="d-flex align-items-center mr-3" disabled={data.length >= 15} onClick={() => {
+                                setAddNew(true)
+                                animateScroll.scrollToTop({
+                                  duration: 500,
+                                })
+                              }}>
+                                <AddIcon className="mr-1" />
+                                새로 추가
+                              </Button>
+                              <Button variant="danger" size="sm" className="d-flex align-items-center" disabled={!selectedTasks.size} onClick={() => setShowSelectedDel(true)}>
+                                <DeleteIcon className="mr-1" />
+                                선택 항목 삭제
+                              </Button>
+                            </div>
                           </Row>
 
                           <Row>
@@ -392,7 +396,7 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                             </Modal>
                           </Row>
 
-                          <Row className="flex-column mt-4">
+                          <Row className="flex-column mt-3">
                             <Table id="task-list-table" variant="dark" style={{
                               tableLayout: 'fixed'
                             }} >

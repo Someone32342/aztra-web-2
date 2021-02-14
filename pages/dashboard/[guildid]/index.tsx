@@ -1,17 +1,18 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios, { AxiosError } from 'axios'
-import { Card, Button, Row, Col, Container, Spinner } from 'react-bootstrap'
+import { Card, Button, Row, Col, Container, Spinner, Modal } from 'react-bootstrap'
 import { MemberMinimal } from 'types/DiscordTypes'
 import urljoin from 'url-join';
 import api from 'datas/api';
 import Layout from 'components/Layout';
 import DashboardLayout from 'components/DashboardLayout';
-import { useRouter } from 'next/router';
 
 import Cookies from 'universal-cookie'
 import { GetServerSideProps, NextPage } from 'next';
 import useSWR from 'swr';
 import Head from 'next/head';
+import Link from 'next/link';
+import links from 'datas/links';
 
 interface MainRouterProps {
   guildId: string
@@ -27,6 +28,8 @@ export const getServerSideProps: GetServerSideProps<MainRouterProps> = async con
 }
 
 const Main: NextPage<MainRouterProps> = ({ guildId }) => {
+  const [isFirst, setIsFirst] = useState(false)
+
   const { data } = useSWR<MemberMinimal[], AxiosError>(
     new Cookies().get('ACCESS_TOKEN') ? urljoin(api, `/discord/guilds/${guildId}/members`) : null,
     url => axios.get(url, {
@@ -42,6 +45,10 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
       const lct = window.location
       localStorage.setItem('loginFrom', lct.pathname + lct.search)
       window.location.assign('/login')
+    }
+    if (localStorage.getItem('firstInvite') === 'true') {
+      setIsFirst(true)
+      localStorage.setItem('firstInvite', 'false')
     }
   }, [])
 
@@ -87,10 +94,10 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
                         <Card.Text as="div" className="lines">
                           <p>
                             전체 멤버 수: {data?.length} 명
-                        </p>
+                          </p>
                           <p>
                             전체 중 봇 멤버: {data?.filter(m => m.user.bot).length} 명
-                        </p>
+                          </p>
                         </Card.Text>
                       </Card.Body>
                     </Card>
@@ -125,6 +132,48 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
           }
         </DashboardLayout>
       </Layout>
+
+      <Modal className="modal-dark" show={isFirst} centered size="lg" onHide={() => setIsFirst(false)}>
+        <Modal.Header>
+          <Modal.Title style={{ fontFamily: "NanumSquare" }}>
+            환영합니다!
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>
+            이곳에서 Aztra를 편리하게 설정하고 관리해보세요!
+          </p>
+          <ul>
+            <li>
+              <p>
+                <span>
+                  <div>
+                    명령어가 궁금하신가요?
+                  </div>
+                  <div>
+                    <Link href="/docs" prefetch shallow><a className="font-weight-bold" style={{ color: 'deepskyblue' }}>봇 가이드로 이동하기</a></Link>
+                  </div>
+                </span>
+              </p>
+            </li>
+            <li>
+              <p>
+                <span>
+                  <div>
+                    도움이 필요하시면 서포트서버에 문의해주세요! 봇 소식과 공지사항도 받으실 수 있습니다.
+                  </div>
+                  <div>
+                    <a href={links.support} className="font-weight-bold" style={{ color: 'deepskyblue' }}>InfiniteTeam 서포트 서버 참여하기</a>
+                  </div>
+                </span>
+              </p>
+            </li>
+          </ul>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="aztra" onClick={() => setIsFirst(false)}>사용 시작하기!</Button>
+        </Modal.Footer>
+      </Modal>
     </>
   )
 }
