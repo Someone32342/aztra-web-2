@@ -56,9 +56,8 @@ const Growth: React.FC<GrowthProps> = ({ memberCounts, msgCounts }) => {
         if (o == 0) return null
         const nowHours = new Date().getHours()
         let hours = o + nowHours - 23
-        if (hours < 0) return null
         const counts = msgCounts
-          ?.filter(a => dayjs.utc(a.dt).isSame(dayjs.utc(new Date().setHours(hours, 0, 0, 0))))
+          ?.filter(a => dayjs.utc(a.dt).isSame(dayjs.utc(new Date().setHours(0, 0, 0, 0)).add(hours, 'hours')))
           .reduce((a, b) => a + b.count, 0)
         return `${o}-${o + 1}시, ${counts}`
       })
@@ -350,10 +349,10 @@ const Growth: React.FC<GrowthProps> = ({ memberCounts, msgCounts }) => {
                       .map(o => {
                         if (o % 2 == 0) return null
                         const nowHours = new Date().getHours()
-                        let hours = (o / 2) + nowHours - 23
-                        if (hours < 0) return null
+                        let hours = Math.floor((o / 2) + nowHours - 23)
+                        console.log(hours)
                         return msgCounts
-                          .filter(a => dayjs.utc(a.dt).isSame(dayjs.utc(new Date().setHours(hours, 0, 0, 0))))
+                          .filter(a => dayjs.utc(a.dt).isSame(dayjs.utc(new Date().setHours(0, 0, 0, 0)).add(hours, 'hours')))
                           .reduce((a, b) => a + b.count, 0)
                       }),
                   }]
