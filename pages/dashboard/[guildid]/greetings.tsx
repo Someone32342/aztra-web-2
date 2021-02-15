@@ -406,7 +406,7 @@ const Greetings: NextPage<GreetingsRouterProps> = ({ guildId }) => {
                               </Form.Group>
                               : <Alert variant="warning" className="d-flex">
                                 <FontAwesomeIcon icon={faExclamationTriangle} color="darkorange" size="lg" className="my-auto mr-2" />
-                              채널을 선택하려면 먼저 반기는 메시지 또는 보내는 메시지를 사용해야 합니다.
+                              채널을 선택하려면 먼저 반기는 메시지 또는 나가는 메시지를 사용해야 합니다.
                           </Alert>
                           }
                         </Col>
