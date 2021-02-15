@@ -174,3 +174,19 @@ button:focus {
     width: 1.5rem !important;
     height: 1.5rem !important;
 }
+
+.Statistics-Tabs {
+    nav {
+        margin-bottom: 1.5rem !important;
+        border-bottom-color: $dark !important;
+        a:not([class~="active"]) {
+            border: none !important;
+            background-color: transparent !important;
+        }
+        a[class~="active"] {
+            border: none !important;
+            background-color: $dark !important;
+            color: white !important;
+        }
+    }
+}

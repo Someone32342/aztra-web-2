@@ -4,7 +4,7 @@ import axios, { AxiosError } from 'axios'
 import api from 'datas/api'
 import { Warns as WarnsType } from 'types/dbtypes';
 import MobileAlert from 'components/MobileAlert'
-import { Row, Col, Form, Container, Spinner, Button, Table, ButtonGroup, OverlayTrigger, Tooltip, Popover, Modal, Overlay, Collapse } from 'react-bootstrap';
+import { Row, Col, Form, Container, Spinner, Button, Table, ButtonGroup, OverlayTrigger, Tooltip, Modal, Overlay, Collapse } from 'react-bootstrap';
 import { MemberMinimal } from 'types/DiscordTypes';
 import { RemoveCircleOutline, FileCopy as FileCopyIcon, OpenInNew as OpenInNewIcon, Delete as DeleteIcon } from '@material-ui/icons'
 import BackTo from 'components/BackTo';
@@ -12,7 +12,7 @@ import { GetServerSideProps, NextPage } from 'next';
 import Cookies from 'universal-cookie';
 import Layout from 'components/Layout';
 import DashboardLayout from 'components/DashboardLayout';
-import useSWR, { mutate } from 'swr';
+import useSWR from 'swr';
 import urljoin from 'url-join';
 import Head from 'next/head';
 
