@@ -76,6 +76,9 @@ const Growth: React.FC<GrowthProps> = ({ memberCounts, msgCounts }) => {
     setIsXS(window.innerWidth < 768)
   }, [])
 
+  const msgCountsDs = Array.from(new Set(msgCounts?.map(o => o.dt.split('T')[0]))).sort((a, b) => new Date(a).getTime() - new Date(b).getTime())
+  const isMsgCountsAvailable = !!msgCountsDs?.find(o => dayjs.utc(o).isBefore(dayjs(new Date().setMinutes(0, 0, 0))))
+
   const CHART_OPTIONS = {
     maintainAspectRatio: false,
     elements: {
@@ -144,15 +147,11 @@ const Growth: React.FC<GrowthProps> = ({ memberCounts, msgCounts }) => {
           fontFamily: 'NanumSquare',
           fontSize: 14,
           precision: 0,
+          min: isMsgCountsAvailable ? 0 : undefined
         }
       }],
     }
   }
-
-  const msgCountsDs = Array.from(new Set(msgCounts?.map(o => o.dt.split('T')[0]))).sort((a, b) => new Date(a).getTime() - new Date(b).getTime())
-  const msgCountsDts = Array.from(new Set(msgCounts?.map(o => o.dt))).sort((a, b) => new Date(a).getTime() - new Date(b).getTime())
-  console.log(msgCountsDts)
-  const isMsgCountsAvailable = !!msgCountsDs?.find(o => dayjs.utc(o).isBefore(dayjs(new Date().setMinutes(0, 0, 0))))
 
   return <>
     <Row>
