@@ -39,7 +39,7 @@ const Growth: React.FC<GrowthProps> = ({ memberCounts, msgCounts }) => {
   }
 
   const msgCountsCSVDownload = () => {
-    let csvData = "날짜, 메시지 수\n" + msgCountsDs?.map(o => `${dayjs.utc(o).local().format('MM-DD')} ${msgCounts?.filter(a => a.dt.split('T')[0] === o)?.reduce((a, b) => a + b.count, 0)}`).join('\n')
+    let csvData = "날짜, 메시지 수\n" + Days?.map(o => `${dayjs.utc(o).local().format('MM-DD')} ${msgCounts?.filter(a => a.dt.split('T')[0] === o)?.reduce((a, b) => a + b.count, 0)}`).join('\n')
     const file = new Blob(["\ufeff" + csvData], { type: 'text/csv;charset=utf-8' })
 
     const link = document.createElement('a')
@@ -76,8 +76,9 @@ const Growth: React.FC<GrowthProps> = ({ memberCounts, msgCounts }) => {
     setIsXS(window.innerWidth < 768)
   }, [])
 
-  const msgCountsDs = Array.from(new Set(msgCounts?.map(o => dayjs.utc(o.dt).local().format('YYYY-MM-DD')))).sort((a, b) => new Date(a).getTime() - new Date(b).getTime())
-  const isMsgCountsAvailable = !!msgCountsDs?.find(o => dayjs.utc(o).isBefore(dayjs(new Date().setMinutes(0, 0, 0))))
+  const DAYLIMIT_DEFAULT = 30
+
+  const Days = Array.from(Array(DAYLIMIT_DEFAULT).keys()).map(n => dayjs().subtract(DAYLIMIT_DEFAULT - n, 'days').format('YYYY-MM-DD'))
 
   const CHART_OPTIONS = {
     maintainAspectRatio: false,
@@ -147,7 +148,7 @@ const Growth: React.FC<GrowthProps> = ({ memberCounts, msgCounts }) => {
           fontFamily: 'NanumSquare',
           fontSize: 14,
           precision: 0,
-          min: isMsgCountsAvailable ? 0 : undefined
+          min: 0
         }
       }],
     }
@@ -168,7 +169,7 @@ const Growth: React.FC<GrowthProps> = ({ memberCounts, msgCounts }) => {
                       일별 멤버수 통계
                     </Popover.Title>
                     <Popover.Content>
-                      최근 한달간의 멤버수 변화를 보여줍니다. 매일 자정에 업데이트됩니다.
+                      최근 30일간의 멤버수 변화를 보여줍니다. 매일 자정에 업데이트됩니다.
                     </Popover.Content>
                   </Popover>
                 } delay={{
@@ -197,15 +198,15 @@ const Growth: React.FC<GrowthProps> = ({ memberCounts, msgCounts }) => {
               ? <Line
                 ref={memberCountChartRef}
                 data={{
-                  labels: memberCounts
-                    ?.sort((a, b) => new Date(a.dt).getTime() - new Date(b.dt).getTime())
-                    .map(o => dayjs.utc(o.dt).local().format('MM-DD')).slice(0, 30),
+                  labels: Days
+                    ?.filter(o => dayjs.utc(o.split('T')[0]) < dayjs.utc(new Date().setHours(0, 0, 0, 0)))
+                    .map(o => dayjs.utc(o).local().format('MM-DD')),
                   datasets: [{
                     borderColor: 'rgb(127, 70, 202)',
                     backgroundColor: 'rgba(127, 70, 202, 0.15)',
-                    data: memberCounts
-                      ?.sort((a, b) => new Date(a.dt).getTime() - new Date(b.dt).getTime())
-                      .map(o => o.count).slice(0, 30)
+                    data: Days
+                    ?.filter(o => dayjs.utc(o.split('T')[0]) < dayjs.utc(new Date().setHours(0, 0, 0, 0)))
+                    .map(o => memberCounts.find(one => one.dt.split('T')[0] === o)?.count ?? 0),
                   }]
                 }}
                 options={CHART_OPTIONS}
@@ -232,7 +233,7 @@ const Growth: React.FC<GrowthProps> = ({ memberCounts, msgCounts }) => {
                       일별 메시지량 통계
                     </Popover.Title>
                     <Popover.Content>
-                      최근 한달간의 하루 전체 메시지량을 보여줍니다. 매일 자정에 업데이트됩니다.
+                      최근 30일간의 하루 전체 메시지량을 보여줍니다. 매일 자정에 업데이트됩니다.
                     </Popover.Content>
                   </Popover>
                 }
@@ -245,11 +246,11 @@ const Growth: React.FC<GrowthProps> = ({ memberCounts, msgCounts }) => {
             </div>
           </div>
           <div className="ml-auto d-flex my-2 my-sm-auto">
-            <Button variant="info" disabled={!isMsgCountsAvailable} className="mx-1 my-1 d-flex align-items-center" style={{ wordBreak: 'keep-all' }} size="sm" onClick={() => chartDownload(msgCountChartRef)} >
+            <Button variant="info" className="mx-1 my-1 d-flex align-items-center" style={{ wordBreak: 'keep-all' }} size="sm" onClick={() => chartDownload(msgCountChartRef)} >
               <ImageIcon className="mr-2" />
               이미지 다운로드
             </Button>
-            <Button variant="outline-success" disabled={!isMsgCountsAvailable} className="mx-1 my-1 d-flex align-items-center" style={{ wordBreak: 'keep-all' }} size="sm" onClick={msgCountsCSVDownload} >
+            <Button variant="outline-success" className="mx-1 my-1 d-flex align-items-center" style={{ wordBreak: 'keep-all' }} size="sm" onClick={msgCountsCSVDownload} >
               <AssessmentIcon />
             </Button>
           </div>
@@ -257,35 +258,22 @@ const Growth: React.FC<GrowthProps> = ({ memberCounts, msgCounts }) => {
         <div style={{
           height: 320
         }}>
-          {
-            isMsgCountsAvailable
-              ? <Line
-                ref={msgCountChartRef}
-                data={{
-                  labels: msgCountsDs
-                    ?.filter(o => dayjs.utc(o.split('T')[0]) < dayjs.utc(new Date().setUTCHours(0, 0, 0, 0)))
-                    .slice(-30)
-                    .sort((a, b) => new Date(a).getTime() - new Date(b).getTime())
-                    .map(o => dayjs.utc(o).local().format('MM-DD')),
-                  datasets: [{
-                    borderColor: 'rgb(127, 70, 202)',
-                    backgroundColor: 'rgba(127, 70, 202, 0.15)',
-                    data: msgCountsDs
-                      ?.filter(o => dayjs.utc(o.split('T')[0]) < dayjs.utc(new Date().setUTCHours(0, 0, 0, 0)))
-                      .slice(-30)
-                      .sort((a, b) => new Date(a).getTime() - new Date(b).getTime())
-                      .map(o => msgCounts?.filter(a => a.dt.split('T')[0] === o).reduce((a, b) => a + b.count, 0))
-                  }]
-                }}
-                options={CHART_OPTIONS}
-              />
-              : <div className="d-flex align-items-center justify-content-center h-100">
-                <div className="my-4 text-center" style={{ color: 'lightgray' }}>
-                  <div>아직 데이터가 충분하지 않습니다!</div>
-                  <small>초대 후 <b>하루</b> 이상은 지나야 합니다.</small>
-                </div>
-              </div>
-          }
+          <Line
+            ref={msgCountChartRef}
+            data={{
+              labels: Days
+                ?.filter(o => dayjs.utc(o.split('T')[0]) < dayjs.utc(new Date().setHours(0, 0, 0, 0)))
+                .map(o => dayjs.utc(o).local().format('MM-DD')),
+              datasets: [{
+                borderColor: 'rgb(127, 70, 202)',
+                backgroundColor: 'rgba(127, 70, 202, 0.15)',
+                data: Days
+                  ?.filter(o => dayjs.utc(o.split('T')[0]) < dayjs.utc(new Date().setHours(0, 0, 0, 0)))
+                  .map(o => msgCounts?.filter(a => a.dt.split('T')[0] === o).reduce((a, b) => a + b.count, 0))
+              }]
+            }}
+            options={CHART_OPTIONS}
+          />
         </div>
       </Col>
     </Row>
@@ -315,11 +303,11 @@ const Growth: React.FC<GrowthProps> = ({ memberCounts, msgCounts }) => {
             </div>
           </div>
           <div className="ml-auto d-flex my-2 my-sm-auto">
-            <Button className="mx-1 my-1 d-flex align-items-center" disabled={!isMsgCountsAvailable} variant="info" style={{ wordBreak: 'keep-all' }} size="sm" onClick={() => chartDownload(memberCountChartRef)} >
+            <Button className="mx-1 my-1 d-flex align-items-center" variant="info" style={{ wordBreak: 'keep-all' }} size="sm" onClick={() => chartDownload(memberCountChartRef)} >
               <ImageIcon className="mr-2" />
               이미지 다운로드
             </Button>
-            <Button className="mx-1 my-1 d-flex align-items-center" disabled={!isMsgCountsAvailable} variant="outline-success" style={{ wordBreak: 'keep-all' }} size="sm" onClick={msgTimeLineCSVDownload} >
+            <Button className="mx-1 my-1 d-flex align-items-center" variant="outline-success" style={{ wordBreak: 'keep-all' }} size="sm" onClick={msgTimeLineCSVDownload} >
               <AssessmentIcon />
             </Button>
           </div>
@@ -327,44 +315,35 @@ const Growth: React.FC<GrowthProps> = ({ memberCounts, msgCounts }) => {
         <div style={{
           height: 320
         }}>
-          {
-            isMsgCountsAvailable
-              ? <Bar
-                ref={memberCountChartRef}
-                data={{
-                  labels: Array.from(Array(47).keys()).map(o => {
-                    if (o % 2 !== 0) return ''
+          <Bar
+            ref={memberCountChartRef}
+            data={{
+              labels: Array.from(Array(47).keys()).map(o => {
+                if (o % 2 !== 0) return ''
+                const nowHours = new Date().getHours()
+                let hours = (o / 2) + nowHours - 23
+                if (hours < 0) {
+                  hours += 23 + Math.ceil(Math.abs(hours) / 24)
+                }
+                return hours
+              }),
+              datasets: [{
+                borderColor: 'rgb(127, 70, 202)',
+                backgroundColor: 'rgb(127, 70, 202)',
+                data: Array.from(Array(47).keys())
+                  .map(o => {
+                    if (o % 2 == 0) return null
                     const nowHours = new Date().getHours()
-                    let hours = (o / 2) + nowHours - 23
-                    if (hours < 0) {
-                      hours += 23 + Math.ceil(Math.abs(hours) / 24)
-                    }
-                    return hours
+                    let hours = Math.floor((o / 2) + nowHours - 23)
+                    console.log(hours)
+                    return msgCounts
+                      .filter(a => dayjs.utc(a.dt).isSame(dayjs.utc(new Date().setHours(0, 0, 0, 0)).add(hours, 'hours')))
+                      .reduce((a, b) => a + b.count, 0)
                   }),
-                  datasets: [{
-                    borderColor: 'rgb(127, 70, 202)',
-                    backgroundColor: 'rgb(127, 70, 202)',
-                    data: Array.from(Array(47).keys())
-                      .map(o => {
-                        if (o % 2 == 0) return null
-                        const nowHours = new Date().getHours()
-                        let hours = Math.floor((o / 2) + nowHours - 23)
-                        console.log(hours)
-                        return msgCounts
-                          .filter(a => dayjs.utc(a.dt).isSame(dayjs.utc(new Date().setHours(0, 0, 0, 0)).add(hours, 'hours')))
-                          .reduce((a, b) => a + b.count, 0)
-                      }),
-                  }]
-                }}
-                options={MSG_TIMELINE_CHART_OPTIONS}
-              />
-              : <div className="d-flex align-items-center justify-content-center h-100">
-                <div className="my-4 text-center" style={{ color: 'lightgray' }}>
-                  <div>아직 데이터가 충분하지 않습니다!</div>
-                  <small>초대 후 <b>하루</b> 이상은 지나야 합니다.</small>
-                </div>
-              </div>
-          }
+              }]
+            }}
+            options={MSG_TIMELINE_CHART_OPTIONS}
+          />
         </div>
       </Col>
     </Row>
