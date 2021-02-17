@@ -8,8 +8,6 @@ import api from 'datas/api'
 import { PartialGuild } from 'types/DiscordTypes'
 import Cookies from 'universal-cookie'
 
-const swal = require('@sweetalert/with-react')
-
 interface DashboardLayoutProps {
   guildId: string
   children?: ((guild: PartialGuild | null) => React.ReactNode)
@@ -44,13 +42,9 @@ export default class DashboardLayout extends Component<DashboardLayoutProps, Das
       }
     })
       .then(res => {
-        let guild = res.data
-          .filter((one: PartialGuild) => {
-            return Number(one.permissions) & 8
-          })
-          .find((one: PartialGuild) => one.id === this.props.guildId)
+        let guild = res.data.find((one: PartialGuild) => one.id === this.props.guildId)
 
-        if (this.mounted) this.setState({ guild: guild, guildCache: guild })
+        if (this.mounted) this.setState({ guild, guildCache: guild })
         if (this.state.guild) localStorage.setItem('guildCache', JSON.stringify(guild))
       })
       .catch(e => {
