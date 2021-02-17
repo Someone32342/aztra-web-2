@@ -76,7 +76,7 @@ const Growth: React.FC<GrowthProps> = ({ memberCounts, msgCounts }) => {
     setIsXS(window.innerWidth < 768)
   }, [])
 
-  const msgCountsDs = Array.from(new Set(msgCounts?.map(o => o.dt.split('T')[0]))).sort((a, b) => new Date(a).getTime() - new Date(b).getTime())
+  const msgCountsDs = Array.from(new Set(msgCounts?.map(o => dayjs.utc(o.dt).local().toISOString().split('T')[0]))).sort((a, b) => new Date(a).getTime() - new Date(b).getTime())
   const isMsgCountsAvailable = !!msgCountsDs?.find(o => dayjs.utc(o).isBefore(dayjs(new Date().setMinutes(0, 0, 0))))
 
   const CHART_OPTIONS = {
