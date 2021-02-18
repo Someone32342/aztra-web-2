@@ -40,8 +40,8 @@ const Growth: React.FC<GrowthProps> = ({ memberCounts, msgCounts }) => {
 
   const memberCountsCSVDownload = () => {
     let csvData = "날짜, 멤버 수\n" + Days
-      ?.filter(o => dayjs.utc(o.split('T')[0]) < dayjs.utc(new Date().setHours(0, 0, 0, 0)))
-      .map(o => `${dayjs.utc(o).local().format('DD일')}, ${memberCounts.find(one => one.dt.split('T')[0] === o)?.count ?? 0}`)
+      ?.filter(o => dayjs.utc(o.split('T')[0]) <= dayjs(new Date().setHours(0, 0, 0, 0)))
+      .map(o => `${dayjs.utc(o).local().format('DD일')}, ${memberCounts.find(one => dayjs.utc(one.dt).local().format('YYYY-MM-DD') === o)?.count ?? 0}`)
       .join('\n')
     const file = new Blob(["\ufeff" + csvData], { type: 'text/csv;charset=utf-8' })
 
@@ -55,7 +55,7 @@ const Growth: React.FC<GrowthProps> = ({ memberCounts, msgCounts }) => {
 
   const msgCountsCSVDownload = () => {
     let csvData = "날짜, 메시지 수\n" + Days
-      ?.filter(o => dayjs.utc(o.split('T')[0]) < dayjs.utc(new Date().setHours(0, 0, 0, 0)))
+      ?.filter(o => dayjs.utc(o.split('T')[0]) <= dayjs(new Date().setHours(0, 0, 0, 0)))
       .map(o => `${dayjs.utc(o).local().format('DD일')}, ${msgCounts?.filter(a => a.dt.split('T')[0] === o).reduce((a, b) => a + b.count, 0)}`)
       .join('\n')
     const file = new Blob(["\ufeff" + csvData], { type: 'text/csv;charset=utf-8' })
@@ -215,14 +215,14 @@ const Growth: React.FC<GrowthProps> = ({ memberCounts, msgCounts }) => {
             ref={memberCountChartRef}
             data={{
               labels: Days
-                ?.filter(o => dayjs.utc(o.split('T')[0]).isBefore(dayjs(new Date().setHours(0, 0, 0, 0))))
+                ?.filter(o => dayjs.utc(o.split('T')[0]) <= dayjs(new Date().setHours(0, 0, 0, 0)))
                 .map(o => dayjs.utc(o).local().format('DD일')),
               datasets: [{
                 borderColor: 'rgb(127, 70, 202)',
                 backgroundColor: 'rgba(127, 70, 202, 0.15)',
                 data: Days
-                  ?.filter(o => dayjs.utc(o.split('T')[0]).isBefore(dayjs(new Date().setHours(0, 0, 0, 0))))
-                  .map(o => memberCounts.find(one => one.dt.split('T')[0] === o)?.count ?? 0),
+                  ?.filter(o => dayjs.utc(o.split('T')[0]) <= dayjs(new Date().setHours(0, 0, 0, 0)))
+                  .map(o => memberCounts.find(one => dayjs.utc(one.dt).local().format('YYYY-MM-DD') === o)?.count ?? 0),
               }]
             }}
             options={CHART_OPTIONS}
@@ -271,13 +271,13 @@ const Growth: React.FC<GrowthProps> = ({ memberCounts, msgCounts }) => {
             ref={msgCountChartRef}
             data={{
               labels: Days
-                ?.filter(o => dayjs.utc(o.split('T')[0]) < dayjs.utc(new Date().setHours(0, 0, 0, 0)))
+                ?.filter(o => dayjs.utc(o.split('T')[0]) <= dayjs(new Date().setHours(0, 0, 0, 0)))
                 .map(o => dayjs.utc(o).local().format('DD일')),
               datasets: [{
                 borderColor: 'rgb(127, 70, 202)',
                 backgroundColor: 'rgba(127, 70, 202, 0.15)',
                 data: Days
-                  ?.filter(o => dayjs.utc(o.split('T')[0]) < dayjs.utc(new Date().setHours(0, 0, 0, 0)))
+                  ?.filter(o => dayjs.utc(o.split('T')[0]) <= dayjs(new Date().setHours(0, 0, 0, 0)))
                   .map(o => msgCounts?.filter(a => a.dt.split('T')[0] === o).reduce((a, b) => a + b.count, 0))
               }]
             }}
