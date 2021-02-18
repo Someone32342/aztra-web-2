@@ -1,6 +1,6 @@
 import dayjs from "dayjs"
 import React, { useEffect, useRef, useState } from "react"
-import { Button, Col, OverlayTrigger, Popover, Row } from "react-bootstrap"
+import { Button, Col, Container, OverlayTrigger, Popover, Row } from "react-bootstrap"
 import { Line, Bar } from "react-chartjs-2"
 import { Assessment as AssessmentIcon, Image as ImageIcon, Help as HelpIcon } from '@material-ui/icons'
 import { MemberCount, MsgCount } from 'types/dbtypes'
@@ -172,7 +172,7 @@ const Growth: React.FC<GrowthProps> = ({ memberCounts, msgCounts }) => {
     }
   }
 
-  return <>
+  return <Container fluid>
     <Row>
       <Col xs={12} xl={6} className="mb-4">
         <div className="d-sm-flex align-items-center mb-2">
@@ -215,13 +215,13 @@ const Growth: React.FC<GrowthProps> = ({ memberCounts, msgCounts }) => {
             ref={memberCountChartRef}
             data={{
               labels: Days
-                ?.filter(o => dayjs.utc(o.split('T')[0]) < dayjs.utc(new Date().setHours(0, 0, 0, 0)))
+                ?.filter(o => dayjs.utc(o.split('T')[0]).isBefore(dayjs(new Date().setHours(0, 0, 0, 0))))
                 .map(o => dayjs.utc(o).local().format('DD일')),
               datasets: [{
                 borderColor: 'rgb(127, 70, 202)',
                 backgroundColor: 'rgba(127, 70, 202, 0.15)',
                 data: Days
-                  ?.filter(o => dayjs.utc(o.split('T')[0]) < dayjs.utc(new Date().setHours(0, 0, 0, 0)))
+                  ?.filter(o => dayjs.utc(o.split('T')[0]).isBefore(dayjs(new Date().setHours(0, 0, 0, 0))))
                   .map(o => memberCounts.find(one => one.dt.split('T')[0] === o)?.count ?? 0),
               }]
             }}
@@ -355,7 +355,7 @@ const Growth: React.FC<GrowthProps> = ({ memberCounts, msgCounts }) => {
         </div>
       </Col>
     </Row>
-  </>
+  </Container>
 }
 
 export default Growth

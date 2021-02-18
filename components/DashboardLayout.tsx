@@ -7,6 +7,7 @@ import urljoin from 'url-join'
 import api from 'datas/api'
 import { PartialGuild } from 'types/DiscordTypes'
 import Cookies from 'universal-cookie'
+import styles from 'styles/components/DashboardLayout.module.scss'
 
 interface DashboardLayoutProps {
   guildId: string
@@ -91,7 +92,7 @@ export default class DashboardLayout extends Component<DashboardLayoutProps, Das
     const isXSsize = (this.state?.winWidth || 0) < 768
 
     return (
-      <Container fluid>
+      <Container fluid className={styles.DashboardLayoutContainer}>
         <Row>
           {/* 대시보드 사이드바 */}
           <Col xl={2} lg={3} md={3} className="Dashboardroute-sidebar">

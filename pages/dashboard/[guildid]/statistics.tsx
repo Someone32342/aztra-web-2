@@ -21,6 +21,8 @@ import urljoin from 'url-join'
 import Growth from 'components/statistics/Growth'
 import styles from 'styles/pages/statistics.module.scss'
 import classNames from 'classnames/bind'
+import EachMembers from 'components/statistics/EachMembers'
+import { MemberMinimal } from 'types/DiscordTypes'
 dayjs.extend(dayjsRelativeTime)
 dayjs.extend(dayjsUTC)
 
@@ -66,6 +68,19 @@ const Statistics: NextPage<StatisticsProps> = ({ guildId }) => {
     }
   )
 
+  const { data: members } = useSWR<MemberMinimal[], AxiosError>(
+    new Cookies().get('ACCESS_TOKEN') ? urljoin(api, `/discord/guilds/${guildId}/members`) : null,
+    url => axios.get(url, {
+      headers: {
+        Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
+      }
+    })
+      .then(r => r.data),
+    {
+      refreshInterval: 5000
+    }
+  )
+
   return (
     <>
       <Head>
@@ -74,7 +89,7 @@ const Statistics: NextPage<StatisticsProps> = ({ guildId }) => {
       <Layout>
         <DashboardLayout guildId={guildId}>
           {
-            () => memberCounts && msgCounts ? (
+            () => memberCounts && msgCounts && members ? (
               <>
                 <Row className="dashboard-section">
                   <div>
@@ -93,6 +108,7 @@ const Statistics: NextPage<StatisticsProps> = ({ guildId }) => {
                       <Growth memberCounts={memberCounts} msgCounts={msgCounts} />
                     </Tab>
                     <Tab eventKey="members" title={<><GroupIcon className="mr-2" />멤버별 통계</>}>
+                      <EachMembers members={members} />
                     </Tab>
                     <Tab eventKey="ranking" title={<><FontAwesomeIcon icon={faTrophy} className="mr-2" />순위</>}></Tab>
                   </Tabs>

@@ -96,7 +96,7 @@ export default class Navibar extends React.Component<{}, NavibarState> {
     return (
       <div className={cx("NavbarMargin")}>
         <Navbar bg="dark" expand="md" onToggle={this.handleOnToggle} expanded={this.state.expanded} fixed="top" className={cx("no-drag", "navbar-dark", "shadow", "NavbarDark")}>
-          <Container fluid="md">
+          <Container fluid className={styles.NavContainer}>
             <Link href="/">
               <Navbar.Brand href="/" className="d-flex align-items-center pr-1">
                 <img src="/assets/images/aztra-withoutbg-white.png" style={{

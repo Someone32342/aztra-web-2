@@ -2,6 +2,13 @@
 @import "bootstrap/scss/variables";
 @import "bootstrap/scss/mixins";
 
+.NavContainer {
+    width: 100%;
+    @media (min-width: 2001px) {
+        width: 2000px;
+    }
+}
+
 .Navlink {
     color: whitesmoke !important;
     font-size: 14.5px;
