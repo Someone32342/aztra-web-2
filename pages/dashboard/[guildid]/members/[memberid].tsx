@@ -292,13 +292,13 @@ const MemberDashboard: NextPage<MemberDashboardRouteProps> = ({ guildId, memberI
                                   fontSize: '2rem'
                                 }}>
                                   LV
-                            </span>
+                                </span>
                               </div>
                               <div style={{
                                 fontSize: "1.5rem"
                               }}>
                                 {reqExp ? numberWithCommas(reqCompleted) : '--'}/{reqExp ? numberWithCommas(reqExp) : '--'} P
-                          </div>
+                              </div>
                             </div>
                           </CircularProgressbarWithChildren>
                         </div>
@@ -311,8 +311,8 @@ const MemberDashboard: NextPage<MemberDashboardRouteProps> = ({ guildId, memberI
                               fontSize: '20pt'
                             }}>
                               <FontAwesomeIcon icon={faStream} className="mr-3" />
-                          서버 {expRank || '--'}위
-                        </div>
+                              서버 {expRank || '--'}위
+                            </div>
                             <div>
                               총 경험치:{' '}
                               <span style={{
@@ -336,21 +336,21 @@ const MemberDashboard: NextPage<MemberDashboardRouteProps> = ({ guildId, memberI
                         <Card.Body className="py-2 d-flex justify-content-between">
                           <div>
                             <FontAwesomeIcon icon={faBug} className="mr-2" />
-                          버그나 오류를 발견하셨다면 개발팀에 알려주세요
-                        </div>
+                            버그나 오류를 발견하셨다면 개발팀에 알려주세요
+                          </div>
                           <small style={{
                             color: 'lightgrey'
                           }}>
                             방금
-                        </small>
+                          </small>
                         </Card.Body>
                       </Card>
                       <Card bg="dark" className="mb-2 shadow-sm">
                         <Card.Body className="py-2 d-flex justify-content-between">
                           <div>
                             <FontAwesomeIcon icon={faUserEdit} className="mr-2" />
-                          이 기능은 개발중입니다.
-                        </div>
+                            이 기능은 개발중입니다.
+                          </div>
                           <small style={{
                             color: 'lightgrey'
                           }}>

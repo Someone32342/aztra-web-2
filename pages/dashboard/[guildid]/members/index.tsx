@@ -62,7 +62,7 @@ const Members: NextPage<MembersRouterProps> = ({ guildId }) => {
           case 'nick-and-tag':
             return one.user.tag?.normalize().toLowerCase().includes(searchLowercase) || one.nickname?.normalize().toLowerCase().includes(searchLowercase)
           case 'id':
-            return one.user.id.includes(search)
+            return one.user.id.startsWith(search)
           default:
             return true
         }

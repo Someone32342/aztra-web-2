@@ -49,7 +49,7 @@ export interface MemberCount {
 export interface MsgCount {
   uuid: string
   guild: string
-  member: string
   dt: string
-  count: number
+  count_user: number
+  count_bot: number
 }

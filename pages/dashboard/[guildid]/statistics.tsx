@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Badge, Container, Row, Spinner, Tab, Tabs } from 'react-bootstrap'
 import { TrendingUp as TrendingUpIcon, Group as GroupIcon } from '@material-ui/icons'
 import { faTrophy } from '@fortawesome/free-solid-svg-icons'
@@ -80,6 +80,14 @@ const Statistics: NextPage<StatisticsProps> = ({ guildId }) => {
       refreshInterval: 5000
     }
   )
+
+  useEffect(() => {
+    if (!new Cookies().get('ACCESS_TOKEN')) {
+      const lct = window.location
+      localStorage.setItem('loginFrom', lct.pathname + lct.search)
+      window.location.assign('/login')
+    }
+  }, [])
 
   return (
     <>

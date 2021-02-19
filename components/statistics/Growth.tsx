@@ -22,8 +22,7 @@ const Growth: React.FC<GrowthProps> = ({ memberCounts, msgCounts }) => {
       setisLGP(window.innerWidth < 1500)
     }
     window.addEventListener('resize', resize)
-
-    console.log('ds')
+    resize()
     return () => window.removeEventListener('resize', resize)
   }, [isXS, isLGP])
 
@@ -56,7 +55,7 @@ const Growth: React.FC<GrowthProps> = ({ memberCounts, msgCounts }) => {
   const msgCountsCSVDownload = () => {
     let csvData = "날짜, 메시지 수\n" + Days
       ?.filter(o => dayjs.utc(o.split('T')[0]) <= dayjs(new Date().setHours(0, 0, 0, 0)))
-      .map(o => `${dayjs.utc(o).local().format('DD일')}, ${msgCounts?.filter(a => a.dt.split('T')[0] === o).reduce((a, b) => a + b.count, 0)}`)
+      .map(o => `${dayjs.utc(o).local().format('DD일')}, ${msgCounts?.filter(a => a.dt.split('T')[0] === o).reduce((a, b) => a + b.count_user + b.count_bot, 0)}`)
       .join('\n')
     const file = new Blob(["\ufeff" + csvData], { type: 'text/csv;charset=utf-8' })
 
@@ -75,7 +74,7 @@ const Growth: React.FC<GrowthProps> = ({ memberCounts, msgCounts }) => {
         let hours = o + nowHours - 23
         const counts = msgCounts
           ?.filter(a => dayjs.utc(a.dt).isSame(dayjs.utc(new Date().setHours(0, 0, 0, 0)).add(hours, 'hours')))
-          .reduce((a, b) => a + b.count, 0)
+          .reduce((a, b) => a + b.count_user + b.count_bot, 0)
 
         if (hours < 0) {
           hours += 23 + Math.ceil(Math.abs(hours) / 24)
@@ -130,7 +129,8 @@ const Growth: React.FC<GrowthProps> = ({ memberCounts, msgCounts }) => {
           fontColor: "lightgrey",
           fontFamily: 'NanumSquare',
           fontSize: 14,
-          precision: 0
+          precision: 0,
+          min: 0
         },
       }],
     }
@@ -278,7 +278,7 @@ const Growth: React.FC<GrowthProps> = ({ memberCounts, msgCounts }) => {
                 backgroundColor: 'rgba(127, 70, 202, 0.15)',
                 data: Days
                   ?.filter(o => dayjs.utc(o.split('T')[0]) <= dayjs(new Date().setHours(0, 0, 0, 0)))
-                  .map(o => msgCounts?.filter(a => a.dt.split('T')[0] === o).reduce((a, b) => a + b.count, 0))
+                  .map(o => msgCounts?.filter(a => a.dt.split('T')[0] === o).reduce((a, b) => a + b.count_user + b.count_bot, 0))
               }]
             }}
             options={CHART_OPTIONS}
@@ -346,7 +346,7 @@ const Growth: React.FC<GrowthProps> = ({ memberCounts, msgCounts }) => {
                     let hours = Math.floor((o / 2) + nowHours - 23)
                     return msgCounts
                       .filter(a => dayjs.utc(a.dt).isSame(dayjs.utc(new Date().setHours(0, 0, 0, 0)).add(hours, 'hours')))
-                      .reduce((a, b) => a + b.count, 0)
+                      .reduce((a, b) => a + b.count_user + b.count_bot, 0)
                   }),
               }]
             }}
