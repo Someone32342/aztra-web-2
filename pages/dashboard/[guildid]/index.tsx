@@ -13,6 +13,7 @@ import useSWR from 'swr';
 import Head from 'next/head';
 import Link from 'next/link';
 import links from 'datas/links';
+import prefixes from 'datas/prefixes';
 
 interface MainRouterProps {
   guildId: string
@@ -144,29 +145,20 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
             이곳에서 Aztra를 편리하게 설정하고 관리해보세요!
           </p>
           <ul>
-            <li>
-              <p>
-                <span>
-                  <div>
-                    명령어가 궁금하신가요?
-                  </div>
-                  <div>
-                    <Link href="/docs" prefetch shallow><a className="font-weight-bold" style={{ color: 'deepskyblue' }}>봇 가이드로 이동하기</a></Link>
-                  </div>
-                </span>
-              </p>
+            <li className="pb-3">
+              <div className="font-weight-bold">명령어가 궁금하신가요?</div>
+              <Link href="/docs" prefetch shallow><a className="font-weight-bold" style={{ color: 'deepskyblue' }}>봇 가이드로 이동하기</a></Link>
             </li>
-            <li>
-              <p>
-                <span>
-                  <div>
-                    도움이 필요하시면 서포트서버에 문의해주세요! 봇 소식과 공지사항도 받으실 수 있습니다.
-                  </div>
-                  <div>
-                    <a href={links.support} className="font-weight-bold" style={{ color: 'deepskyblue' }}>InfiniteTeam 서포트 서버 참여하기</a>
-                  </div>
-                </span>
-              </p>
+            <li className="pb-3">
+              <div className="font-weight-bold">공지 메시지를 받아보세요</div>
+              <b>{prefixes}공지채널</b> 명령으로 봇으로부터 공지 메시지를 받을 채널을 선택할 수 있습니다.
+            </li>
+            <li className="pb-3">
+              <div className="font-weight-bold">도움이 필요하시면 서포트서버에 문의해주세요! 봇 소식과 공지사항도 받으실 수 있습니다.</div>
+              <a href={links.support} target="_blank" className="font-weight-bold" style={{ color: 'deepskyblue' }}>InfiniteTeam 서포트 서버 참여하기</a>
+            </li>
+            <li className="pb-3">
+              시간이 되신다면 Aztra 봇에 <a href="https://koreanbots.dev/bots/751339721782722570" target="_blank" className="font-weight-bold" style={{ color: 'deepskyblue' }}>하트</a>를 눌러주시면 더욱 힘이 됩니다!
             </li>
           </ul>
         </Modal.Body>
