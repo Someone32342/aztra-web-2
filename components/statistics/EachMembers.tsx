@@ -83,7 +83,7 @@ const EachMembers: React.FC<EachMembersProps> = ({ members }) => {
         <div style={{ maxHeight: 600, overflowY: 'scroll' }}>
           {
             (filterMembers(memberSearch) || members)?.map(one =>
-              <Card as={Container} fluid bg="dark" className="mb-2 shadow cursor-pointer" onClick={() => setSelectedMemberId(one.user.id)}>
+              <Card key={one.user.id} as={Container} fluid bg="dark" className="mb-2 shadow cursor-pointer" onClick={() => setSelectedMemberId(one.user.id)}>
                 <Card.Body className="d-flex py-1 px-0">
                   <img
                     className="my-auto"
