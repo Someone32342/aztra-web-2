@@ -15,7 +15,7 @@ const EachMembers: React.FC<EachMembersProps> = ({ members }) => {
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null)
 
   const MemberCard: React.FC<{ member: MemberMinimal }> = memo(({ member }) => (
-    <Card key={member.user.id} as={Container} fluid bg="dark" className="mb-2 shadow cursor-pointer" onClick={() => setSelectedMemberId(member.user.id)}>
+    <Card as={Container} fluid bg="dark" className="mb-2 shadow cursor-pointer" onClick={() => setSelectedMemberId(member.user.id)}>
       <Card.Body className="d-flex py-1 px-0">
         <img
           className="my-auto"
@@ -109,7 +109,7 @@ const EachMembers: React.FC<EachMembersProps> = ({ members }) => {
           }} />
         </div>
         <div style={{ maxHeight: 600, overflowY: 'scroll' }}>
-          {(filterMembers(memberSearch) || members)?.map(one => <MemberCard member={one} />)}
+          {(filterMembers(memberSearch) || members)?.map(one => <MemberCard key={one.user.id} member={one} />)}
         </div>
       </Col>
       <Col xs={12} lg={6} xl={8}>
