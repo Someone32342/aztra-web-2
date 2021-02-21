@@ -9,7 +9,7 @@ interface EachMembersProps {
 
 type MemberSearchType = 'nick-and-tag' | 'id'
 
-const EachMembers: React.FC<EachMembersProps> = ({ members }) => {
+const EachMembers: React.FC<EachMembersProps> = memo(({ members }) => {
   const [memberSearch, setMemberSearch] = useState('')
   const [memberSearchType, setMemberSearchType] = useState<MemberSearchType>('nick-and-tag')
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null)
@@ -111,7 +111,7 @@ const EachMembers: React.FC<EachMembersProps> = ({ members }) => {
             setMemberSearch(e.target.value)
           }} />
         </div>
-        <div style={{ maxHeight: 600, overflowY: 'scroll' }}>
+        <div style={{ maxHeight: 600, overflowY: 'scroll', overflowX: 'hidden' }}>
           {(filterMembers(memberSearch) || members)?.map(one => <MemberCard key={one.user.id} member={one} />)}
         </div>
       </Col>
@@ -172,6 +172,6 @@ const EachMembers: React.FC<EachMembersProps> = ({ members }) => {
       </Col>
     </Row>
   </Container>
-}
+})
 
 export default EachMembers
