@@ -1,5 +1,5 @@
 import dayjs from 'dayjs'
-import React, { useState } from 'react'
+import React, { memo, useState } from 'react'
 import { Badge, Card, Col, Container, Form, Row } from 'react-bootstrap'
 import { MemberMinimal } from 'types/DiscordTypes'
 
@@ -13,6 +13,34 @@ const EachMembers: React.FC<EachMembersProps> = ({ members }) => {
   const [memberSearch, setMemberSearch] = useState('')
   const [memberSearchType, setMemberSearchType] = useState<MemberSearchType>('nick-and-tag')
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null)
+
+  const MemberCard: React.FC<{ member: MemberMinimal }> = memo(({ member }) => (
+    <Card key={member.user.id} as={Container} fluid bg="dark" className="mb-2 shadow cursor-pointer" onClick={() => setSelectedMemberId(member.user.id)}>
+      <Card.Body className="d-flex py-1 px-0">
+        <img
+          className="my-auto"
+          alt={member.user.tag!}
+          src={member.user.avatar ? `https://cdn.discordapp.com/avatars/${member.user.id}/${member.user.avatar}.jpeg?size=64` : member.user.defaultAvatarURL}
+          style={{ width: 40, height: 40, marginRight: 15, borderRadius: '70%' }}
+        />
+        <div>
+          <div className="d-flex">
+            <span className="text-break">
+              {member.displayName}
+            </span>
+            <span>
+              {member.user.bot && <Badge className="ml-2 my-auto" variant="blurple">BOT</Badge>}
+            </span>
+          </div>
+          <div className="text-muted font-weight-bold text-break" style={{
+            fontSize: '11pt'
+          }}>
+            @{member.user.tag}
+          </div>
+        </div>
+      </Card.Body>
+    </Card>
+  ))
 
   const filterMembers = (search?: string) => {
     return members
@@ -81,35 +109,7 @@ const EachMembers: React.FC<EachMembersProps> = ({ members }) => {
           }} />
         </div>
         <div style={{ maxHeight: 600, overflowY: 'scroll' }}>
-          {
-            (filterMembers(memberSearch) || members)?.map(one =>
-              <Card key={one.user.id} as={Container} fluid bg="dark" className="mb-2 shadow cursor-pointer" onClick={() => setSelectedMemberId(one.user.id)}>
-                <Card.Body className="d-flex py-1 px-0">
-                  <img
-                    className="my-auto"
-                    alt={one.user.tag!}
-                    src={one.user.avatar ? `https://cdn.discordapp.com/avatars/${one.user.id}/${one.user.avatar}.jpeg?size=64` : one.user.defaultAvatarURL}
-                    style={{ width: 40, height: 40, marginRight: 15, borderRadius: '70%' }}
-                  />
-                  <div>
-                    <div className="d-flex">
-                      <span className="text-break">
-                        {one.displayName}
-                      </span>
-                      <span>
-                        {one.user.bot && <Badge className="ml-2 my-auto" variant="blurple">BOT</Badge>}
-                      </span>
-                    </div>
-                    <div className="text-muted font-weight-bold text-break" style={{
-                      fontSize: '11pt'
-                    }}>
-                      @{one.user.tag}
-                    </div>
-                  </div>
-                </Card.Body>
-              </Card>
-            )
-          }
+          {(filterMembers(memberSearch) || members)?.map(one => <MemberCard member={one} />)}
         </div>
       </Col>
       <Col xs={12} lg={6} xl={8}>
