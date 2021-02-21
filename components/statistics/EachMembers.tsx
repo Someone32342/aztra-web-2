@@ -1,5 +1,5 @@
 import dayjs from 'dayjs'
-import React, { memo, useState } from 'react'
+import React, { memo, useCallback, useState } from 'react'
 import { Badge, Card, Col, Container, Form, Row } from 'react-bootstrap'
 import { MemberMinimal } from 'types/DiscordTypes'
 
@@ -14,33 +14,36 @@ const EachMembers: React.FC<EachMembersProps> = ({ members }) => {
   const [memberSearchType, setMemberSearchType] = useState<MemberSearchType>('nick-and-tag')
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null)
 
-  const MemberCard: React.FC<{ member: MemberMinimal }> = memo(({ member }) => (
-    <Card as={Container} fluid bg="dark" className="mb-2 shadow cursor-pointer" onClick={() => setSelectedMemberId(member.user.id)}>
-      <Card.Body className="d-flex py-1 px-0">
-        <img
-          className="my-auto"
-          alt={member.user.tag!}
-          src={member.user.avatar ? `https://cdn.discordapp.com/avatars/${member.user.id}/${member.user.avatar}.jpeg?size=64` : member.user.defaultAvatarURL}
-          style={{ width: 40, height: 40, marginRight: 15, borderRadius: '70%' }}
-        />
-        <div>
-          <div className="d-flex">
-            <span className="text-break">
-              {member.displayName}
-            </span>
-            <span>
-              {member.user.bot && <Badge className="ml-2 my-auto" variant="blurple">BOT</Badge>}
-            </span>
+  const MemberCard: React.FC<{ member: MemberMinimal }> = memo(({ member }) => {
+    const onClick = useCallback(() => setSelectedMemberId(member.user.id), [member.user.id])
+    return (
+      <Card as={Container} fluid bg="dark" className="mb-2 shadow cursor-pointer" onClick={onClick}>
+        <Card.Body className="d-flex py-1 px-0">
+          <img
+            className="my-auto"
+            alt={member.user.tag!}
+            src={member.user.avatar ? `https://cdn.discordapp.com/avatars/${member.user.id}/${member.user.avatar}.jpeg?size=64` : member.user.defaultAvatarURL}
+            style={{ width: 40, height: 40, marginRight: 15, borderRadius: '70%' }}
+          />
+          <div>
+            <div className="d-flex">
+              <span className="text-break">
+                {member.displayName}
+              </span>
+              <span>
+                {member.user.bot && <Badge className="ml-2 my-auto" variant="blurple">BOT</Badge>}
+              </span>
+            </div>
+            <div className="text-muted font-weight-bold text-break" style={{
+              fontSize: '11pt'
+            }}>
+              @{member.user.tag}
+            </div>
           </div>
-          <div className="text-muted font-weight-bold text-break" style={{
-            fontSize: '11pt'
-          }}>
-            @{member.user.tag}
-          </div>
-        </div>
-      </Card.Body>
-    </Card>
-  ))
+        </Card.Body>
+      </Card>
+    )
+  })
 
   const filterMembers = (search?: string) => {
     return members

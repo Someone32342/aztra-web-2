@@ -5,22 +5,22 @@ import Sidebar from './Sidebar'
 import axios from 'axios'
 import urljoin from 'url-join'
 import api from 'datas/api'
-import { PartialGuild } from 'types/DiscordTypes'
+import { PartialGuildExtend } from 'types/DiscordTypes'
 import Cookies from 'universal-cookie'
 import styles from 'styles/components/DashboardLayout.module.scss'
 
 interface DashboardLayoutProps {
   guildId: string
-  children?: ((guild: PartialGuild | null) => React.ReactNode)
+  children?: ((guild: PartialGuildExtend | null) => React.ReactNode)
 }
 
 interface DashboardLayoutState {
-  guild: PartialGuild | null
+  guild: PartialGuildExtend | null
   fetchDone: boolean
   sidebarOpen: boolean
   winWidth: number | null
   winHeight: number | null
-  guildCache: PartialGuild | null
+  guildCache: PartialGuildExtend | null
 }
 
 export default class DashboardLayout extends Component<DashboardLayoutProps, DashboardLayoutState> {
@@ -43,7 +43,7 @@ export default class DashboardLayout extends Component<DashboardLayoutProps, Das
       }
     })
       .then(res => {
-        let guild = res.data.find((one: PartialGuild) => one.id === this.props.guildId)
+        let guild = res.data.find((one: PartialGuildExtend) => one.id === this.props.guildId && one.bot_joined)
 
         if (this.mounted) this.setState({ guild, guildCache: guild })
         if (this.state.guild) localStorage.setItem('guildCache', JSON.stringify(guild))
@@ -181,7 +181,15 @@ export default class DashboardLayout extends Component<DashboardLayoutProps, Das
             </Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            사용자가 들어가있지 않는 서버이거나 관리자 권한이 없는 서버입니다!
+            <p>
+              서버를 불러오는 데 실패했습니다! 다음 중 하나는 아닌지 확인해주세요.
+            </p>
+            <ul>
+              <li>사용자가 들어가있지 않은 서버</li>
+              <li>Aztra가 들어가있지 않은 서버</li>
+              <li>사용자에게 관리자 권한이 없는 경우</li>
+              <li>존재하지 않는 서버</li>
+            </ul>
           </Modal.Body>
           <Modal.Footer>
             <Button variant="info" href="/servers">서버 목록으로</Button>
