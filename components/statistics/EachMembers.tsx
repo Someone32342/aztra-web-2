@@ -1,6 +1,6 @@
 import dayjs from 'dayjs'
 import React, { memo, useCallback, useState } from 'react'
-import { Badge, Card, Col, Container, Form, Row } from 'react-bootstrap'
+import { Badge, Card, Col, Container, Form, Pagination, Row } from 'react-bootstrap'
 import { MemberMinimal } from 'types/DiscordTypes'
 
 interface EachMembersProps {
@@ -9,10 +9,13 @@ interface EachMembersProps {
 
 type MemberSearchType = 'nick-and-tag' | 'id'
 
-const EachMembers: React.FC<EachMembersProps> = memo(({ members }) => {
+const PER_PAGE = 10
+
+const EachMembers: React.FC<EachMembersProps> = ({ members }) => {
   const [memberSearch, setMemberSearch] = useState('')
   const [memberSearchType, setMemberSearchType] = useState<MemberSearchType>('nick-and-tag')
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null)
+  const [page, setPage] = useState(0)
 
   const MemberCard: React.FC<{ member: MemberMinimal }> = memo(({ member }) => {
     const onClick = useCallback(() => setSelectedMemberId(member.user.id), [member.user.id])
@@ -34,9 +37,7 @@ const EachMembers: React.FC<EachMembersProps> = memo(({ members }) => {
                 {member.user.bot && <Badge className="ml-2 my-auto" variant="blurple">BOT</Badge>}
               </span>
             </div>
-            <div className="text-muted font-weight-bold text-break" style={{
-              fontSize: '11pt'
-            }}>
+            <div className="text-muted font-weight-bold">
               @{member.user.tag}
             </div>
           </div>
@@ -76,6 +77,9 @@ const EachMembers: React.FC<EachMembersProps> = memo(({ members }) => {
 
   const selectedMember = members.find(o => o.user.id === selectedMemberId)
 
+  const filteredMembers = filterMembers(memberSearch) || members
+  const slicedMembers = filteredMembers?.slice(page * PER_PAGE, (page + 1) * PER_PAGE)
+
   return <Container fluid>
     <Row>
       <Col xs={12} lg={6} xl={4}>
@@ -108,11 +112,25 @@ const EachMembers: React.FC<EachMembersProps> = memo(({ members }) => {
           <input hidden={true} />
           <Form.Control type="text" placeholder={memberSearchType === "id" ? "멤버 아이디 검색 (숫자만 입력할 수 있습니다)" : "멤버 검색"} value={memberSearch} onChange={e => {
             if (memberSearchType === "id" && isNaN(Number(e.target.value))) return
+            setPage(0)
             setMemberSearch(e.target.value)
           }} />
         </div>
-        <div style={{ maxHeight: 600, overflowY: 'scroll', overflowX: 'hidden' }}>
-          {(filterMembers(memberSearch) || members)?.map(one => <MemberCard key={one.user.id} member={one} />)}
+        <div>
+          {slicedMembers?.map(one => <MemberCard key={one.user.id} member={one} />)}
+        </div>
+        <div className="pagination-dark d-flex justify-content-center mb-4">
+          <Pagination>
+            <Pagination.First onClick={() => setPage(0)} />
+            {
+              Array.from(Array(Math.trunc(filteredMembers.length / PER_PAGE)).keys())
+                .filter(o =>
+                  page - 3 < 0 ? o < 7 : (o >= page - 3 && o <= page + 3)
+                )
+                .map(i => <Pagination.Item children={i + 1} active={page === i} onClick={() => setPage(i)} />)
+            }
+            <Pagination.Last onClick={() => setPage(Math.trunc(filteredMembers.length / PER_PAGE - 1))} />
+          </Pagination>
         </div>
       </Col>
       <Col xs={12} lg={6} xl={8}>
@@ -172,6 +190,6 @@ const EachMembers: React.FC<EachMembersProps> = memo(({ members }) => {
       </Col>
     </Row>
   </Container>
-})
+}
 
 export default EachMembers

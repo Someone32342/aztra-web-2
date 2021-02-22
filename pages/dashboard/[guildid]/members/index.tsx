@@ -1,8 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios, { AxiosError } from 'axios'
 import api from 'datas/api'
 import { MemberMinimal } from 'types/DiscordTypes';
-import { Row, Col, Form, Container, Spinner } from 'react-bootstrap';
+import { Row, Col, Form, Container, Spinner, Pagination } from 'react-bootstrap';
 import MemberListCard from 'components/forms/MemberListCard';
 import Cookies from 'universal-cookie';
 import { GetServerSideProps, NextPage } from 'next';
@@ -18,6 +18,8 @@ interface MembersRouterProps {
 
 type MemberSearchType = 'nick-and-tag' | 'id'
 
+const PER_PAGE = 50
+
 export const getServerSideProps: GetServerSideProps<MembersRouterProps> = async context => {
   const { guildid } = context.query
   return {
@@ -30,6 +32,7 @@ export const getServerSideProps: GetServerSideProps<MembersRouterProps> = async 
 const Members: NextPage<MembersRouterProps> = ({ guildId }) => {
   const [memberSearch, setMemberSearch] = useState('')
   const [memberSearchType, setMemberSearchType] = useState<MemberSearchType>('nick-and-tag')
+  const [page, setPage] = useState(0)
 
   const { data: members } = useSWR<MemberMinimal[], AxiosError>(
     new Cookies().get('ACCESS_TOKEN') ? urljoin(api, `/discord/guilds/${guildId}/members`) : null,
@@ -40,7 +43,8 @@ const Members: NextPage<MembersRouterProps> = ({ guildId }) => {
     })
       .then(r => r.data),
     {
-      refreshInterval: 5000
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false
     }
   )
 
@@ -82,8 +86,23 @@ const Members: NextPage<MembersRouterProps> = ({ guildId }) => {
     setMemberSearch('')
   }
 
-  const filteredMembers = (
-    (filterMembers(memberSearch) || members)?.map(one => <MemberListCard key={one.user.id} member={one} guildId={guildId as string} />)
+  const filteredMembers = filterMembers(memberSearch) || members
+  const slicedMembers = filteredMembers?.slice(page * PER_PAGE, (page + 1) * PER_PAGE)
+
+  const PageBar = (
+    <div className="pagination-dark d-flex justify-content-center">
+      <Pagination>
+        <Pagination.First onClick={() => setPage(0)} />
+        {
+          Array.from(Array(Math.trunc(filteredMembers.length / PER_PAGE)).keys())
+            .filter(o =>
+              page - 3 < 0 ? o < 7 : (o >= page - 3 && o <= page + 3)
+            )
+            .map(i => <Pagination.Item children={i + 1} active={page === i} onClick={() => setPage(i)} />)
+        }
+        <Pagination.Last onClick={() => setPage(Math.trunc(filteredMembers.length / PER_PAGE - 1))} />
+      </Pagination>
+    </div>
   )
 
   return (
@@ -107,6 +126,12 @@ const Members: NextPage<MembersRouterProps> = ({ guildId }) => {
                       members
                         ? <Form>
                           <Form.Group>
+                            <Row>
+                              <Col>
+                                {PageBar}
+                              </Col>
+                            </Row>
+
                             <Row className="pb-2 justify-content-between">
                               <Col
                                 className="d-flex align-items-end mt-4 mt-xl-0 px-0"
@@ -165,11 +190,18 @@ const Members: NextPage<MembersRouterProps> = ({ guildId }) => {
                               <Form.Control type="text" placeholder={memberSearchType === "id" ? "멤버 아이디 검색 (숫자만 입력할 수 있습니다)" : "멤버 검색"} value={memberSearch} onChange={e => {
                                 if (memberSearchType === "id" && isNaN(Number(e.target.value))) return
                                 setMemberSearch(e.target.value)
+                                setPage(0)
                               }} />
                             </Row>
 
-                            <Row className="flex-column">
-                              {filteredMembers}
+                            <Row className="flex-column mb-5">
+                              {slicedMembers.map(one => <MemberListCard key={one.user.id} member={one} guildId={guildId as string} />)}
+                            </Row>
+
+                            <Row>
+                              <Col>
+                                {PageBar}
+                              </Col>
                             </Row>
                           </Form.Group>
                         </Form>

@@ -106,7 +106,7 @@ const Statistics: NextPage<StatisticsProps> = ({ guildId }) => {
                       <Badge variant="aztra" className="ml-2 mb-auto mt-1" style={{ fontSize: 15 }}>베타</Badge>
                     </h3>
                     <div className="py-2">
-                      서버의 각종 통계를 보여줍니다. Aztra가 초대된 이후에 정보 수집이 시작됩니다.
+                      서버의 각종 통계를 보여줍니다. Aztra가 초대된 이후에 정보 수집이 시작됩니다. 메시지 통계는 Aztra에 <b>메시지 읽기</b> 권한이 있는 채널만 수집됩니다.
                     </div>
                   </div>
                 </Row>
@@ -115,10 +115,10 @@ const Statistics: NextPage<StatisticsProps> = ({ guildId }) => {
                     <Tab eventKey="growth" title={<><TrendingUpIcon className="mr-2" />서버 통계</>}>
                       <Growth memberCounts={memberCounts} msgCounts={msgCounts} />
                     </Tab>
-                    <Tab eventKey="members" title={<><GroupIcon className="mr-2" />멤버별 통계</>}>
+                    <Tab eventKey="members" disabled title={<><GroupIcon className="mr-2" />멤버별 통계(개발중)</>}>
                       <EachMembers members={members} />
                     </Tab>
-                    <Tab eventKey="ranking" title={<><FontAwesomeIcon icon={faTrophy} className="mr-2" />순위</>}></Tab>
+                    <Tab eventKey="ranking" disabled title={<><FontAwesomeIcon icon={faTrophy} className="mr-2" />순위(개발중)</>}></Tab>
                   </Tabs>
                 </div>
               </>

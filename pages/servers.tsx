@@ -151,17 +151,17 @@ export default function Servers() {
         <Modal className="modal-dark" show={showError} centered onHide={() => { }}>
           <Modal.Body>
             서버 정보를 가져오는 데 실패했습니다!
-        </Modal.Body>
+          </Modal.Body>
           <Modal.Footer>
             <Button variant="dark" onClick={() => router.push('/')}>
               메인으로
-          </Button>
+            </Button>
             <Button variant="danger" onClick={() => {
               setShowError(false)
               mutate()
             }}>
               다시 시도하기
-          </Button>
+            </Button>
           </Modal.Footer>
         </Modal>
       </Layout>

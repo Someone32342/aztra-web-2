@@ -190,3 +190,11 @@ button:focus {
         }
     }
 }
+
+.pagination-dark .pagination {
+    a.page-link {
+        border: none !important;
+        color: white !important;
+        background-color: $dark !important;
+    }
+}

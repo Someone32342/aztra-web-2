@@ -143,6 +143,23 @@ export default function Sidebar(props: SidebarProps) {
             </Nav.Link>
           </Link>
         </Nav.Item>
+        <Nav.Item>
+          <Link href={`/dashboard/${guild?.id}/statistics`} shallow={true}>
+            <Nav.Link
+              className="d-flex mb-1"
+              href={`/dashboard/${guild?.id}/statistics`}
+              active={location?.pathname.startsWith(`/dashboard/${guild?.id}/statistics`)}
+            >
+              <div style={iconStyle} className="mr-3">
+                <TrendingUpIcon style={{ transform: 'scale(1.1)' }} />
+              </div>
+              <div>
+                통계
+                <Badge variant="aztra" className="ml-2 my-auto" style={{ fontSize: 14 }}>베타</Badge>
+              </div>
+            </Nav.Link>
+          </Link>
+        </Nav.Item>
         {
           process.env.NODE_ENV === "development" && (
             <>
@@ -158,23 +175,6 @@ export default function Sidebar(props: SidebarProps) {
                     </div>
                     <div>
                       전광판 채널
-                      <Badge variant="danger" className="ml-2 my-auto" style={{ fontSize: 14 }}>개발중</Badge>
-                    </div>
-                  </Nav.Link>
-                </Link>
-              </Nav.Item>
-              <Nav.Item>
-                <Link href={`/dashboard/${guild?.id}/statistics`} shallow={true}>
-                  <Nav.Link
-                    className="d-flex mb-1"
-                    href={`/dashboard/${guild?.id}/statistics`}
-                    active={location?.pathname.startsWith(`/dashboard/${guild?.id}/statistics`)}
-                  >
-                    <div style={iconStyle} className="mr-3">
-                      <TrendingUpIcon style={{ transform: 'scale(1.1)' }} />
-                    </div>
-                    <div>
-                      통계
                       <Badge variant="danger" className="ml-2 my-auto" style={{ fontSize: 14 }}>개발중</Badge>
                     </div>
                   </Nav.Link>
