@@ -88,7 +88,7 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
   return (
     <>
       <Head>
-        <title>전광판 채널 - Aztra 대시보드</title>
+        <title>티켓 설정 - Aztra 대시보드</title>
       </Head>
       <Layout>
         <DashboardLayout guildId={guildId}>
@@ -97,9 +97,9 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
               <div>
                 <Row className="dashboard-section">
                   <div>
-                    <h3>전광판 채널 설정</h3>
+                    <h3>티켓 설정</h3>
                     <div className="py-2">
-                      채널 이름에 여러 정보를 표시할 수 있습니다. 표시되는 내용은 1분마다 업데이트됩니다.
+                      유저가 티켓을 생성하면 서버에 개인 채널이 생성되어 이곳에서 1:1 문의/신고 등을 진행할 수 있습니다.
                     </div>
                   </div>
                 </Row>
@@ -112,7 +112,7 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                           <Col className="p-0">
                             <Card bg="dark" className="m-0 shadow">
                               <Card.Header className="d-flex justify-content-between align-items-center">
-                                <span className="font-weight-bold" style={{ fontFamily: "NanumSquare", fontSize: 18 }}>새 작업 추가</span>
+                                <span className="font-weight-bold" style={{ fontFamily: "NanumSquare", fontSize: 18 }}>새 티켓 등록</span>
                                 <Button variant="danger" size="sm" className="d-flex align-items-center" onClick={() => {
                                   setAddNew(false)
                                 }}>
@@ -148,7 +148,7 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                           })
                         }}>
                           <AddIcon className="mr-1" />
-                          새로 추가
+                          새로 등록
                         </Button>
                         <Button variant="danger" size="sm" className="d-flex align-items-center">
                           <DeleteIcon className="mr-1" />

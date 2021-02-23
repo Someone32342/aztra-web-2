@@ -10,7 +10,8 @@ import {
   History as HistoryIcon,
   TrendingUp as TrendingUpIcon,
   EventNote as EventNoteIcon,
-  List as ListIcon
+  List as ListIcon,
+  CreditCard as CreditCardIcon
 } from '@material-ui/icons'
 import Link from 'next/link'
 
@@ -163,6 +164,23 @@ export default function Sidebar(props: SidebarProps) {
         {
           process.env.NODE_ENV === "development" && (
             <>
+              <Nav.Item>
+                <Link href={`/dashboard/${guild?.id}/ticket`} shallow={true}>
+                  <Nav.Link
+                    className="d-flex mb-1"
+                    href={`/dashboard/${guild?.id}/ticket`}
+                    active={location?.pathname.startsWith(`/dashboard/${guild?.id}/ticket`)}
+                  >
+                    <div style={iconStyle} className="mr-3">
+                      <CreditCardIcon style={{ transform: 'scale(1.1)' }} />
+                    </div>
+                    <div>
+                      티켓 설정
+                      <Badge variant="danger" className="ml-2 my-auto" style={{ fontSize: 14 }}>개발중</Badge>
+                    </div>
+                  </Nav.Link>
+                </Link>
+              </Nav.Item>
               <Nav.Item>
                 <Link href={`/dashboard/${guild?.id}/billboards`} shallow={true}>
                   <Nav.Link

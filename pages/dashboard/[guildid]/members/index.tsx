@@ -208,7 +208,7 @@ const Members: NextPage<MembersRouterProps> = ({ guildId }) => {
                         : <Container className="d-flex align-items-center justify-content-center flex-column" style={{
                           height: '500px'
                         }}>
-                          <h3 className="pb-4 text-center">멤버 목록을 가져오고 있습니다...</h3>
+                          <h3 className="pb-4">불러오는 중</h3>
                           <Spinner animation="border" variant="aztra" />
                         </Container>
                     }
