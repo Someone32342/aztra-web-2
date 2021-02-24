@@ -113,7 +113,7 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
           <div className="pl-3">
             <div>
               <span className="font-weight-bold">- 채널: </span>
-              <span>{channel ? `#${channel.name}` : <u>(존재하지 않는 채널)</u>}</span>
+              <span>{channel ? `#${channel.name}` : <i>(존재하지 않는 채널)</i>}</span>
             </div>
             <div>
               <span className="font-weight-bold">- 메시지 아이디: </span>
