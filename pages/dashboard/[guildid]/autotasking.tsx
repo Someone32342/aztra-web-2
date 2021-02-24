@@ -106,13 +106,14 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
     switch (taskset.type) {
       case 'emoji_role':
         eventName = "반응했을 때 역할 추가/제거"
-
         let taskparams: EmojiRoleParams = taskset.params
+        let channel = channels?.find(o => o.id === taskparams.channel)
+
         eventContent = (
           <div className="pl-3">
             <div>
               <span className="font-weight-bold">- 채널: </span>
-              <span>#{channels?.find(o => o.id === taskparams.channel)?.name}</span>
+              <span>{channel ? `#${channel.name}` : <u>(존재하지 않는 채널)</u>}</span>
             </div>
             <div>
               <span className="font-weight-bold">- 메시지 아이디: </span>
@@ -134,7 +135,7 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                 <span className="font-weight-bold pr-2" style={{ color: 'limegreen' }}>- 반응 추가시 역할 추가:</span>
                 {o.add.map(r => {
                   const role = roles?.find(one => one.id === r)
-                  return <RoleBadge key={r} name={role?.name ?? '(알 수 없음)'} color={'#' + (role?.color ? role?.color.toString(16) : 'fff')} />
+                  return <RoleBadge key={r} name={role?.name ?? '(존재하지 않는 역할)'} color={'#' + (role?.color ? role?.color.toString(16) : 'fff')} />
                 })}
               </div>
             }
@@ -144,7 +145,7 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                 <span className="font-weight-bold pr-2" style={{ color: 'salmon' }}>- 반응 제거시 역할 제거:</span>
                 {o.remove.map(r => {
                   const role = roles?.find(one => one.id === r)
-                  return <RoleBadge key={r} name={role?.name ?? '(알 수 없음)'} color={'#' + (role?.color ? role?.color.toString(16) : 'fff')} />
+                  return <RoleBadge key={r} name={role?.name ?? '(존재하지 않는 역할)'} color={'#' + (role?.color ? role?.color.toString(16) : 'fff')} />
                 })}
               </div>
             }
@@ -426,7 +427,7 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                               </thead>
                               <tbody>
                                 {
-                                  data?.map(one =>
+                                  data.map(one =>
                                     <TaskListCard
                                       key={one.uuid}
                                       taskset={one}

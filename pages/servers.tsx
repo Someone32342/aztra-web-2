@@ -52,9 +52,7 @@ export default function Servers() {
     })
     .sort((a, b) => Number(!a.bot_joined) - Number(!b.bot_joined))
     .map((one, index) => (
-      <Card key={index} bg="dark" text="light" className="Dashboard-Servers-Card shadow" style={{
-        animationDelay: `${index * 80}ms`,
-      }}>
+      <Card key={index} bg="dark" text="light" className="shadow" style={{ margin: '8px 0', padding: '8px 0', border: 'none' }}>
         <Card.Body className="p-0" style={{ fontSize: '12pt' }}>
           <Container>
             <Row>
@@ -119,7 +117,7 @@ export default function Servers() {
         <title>Aztra - 서버 선택</title>
       </Head>
       <Layout>
-        <div className="min-vh-100">
+        <div className="min-vh-100 mb-5">
           <Container fluid="sm" className="text-center">
             {
               !error && guild_cards?.length === 0
@@ -131,7 +129,7 @@ export default function Servers() {
                 : <h2 className="text-white" style={{ marginTop: 120, marginBottom: 120 }}>서버를 선택하세요</h2>
             }
           </Container>
-          <Container fluid="sm" style={{ marginBottom: 160 }}>
+          <Container fluid="sm">
             {
               !(data || error)
                 ?

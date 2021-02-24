@@ -258,9 +258,18 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, s
       <Row className="pt-4">
         <Col>
           <Form.Label className="pt-2 h5 font-weight-bold">이모지와 역할 추가하기:</Form.Label>
-          <Form.Text>이모지를 선택하고, 역할을 추가하세요. 오른쪽의 추가버튼을 클릭하면 이모지를 더 추가할 수 있습니다.</Form.Text>
+          <Form.Text>이모지를 선택하고, 역할을 추가하세요. 아래의 추가버튼을 클릭하면 이모지를 더 추가할 수 있습니다.</Form.Text>
           <Form.Text>* 이모지를 클릭하면 이모지를 변경할 수 있습니다</Form.Text>
-          <Table id="warn-list-table" className="mb-0 mt-4" variant="dark" style={{
+
+          <Button variant="success" className="d-flex align-items-center mt-4" disabled={!(newData.emoji && (newData.add.length || newData.remove.length))} onClick={() => {
+            setNewAddedData(newAddedData.filter(o => o.emoji !== newData.emoji).concat(newData as EmojiRoleData))
+            setNewData({ add: [], remove: [] })
+          }}>
+            <AddIcon className="mr-1" fontSize="small" />
+            이모지 더 추가
+          </Button>
+
+          <Table id="warn-list-table" className="mb-0 mt-3" variant="dark" style={{
             tableLayout: 'fixed'
           }} >
             <thead className={cx("EmojiRole-TableHead")} style={{ fontFamily: "NanumSquare" }}>
@@ -269,7 +278,7 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, s
                 <th style={{ fontSize: 17, width: 150 }} className="text-center d-none d-lg-table-cell">이모지</th>
                 <th style={{ fontSize: 17 }}>반응했을 때 추가할 역할</th>
                 <th style={{ fontSize: 17 }}>반응 제거했을 때 제거할 역할</th>
-                <th style={{ width: 120 }} />
+                <th style={{ width: 170 }} />
               </tr>
             </thead>
             <tbody>
@@ -358,16 +367,6 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, s
                           }
                         </Dropdown.Menu>
                       </Dropdown>
-                    </div>
-
-                    <div className="mt-2">
-                      <Button variant="success" className="d-flex justify-content-center align-items-center w-100" disabled={!(newData.emoji && (newData.add.length || newData.remove.length))} onClick={() => {
-                        setNewAddedData(newAddedData.filter(o => o.emoji !== newData.emoji).concat(newData as EmojiRoleData))
-                        setNewData({ add: [], remove: [] })
-                      }}>
-                        <AddIcon className="mr-1" fontSize="small" />
-                          추가
-                        </Button>
                     </div>
                   </td>
                 }
@@ -570,17 +569,6 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, s
                     </Dropdown>
                   </div>
                 </td>
-                <td className="align-middle">
-                  <div className="d-flex justify-content-end">
-                    <Button variant="success" className="d-flex align-items-center" disabled={!(newData.emoji && (newData.add.length || newData.remove.length))} onClick={() => {
-                      setNewAddedData(newAddedData.filter(o => o.emoji !== newData.emoji).concat(newData as EmojiRoleData))
-                      setNewData({ add: [], remove: [] })
-                    }}>
-                      <AddIcon className="mr-1" fontSize="small" />
-                      추가
-                    </Button>
-                  </div>
-                </td>
               </tr>
 
               <div className="mb-3" />
@@ -714,9 +702,9 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, s
           <Button
             className="pl-2 d-flex justify-content-center align-items-center"
             variant={saveError ? "danger" : "aztra"}
-            disabled={saving || saveError || !(newParams.channel && newParams.message && (newAddedData.length || (newData.emoji && (newData.add.length || newData.remove.length))))}
+            disabled={saving || saveError || !(newParams.channel && newParams.message && (newAddedData.length || (newData.emoji && (newData.add.length || newData.remove.length)))) || !newAddedData.some(o => o.add.length || o.remove.length)}
             onClick={event => onSubmit &&
-              onSubmit({ params: newParams as EmojiRoleParams, data: newAddedData.concat(newData.emoji && (newData.add.length || newData.remove.length) ? [newData as EmojiRoleData] : []) }, event)
+              onSubmit({ params: newParams as EmojiRoleParams, data: newAddedData.filter(o => o.add.length || o.remove.length).concat(newData.emoji && (newData.add.length || newData.remove.length) ? [newData as EmojiRoleData] : []) }, event)
             }
             style={{
               minWidth: 140
