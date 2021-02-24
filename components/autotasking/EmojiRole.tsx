@@ -1,6 +1,6 @@
 import React, { useState } from "react"
 import { Button, ButtonGroup, Card, Col, Container, Dropdown, Form, Modal, OverlayTrigger, Row, Spinner, Table, Tooltip } from "react-bootstrap"
-import { Add as AddIcon, RemoveCircleOutline, Check as CheckIcon } from '@material-ui/icons'
+import { Add as AddIcon, RemoveCircleOutline, Check as CheckIcon, Close as CloseIcon } from '@material-ui/icons'
 import RoleBadge, { AddRole } from "components/forms/RoleBadge"
 import EmojiPickerI18n from "defs/EmojiPickerI18n"
 import { Emoji, Picker } from "emoji-mart"
@@ -17,6 +17,7 @@ import axios, { AxiosError, CancelTokenSource } from "axios"
 import api from "datas/api"
 import prefixes from 'datas/prefixes'
 import Cookies from "universal-cookie"
+import { TaskSet } from "types/autotask"
 const cx = classNames.bind(styles)
 
 interface EmojiRoleProps {
@@ -25,12 +26,16 @@ interface EmojiRoleProps {
   roles: Role[]
   saving?: boolean
   saveError?: boolean
+  editMode?: boolean
+  closeButton?: boolean
+  defaultTask?: TaskSet<EmojiRoleParams, EmojiRoleData[]>
   onSubmit?: (data: { params: EmojiRoleParams, data: EmojiRoleData[] }, event: React.MouseEvent<HTMLElement, MouseEvent>) => void
+  onClose?: Function
 }
 
-const EmojiRole: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, saveError, onSubmit }) => {
-  const [newParams, setNewParams] = useState<Partial<EmojiRoleParams>>({})
-  const [newAddedData, setNewAddedData] = useState<EmojiRoleData[]>([])
+const EmojiRole: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, saveError, editMode, closeButton, defaultTask, onSubmit, onClose }) => {
+  const [newParams, setNewParams] = useState<Partial<EmojiRoleParams>>(defaultTask?.params ?? {})
+  const [newAddedData, setNewAddedData] = useState<EmojiRoleData[]>(defaultTask?.data ?? [])
   const [newData, setNewData] = useState<Omit<EmojiRoleData, 'emoji'> & { emoji?: string | null }>({ add: [], remove: [] })
   const [channelSearch, setChannelSearch] = useState('')
   const [inputMessageId, setInputMessageId] = useState(false)
@@ -699,35 +704,44 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, s
       <Row>
         <Col>
           <hr className="mt-0" style={{ borderColor: '#4e5058', borderWidth: 2 }} />
-          <Button
-            className="pl-2 d-flex justify-content-center align-items-center"
-            variant={saveError ? "danger" : "aztra"}
-            disabled={saving || saveError || !(newParams.channel && newParams.message && (newAddedData.length || (newData.emoji && (newData.add.length || newData.remove.length)))) || !newAddedData.some(o => o.add.length || o.remove.length)}
-            onClick={event => onSubmit &&
-              onSubmit({ params: newParams as EmojiRoleParams, data: newAddedData.filter(o => o.add.length || o.remove.length).concat(newData.emoji && (newData.add.length || newData.remove.length) ? [newData as EmojiRoleData] : []) }, event)
-            }
-            style={{
-              minWidth: 140
-            }}
-          >
+          <div className="d-flex">
+            <Button
+              className="pl-2 d-flex justify-content-center align-items-center"
+              variant={saveError ? "danger" : "aztra"}
+              disabled={saving || saveError || !(newParams.channel && newParams.message && (newAddedData.length || (newData.emoji && (newData.add.length || newData.remove.length)))) || (!!newAddedData.length && !newAddedData.some(o => o.add.length || o.remove.length))}
+              onClick={event => onSubmit &&
+                onSubmit({ params: newParams as EmojiRoleParams, data: newAddedData.filter(o => o.add.length || o.remove.length).concat(newData.emoji && (newData.add.length || newData.remove.length) ? [newData as EmojiRoleData] : []) }, event)
+              }
+              style={{
+                minWidth: 140
+              }}
+            >
+              {
+                saving
+                  ? <>
+                    <Spinner as="span" animation="border" size="sm" role="status" />
+                    <span className="pl-2">저장 중...</span>
+                  </>
+                  : <span>
+                    {
+                      saveError
+                        ? "오류"
+                        : <>
+                          <CheckIcon className="mr-1" />
+                          {editMode ? "설정 수정하기" : "설정 완료하기"}
+                        </>
+                    }
+                  </span>
+              }
+            </Button>
             {
-              saving
-                ? <>
-                  <Spinner as="span" animation="border" size="sm" role="status" />
-                  <span className="pl-2">저장 중...</span>
-                </>
-                : <span>
-                  {
-                    saveError
-                      ? "오류"
-                      : <>
-                        <CheckIcon className="mr-1" />
-                        설정 완료하기
-                      </>
-                  }
-                </span>
+              closeButton &&
+              <Button variant="danger" className="ml-3 align-items-center d-flex" onClick={() => onClose && onClose()}>
+                <CloseIcon className="mr-1" />
+                취소하고 닫기
+              </Button>
             }
-          </Button>
+          </div>
         </Col>
       </Row>
     </>

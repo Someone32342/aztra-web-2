@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import axios, { AxiosError } from 'axios'
 import { Badge, Button, ButtonGroup, Card, Col, Container, Form, Modal, OverlayTrigger, Row, Spinner, Table, Tooltip } from 'react-bootstrap'
-import { Add as AddIcon, Delete as DeleteIcon, RemoveCircleOutline, OpenInNew as OpenInNewIcon, Close as CloseIcon } from '@material-ui/icons'
+import { Add as AddIcon, Delete as DeleteIcon, RemoveCircleOutline, Edit as EditIcon, Close as CloseIcon } from '@material-ui/icons'
 import Twemoji from 'react-twemoji'
 import api from 'datas/api'
 import { animateScroll } from 'react-scroll'
@@ -42,13 +42,16 @@ interface TaskListCardProps {
 
 const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
   const [addNew, setAddNew] = useState(false)
+  const [edit, setEdit] = useState<string | null>(null)
   const [taskType, setTaskType] = useState<string | number>(0)
 
   const [selectedTasks, setSelectedTasks] = useState<Set<string>>(new Set)
   const [showSelectedDel, setShowSelectedDel] = useState(false)
 
   const [saving, setSaving] = useState(false)
+  const [editSaving, setEditSaving] = useState(false)
   const [saveError, setSaveError] = useState(false)
+  const [editError, setEditError] = useState(false)
 
   const { data, mutate } = useSWR<TaskSet[], AxiosError>(
     new Cookies().get('ACCESS_TOKEN') ? urljoin(api, `/servers/${guildId}/autotasking`) : null,
@@ -135,7 +138,7 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                 <span className="font-weight-bold pr-2" style={{ color: 'limegreen' }}>- 반응 추가시 역할 추가:</span>
                 {o.add.map(r => {
                   const role = roles?.find(one => one.id === r)
-                  return <RoleBadge key={r} name={role?.name ?? '(존재하지 않는 역할)'} color={'#' + (role?.color ? role?.color.toString(16) : 'fff')} />
+                  return <RoleBadge key={r} className="mr-2" name={role?.name ?? '(존재하지 않는 역할)'} color={'#' + (role?.color ? role?.color.toString(16) : 'fff')} />
                 })}
               </div>
             }
@@ -145,7 +148,7 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                 <span className="font-weight-bold pr-2" style={{ color: 'salmon' }}>- 반응 제거시 역할 제거:</span>
                 {o.remove.map(r => {
                   const role = roles?.find(one => one.id === r)
-                  return <RoleBadge key={r} name={role?.name ?? '(존재하지 않는 역할)'} color={'#' + (role?.color ? role?.color.toString(16) : 'fff')} />
+                  return <RoleBadge key={r} className="mr-2" name={role?.name ?? '(존재하지 않는 역할)'} color={'#' + (role?.color ? role?.color.toString(16) : 'fff')} />
                 })}
               </div>
             }
@@ -225,12 +228,12 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
               placement="top"
               overlay={
                 <Tooltip id="task-list-row-remove-task">
-                  작업 자세히 보기
+                  작업 수정하기
                 </Tooltip>
               }
             >
-              <Button variant="dark" className="d-flex px-1 remove-before">
-                <OpenInNewIcon />
+              <Button variant="dark" className="d-flex px-1 remove-before" onClick={() => setEdit(taskset.uuid)}>
+                <EditIcon />
               </Button>
             </OverlayTrigger>
 
@@ -351,7 +354,6 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                           }
 
                           <Row className="justify-content-end">
-                            <small className="mr-auto mt-auto">*자동작업 수정 기능은 현재 개발중입니다! 그때까지 자동작업을 수정하려면 삭제 후 재추가해주세요!</small>
                             <div className="pt-2 d-flex align-items-center">
                               <div className="mr-4" style={{ color: data.length >= 15 ? 'gold' : 'white' }}><b>{data.length}/15</b> 개 사용됨</div>
                               <Button variant="aztra" size="sm" className="d-flex align-items-center mr-3" disabled={data.length >= 15} onClick={() => {
@@ -462,9 +464,54 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                                   새로 추가
                                   </span>
                                   해보세요!
-                            </div>
+                              </div>
                             }
                           </Row>
+                          <Modal className="modal-dark scrollbar-dark" show={!!edit} onHide={() => setEdit(null)} centered size="lg" animation={false}>
+                            <Modal.Header closeButton>
+                              <Modal.Title style={{
+                                fontFamily: "NanumSquare",
+                                fontWeight: 900,
+                              }}>
+                                작업 수정하기
+                              </Modal.Title>
+                            </Modal.Header>
+                            <Modal.Body className="py-4">
+                              {
+                                data.find(o => o.uuid === edit)?.type === "emoji_role" &&
+                                <EmojiRole
+                                  guild={guild} channels={channels ?? []} roles={roles ?? []} saving={editSaving} saveError={editError} editMode closeButton
+                                  defaultTask={data.find(o => o.uuid === edit)}
+                                  onSubmit={({ data, params }) => {
+                                    const postData: TaskSet<EmojiRoleParams, EmojiRoleData[]> = {
+                                      uuid: edit!,
+                                      type: "emoji_role",
+                                      params: params,
+                                      data: data
+                                    }
+                                    setEditSaving(true)
+                                    axios.patch(`${api}/servers/${guildId}/autotasking`,
+                                      [postData],
+                                      {
+                                        headers: {
+                                          Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
+                                        }
+                                      }
+                                    )
+                                      .then(() => {
+                                        mutate()
+                                          .then(() => {
+                                            setEditSaving(false)
+                                            setEdit(null)
+                                          })
+                                      })
+                                      .catch(() => setEditError(true))
+                                  }}
+                                  onClose={() => setEdit(null)}
+                                />
+                              }
+                            </Modal.Body>
+                          </Modal>
                         </Form>
                         : <Container className="d-flex align-items-center justify-content-center flex-column" style={{
                           height: '500px'
