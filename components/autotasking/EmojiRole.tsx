@@ -18,6 +18,7 @@ import api from "datas/api"
 import prefixes from 'datas/prefixes'
 import Cookies from "universal-cookie"
 import { TaskSet } from "types/autotask"
+import filterChannels from "utils/filterChannels"
 const cx = classNames.bind(styles)
 
 interface EmojiRoleProps {
@@ -44,26 +45,6 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, s
   const [selectMessageToken, setSelectMessageToken] = useState<string | null>(null)
   const [selectMessageStatus, setSelectMessageStatus] = useState<'pending' | 'done' | 'timeout' | 'error' | null>(null)
   const [cancelSelectMessage, setCancelSelectMessage] = useState<CancelTokenSource | null>(null)
-
-  const filterChannels = () => {
-    return channels
-      ?.filter(one => one.type === "text")
-      ?.filter(one => one.name?.includes(channelSearch))
-      ?.sort((a, b) => a.rawPosition - b.rawPosition)
-      ?.map(one =>
-        <ChannelSelectCard
-          key={one.id}
-          selected={newParams.channel === one.id}
-          channelData={{
-            channelName: one.name,
-            parentChannelName: channels?.find(c => c.id === one.parentID)?.name
-          }}
-          onClick={() => setNewParams({ ...newParams, channel: one.id })}
-        />
-      )
-  }
-
-  const filteredChannels = filterChannels()
 
   const MessageSelectionReq = () => {
     const token = (Math.floor(Math.random() * 100000)).toString().padStart(5, "0") // Math.random().toString(36).slice(2, 7)
@@ -145,7 +126,18 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, s
               }}>
                 {
                   channels
-                    ? filteredChannels
+                    ? filterChannels(channels, channelSearch)
+                      .map(one =>
+                        <ChannelSelectCard
+                          key={one.id}
+                          selected={newParams.channel === one.id}
+                          channelData={{
+                            channelName: one.name,
+                            parentChannelName: channels?.find(c => c.id === one.parentID)?.name
+                          }}
+                          onClick={() => setNewParams({ ...newParams, channel: one.id })}
+                        />
+                      )
                     : <h4>불러오는 중</h4>
                 }
               </Row>

@@ -14,6 +14,7 @@ import { LoggingSet as LoggingSetType } from 'types/dbtypes'
 import { ChannelMinimal } from 'types/DiscordTypes'
 import Cookies from 'universal-cookie'
 import urljoin from 'url-join'
+import filterChannels from 'utils/filterChannels'
 
 interface LoggingOptionCheckboxProps extends FormCheckProps {
   label?: string
@@ -148,26 +149,6 @@ const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
       || !!Number(data?.flags) != useLogging
     )
   }
-
-  const filterChannels = () => {
-    return channels
-      ?.filter(one => one.type === "text")
-      ?.filter(one => one.name?.includes(channelSearch))
-      ?.sort((a, b) => a.rawPosition - b.rawPosition)
-      ?.map(one =>
-        <ChannelSelectCard
-          key={one.id}
-          selected={newChannel === one || (!newChannel && one.id === data?.channel)}
-          channelData={{
-            channelName: one.name,
-            parentChannelName: channels?.find(c => c.id === one.parentID)?.name
-          }}
-          onClick={() => setNewChannel(one)}
-        />
-      )
-  }
-
-  const filteredChannels = filterChannels()
 
   const LoggingOptionCheckbox: React.FC<Omit<LoggingOptionCheckboxProps, 'custom' | 'type' | 'defaultChecked' | 'onChange'>> = props => (
     <Form.Check
@@ -347,7 +328,18 @@ const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
                                       }}>
                                         {
                                           channels
-                                            ? filteredChannels
+                                            ? filterChannels(channels, channelSearch)
+                                              .map(one =>
+                                                <ChannelSelectCard
+                                                  key={one.id}
+                                                  selected={newChannel === one || (!newChannel && one.id === data?.channel)}
+                                                  channelData={{
+                                                    channelName: one.name,
+                                                    parentChannelName: channels?.find(c => c.id === one.parentID)?.name
+                                                  }}
+                                                  onClick={() => setNewChannel(one)}
+                                                />
+                                              )
                                             : <h4>불러오는 중</h4>
                                         }
                                       </Row>

@@ -53,3 +53,13 @@ export interface MsgCount {
   count_user: number
   count_bot: number
 }
+
+export interface TicketSet {
+  uuid: string
+  guild: string
+  name: string
+  channel: string
+  message: string
+  emoji: string
+  category: string
+}

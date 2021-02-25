@@ -12,8 +12,9 @@ import useSWR from 'swr'
 import urljoin from 'url-join'
 import Head from 'next/head'
 import { Billboard } from 'types/dbtypes'
-import { ChannelMinimal } from 'types/DiscordTypes'
+import { ChannelMinimal, Role } from 'types/DiscordTypes'
 import { animateScroll } from 'react-scroll'
+import TicketForm from 'components/tickets/TicketForm'
 
 interface AutoTaskingRouterProps {
   guildId: string
@@ -41,6 +42,16 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
 
   const { data } = useSWR<Billboard[], AxiosError>(
     new Cookies().get('ACCESS_TOKEN') ? urljoin(api, `/servers/${guildId}/billboards`) : null,
+    url => axios.get(url, {
+      headers: {
+        Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
+      }
+    })
+      .then(r => r.data)
+  )
+  
+  const { data: roles } = useSWR<Role[], AxiosError>(
+    new Cookies().get('ACCESS_TOKEN') ? urljoin(api, `/discord/guilds/${guildId}/roles`) : null,
     url => axios.get(url, {
       headers: {
         Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
@@ -93,13 +104,13 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
       <Layout>
         <DashboardLayout guildId={guildId}>
           {
-            () => data && channels ? (
+            guild => data && channels ? (
               <div>
                 <Row className="dashboard-section">
                   <div>
                     <h3>티켓 설정</h3>
                     <div className="py-2">
-                      유저가 티켓을 생성하면 서버에 개인 채널이 생성되어 이곳에서 1:1 문의/신고 등을 진행할 수 있습니다.
+                      유저가 티켓을 생성하면 서버에 개별 채널이 생성되어 이곳에서 1:1 문의/신고 등을 진행할 수 있습니다.
                     </div>
                   </div>
                 </Row>
@@ -120,19 +131,10 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                                 </Button>
                               </Card.Header>
                               <Card.Body>
-                                <Form>
-                                  <Form.Group className="d-flex">
-                                    <Row className="align-items-center">
-                                      <Form.Label column sm="auto">작업 유형 선택</Form.Label>
-                                      <Col>
-                                        <Form.Control className="shadow-sm" style={{ fontSize: 15 }} as="select">
-                                          <option value={0}>유형 선택</option>
-                                          <option value="emoji_role">반응했을 때 역할 추가/제거</option>
-                                        </Form.Control>
-                                      </Col>
-                                    </Row>
+                                <Form noValidate>
+                                  <Form.Group className="mb-0">
+                                    <TicketForm guild={guild} channels={channels ?? []} roles={roles ?? []} saving={saving} saveError={saveError} />
                                   </Form.Group>
-
                                 </Form>
                               </Card.Body>
                             </Card>

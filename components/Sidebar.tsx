@@ -165,11 +165,11 @@ export default function Sidebar(props: SidebarProps) {
           process.env.NODE_ENV === "development" && (
             <>
               <Nav.Item>
-                <Link href={`/dashboard/${guild?.id}/ticket`} shallow={true}>
+                <Link href={`/dashboard/${guild?.id}/tickets`} shallow={true}>
                   <Nav.Link
                     className="d-flex mb-1"
-                    href={`/dashboard/${guild?.id}/ticket`}
-                    active={location?.pathname.startsWith(`/dashboard/${guild?.id}/ticket`)}
+                    href={`/dashboard/${guild?.id}/tickets`}
+                    active={location?.pathname.startsWith(`/dashboard/${guild?.id}/tickets`)}
                   >
                     <div style={iconStyle} className="mr-3">
                       <CreditCardIcon style={{ transform: 'scale(1.1)' }} />

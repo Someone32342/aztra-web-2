@@ -19,6 +19,7 @@ import DashboardLayout from 'components/DashboardLayout';
 import useSWR from 'swr';
 import urljoin from 'url-join';
 import Head from 'next/head';
+import filterChannels from 'utils/filterChannels';
 
 interface GreetingsRouterProps {
   guildId: string
@@ -210,26 +211,6 @@ const Greetings: NextPage<GreetingsRouterProps> = ({ guildId }) => {
     )
   }
 
-  const filterChannels = () => {
-    return channels
-      ?.filter(one => one.type === "text")
-      ?.filter(one => one.name?.includes(channelSearch))
-      ?.sort((a, b) => a.rawPosition - b.rawPosition)
-      ?.map(one =>
-        <ChannelSelectCard
-          key={one.id}
-          selected={newChannel === one || (!newChannel && one.id === data?.channel)}
-          channelData={{
-            channelName: one.name,
-            parentChannelName: channels?.find(c => c.id === one.parentID)?.name
-          }}
-          onClick={() => setNewChannel(one)}
-        />
-      )
-  }
-
-  const filteredChannels = filterChannels()
-
   return (
     <>
       <Head>
@@ -397,7 +378,18 @@ const Greetings: NextPage<GreetingsRouterProps> = ({ guildId }) => {
                                   }}>
                                     {
                                       channels
-                                        ? filteredChannels
+                                        ? filterChannels(channels, channelSearch)
+                                          .map(one =>
+                                            <ChannelSelectCard
+                                              key={one.id}
+                                              selected={newChannel === one || (!newChannel && one.id === data?.channel)}
+                                              channelData={{
+                                                channelName: one.name,
+                                                parentChannelName: channels?.find(c => c.id === one.parentID)?.name
+                                              }}
+                                              onClick={() => setNewChannel(one)}
+                                            />
+                                          )
                                         : <h4>불러오는 중</h4>
                                     }
                                   </Row>
