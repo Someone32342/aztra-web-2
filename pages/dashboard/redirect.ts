@@ -7,7 +7,8 @@ const DashboardRedirect: NextPage = () => {
     const guild = params.get("guild_id")
     if (guild) {
       localStorage.setItem('firstInvite', 'true')
-      (window.opener && window).location.assign(`/dashboard/${guild}`)
+      if (window.opener) window.opener.location.assign(`/dashboard/${guild}`)
+      else window.location.assign(`/dashboard/${guild}`)
     }
     if (window.opener) window.close()
   }, [])
