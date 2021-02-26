@@ -10,6 +10,7 @@ import { PartialGuild, ChannelMinimal, Role } from 'types/DiscordTypes'
 import EmojiPickerI18n from 'defs/EmojiPickerI18n'
 import { Emoji, Picker } from 'emoji-mart'
 import TextareaAutosize from 'react-textarea-autosize'
+import RoleBadge, { AddRole } from 'components/forms/RoleBadge'
 
 interface EmojiRoleProps {
   guild: PartialGuild | null
@@ -29,10 +30,11 @@ const TicketForm: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, 
   const [selectedChannel, setSelectedChannel] = useState<string | null>(null)
   const [selectedCategory, setSelectedCategory] = useState<string | 0>(0)
   const [selectedEmoji, setSelectedEmoji] = useState<string | null>(null)
+  const [accessRoles, setAccessRoles] = useState<string[]>([])
   const [ticketName, setTicketName] = useState('')
+  const [mentionRoles, setMentionRoles] = useState(false)
 
   const [ticketNameValidate, setTicketNameValidate] = useState<boolean | null>(null)
-  const [channelValidate, setChannelValidate] = useState<boolean | null>(null)
 
   return (
     <>
@@ -52,8 +54,8 @@ const TicketForm: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, 
           </Form.Group>
         </Col>
       </Row>
-      <hr className="mt-1" style={{ borderColor: '#4e5058', borderWidth: 2 }} />
-      <Row className="pt-3 pb-2">
+      <hr style={{ borderColor: '#4e5058', borderWidth: 2 }} />
+      <Row className="pb-2">
         <Col>
           <Form.Label className="h5 font-weight-bold">티켓 생성 채널</Form.Label>
           <Form.Text className="pb-3">이 채널에서 Aztra가 보낸 메시지에 사용자가 반응을 추가하면 티켓이 열립니다.</Form.Text>
@@ -112,7 +114,7 @@ const TicketForm: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, 
         </Col>
       </Row>
       <hr className="mb-0" style={{ borderColor: '#4e5058', borderWidth: 2 }} />
-      <Row className="pt-3 pb-3">
+      <Row className="pt-3 pb-4">
         <Col>
           <div className="d-flex align-items-center">
             <Form.Label className="h5 font-weight-bold mr-3">티켓 생성 이모지:</Form.Label>
@@ -134,24 +136,8 @@ const TicketForm: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, 
           <Form.Text><b>티켓 생성 채널</b>에서 이 이모지로 반응했을 때 티켓이 열립니다. 이모지를 클릭하면 변경할 수 있습니다.</Form.Text>
         </Col>
       </Row>
-      <hr className="mb-0" style={{ borderColor: '#4e5058', borderWidth: 2 }} />
-      <Row className="pt-3 pb-3">
-        <Col>
-          <Form.Label className="h5 font-weight-bold">티켓 생성 메시지</Form.Label>
-          <Form.Text className="pb-3"><b>티켓 생성 채널</b>에 전송될 메시지의 내용입니다. 이 메시지에 위에서 선택한 이모지를 추가하면 티켓이 생성되게 됩니다.</Form.Text>
-          <Form.Control className="shadow-sm" as={TextareaAutosize} type="text" placeholder="예) 문의사항이 있으시면 이 메시지에 반응을 추가하세요!" />
-        </Col>
-      </Row>
-      <hr className="mb-0" style={{ borderColor: '#4e5058', borderWidth: 2 }} />
-      <Row className="pt-3 pb-3">
-        <Col>
-          <Form.Label className="h5 font-weight-bold">티켓 초기 메시지</Form.Label>
-          <Form.Text className="pb-3">티켓이 생성되었을 때 해당 티켓 채널에 자동으로 보낼 메시지의 내용입니다.</Form.Text>
-          <Form.Control className="shadow-sm" as={TextareaAutosize} type="text" placeholder="예) 이 채널에서 문의사항을 입력해주세요!" />
-        </Col>
-      </Row>
-      <hr className="mb-0" style={{ borderColor: '#4e5058', borderWidth: 2 }} />
-      <Row className="pt-3 pb-3">
+      <hr style={{ borderColor: '#4e5058', borderWidth: 2 }} />
+      <Row className="pb-4">
         <Col>
           <Form.Label className="h5 font-weight-bold">티켓 채널 카테고리</Form.Label>
           <Form.Text className="pb-3">티켓이 열리면 이 카테고리에 티켓 채널을 생성합니다.</Form.Text>
@@ -177,12 +163,60 @@ const TicketForm: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, 
           </Row>
         </Col>
       </Row>
-      <hr className="mb-0" style={{ borderColor: '#4e5058', borderWidth: 2 }} />
-      <Row className="pt-3 pb-3">
+      <hr style={{ borderColor: '#4e5058', borderWidth: 2 }} />
+      <Row className="pb-4">
         <Col>
           <Form.Label className="h5 font-weight-bold">접근 가능한 역할</Form.Label>
           <Form.Text>티켓이 생성되었을 때 접근할 수 있는 역할을 추가할 수 있습니다.</Form.Text>
           <Form.Text className="pb-3 small" as="b">이 역할들은 티켓에서 메시지를 읽고 보낼 수 있으며 티켓을 닫거나 저장하는 등의 관리 권한이 주어집니다.</Form.Text>
+          <Row className="pb-3">
+            <Col>
+              <Card bg="dark" style={{ borderColor: '#4e5058', borderWidth: 1 }}>
+                <Card.Body className="d-flex flex-wrap align-items-center px-3 py-2">
+                  {
+                    accessRoles.map(one => {
+                      const role = roles.find(r => r.id === one)
+                      return <RoleBadge key={one} className="pr-2 py-1" name={role?.name ?? ''} color={'#' + (role?.color ? role?.color.toString(16) : 'fff')} removeable onRemove={() => {
+                        setAccessRoles(accessRoles.filter(o => o !== one))
+                      }} />
+                    })
+                  }
+                  <Dropdown className="dropdown-menu-dark" onSelect={key => {
+                    if (accessRoles.includes(key!)) return
+                    setAccessRoles(accessRoles.concat([key!]))
+                  }}>
+                    <Dropdown.Toggle className="remove-after py-1" as={AddRole} id="add-role-select-toggle" />
+                    <Dropdown.Menu style={{ maxHeight: 300, overflowY: 'scroll' }}>
+                      {
+                        roles.filter(r => r.id !== guild?.id && !r.managed).sort((a, b) => b.position - a.position).map(r => (
+                          <Dropdown.Item key={r.id} eventKey={r.id} style={{ color: '#' + r.color.toString(16) }}>
+                            {r.name}
+                          </Dropdown.Item>
+                        ))
+                      }
+                    </Dropdown.Menu>
+                  </Dropdown>
+                </Card.Body>
+              </Card>
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+              <Form.Check
+                id="ticket-form-mention-checkbox"
+                custom
+                type="checkbox"
+                checked={mentionRoles}
+                onChange={() => setMentionRoles(!mentionRoles)}
+                label={<span className="pl-2">티켓이 열렸을 때 이 역할들을 멘션하기</span>}
+              />
+            </Col>
+          </Row>
+        </Col>
+      </Row>
+      <Row>
+        <Col>
+          <Form.Text className="pb-3 small" as="b">기타 상세한 티켓 설정은 티켓 등록후 하실 수 있습니다.</Form.Text>
         </Col>
       </Row>
 
@@ -195,7 +229,7 @@ const TicketForm: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, 
               variant={saveError ? "danger" : "aztra"}
               disabled={saving || saveError || ticketName.length === 0 || ticketName.length > 100 || !selectedEmoji || !(channels.find(o => o.id === selectedChannel)) || !(channels.find(o => o.id === selectedCategory))}
               onClick={event => onSubmit &&
-                onSubmit({ guild: guild!.id, channel: selectedChannel!, category: selectedCategory!.toString(), emoji: selectedEmoji!, name: ticketName }, event)
+                onSubmit({ guild: guild!.id, channel: selectedChannel!, category: selectedCategory!.toString(), emoji: selectedEmoji!, name: ticketName, access_roles: accessRoles, mention_roles: mentionRoles }, event)
               }
               style={{
                 minWidth: 140
@@ -213,7 +247,7 @@ const TicketForm: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, 
                         ? "오류"
                         : <>
                           <CheckIcon className="mr-1" />
-                          {editMode ? "설정 수정하기" : "설정 완료하기"}
+                          {editMode ? "설정 수정하기" : "설정 등록하기"}
                         </>
                     }
                   </span>

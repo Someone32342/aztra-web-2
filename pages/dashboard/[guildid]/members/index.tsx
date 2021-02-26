@@ -57,7 +57,7 @@ const Members: NextPage<MembersRouterProps> = ({ guildId }) => {
   }, [])
 
   const filterMembers = (search?: string) => {
-    var x = members
+    return members
       ?.filter(one => {
         if (!search) return true
         let searchLowercase = search.normalize().toLowerCase()
@@ -77,8 +77,7 @@ const Members: NextPage<MembersRouterProps> = ({ guildId }) => {
         if (aDname > bDname) return 1
         else if (aDname < bDname) return -1
         return 0
-      })!
-    return x
+      })
   }
 
   const handleMemberSearchTypeOnChange = (searchType: MemberSearchType) => {
@@ -94,13 +93,13 @@ const Members: NextPage<MembersRouterProps> = ({ guildId }) => {
       <Pagination>
         <Pagination.First onClick={() => setPage(0)} />
         {
-          Array.from(Array(Math.trunc(filteredMembers.length / PER_PAGE)).keys())
+          Array.from(Array(Math.trunc((filteredMembers?.length ?? 0) / PER_PAGE) || 1).keys())
             .filter(o =>
               page - 3 < 0 ? o < 7 : (o >= page - 3 && o <= page + 3)
             )
-            .map(i => <Pagination.Item children={i + 1} active={page === i} onClick={() => setPage(i)} />)
+            .map(i => <Pagination.Item key={i + 1} children={i + 1} active={page === i} onClick={() => setPage(i)} />)
         }
-        <Pagination.Last onClick={() => setPage(Math.trunc(filteredMembers.length / PER_PAGE - 1))} />
+        <Pagination.Last onClick={() => setPage((Math.trunc((filteredMembers?.length ?? 0) / PER_PAGE) || 1) - 1)} />
       </Pagination>
     </div>
   )
@@ -145,7 +144,7 @@ const Members: NextPage<MembersRouterProps> = ({ guildId }) => {
                                 style={{
                                   fontSize: '12pt'
                                 }}>
-                                멤버 전체 {members?.length} 명{memberSearch && `, ${filteredMembers.length}명 검색됨`}
+                                멤버 전체 {members?.length} 명{memberSearch && `, ${filteredMembers?.length}명 검색됨`}
                               </Col>
                               <Col
                                 className="px-0"
@@ -195,7 +194,7 @@ const Members: NextPage<MembersRouterProps> = ({ guildId }) => {
                             </Row>
 
                             <Row className="flex-column mb-5">
-                              {slicedMembers.map(one => <MemberListCard key={one.user.id} member={one} guildId={guildId as string} />)}
+                              {slicedMembers?.map(one => <MemberListCard key={one.user.id} member={one} guildId={guildId as string} />)}
                             </Row>
 
                             <Row>

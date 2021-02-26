@@ -48,7 +48,7 @@ const EachMembers: React.FC<EachMembersProps> = ({ members }) => {
 
   const filterMembers = (search?: string) => {
     return members
-      ?.filter(one => {
+      .filter(one => {
         if (!search) return true
         let searchLowercase = search.normalize().toLowerCase()
 
@@ -67,7 +67,7 @@ const EachMembers: React.FC<EachMembersProps> = ({ members }) => {
         if (aDname > bDname) return 1
         else if (aDname < bDname) return -1
         return 0
-      })!
+      })
   }
 
   const handleMemberSearchTypeOnChange = (searchType: MemberSearchType) => {
@@ -123,13 +123,13 @@ const EachMembers: React.FC<EachMembersProps> = ({ members }) => {
           <Pagination>
             <Pagination.First onClick={() => setPage(0)} />
             {
-              Array.from(Array(Math.trunc(filteredMembers.length / PER_PAGE)).keys())
+              Array.from(Array(Math.trunc(filteredMembers.length / PER_PAGE) || 1).keys())
                 .filter(o =>
                   page - 3 < 0 ? o < 7 : (o >= page - 3 && o <= page + 3)
                 )
                 .map(i => <Pagination.Item children={i + 1} active={page === i} onClick={() => setPage(i)} />)
             }
-            <Pagination.Last onClick={() => setPage(Math.trunc(filteredMembers.length / PER_PAGE - 1))} />
+            <Pagination.Last onClick={() => setPage((Math.trunc(filteredMembers.length / PER_PAGE) || 1) - 1)} />
           </Pagination>
         </div>
       </Col>

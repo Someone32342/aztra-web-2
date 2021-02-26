@@ -62,4 +62,6 @@ export interface TicketSet {
   message: string
   emoji: string
   category: string
+  access_roles: string[]
+  mention_roles: boolean
 }

@@ -192,9 +192,14 @@ button:focus {
 }
 
 .pagination-dark .pagination {
-    a.page-link {
+    .page-link {
         border: none !important;
         color: white !important;
         background-color: $dark !important;
+    }
+    .page-item.active .page-link {
+        border: none !important;
+        color: white !important;
+        background-color: scale-color($dark, $lightness: 20%) !important;
     }
 }
