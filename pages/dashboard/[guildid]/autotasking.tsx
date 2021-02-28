@@ -338,10 +338,10 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                                                     })
                                                     setTaskType(0)
                                                     setAddNew(false)
-                                                    setSaving(false)
                                                   })
                                               })
                                               .catch(() => setSaveError(true))
+                                              .finally(() => setSaving(false))
                                           }}
                                           />}
                                         </Form.Group>

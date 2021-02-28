@@ -54,14 +54,38 @@ export interface MsgCount {
   count_bot: number
 }
 
+type TicketOpenClose = { open: Object, closed: Object }
+
+export interface TicketSetPOST {
+  guild: string
+  name: string
+  channel: string
+  emoji: string
+  category: string | null
+  access_roles: string[]
+  mention_roles: boolean
+}
+
 export interface TicketSet {
   uuid: string
   guild: string
   name: string
   channel: string
-  message: string
   emoji: string
-  category: string
+  category_opened: string | null
+  category_closed: string | null
+  message: string
+
   access_roles: string[]
+  other_roles: string[]
+
   mention_roles: boolean
+  ticket_number: number
+
+  create_message: string
+  initial_message: string
+
+  opener_perms: TicketOpenClose
+  access_perms: TicketOpenClose
+  other_perms: TicketOpenClose
 }

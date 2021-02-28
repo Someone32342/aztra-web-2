@@ -5,11 +5,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Row, Form, Col, Card, Container, Dropdown, Button, Spinner } from 'react-bootstrap'
 import ChannelSelectCard from 'components/forms/ChannelSelectCard'
 import filterChannels from 'utils/filterChannels'
-import { TicketSet } from 'types/dbtypes'
+import { TicketSet, TicketSetPOST } from 'types/dbtypes'
 import { PartialGuild, ChannelMinimal, Role } from 'types/DiscordTypes'
 import EmojiPickerI18n from 'defs/EmojiPickerI18n'
 import { Emoji, Picker } from 'emoji-mart'
-import TextareaAutosize from 'react-textarea-autosize'
 import RoleBadge, { AddRole } from 'components/forms/RoleBadge'
 
 interface EmojiRoleProps {
@@ -21,7 +20,7 @@ interface EmojiRoleProps {
   editMode?: boolean
   closeButton?: boolean
   defaultData?: TicketSet
-  onSubmit?: (data: Omit<TicketSet, 'uuid' | 'message'>, event: React.MouseEvent<HTMLElement, MouseEvent>) => void
+  onSubmit?: (data: TicketSetPOST, event: React.MouseEvent<HTMLElement, MouseEvent>) => void
   onClose?: Function
 }
 
@@ -42,7 +41,7 @@ const TicketForm: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, 
         <Form.Label column sm="auto" className="font-weight-bold">티켓 이름</Form.Label>
         <Col>
           <Form.Group>
-            <Form.Control as="input" type="text" isInvalid={ticketNameValidate ?? undefined} className="shadow-sm" value={ticketName} placeholder="예) 욕설 신고용 티켓" style={{ fontSize: 15 }} onChange={e => {
+            <Form.Control as="input" type="text" isInvalid={ticketNameValidate ?? undefined} className="shadow-sm" value={ticketName} placeholder="예) 욕설 신고" style={{ fontSize: 15 }} onChange={e => {
               const value = e.target.value
               setTicketNameValidate(value.length === 0 || value.length > 100)
               setTicketName(value)
@@ -140,11 +139,11 @@ const TicketForm: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, 
       <Row className="pb-4">
         <Col>
           <Form.Label className="h5 font-weight-bold">티켓 채널 카테고리</Form.Label>
-          <Form.Text className="pb-3">티켓이 열리면 이 카테고리에 티켓 채널을 생성합니다.</Form.Text>
+          <Form.Text className="pb-3">티켓이 열리면 이 카테고리에 티켓 채널을 생성합니다. 선택하지 않으면 상단에 생성됩니다.</Form.Text>
           <Row>
             <Col xs="auto">
               <Form.Control as="select" className="shadow-sm" style={{ fontSize: 15 }} value={selectedCategory} onChange={e => setSelectedCategory(e.target.value)} >
-                <option value={0}>카테고리 선택...</option>
+                <option value={0}>(선택 안 함)</option>
                 {
                   channels
                     .filter(o => o.type === "category")
@@ -154,11 +153,6 @@ const TicketForm: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, 
                     )
                 }
               </Form.Control>
-            </Col>
-          </Row>
-          <Row className="pt-2">
-            <Col as={Form.Text} style={{ color: 'gold', fontSize: 14 }}>
-              * 생성되는 티켓 채널의 권한은 설정한 카테고리의 권한과 동기화됩니다. 티켓 채널의 권한을 설정하려면 카테고리 채널의 권한을 설정하세요.
             </Col>
           </Row>
         </Col>
@@ -207,16 +201,12 @@ const TicketForm: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, 
                 custom
                 type="checkbox"
                 checked={mentionRoles}
+                disabled={!accessRoles.length}
                 onChange={() => setMentionRoles(!mentionRoles)}
                 label={<span className="pl-2">티켓이 열렸을 때 이 역할들을 멘션하기</span>}
               />
             </Col>
           </Row>
-        </Col>
-      </Row>
-      <Row>
-        <Col>
-          <Form.Text className="pb-3 small" as="b">기타 상세한 티켓 설정은 티켓 등록후 하실 수 있습니다.</Form.Text>
         </Col>
       </Row>
 
@@ -227,10 +217,21 @@ const TicketForm: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, 
             <Button
               className="pl-2 d-flex justify-content-center align-items-center"
               variant={saveError ? "danger" : "aztra"}
-              disabled={saving || saveError || ticketName.length === 0 || ticketName.length > 100 || !selectedEmoji || !(channels.find(o => o.id === selectedChannel)) || !(channels.find(o => o.id === selectedCategory))}
-              onClick={event => onSubmit &&
-                onSubmit({ guild: guild!.id, channel: selectedChannel!, category: selectedCategory!.toString(), emoji: selectedEmoji!, name: ticketName, access_roles: accessRoles, mention_roles: mentionRoles }, event)
-              }
+              disabled={saving || saveError || ticketName.length === 0 || ticketName.length > 100 || !selectedEmoji || !(channels.find(o => o.id === selectedChannel))}
+              onClick={event => {
+                onSubmit &&
+                  onSubmit({
+                    guild: guild!.id,
+                    channel: selectedChannel!,
+                    category: selectedCategory ? selectedCategory.toString() : null,
+                    emoji: selectedEmoji!,
+                    name: ticketName,
+                    access_roles: accessRoles,
+                    mention_roles: mentionRoles
+                  },
+                    event
+                  )
+              }}
               style={{
                 minWidth: 140
               }}

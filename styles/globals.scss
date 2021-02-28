@@ -203,3 +203,7 @@ button:focus {
         background-color: scale-color($dark, $lightness: 20%) !important;
     }
 }
+
+.custom-control-input[disabled] ~ .custom-control-label, .custom-control-input:disabled ~ .custom-control-label {
+    color: #86898f;
+}

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import axios, { AxiosError } from 'axios'
-import { Button, Card, Col, Container, Form, Row, Spinner, Table } from 'react-bootstrap'
-import { Add as AddIcon, Delete as DeleteIcon, Close as CloseIcon } from '@material-ui/icons'
+import { Button, ButtonGroup, Card, Col, Container, Form, OverlayTrigger, Row, Spinner, Table, Tooltip } from 'react-bootstrap'
+import { Add as AddIcon, Delete as DeleteIcon, Close as CloseIcon, RemoveCircleOutline, Edit as EditIcon } from '@material-ui/icons'
 import api from 'datas/api'
 
 import { GetServerSideProps, NextPage } from 'next'
@@ -11,7 +11,7 @@ import DashboardLayout from 'components/DashboardLayout'
 import useSWR from 'swr'
 import urljoin from 'url-join'
 import Head from 'next/head'
-import { Billboard } from 'types/dbtypes'
+import { TicketSet } from 'types/dbtypes'
 import { ChannelMinimal, Role } from 'types/DiscordTypes'
 import { animateScroll } from 'react-scroll'
 import TicketForm from 'components/tickets/TicketForm'
@@ -32,7 +32,7 @@ export const getServerSideProps: GetServerSideProps<AutoTaskingRouterProps> = as
 interface BoardListCardProps {
   onCheckChange?: ((event: React.ChangeEvent<HTMLInputElement>) => void)
   checked?: boolean
-  billboard: Billboard
+  ticketSet: TicketSet
 }
 
 const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
@@ -40,8 +40,8 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState(false)
 
-  const { data } = useSWR<Billboard[], AxiosError>(
-    new Cookies().get('ACCESS_TOKEN') ? urljoin(api, `/servers/${guildId}/billboards`) : null,
+  const { data, mutate } = useSWR<TicketSet[], AxiosError>(
+    new Cookies().get('ACCESS_TOKEN') ? urljoin(api, `/servers/${guildId}/tickets`) : null,
     url => axios.get(url, {
       headers: {
         Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
@@ -49,7 +49,7 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
     })
       .then(r => r.data)
   )
-  
+
   const { data: roles } = useSWR<Role[], AxiosError>(
     new Cookies().get('ACCESS_TOKEN') ? urljoin(api, `/discord/guilds/${guildId}/roles`) : null,
     url => axios.get(url, {
@@ -70,12 +70,14 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
       .then(r => r.data)
   )
 
-  const BoardListCard: React.FC<BoardListCardProps> = ({ billboard, onCheckChange, checked }) => {
+  const TicketsetListCard: React.FC<BoardListCardProps> = ({ ticketSet, onCheckChange, checked }) => {
+    const [edit, setEdit] = useState<string | null>(null)
+
     return (
       <tr>
         <td className="align-middle text-center">
           <Form.Check
-            id={`taskset-check-${billboard.uuid}`}
+            id={`taskset-check-${ticketSet.uuid}`}
             type="checkbox"
             custom
             checked={checked}
@@ -84,13 +86,51 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
         </td>
         <td className="align-middle d-none d-md-table-cell">
           <span className="d-inline-block text-truncate mw-100 align-middle cursor-pointer font-weight-bold">
-            {channels?.find(o => o.id === billboard.channel)?.name}
+            {channels?.find(o => o.id === ticketSet.channel)?.name}
           </span>
         </td>
         <td className="align-middle d-none d-md-table-cell">
           <div className="mw-100 align-middle cursor-pointer font-weight-bold">
-            {billboard.value}
           </div>
+        </td>
+        <td className="align-middle text-center">
+          <ButtonGroup>
+            <OverlayTrigger
+              placement="top"
+              overlay={
+                <Tooltip id="task-list-row-remove-task">
+                  이 작업 제거하기
+                </Tooltip>
+              }
+            >
+              <Button variant="dark" className="d-flex px-1 remove-before" onClick={() => {
+                axios.delete(`${api}/servers/${guildId}/tickets`, {
+                  data: {
+                    tickets: [ticketSet.uuid]
+                  },
+                  headers: {
+                    Authorization: `Bearer ${new Cookies().get("ACCESS_TOKEN")}`
+                  }
+                })
+                  .then(() => mutate())
+              }}>
+                <RemoveCircleOutline />
+              </Button>
+            </OverlayTrigger>
+
+            <OverlayTrigger
+              placement="top"
+              overlay={
+                <Tooltip id="task-list-row-remove-task">
+                  작업 수정하기
+                </Tooltip>
+              }
+            >
+              <Button variant="dark" className="d-flex px-1 remove-before" onClick={() => setEdit(ticketSet.uuid)}>
+                <EditIcon />
+              </Button>
+            </OverlayTrigger>
+          </ButtonGroup>
         </td>
       </tr>
     )
@@ -133,7 +173,27 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                               <Card.Body>
                                 <Form noValidate>
                                   <Form.Group className="mb-0">
-                                    <TicketForm guild={guild} channels={channels ?? []} roles={roles ?? []} saving={saving} saveError={saveError} />
+                                    <TicketForm guild={guild} channels={channels ?? []} roles={roles ?? []} saving={saving} saveError={saveError} onSubmit={(data) => {
+                                      setSaving(true)
+                                      axios.post(`${api}/servers/${guildId}/tickets`, data,
+                                        {
+                                          headers: {
+                                            Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
+                                          }
+                                        }
+                                      )
+                                        .then(() => {
+                                          mutate()
+                                            .then(() => {
+                                              animateScroll.scrollToTop({
+                                                isDynamic: true
+                                              })
+                                              setAddNew(false)
+                                            })
+                                        })
+                                        .catch(() => setSaveError(true))
+                                        .finally(() => setSaving(false))
+                                    }} />
                                   </Form.Group>
                                 </Form>
                               </Card.Body>
@@ -173,30 +233,13 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                               </th>
                               <th className="text-center text-md-left" style={{ width: '20%' }}>채널</th>
                               <th className="text-center text-md-left d-none d-md-table-cell">내용</th>
+                              <th style={{ width: 100 }} />
                             </tr>
                           </thead>
                           <tbody>
-                            {data?.map(one => <BoardListCard billboard={one} />)}
+                            {data?.map(one => <TicketsetListCard ticketSet={one} />)}
                           </tbody>
                         </Table>
-                      </Row>
-
-                      <Row className="mt-4">
-                        <Button
-                          variant={saveError ? "danger" : "aztra"}
-                          style={{
-                            minWidth: 140
-                          }}
-                        >
-                          {
-                            saving
-                              ? <>
-                                <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
-                                <span className="pl-2">저장 중...</span>
-                              </>
-                              : <span>저장하기</span>
-                          }
-                        </Button>
                       </Row>
                     </Form>
                   </Col>
