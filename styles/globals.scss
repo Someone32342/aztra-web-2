@@ -207,3 +207,9 @@ button:focus {
 .custom-control-input[disabled] ~ .custom-control-label, .custom-control-input:disabled ~ .custom-control-label {
     color: #86898f;
 }
+
+.alert-dark {
+    color: white !important;
+    background-color: #5c5f64 !important;
+    border: none !important;
+}

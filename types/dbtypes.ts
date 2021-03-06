@@ -54,7 +54,7 @@ export interface MsgCount {
   count_bot: number
 }
 
-type TicketOpenClose = { open: Object, closed: Object }
+type TicketPermsOpenClose = { opened: { allow: number, deny: number }, closed: { allow: number, deny: number } }
 
 export interface TicketSetPOST {
   guild: string
@@ -85,7 +85,16 @@ export interface TicketSet {
   create_message: string
   initial_message: string
 
-  opener_perms: TicketOpenClose
-  access_perms: TicketOpenClose
-  other_perms: TicketOpenClose
+  opener_perms: TicketPermsOpenClose
+  access_perms: TicketPermsOpenClose
+  other_perms: TicketPermsOpenClose
+}
+
+export interface Ticket {
+  uuid: string
+  setuuid: string
+  channel: string
+  opener: string
+  number: number
+  status: string
 }

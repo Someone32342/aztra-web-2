@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import axios, { AxiosError } from 'axios'
 import { Button, ButtonGroup, Card, Col, Container, Form, OverlayTrigger, Row, Spinner, Table, Tooltip } from 'react-bootstrap'
 import { Add as AddIcon, Delete as DeleteIcon, Close as CloseIcon, RemoveCircleOutline, Edit as EditIcon } from '@material-ui/icons'
@@ -15,6 +15,7 @@ import { TicketSet } from 'types/dbtypes'
 import { ChannelMinimal, Role } from 'types/DiscordTypes'
 import { animateScroll } from 'react-scroll'
 import TicketForm from 'components/tickets/TicketForm'
+import { Emoji } from 'emoji-mart'
 
 interface AutoTaskingRouterProps {
   guildId: string
@@ -39,9 +40,10 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
   const [addNew, setAddNew] = useState(false)
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState(false)
+  const [isMD, setIsMD] = useState<boolean | null>(null)
 
   const { data, mutate } = useSWR<TicketSet[], AxiosError>(
-    new Cookies().get('ACCESS_TOKEN') ? urljoin(api, `/servers/${guildId}/tickets`) : null,
+    new Cookies().get('ACCESS_TOKEN') ? urljoin(api, `/servers/${guildId}/ticketsets`) : null,
     url => axios.get(url, {
       headers: {
         Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
@@ -70,70 +72,130 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
       .then(r => r.data)
   )
 
+  useEffect(() => {
+    if (!new Cookies().get('ACCESS_TOKEN')) {
+      const lct = window.location
+      localStorage.setItem('loginFrom', lct.pathname + lct.search)
+      window.location.assign('/login')
+    }
+    else {
+      const resize = () => setIsMD(window.innerWidth >= 768)
+      window.addEventListener('resize', resize)
+      return () => window.removeEventListener('resize', resize)
+    }
+  }, [])
+
   const TicketsetListCard: React.FC<BoardListCardProps> = ({ ticketSet, onCheckChange, checked }) => {
     const [edit, setEdit] = useState<string | null>(null)
 
-    return (
+    return <>
       <tr>
-        <td className="align-middle text-center">
-          <Form.Check
-            id={`taskset-check-${ticketSet.uuid}`}
-            type="checkbox"
-            custom
-            checked={checked}
-            onChange={onCheckChange}
-          />
-        </td>
-        <td className="align-middle d-none d-md-table-cell">
-          <span className="d-inline-block text-truncate mw-100 align-middle cursor-pointer font-weight-bold">
-            {channels?.find(o => o.id === ticketSet.channel)?.name}
-          </span>
-        </td>
-        <td className="align-middle d-none d-md-table-cell">
-          <div className="mw-100 align-middle cursor-pointer font-weight-bold">
-          </div>
-        </td>
-        <td className="align-middle text-center">
-          <ButtonGroup>
-            <OverlayTrigger
-              placement="top"
-              overlay={
-                <Tooltip id="task-list-row-remove-task">
-                  이 작업 제거하기
-                </Tooltip>
-              }
-            >
-              <Button variant="dark" className="d-flex px-1 remove-before" onClick={() => {
-                axios.delete(`${api}/servers/${guildId}/tickets`, {
-                  data: {
-                    tickets: [ticketSet.uuid]
-                  },
-                  headers: {
-                    Authorization: `Bearer ${new Cookies().get("ACCESS_TOKEN")}`
+        {
+          isMD ? <>
+            <td className="align-middle text-center">
+              <Form.Check
+                id={`taskset-check-${ticketSet.uuid}`}
+                type="checkbox"
+                custom
+                checked={checked}
+                onChange={onCheckChange}
+              />
+            </td>
+            <td className="align-middle">
+              <span className="d-inline-block text-truncate mw-100 align-middle cursor-pointer font-weight-bold">
+                {ticketSet.name}
+              </span>
+            </td>
+            <td className="align-middle">
+              <Emoji emoji={ticketSet.emoji} set="twitter" size={22} />
+            </td>
+            <td className="align-middle">
+              <span className="d-inline-block text-truncate mw-100 align-middle cursor-pointer font-weight-bold">
+                #{channels?.find(o => o.id === ticketSet.channel)?.name}
+              </span>
+            </td>
+            <td className="align-middle">
+              <span className="d-inline-block text-truncate mw-100 align-middle cursor-pointer font-weight-bold">
+                #{channels?.find(o => o.id === ticketSet.category_opened)?.name}
+              </span>
+            </td>
+            <td className="align-middle text-center">
+              <ButtonGroup>
+                <OverlayTrigger
+                  placement="top"
+                  overlay={
+                    <Tooltip id="task-list-row-remove-task">
+                      이 작업 제거하기
+                    </Tooltip>
                   }
-                })
-                  .then(() => mutate())
-              }}>
-                <RemoveCircleOutline />
-              </Button>
-            </OverlayTrigger>
+                >
+                  <Button variant="dark" className="d-flex px-1 remove-before" onClick={() => {
+                    axios.delete(`${api}/servers/${guildId}/ticketsets`, {
+                      data: {
+                        ticketsets: [ticketSet.uuid]
+                      },
+                      headers: {
+                        Authorization: `Bearer ${new Cookies().get("ACCESS_TOKEN")}`
+                      }
+                    })
+                      .then(() => mutate())
+                  }}>
+                    <RemoveCircleOutline />
+                  </Button>
+                </OverlayTrigger>
 
-            <OverlayTrigger
-              placement="top"
-              overlay={
-                <Tooltip id="task-list-row-remove-task">
-                  작업 수정하기
-                </Tooltip>
-              }
-            >
-              <Button variant="dark" className="d-flex px-1 remove-before" onClick={() => setEdit(ticketSet.uuid)}>
-                <EditIcon />
-              </Button>
-            </OverlayTrigger>
-          </ButtonGroup>
-        </td>
+                <OverlayTrigger
+                  placement="top"
+                  overlay={
+                    <Tooltip id="task-list-row-remove-task">
+                      작업 수정하기
+                    </Tooltip>
+                  }
+                >
+                  <Button variant="dark" className="d-flex px-1 remove-before" onClick={() => setEdit(ticketSet.uuid)}>
+                    <EditIcon />
+                  </Button>
+                </OverlayTrigger>
+              </ButtonGroup>
+            </td>
+          </>
+            : <>
+              <td className="align-top text-center">
+                <Form.Check
+                  id={`taskset-check-${ticketSet.uuid}`}
+                  type="checkbox"
+                  custom
+                  checked={checked}
+                  onChange={onCheckChange}
+                />
+              </td>
+              <td>
+                <div className="font-weight-bold pb-2" style={{ fontSize: 18 }}>
+                  {ticketSet.name}
+                </div>
+                <div>
+                  <Row>
+                    <Col xs={2}>
+                      이모지
+                    </Col>
+                    <Col>
+                      <Emoji emoji={ticketSet.emoji} set="twitter" size={22} />
+                    </Col>
+                  </Row>
+                  <Row>
+                    <Col xs={2}>
+                      채널
+                    </Col>
+                    <Col>
+                      <b>{channels?.find(o => o.id === ticketSet.channel)?.name}</b>
+                    </Col>
+                  </Row>
+                </div>
+              </td>
+            </>
+        }
       </tr>
-    )
+    </>
   }
 
   return (
@@ -175,7 +237,7 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                                   <Form.Group className="mb-0">
                                     <TicketForm guild={guild} channels={channels ?? []} roles={roles ?? []} saving={saving} saveError={saveError} onSubmit={(data) => {
                                       setSaving(true)
-                                      axios.post(`${api}/servers/${guildId}/tickets`, data,
+                                      axios.post(`${api}/servers/${guildId}/ticketsets`, data,
                                         {
                                           headers: {
                                             Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
@@ -231,13 +293,16 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                                   type="checkbox"
                                 />
                               </th>
-                              <th className="text-center text-md-left" style={{ width: '20%' }}>채널</th>
-                              <th className="text-center text-md-left d-none d-md-table-cell">내용</th>
-                              <th style={{ width: 100 }} />
+                              <th className="text-center text-md-left d-none d-md-table-cell" style={{ maxWidth: 400 }}>이름</th>
+                              <th className="text-center text-md-left d-none d-md-table-cell" style={{ maxWidth: 150 }}>이모지</th>
+                              <th className="text-center text-md-left d-none d-md-table-cell" style={{ maxWidth: 150 }}>채널</th>
+                              <th className="text-center text-md-left d-none d-md-table-cell">생성 카테고리</th>
+                              <th style={{ width: 100 }} className="d-none d-md-table-cell" />
+                              <th className="d-md-none" />
                             </tr>
                           </thead>
                           <tbody>
-                            {data?.map(one => <TicketsetListCard ticketSet={one} />)}
+                            {data?.map(one => <TicketsetListCard key={one.uuid} ticketSet={one} />)}
                           </tbody>
                         </Table>
                       </Row>
