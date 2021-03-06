@@ -112,7 +112,6 @@ const MemberDashboard: NextPage<MemberDashboardRouteProps> = ({ guildId, memberI
                         </tr>
                       </thead>
                       <tbody>
-                        {data?.map(one => <TicketsetListCard ticketSet={one} />)}
                       </tbody>
                     </Table>
                   </Row>
