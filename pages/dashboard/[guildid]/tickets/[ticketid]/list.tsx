@@ -2,12 +2,13 @@ import React, { useEffect } from 'react';
 
 import axios, { AxiosError } from 'axios'
 import api from 'datas/api'
-import { MemberExtended } from 'types/DiscordTypes';
-import { Row, Container, Spinner, Form, Table } from 'react-bootstrap';
+import { ChannelMinimal, MemberMinimal } from 'types/DiscordTypes';
+import { Row, Container, Spinner, Form, Table, Tab, Tabs } from 'react-bootstrap';
+import { ErrorOutline as ErrorOutlineIcon, Check as CheckIcon } from '@material-ui/icons'
 
 import BackTo from 'components/BackTo';
 
-import {  Warns } from 'types/dbtypes';
+import { Ticket } from 'types/dbtypes';
 
 import { GetServerSideProps, NextPage } from 'next';
 import Layout from 'components/Layout';
@@ -21,27 +22,34 @@ import 'dayjs/locale/ko'
 import useSWR from 'swr';
 import urljoin from 'url-join';
 import Head from 'next/head';
+import MemberCell from 'components/MemberCell';
 dayjs.locale('ko')
 dayjs.extend(dayjsRelativeTime)
 dayjs.extend(dayjsUTC)
 
-interface MemberDashboardRouteProps {
+interface TicketListProps {
   guildId: string
-  memberId: string
+  ticketId: string
 }
 
-export const getServerSideProps: GetServerSideProps<MemberDashboardRouteProps> = async context => {
-  const { guildid, memberid } = context.query
+interface TicketListCardProps {
+  onCheckChange?: ((event: React.ChangeEvent<HTMLInputElement>) => void)
+  checked?: boolean
+  ticket: Ticket
+}
+
+export const getServerSideProps: GetServerSideProps<TicketListProps> = async context => {
+  const { guildid, ticketid } = context.query
   return {
     props: {
       guildId: guildid as string,
-      memberId: memberid as string
+      ticketId: ticketid as string
     }
   }
 }
 
-const MemberDashboard: NextPage<MemberDashboardRouteProps> = ({ guildId, memberId }) => {
-  const { data } = useSWR<Warns[], AxiosError>(
+const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
+  const { data } = useSWR<Ticket[], AxiosError>(
     new Cookies().get('ACCESS_TOKEN') ? urljoin(api, `/servers/${guildId}/tickets`) : null,
     url => axios.get(url, {
       headers: {
@@ -54,8 +62,8 @@ const MemberDashboard: NextPage<MemberDashboardRouteProps> = ({ guildId, memberI
     }
   )
 
-  const { data: member } = useSWR<MemberExtended, AxiosError>(
-    new Cookies().get('ACCESS_TOKEN') ? urljoin(api, `/discord/guilds/${guildId}/members/${memberId}`) : null,
+  const { data: members } = useSWR<MemberMinimal[], AxiosError>(
+    new Cookies().get('ACCESS_TOKEN') ? urljoin(api, `/discord/guilds/${guildId}/members`) : null,
     url => axios.get(url, {
       headers: {
         Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
@@ -67,6 +75,16 @@ const MemberDashboard: NextPage<MemberDashboardRouteProps> = ({ guildId, memberI
     }
   )
 
+  const { data: channels } = useSWR<ChannelMinimal[], AxiosError>(
+    new Cookies().get('ACCESS_TOKEN') ? urljoin(api, `/discord/guilds/${guildId}/channels`) : null,
+    url => axios.get(url, {
+      headers: {
+        Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
+      }
+    })
+      .then(r => r.data)
+  )
+
   useEffect(() => {
     if (!new Cookies().get('ACCESS_TOKEN')) {
       const lct = window.location
@@ -74,6 +92,56 @@ const MemberDashboard: NextPage<MemberDashboardRouteProps> = ({ guildId, memberI
       window.location.assign('/login')
     }
   }, [])
+
+  const TicketListCard: React.FC<TicketListCardProps> = ({ ticket, onCheckChange, checked }) => {
+    return (
+      <tr>
+        <td className="align-middle text-center">
+          <Form.Check
+            id={`ticket-check-${ticket.uuid}`}
+            type="checkbox"
+            custom
+            checked={checked}
+            onChange={onCheckChange}
+          />
+        </td>
+        <td>
+          <b>{channels?.find(o => o.id === ticket.channel)?.name ?? <u>(존재하지 않는 채널)</u>}</b>
+        </td>
+        <td>
+        <div className="d-flex justify-content-center justify-content-lg-start">
+          <MemberCell member={members?.find(o => o.user.id === ticket.opener)!} guildId={guildId} wrap />
+        </div>
+        </td>
+      </tr>
+    )
+  }
+
+  const ListTable: React.FC<{ mode: 'open' | 'closed' }> = ({ mode }) => {
+    return (
+      <Table id={`ticket-${mode}-list-table`} variant="dark" style={{
+        tableLayout: 'fixed'
+      }} >
+        <thead>
+          <tr>
+            <th className="align-middle text-center" style={{ width: 50 }}>
+              <Form.Check
+                id="ticket-select-all"
+                custom
+                type="checkbox"
+              />
+            </th>
+            <th className="text-center text-md-left" style={{ width: '20%' }}>채널</th>
+            <th className="text-center text-md-left d-none d-md-table-cell">생성자</th>
+            <th style={{ width: 100 }} />
+          </tr>
+        </thead>
+        <tbody>
+          {data?.filter(o => o.status === mode).map(one => <TicketListCard key={one.uuid} ticket={one} />)}
+        </tbody>
+      </Table>
+    )
+  }
 
   return (
     <>
@@ -83,7 +151,7 @@ const MemberDashboard: NextPage<MemberDashboardRouteProps> = ({ guildId, memberI
       <Layout>
         <DashboardLayout guildId={guildId}>
           {
-            () => data && member
+            () => data && members
               ? (
                 <div>
                   <Row className="dashboard-section">
@@ -93,27 +161,15 @@ const MemberDashboard: NextPage<MemberDashboardRouteProps> = ({ guildId, memberI
                     </div>
                   </Row>
 
-                  <Row className="flex-column mt-3">
-                    <Table id="warn-list-table" variant="dark" style={{
-                      tableLayout: 'fixed'
-                    }} >
-                      <thead>
-                        <tr>
-                          <th className="align-middle text-center" style={{ width: 50 }}>
-                            <Form.Check
-                              id="warn-select-all"
-                              custom
-                              type="checkbox"
-                            />
-                          </th>
-                          <th className="text-center text-md-left" style={{ width: '20%' }}>채널</th>
-                          <th className="text-center text-md-left d-none d-md-table-cell">내용</th>
-                          <th style={{ width: 100 }} />
-                        </tr>
-                      </thead>
-                      <tbody>
-                      </tbody>
-                    </Table>
+                  <Row className="flex-column mt-3 nav-tabs-dark">
+                    <Tabs defaultActiveKey="open" id="ticket-list-tabs" transition={false}>
+                      <Tab eventKey="open" title={<><ErrorOutlineIcon className="mr-2" />열린 티켓</>}>
+                        <ListTable mode="open" />
+                      </Tab>
+                      <Tab eventKey="closed" title={<><CheckIcon className="mr-2" />닫힌 티켓</>}>
+                        <ListTable mode="closed" />
+                      </Tab>
+                    </Tabs>
                   </Row>
                 </div>
               )
@@ -130,4 +186,4 @@ const MemberDashboard: NextPage<MemberDashboardRouteProps> = ({ guildId, memberI
   )
 }
 
-export default MemberDashboard
+export default TicketList

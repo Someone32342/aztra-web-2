@@ -246,7 +246,7 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
   const delSelectedTasks = () => {
     axios.delete(`${api}/servers/${guildId}/autotasking`, {
       data: {
-        tasks: Array.from(selectedTasks)
+        tasks: Array.from(finalSelectedSet)
       },
       headers: {
         Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
@@ -259,6 +259,7 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
   }
 
   const tasksSet = new Set(data?.map(o => o.uuid))
+  const finalSelectedSet = new Set(Array.from(selectedTasks).filter(o => tasksSet.has(o)))
 
   return (
     <>
@@ -365,7 +366,7 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                                 <AddIcon className="mr-1" />
                                 새로 추가
                               </Button>
-                              <Button variant="danger" size="sm" className="d-flex align-items-center" disabled={!selectedTasks.size} onClick={() => setShowSelectedDel(true)}>
+                              <Button variant="danger" size="sm" className="d-flex align-items-center" disabled={!finalSelectedSet.size} onClick={() => setShowSelectedDel(true)}>
                                 <DeleteIcon className="mr-1" />
                                 선택 항목 삭제
                               </Button>
@@ -383,7 +384,7 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                                 </Modal.Title>
                               </Modal.Header>
                               <Modal.Body className="py-4">
-                                선택한 작업 {selectedTasks.size}개를 제거하시겠습니까?
+                                선택한 작업 {finalSelectedSet.size}개를 제거하시겠습니까?
                               </Modal.Body>
                               <Modal.Footer className="justify-content-end">
                                 <Button variant="danger" onClick={async () => {
@@ -410,9 +411,9 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                                       id="task-select-all"
                                       custom
                                       type="checkbox"
-                                      checked={!!data?.length && tasksSet.size === selectedTasks.size && Array.from(tasksSet).every(value => selectedTasks.has(value))}
+                                      checked={!!data?.length && tasksSet.size === finalSelectedSet.size && Array.from(tasksSet).every(value => finalSelectedSet.has(value))}
                                       onChange={() => {
-                                        if (tasksSet.size === selectedTasks.size && Array.from(tasksSet).every(value => selectedTasks.has(value))) {
+                                        if (tasksSet.size === finalSelectedSet.size && Array.from(tasksSet).every(value => finalSelectedSet.has(value))) {
                                           setSelectedTasks(new Set)
                                         }
                                         else {
@@ -433,9 +434,9 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                                     <TaskListCard
                                       key={one.uuid}
                                       taskset={one}
-                                      checked={selectedTasks.has(one.uuid)}
+                                      checked={finalSelectedSet.has(one.uuid)}
                                       onCheckChange={() => {
-                                        let sel = new Set(selectedTasks)
+                                        let sel = new Set(finalSelectedSet)
 
                                         if (sel.has(one.uuid)) {
                                           sel.delete(one.uuid)

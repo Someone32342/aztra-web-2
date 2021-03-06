@@ -19,14 +19,11 @@ import useSWR from 'swr'
 import Cookies from 'universal-cookie'
 import urljoin from 'url-join'
 import Growth from 'components/statistics/Growth'
-import styles from 'styles/pages/statistics.module.scss'
-import classNames from 'classnames/bind'
 import EachMembers from 'components/statistics/EachMembers'
 import { MemberMinimal } from 'types/DiscordTypes'
 dayjs.extend(dayjsRelativeTime)
 dayjs.extend(dayjsUTC)
 
-const cx = classNames.bind(styles)
 
 export interface StatisticsProps {
   guildId: string
@@ -110,7 +107,7 @@ const Statistics: NextPage<StatisticsProps> = ({ guildId }) => {
                     </div>
                   </div>
                 </Row>
-                <div className={cx("Statistics-Tabs")}>
+                <Row className="nav-tabs-dark">
                   <Tabs defaultActiveKey="growth" id="statistic-tabs">
                     <Tab eventKey="growth" title={<><TrendingUpIcon className="mr-2" />서버 통계</>}>
                       <Growth memberCounts={memberCounts} msgCounts={msgCounts} />
@@ -120,7 +117,7 @@ const Statistics: NextPage<StatisticsProps> = ({ guildId }) => {
                     </Tab>
                     <Tab eventKey="ranking" disabled={process.env.NODE_ENV === "production"} title={<><FontAwesomeIcon icon={faTrophy} className="mr-2" />순위(개발중)</>}></Tab>
                   </Tabs>
-                </div>
+                </Row>
               </>
             )
               : <Container className="d-flex align-items-center justify-content-center flex-column" style={{

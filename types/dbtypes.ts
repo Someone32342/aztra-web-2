@@ -96,5 +96,5 @@ export interface Ticket {
   channel: string
   opener: string
   number: number
-  status: string
+  status: 'open' | 'close'
 }

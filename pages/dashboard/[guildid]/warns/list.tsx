@@ -15,6 +15,7 @@ import DashboardLayout from 'components/DashboardLayout';
 import useSWR from 'swr';
 import urljoin from 'url-join';
 import Head from 'next/head';
+import MemberCell from 'components/MemberCell';
 
 export interface WarnsListRouteProps {
   guildId: string
@@ -24,49 +25,6 @@ type WarnSearchType = 'reason' | 'target' | 'warnby'
 
 type WarnSortType = 'latest' | 'oldest' | 'count' | 'count_least'
 
-interface MemberCellProps {
-  member: MemberMinimal
-  guildId: string
-  wrap?: boolean
-}
-
-const MemberCell: React.FC<MemberCellProps> = ({ member, guildId, wrap = false }) => {
-  return member !== undefined
-    ?
-    <OverlayTrigger
-      placement="top"
-      overlay={
-        <Tooltip id={`member-${member.user.id}-tag-tooltip`}>
-          @{member.user.tag}
-        </Tooltip>
-      }
-    >
-      {
-        ({ ref, ...triggerHandler }) => (
-          <a href={`/dashboard/${guildId}/members/${member.user.id}`} {...triggerHandler} className="d-flex align-items-center">
-            <img
-              ref={ref}
-              className="rounded-circle no-drag"
-              src={member.user.avatar ? `https://cdn.discordapp.com/avatars/${member.user.id}/${member.user.avatar}` : member.user.defaultAvatarURL}
-              alt={member.user.tag!}
-              style={{
-                height: 30,
-                width: 30
-              }}
-              {...triggerHandler}
-            />
-            <div className={wrap ? "ml-lg-3" : "ml-3"}>
-              <span className={`${wrap ? 'd-none d-lg-block' : ''} font-weight-bold`}>
-                {member.displayName}
-              </span>
-
-            </div>
-          </a>
-        )
-      }
-    </OverlayTrigger>
-    : <span className="font-italic">(존재하지 않는 멤버)</span>
-}
 
 interface WarnsListCardProps {
   target: MemberMinimal
@@ -385,16 +343,16 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
           warn={one}
           guildId={guildId}
           onDelete={() => {
-            const sel = new Set(selectedWarns)
+            const sel = new Set(finalSelectedSet)
             sel.delete(one.uuid)
             setSelectedWarns(sel)
             warnsMutate()
 
           }}
-          checked={selectedWarns.has(one.uuid)}
+          checked={finalSelectedSet.has(one.uuid)}
           onCheckChange={() => {
-            console.log(selectedWarns.has(one.uuid))
-            let sel = new Set(selectedWarns)
+            console.log(finalSelectedSet.has(one.uuid))
+            let sel = new Set(finalSelectedSet)
 
             if (sel.has(one.uuid)) {
               sel.delete(one.uuid)
@@ -413,7 +371,7 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
   const delSelectedWarns = () => {
     axios.delete(`${api}/servers/${guildId}/warns`, {
       data: {
-        warns: Array.from(selectedWarns)
+        warns: Array.from(finalSelectedSet)
       },
       headers: {
         Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
@@ -424,6 +382,7 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
   }
 
   const warnsSet = new Set(warns?.map(o => o.uuid))
+  const finalSelectedSet = new Set(Array.from(selectedWarns).filter(o => warnsSet.has(o)))
 
   return (
     <>
@@ -465,7 +424,7 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
                                 style={{
                                   fontSize: '12pt'
                                 }}>
-                                전체 경고 {warns?.length} 건{selectedWarns.size ? selectedWarns.size === warns.length ? ', 모두 선택됨' : `, ${selectedWarns.size}건 선택됨` : null}{warnSearch && `, ${filteredWarns.length}건 검색됨`}
+                                전체 경고 {warns?.length} 건{finalSelectedSet.size ? finalSelectedSet.size === warns.length ? ', 모두 선택됨' : `, ${finalSelectedSet.size}건 선택됨` : null}{warnSearch && `, ${filteredWarns.length}건 검색됨`}
                               </Col>
                               <Col
                                 className="px-0"
@@ -505,10 +464,10 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
                             </Row>
 
                             <Row className="align-items-center">
-                              <Collapse in={!!selectedWarns.size}>
+                              <Collapse in={!!finalSelectedSet.size}>
                                 <div>
                                   <div className="pb-2">
-                                    <span className="mr-3">선택한 것들을({selectedWarns.size}개):</span>
+                                    <span className="mr-3">선택한 것들을({finalSelectedSet.size}개):</span>
                                     <Button variant="danger" size="sm" onClick={() => {
                                       setShowSelectedDel(true)
                                     }}>
@@ -530,7 +489,7 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
                               </Modal.Title>
                               </Modal.Header>
                               <Modal.Body className="py-4">
-                                선택한 경고 {selectedWarns.size}개를 취소하시겠습니까?
+                                선택한 경고 {finalSelectedSet.size}개를 취소하시겠습니까?
                               </Modal.Body>
                               <Modal.Footer className="justify-content-end">
                                 <Button variant="danger" onClick={async () => {
@@ -556,9 +515,9 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
                                         id="warn-select-all"
                                         custom
                                         type="checkbox"
-                                        checked={!!warns.length && warnsSet.size === selectedWarns.size && Array.from(warnsSet).every(value => selectedWarns.has(value))}
+                                        checked={!!warns.length && warnsSet.size === finalSelectedSet.size && Array.from(warnsSet).every(value => finalSelectedSet.has(value))}
                                         onChange={() => {
-                                          if (warnsSet.size === selectedWarns.size && Array.from(warnsSet).every(value => selectedWarns.has(value))) {
+                                          if (warnsSet.size === finalSelectedSet.size && Array.from(warnsSet).every(value => finalSelectedSet.has(value))) {
                                             setSelectedWarns(new Set)
                                           }
                                           else {

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import axios, { AxiosError } from 'axios'
-import { Button, ButtonGroup, Card, Col, Container, Form, OverlayTrigger, Row, Spinner, Table, Tooltip } from 'react-bootstrap'
-import { Add as AddIcon, Delete as DeleteIcon, Close as CloseIcon, RemoveCircleOutline, Edit as EditIcon } from '@material-ui/icons'
+import { Button, ButtonGroup, Card, Col, Container, Form, Modal, OverlayTrigger, Row, Spinner, Table, Tooltip } from 'react-bootstrap'
+import { Add as AddIcon, Delete as DeleteIcon, Close as CloseIcon, RemoveCircleOutline, Settings as SettingsIcon } from '@material-ui/icons'
 import api from 'datas/api'
 
 import { GetServerSideProps, NextPage } from 'next'
@@ -16,12 +16,13 @@ import { ChannelMinimal, Role } from 'types/DiscordTypes'
 import { animateScroll } from 'react-scroll'
 import TicketForm from 'components/tickets/TicketForm'
 import { Emoji } from 'emoji-mart'
+import Link from 'next/link'
 
-interface AutoTaskingRouterProps {
+interface TicketSetsRouterProps {
   guildId: string
 }
 
-export const getServerSideProps: GetServerSideProps<AutoTaskingRouterProps> = async context => {
+export const getServerSideProps: GetServerSideProps<TicketSetsRouterProps> = async context => {
   const { guildid } = context.query
   return {
     props: {
@@ -30,14 +31,18 @@ export const getServerSideProps: GetServerSideProps<AutoTaskingRouterProps> = as
   }
 }
 
-interface BoardListCardProps {
+interface TicketsetListCardProps {
   onCheckChange?: ((event: React.ChangeEvent<HTMLInputElement>) => void)
   checked?: boolean
   ticketSet: TicketSet
 }
 
-const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
+const TicketSets: NextPage<TicketSetsRouterProps> = ({ guildId }) => {
   const [addNew, setAddNew] = useState(false)
+
+  const [selectedTicketSets, setSelectedTicketSets] = useState<Set<string>>(new Set)
+  const [showSelectedDel, setShowSelectedDel] = useState(false)
+
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState(false)
   const [isMD, setIsMD] = useState<boolean | null>(null)
@@ -80,13 +85,54 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
     }
     else {
       const resize = () => setIsMD(window.innerWidth >= 768)
+      resize()
       window.addEventListener('resize', resize)
       return () => window.removeEventListener('resize', resize)
     }
   }, [])
 
-  const TicketsetListCard: React.FC<BoardListCardProps> = ({ ticketSet, onCheckChange, checked }) => {
-    const [edit, setEdit] = useState<string | null>(null)
+  const TicketsetListCard: React.FC<TicketsetListCardProps> = ({ ticketSet, onCheckChange, checked }) => {
+    const Actions = (
+      <ButtonGroup>
+        <OverlayTrigger
+          placement="top"
+          overlay={
+            <Tooltip id="task-list-row-remove-task">
+              이 티켓 제거하기
+            </Tooltip>
+          }
+        >
+          <Button variant="dark" className="d-flex px-1 remove-before" onClick={() => {
+            axios.delete(`${api}/servers/${guildId}/ticketsets`, {
+              data: {
+                ticketsets: [ticketSet.uuid]
+              },
+              headers: {
+                Authorization: `Bearer ${new Cookies().get("ACCESS_TOKEN")}`
+              }
+            })
+              .then(() => mutate())
+          }}>
+            <RemoveCircleOutline />
+          </Button>
+        </OverlayTrigger>
+
+        <OverlayTrigger
+          placement="top"
+          overlay={
+            <Tooltip id="task-list-row-remove-task">
+              티켓 세부 설정
+            </Tooltip>
+          }
+        >
+          <Link href={`/dashboard/${guildId}/tickets/${ticketSet.uuid}/list`}>
+            <Button variant="dark" className="d-flex px-1 remove-before">
+              <SettingsIcon />
+            </Button>
+          </Link>
+        </OverlayTrigger>
+      </ButtonGroup>
+    )
 
     return <>
       <tr>
@@ -111,52 +157,16 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
             </td>
             <td className="align-middle">
               <span className="d-inline-block text-truncate mw-100 align-middle cursor-pointer font-weight-bold">
-                #{channels?.find(o => o.id === ticketSet.channel)?.name}
+                #{channels?.find(o => o.id === ticketSet.channel)?.name ?? <u>(존재하지 않는 채널)</u>}
               </span>
             </td>
             <td className="align-middle">
               <span className="d-inline-block text-truncate mw-100 align-middle cursor-pointer font-weight-bold">
-                #{channels?.find(o => o.id === ticketSet.category_opened)?.name}
+                {ticketSet.category_opened ? `#${channels?.find(o => o.id === ticketSet.category_opened)?.name ?? <u>(존재하지 않는 채널)</u>}` : "(선택 안 함)"}
               </span>
             </td>
             <td className="align-middle text-center">
-              <ButtonGroup>
-                <OverlayTrigger
-                  placement="top"
-                  overlay={
-                    <Tooltip id="task-list-row-remove-task">
-                      이 작업 제거하기
-                    </Tooltip>
-                  }
-                >
-                  <Button variant="dark" className="d-flex px-1 remove-before" onClick={() => {
-                    axios.delete(`${api}/servers/${guildId}/ticketsets`, {
-                      data: {
-                        ticketsets: [ticketSet.uuid]
-                      },
-                      headers: {
-                        Authorization: `Bearer ${new Cookies().get("ACCESS_TOKEN")}`
-                      }
-                    })
-                      .then(() => mutate())
-                  }}>
-                    <RemoveCircleOutline />
-                  </Button>
-                </OverlayTrigger>
-
-                <OverlayTrigger
-                  placement="top"
-                  overlay={
-                    <Tooltip id="task-list-row-remove-task">
-                      작업 수정하기
-                    </Tooltip>
-                  }
-                >
-                  <Button variant="dark" className="d-flex px-1 remove-before" onClick={() => setEdit(ticketSet.uuid)}>
-                    <EditIcon />
-                  </Button>
-                </OverlayTrigger>
-              </ButtonGroup>
+              {Actions}
             </td>
           </>
             : <>
@@ -174,22 +184,18 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                   {ticketSet.name}
                 </div>
                 <div>
-                  <Row>
-                    <Col xs={2}>
-                      이모지
-                    </Col>
-                    <Col>
-                      <Emoji emoji={ticketSet.emoji} set="twitter" size={22} />
-                    </Col>
-                  </Row>
-                  <Row>
-                    <Col xs={2}>
-                      채널
-                    </Col>
-                    <Col>
-                      <b>{channels?.find(o => o.id === ticketSet.channel)?.name}</b>
-                    </Col>
-                  </Row>
+                  <div>
+                    이모지: <span className="ml-2"><Emoji emoji={ticketSet.emoji} set="twitter" size={22} /></span>
+                  </div>
+                  <div>
+                    채널: <b className="ml-2">#{channels?.find(o => o.id === ticketSet.channel)?.name ?? <u>(존재하지 않는 채널)</u>}</b>
+                  </div>
+                  <div>
+                    생성 카테고리: <b className="ml-2">{ticketSet.category_opened ? `#${channels?.find(o => o.id === ticketSet.category_opened)?.name ?? <u>(존재하지 않는 채널)</u>}` : "(선택 안 함)"}</b>
+                  </div>
+                  <div className="mt-2">
+                    {Actions}
+                  </div>
                 </div>
               </td>
             </>
@@ -197,6 +203,24 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
       </tr>
     </>
   }
+
+  const delSelectedTicketSets = () => {
+    axios.delete(`${api}/servers/${guildId}/ticketsets`, {
+      data: {
+        ticketsets: Array.from(finalSelectedSet)
+      },
+      headers: {
+        Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
+      }
+    })
+      .then(() => {
+        setSelectedTicketSets(new Set)
+        mutate()
+      })
+  }
+
+  const ticketSetsSet = new Set(data?.map(o => o.uuid))
+  const finalSelectedSet = new Set(Array.from(selectedTicketSets).filter(o => ticketSetsSet.has(o)))
 
   return (
     <>
@@ -274,10 +298,37 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                           <AddIcon className="mr-1" />
                           새로 등록
                         </Button>
-                        <Button variant="danger" size="sm" className="d-flex align-items-center">
+                        <Button variant="danger" size="sm" className="d-flex align-items-center" disabled={!finalSelectedSet.size} onClick={() => setShowSelectedDel(true)}>
                           <DeleteIcon className="mr-1" />
                           선택 항목 삭제
                         </Button>
+                      </Row>
+
+                      <Row>
+                        <Modal className="modal-dark" show={showSelectedDel} onHide={() => setShowSelectedDel(false)} centered>
+                          <Modal.Header closeButton>
+                            <Modal.Title style={{
+                              fontFamily: "NanumSquare",
+                              fontWeight: 900,
+                            }}>
+                              티켓 설정 제거하기
+                            </Modal.Title>
+                          </Modal.Header>
+                          <Modal.Body className="py-4">
+                            선택한 티켓 설정 {finalSelectedSet.size}개를 제거하시겠습니까?
+                          </Modal.Body>
+                          <Modal.Footer className="justify-content-end">
+                            <Button variant="danger" onClick={async () => {
+                              setShowSelectedDel(false)
+                              delSelectedTicketSets()
+                            }}>
+                              확인
+                            </Button>
+                            <Button variant="dark" onClick={() => setShowSelectedDel(false)}>
+                              닫기
+                            </Button>
+                          </Modal.Footer>
+                        </Modal>
                       </Row>
 
                       <Row className="flex-column mt-3">
@@ -288,9 +339,18 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                             <tr>
                               <th className="align-middle text-center" style={{ width: 50 }}>
                                 <Form.Check
-                                  id="warn-select-all"
+                                  id="ticketsets-select-all"
                                   custom
                                   type="checkbox"
+                                  checked={!!data?.length && ticketSetsSet.size === finalSelectedSet.size && Array.from(ticketSetsSet).every(value => finalSelectedSet.has(value))}
+                                  onChange={() => {
+                                    if (ticketSetsSet.size === finalSelectedSet.size && Array.from(ticketSetsSet).every(value => finalSelectedSet.has(value))) {
+                                      setSelectedTicketSets(new Set)
+                                    }
+                                    else {
+                                      setSelectedTicketSets(ticketSetsSet)
+                                    }
+                                  }}
                                 />
                               </th>
                               <th className="text-center text-md-left d-none d-md-table-cell" style={{ maxWidth: 400 }}>이름</th>
@@ -302,9 +362,43 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                             </tr>
                           </thead>
                           <tbody>
-                            {data?.map(one => <TicketsetListCard key={one.uuid} ticketSet={one} />)}
+                            {data?.map(one =>
+                              <TicketsetListCard
+                                key={one.uuid}
+                                ticketSet={one}
+                                checked={finalSelectedSet.has(one.uuid)}
+                                onCheckChange={() => {
+                                  let sel = new Set(finalSelectedSet)
+
+                                  if (sel.has(one.uuid)) {
+                                    sel.delete(one.uuid)
+                                  }
+                                  else {
+                                    sel.add(one.uuid)
+                                  }
+
+                                  setSelectedTicketSets(sel)
+                                }}
+                              />
+                            )}
                           </tbody>
                         </Table>
+                      </Row>
+                      <Row className="justify-content-center">
+                        {
+                          !data.length &&
+                          <div className="my-5" style={{ color: 'lightgray' }}>
+                            설정된 티켓이 없습니다! <span className="cursor-pointer" style={{ color: 'deepskyblue' }} onClick={() => {
+                              setAddNew(true)
+                              animateScroll.scrollToTop({
+                                duration: 500,
+                              })
+                            }}>
+                              새로 추가
+                            </span>
+                            해보세요!
+                          </div>
+                        }
                       </Row>
                     </Form>
                   </Col>
@@ -324,4 +418,4 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
   )
 }
 
-export default AutoTasking
+export default TicketSets
