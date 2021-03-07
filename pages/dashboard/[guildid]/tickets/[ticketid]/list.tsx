@@ -3,12 +3,12 @@ import React, { useEffect } from 'react';
 import axios, { AxiosError } from 'axios'
 import api from 'datas/api'
 import { ChannelMinimal, MemberMinimal } from 'types/DiscordTypes';
-import { Row, Container, Spinner, Form, Table, Tab, Tabs } from 'react-bootstrap';
+import { Row, Container, Spinner, Form, Table, Tab, Tabs, Card } from 'react-bootstrap';
 import { ErrorOutline as ErrorOutlineIcon, Check as CheckIcon } from '@material-ui/icons'
 
 import BackTo from 'components/BackTo';
 
-import { Ticket } from 'types/dbtypes';
+import { Ticket, TicketSet } from 'types/dbtypes';
 
 import { GetServerSideProps, NextPage } from 'next';
 import Layout from 'components/Layout';
@@ -23,6 +23,7 @@ import useSWR from 'swr';
 import urljoin from 'url-join';
 import Head from 'next/head';
 import MemberCell from 'components/MemberCell';
+import TicketSets from '..';
 dayjs.locale('ko')
 dayjs.extend(dayjsRelativeTime)
 dayjs.extend(dayjsUTC)
@@ -51,6 +52,19 @@ export const getServerSideProps: GetServerSideProps<TicketListProps> = async con
 const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
   const { data } = useSWR<Ticket[], AxiosError>(
     new Cookies().get('ACCESS_TOKEN') ? urljoin(api, `/servers/${guildId}/tickets`) : null,
+    url => axios.get(url, {
+      headers: {
+        Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
+      }
+    })
+      .then(r => r.data),
+    {
+      refreshInterval: 5000
+    }
+  )
+
+  const { data: ticketsets } = useSWR<TicketSet[], AxiosError>(
+    new Cookies().get('ACCESS_TOKEN') ? urljoin(api, `/servers/${guildId}/ticketsets`) : null,
     url => axios.get(url, {
       headers: {
         Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
@@ -106,12 +120,12 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
           />
         </td>
         <td>
-          <b>{channels?.find(o => o.id === ticket.channel)?.name ?? <u>(존재하지 않는 채널)</u>}</b>
+          <b>#{channels?.find(o => o.id === ticket.channel)?.name ?? <i>(존재하지 않는 채널)</i>}</b>
         </td>
         <td>
-        <div className="d-flex justify-content-center justify-content-lg-start">
-          <MemberCell member={members?.find(o => o.user.id === ticket.opener)!} guildId={guildId} wrap />
-        </div>
+          <div className="d-flex justify-content-center justify-content-lg-start">
+            <MemberCell member={members?.find(o => o.user.id === ticket.opener)!} guildId={guildId} wrap />
+          </div>
         </td>
       </tr>
     )
@@ -151,7 +165,7 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
       <Layout>
         <DashboardLayout guildId={guildId}>
           {
-            () => data && members
+            () => data && ticketsets && members && channels
               ? (
                 <div>
                   <Row className="dashboard-section">
@@ -161,7 +175,16 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
                     </div>
                   </Row>
 
-                  <Row className="flex-column mt-3 nav-tabs-dark">
+                  <Row className="flex-column">
+                    <Card bg="dark">
+                      <Card.Body className="py-2 d-flex align-items-center">
+                        티켓:
+                        <h5 className="mb-0 pl-2" style={{ fontFamily: "NanumSquare" }}>{ticketsets?.find(o => o.uuid === ticketId)?.name}</h5>
+                      </Card.Body>
+                    </Card>
+                  </Row>
+
+                  <Row className="flex-column mt-4 nav-tabs-dark">
                     <Tabs defaultActiveKey="open" id="ticket-list-tabs" transition={false}>
                       <Tab eventKey="open" title={<><ErrorOutlineIcon className="mr-2" />열린 티켓</>}>
                         <ListTable mode="open" />

@@ -107,7 +107,7 @@ const Statistics: NextPage<StatisticsProps> = ({ guildId }) => {
                     </div>
                   </div>
                 </Row>
-                <Row className="nav-tabs-dark">
+                <Row className="flex-column nav-tabs-dark">
                   <Tabs defaultActiveKey="growth" id="statistic-tabs">
                     <Tab eventKey="growth" title={<><TrendingUpIcon className="mr-2" />서버 통계</>}>
                       <Growth memberCounts={memberCounts} msgCounts={msgCounts} />

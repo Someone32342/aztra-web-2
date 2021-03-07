@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import axios, { AxiosError } from 'axios'
 import api from 'datas/api'
@@ -96,7 +96,7 @@ const MemberDashboard: NextPage<MemberDashboardRouteProps> = ({ guildId, memberI
     }
   }, [])
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     setTimeout(() => setShowPercent(true), 500)
   }, [member])
 
@@ -133,8 +133,6 @@ const MemberDashboard: NextPage<MemberDashboardRouteProps> = ({ guildId, memberI
   const accuExp = getAccumulateExp(level)
   const reqCompleted = (reqExp || 0) - accuExp + exp
   let expIndex = exps?.sort((a, b) => b.exp - a.exp).findIndex(m => m.id === member?.user.id)
-
-  console.log(reqExp, accuExp, exp)
 
   let expRank: number | undefined
   switch (expIndex) {

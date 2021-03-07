@@ -157,12 +157,12 @@ const TicketSets: NextPage<TicketSetsRouterProps> = ({ guildId }) => {
             </td>
             <td className="align-middle">
               <span className="d-inline-block text-truncate mw-100 align-middle cursor-pointer font-weight-bold">
-                #{channels?.find(o => o.id === ticketSet.channel)?.name ?? <u>(존재하지 않는 채널)</u>}
+                #{channels?.find(o => o.id === ticketSet.channel)?.name ?? <i>(존재하지 않는 채널)</i>}
               </span>
             </td>
             <td className="align-middle">
               <span className="d-inline-block text-truncate mw-100 align-middle cursor-pointer font-weight-bold">
-                {ticketSet.category_opened ? `#${channels?.find(o => o.id === ticketSet.category_opened)?.name ?? <u>(존재하지 않는 채널)</u>}` : "(선택 안 함)"}
+                {ticketSet.category_opened ? `#${channels?.find(o => o.id === ticketSet.category_opened)?.name ?? <i>(존재하지 않는 채널)</i>}` : "(선택 안 함)"}
               </span>
             </td>
             <td className="align-middle text-center">
@@ -188,10 +188,10 @@ const TicketSets: NextPage<TicketSetsRouterProps> = ({ guildId }) => {
                     이모지: <span className="ml-2"><Emoji emoji={ticketSet.emoji} set="twitter" size={22} /></span>
                   </div>
                   <div>
-                    채널: <b className="ml-2">#{channels?.find(o => o.id === ticketSet.channel)?.name ?? <u>(존재하지 않는 채널)</u>}</b>
+                    채널: <b className="ml-2">#{channels?.find(o => o.id === ticketSet.channel)?.name ?? <i>(존재하지 않는 채널)</i>}</b>
                   </div>
                   <div>
-                    생성 카테고리: <b className="ml-2">{ticketSet.category_opened ? `#${channels?.find(o => o.id === ticketSet.category_opened)?.name ?? <u>(존재하지 않는 채널)</u>}` : "(선택 안 함)"}</b>
+                    생성 카테고리: <b className="ml-2">{ticketSet.category_opened ? `#${channels?.find(o => o.id === ticketSet.category_opened)?.name ?? <i>(존재하지 않는 채널)</i>}` : "(선택 안 함)"}</b>
                   </div>
                   <div className="mt-2">
                     {Actions}
