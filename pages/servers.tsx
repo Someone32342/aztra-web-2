@@ -130,7 +130,6 @@ export default function Servers() {
             }
           </Container>
           <Container fluid="sm">
-            <Alert variant="danger" className="mb-4 d-flex align-items-center"><WarningIcon className="mr-2" />현재 디스코드 봇 인증이 약 10일 지연되어 초대가 어렵습니다! 조금만 기다려주세요.</Alert>
             {
               !(data || error)
                 ?
