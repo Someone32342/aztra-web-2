@@ -280,7 +280,8 @@ const TicketSets: NextPage<TicketSetsRouterProps> = ({ guildId }) => {
                         </Row>
                       }
 
-                      <Row className="justify-content-end pt-2">
+                      <Row className="justify-content-end align-items-center pt-2">
+                        <div className="mr-4" style={{ color: data.length >= 15 ? 'gold' : 'white' }}><b>{data.length}/15</b> 개 사용됨</div>
                         <Button variant="aztra" size="sm" className="d-flex align-items-center mr-3" onClick={() => {
                           setAddNew(true)
                           animateScroll.scrollToTop({
@@ -345,10 +346,10 @@ const TicketSets: NextPage<TicketSetsRouterProps> = ({ guildId }) => {
                                   }}
                                 />
                               </th>
-                              <th className="text-center text-md-left d-none d-md-table-cell" style={{ maxWidth: 400 }}>이름</th>
-                              <th className="text-center text-md-left d-none d-md-table-cell" style={{ maxWidth: 150 }}>이모지</th>
-                              <th className="text-center text-md-left d-none d-md-table-cell" style={{ maxWidth: 150 }}>채널</th>
-                              <th className="text-center text-md-left d-none d-md-table-cell">생성 카테고리</th>
+                              <th className="text-center text-md-left" style={{ maxWidth: 400 }}>이름</th>
+                              <th className="text-center text-md-left" style={{ maxWidth: 150 }}>이모지</th>
+                              <th className="text-center text-md-left" style={{ maxWidth: 150 }}>채널</th>
+                              <th className="text-center text-md-left">생성 카테고리</th>
                               <th style={{ width: 100 }} className="d-none d-md-table-cell" />
                               <th className="d-md-none" />
                             </tr>

@@ -354,23 +354,21 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                             </Row>
                           }
 
-                          <Row className="justify-content-end">
-                            <div className="pt-2 d-flex align-items-center">
-                              <div className="mr-4" style={{ color: data.length >= 15 ? 'gold' : 'white' }}><b>{data.length}/15</b> 개 사용됨</div>
-                              <Button variant="aztra" size="sm" className="d-flex align-items-center mr-3" disabled={data.length >= 15} onClick={() => {
-                                setAddNew(true)
-                                animateScroll.scrollToTop({
-                                  duration: 500,
-                                })
-                              }}>
-                                <AddIcon className="mr-1" />
-                                새로 추가
-                              </Button>
-                              <Button variant="danger" size="sm" className="d-flex align-items-center" disabled={!finalSelectedSet.size} onClick={() => setShowSelectedDel(true)}>
-                                <DeleteIcon className="mr-1" />
-                                선택 항목 삭제
-                              </Button>
-                            </div>
+                          <Row className="justify-content-end align-items-center pt-2">
+                            <div className="mr-4" style={{ color: data.length >= 15 ? 'gold' : 'white' }}><b>{data.length}/15</b> 개 사용됨</div>
+                            <Button variant="aztra" size="sm" className="d-flex align-items-center mr-3" disabled={data.length >= 15} onClick={() => {
+                              setAddNew(true)
+                              animateScroll.scrollToTop({
+                                duration: 500,
+                              })
+                            }}>
+                              <AddIcon className="mr-1" />
+                              새로 추가
+                            </Button>
+                            <Button variant="danger" size="sm" className="d-flex align-items-center" disabled={!finalSelectedSet.size} onClick={() => setShowSelectedDel(true)}>
+                              <DeleteIcon className="mr-1" />
+                              선택 항목 삭제
+                            </Button>
                           </Row>
 
                           <Row>

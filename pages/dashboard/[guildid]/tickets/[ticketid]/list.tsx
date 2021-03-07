@@ -1,16 +1,17 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import axios, { AxiosError } from 'axios'
 import api from 'datas/api'
 import { ChannelMinimal, MemberMinimal } from 'types/DiscordTypes';
-import { Row, Container, Spinner, Form, Table, Tab, Tabs, Card } from 'react-bootstrap';
-import { ErrorOutline as ErrorOutlineIcon, Check as CheckIcon } from '@material-ui/icons'
+import { Row, Container, Spinner, Form, Table, Tab, Tabs, Card, Button, ButtonGroup, OverlayTrigger, Tooltip, Modal, Col } from 'react-bootstrap';
+import { ErrorOutline as ErrorOutlineIcon, Check as CheckIcon, LockOutlined as LockIcon } from '@material-ui/icons'
 
 import BackTo from 'components/BackTo';
 
 import { Ticket, TicketSet } from 'types/dbtypes';
 
 import { GetServerSideProps, NextPage } from 'next';
+import Router from 'next/router'
 import Layout from 'components/Layout';
 import DashboardLayout from 'components/DashboardLayout';
 import Cookies from 'universal-cookie';
@@ -23,7 +24,6 @@ import useSWR from 'swr';
 import urljoin from 'url-join';
 import Head from 'next/head';
 import MemberCell from 'components/MemberCell';
-import TicketSets from '..';
 dayjs.locale('ko')
 dayjs.extend(dayjsRelativeTime)
 dayjs.extend(dayjsUTC)
@@ -50,7 +50,10 @@ export const getServerSideProps: GetServerSideProps<TicketListProps> = async con
 }
 
 const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
-  const { data } = useSWR<Ticket[], AxiosError>(
+  const [selectedTickets, setSelectedTickets] = useState<Set<string>>(new Set)
+  const [showSelectedClose, setShowSelectedClose] = useState(false)
+
+  const { data, mutate } = useSWR<Ticket[], AxiosError>(
     new Cookies().get('ACCESS_TOKEN') ? urljoin(api, `/servers/${guildId}/tickets`) : null,
     url => axios.get(url, {
       headers: {
@@ -108,6 +111,10 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
   }, [])
 
   const TicketListCard: React.FC<TicketListCardProps> = ({ ticket, onCheckChange, checked }) => {
+    const [showClose, setShowClose] = useState(false)
+
+    const channel = channels?.find(o => o.id === ticket.channel)
+
     return (
       <tr>
         <td className="align-middle text-center">
@@ -119,13 +126,85 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
             onChange={onCheckChange}
           />
         </td>
-        <td>
-          <b>#{channels?.find(o => o.id === ticket.channel)?.name ?? <i>(존재하지 않는 채널)</i>}</b>
+        <td className="align-middle">
+          <b>#{ticket.number}</b>
         </td>
-        <td>
-          <div className="d-flex justify-content-center justify-content-lg-start">
-            <MemberCell member={members?.find(o => o.user.id === ticket.opener)!} guildId={guildId} wrap />
-          </div>
+        <td className="align-middle font-weight-bold">
+          {channel ? `#${channel.name}` : <i>(존재하지 않는 채널)</i>}
+        </td>
+        <td className="align-middle">
+          <MemberCell member={members?.find(o => o.user.id === ticket.opener)!} guildId={guildId} />
+        </td>
+        <td className="align-middle text-right">
+          <ButtonGroup>
+            <OverlayTrigger
+              placement="top"
+              overlay={
+                <Tooltip id="task-list-row-remove-task">
+                  티켓 닫기
+                </Tooltip>
+              }
+            >
+              <Button variant="dark" className="d-flex px-1 remove-before" onClick={() => setShowClose(true)}>
+                <LockIcon />
+              </Button>
+            </OverlayTrigger>
+          </ButtonGroup>
+
+          <Modal className="modal-dark" show={showClose} onHide={() => setShowClose(false)} centered>
+            <Modal.Header closeButton>
+              <Modal.Title style={{
+                fontFamily: "NanumSquare",
+                fontWeight: 900,
+              }}>
+                티켓 닫기
+              </Modal.Title>
+            </Modal.Header>
+            <Modal.Body className="py-4">
+              이 티켓을 닫으시겠습니까?
+              <Card bg="dark" className="mt-3">
+                <Card.Body>
+                  <Row className="pb-1">
+                    <Col xs={3} className="font-weight-bold">
+                      티켓 번호
+                    </Col>
+                    <Col className="font-weight-bold">
+                      {ticket.number}
+                    </Col>
+                  </Row>
+                  <Row>
+                    <Col xs={3} className="font-weight-bold">
+                      티켓 채널
+                    </Col>
+                    <Col className="font-weight-bold">
+                      {channel ? `#${channel.name}` : <i>(존재하지 않는 채널)</i>}
+                    </Col>
+                  </Row>
+                </Card.Body>
+              </Card>
+            </Modal.Body>
+            <Modal.Footer className="justify-content-end">
+              <Button variant="danger" onClick={async () => {
+                setShowClose(false)
+                axios.post(`${api}/servers/${guildId}/tickets/close`, {
+                  tickets: [ticket.uuid]
+                },
+                  {
+                    headers: {
+                      Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
+                    }
+                  })
+                  .then(() => {
+                    mutate()
+                  })
+              }}>
+                확인
+              </Button>
+              <Button variant="dark" onClick={() => setShowClose(false)}>
+                닫기
+              </Button>
+            </Modal.Footer>
+          </Modal>
         </td>
       </tr>
     )
@@ -140,38 +219,80 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
           <tr>
             <th className="align-middle text-center" style={{ width: 50 }}>
               <Form.Check
-                id="ticket-select-all"
+                id="tickets-select-all"
                 custom
                 type="checkbox"
+                checked={!!data?.length && ticketsSet.size === finalSelectedSet.size && Array.from(ticketsSet).every(value => finalSelectedSet.has(value))}
+                onChange={() => {
+                  if (ticketsSet.size === finalSelectedSet.size && Array.from(ticketsSet).every(value => finalSelectedSet.has(value))) {
+                    setSelectedTickets(new Set)
+                  }
+                  else {
+                    setSelectedTickets(ticketsSet)
+                  }
+                }}
               />
             </th>
-            <th className="text-center text-md-left" style={{ width: '20%' }}>채널</th>
-            <th className="text-center text-md-left d-none d-md-table-cell">생성자</th>
+            <th>티켓번호</th>
+            <th style={{ maxWidth: 400 }}>채널</th>
+            <th>생성자</th>
             <th style={{ width: 100 }} />
           </tr>
         </thead>
         <tbody>
-          {data?.filter(o => o.status === mode).map(one => <TicketListCard key={one.uuid} ticket={one} />)}
+          {data?.filter(o => o.status === mode).sort((a, b) => b.number - a.number).map(one =>
+            <TicketListCard key={one.uuid} ticket={one} checked={finalSelectedSet.has(one.uuid)}
+              onCheckChange={() => {
+                let sel = new Set(finalSelectedSet)
+
+                if (sel.has(one.uuid)) {
+                  sel.delete(one.uuid)
+                }
+                else {
+                  sel.add(one.uuid)
+                }
+
+                setSelectedTickets(sel)
+              }} />
+          )}
         </tbody>
       </Table>
     )
   }
 
+  const closeSelectedTickets = () => {
+    axios.post(`${api}/servers/${guildId}/tickets/close`, {
+      tickets: Array.from(finalSelectedSet)
+    },
+      {
+        headers: {
+          Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
+        }
+      })
+      .then(() => {
+        setSelectedTickets(new Set)
+        mutate()
+      })
+  }
+
+  const ticketsSet = new Set(data?.map(o => o.uuid))
+  const finalSelectedSet = new Set(Array.from(selectedTickets).filter(o => ticketsSet.has(o)))
+
   return (
     <>
       <Head>
-        <title>세부 티켓 관리 - Aztra 대시보드</title>
+        <title>세부 티켓 목록 - Aztra 대시보드</title>
       </Head>
       <Layout>
         <DashboardLayout guildId={guildId}>
           {
             () => data && ticketsets && members && channels
               ? (
-                <div>
+                <>
                   <Row className="dashboard-section">
                     <div>
                       <BackTo className="pl-2 mb-4" name="티켓 설정" to={`/dashboard/${guildId}/tickets`} />
-                      <h3>세부 티켓 관리</h3>
+                      <h3>세부 티켓 목록</h3>
                     </div>
                   </Row>
 
@@ -184,7 +305,14 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
                     </Card>
                   </Row>
 
-                  <Row className="flex-column mt-4 nav-tabs-dark">
+                  <Row className="justify-content-end align-items-center mt-3">
+                    <Button variant="danger" size="sm" className="d-flex align-items-center" disabled={!finalSelectedSet.size} onClick={() => setShowSelectedClose(true)}>
+                      <LockIcon className="mr-1" />
+                      선택 티켓 닫기
+                    </Button>
+                  </Row>
+
+                  <Row className="flex-column mt-2 nav-tabs-dark">
                     <Tabs defaultActiveKey="open" id="ticket-list-tabs" transition={false}>
                       <Tab eventKey="open" title={<><ErrorOutlineIcon className="mr-2" />열린 티켓</>}>
                         <ListTable mode="open" />
@@ -194,7 +322,39 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
                       </Tab>
                     </Tabs>
                   </Row>
-                </div>
+
+                  <Row>
+                    <Modal className="modal-dark" show={showSelectedClose} onHide={() => setShowSelectedClose(false)} centered>
+                      <Modal.Header closeButton>
+                        <Modal.Title style={{
+                          fontFamily: "NanumSquare",
+                          fontWeight: 900,
+                        }}>
+                          티켓 닫기
+                        </Modal.Title>
+                      </Modal.Header>
+                      <Modal.Body className="py-4">
+                        <p className="font-weight-bold" style={{ fontSize: 17 }}>
+                          선택한 티켓 {finalSelectedSet.size}개를 닫으시겠습니까?
+                        </p>
+                        <small>
+                          - 티켓을 닫으면 <b>닫힌 티켓</b>으로 분류되며, 티켓 설정대로 카테고리, 채널 이름과 권한 등이 변경됩니다.
+                        </small>
+                      </Modal.Body>
+                      <Modal.Footer className="justify-content-end">
+                        <Button variant="danger" onClick={async () => {
+                          setShowSelectedClose(false)
+                          closeSelectedTickets()
+                        }}>
+                          확인
+                        </Button>
+                        <Button variant="dark" onClick={() => setShowSelectedClose(false)}>
+                          닫기
+                        </Button>
+                      </Modal.Footer>
+                    </Modal>
+                  </Row>
+                </>
               )
               : <Container className="d-flex align-items-center justify-content-center flex-column" style={{
                 height: '500px'

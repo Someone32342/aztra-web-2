@@ -207,6 +207,7 @@ const MemberDashboard: NextPage<MemberDashboardRouteProps> = ({ guildId, memberI
                         />
                       </div>
                       {
+                        /*
                         statusColor && (
                           <OverlayTrigger
                             placement="bottom"
@@ -229,6 +230,7 @@ const MemberDashboard: NextPage<MemberDashboardRouteProps> = ({ guildId, memberI
                             }} />
                           </OverlayTrigger>
                         )
+                        */
                       }
                     </div>
                     <div className="text-center text-sm-left mt-4 mt-sm-0 px-4">
