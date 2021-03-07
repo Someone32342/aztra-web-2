@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import axios, { AxiosError } from 'axios'
 import { Button, ButtonGroup, Card, Col, Container, Form, Modal, OverlayTrigger, Row, Spinner, Table, Tooltip } from 'react-bootstrap'
-import { Add as AddIcon, Delete as DeleteIcon, Close as CloseIcon, RemoveCircleOutline, Settings as SettingsIcon } from '@material-ui/icons'
+import { Add as AddIcon, Delete as DeleteIcon, Close as CloseIcon, Settings as SettingsIcon, FormatListBulleted as ListIcon } from '@material-ui/icons'
 import api from 'datas/api'
 
 import { GetServerSideProps, NextPage } from 'next'
+import Router from 'next/router'
 import Cookies from 'universal-cookie'
 import Layout from 'components/Layout'
 import DashboardLayout from 'components/DashboardLayout'
@@ -16,7 +17,6 @@ import { ChannelMinimal, Role } from 'types/DiscordTypes'
 import { animateScroll } from 'react-scroll'
 import TicketForm from 'components/tickets/TicketForm'
 import { Emoji } from 'emoji-mart'
-import Link from 'next/link'
 
 interface TicketSetsRouterProps {
   guildId: string
@@ -98,22 +98,14 @@ const TicketSets: NextPage<TicketSetsRouterProps> = ({ guildId }) => {
           placement="top"
           overlay={
             <Tooltip id="task-list-row-remove-task">
-              이 티켓 제거하기
+              티켓 목록
             </Tooltip>
           }
         >
-          <Button variant="dark" className="d-flex px-1 remove-before" onClick={() => {
-            axios.delete(`${api}/servers/${guildId}/ticketsets`, {
-              data: {
-                ticketsets: [ticketSet.uuid]
-              },
-              headers: {
-                Authorization: `Bearer ${new Cookies().get("ACCESS_TOKEN")}`
-              }
-            })
-              .then(() => mutate())
-          }}>
-            <RemoveCircleOutline />
+          <Button variant="dark" className="d-flex px-1 remove-before" onClick={() =>
+            Router.push(`/dashboard/${guildId}/tickets/${ticketSet.uuid}/list`, undefined, { shallow: true })
+          }>
+            <ListIcon />
           </Button>
         </OverlayTrigger>
 
@@ -125,11 +117,11 @@ const TicketSets: NextPage<TicketSetsRouterProps> = ({ guildId }) => {
             </Tooltip>
           }
         >
-          <Link href={`/dashboard/${guildId}/tickets/${ticketSet.uuid}/list`}>
-            <Button variant="dark" className="d-flex px-1 remove-before">
-              <SettingsIcon />
-            </Button>
-          </Link>
+          <Button variant="dark" className="d-flex px-1 remove-before" onClick={() =>
+            Router.push(`/dashboard/${guildId}/tickets/${ticketSet.uuid}/list`, undefined, { shallow: true })
+          }>
+            <SettingsIcon />
+          </Button>
         </OverlayTrigger>
       </ButtonGroup>
     )

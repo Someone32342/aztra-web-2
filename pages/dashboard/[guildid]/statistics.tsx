@@ -109,13 +109,13 @@ const Statistics: NextPage<StatisticsProps> = ({ guildId }) => {
                 </Row>
                 <Row className="flex-column nav-tabs-dark">
                   <Tabs defaultActiveKey="growth" id="statistic-tabs">
-                    <Tab eventKey="growth" title={<><TrendingUpIcon className="mr-2" />서버 통계</>}>
+                    <Tab eventKey="growth" className="mt-4" title={<><TrendingUpIcon className="mr-2" />서버 통계</>}>
                       <Growth memberCounts={memberCounts} msgCounts={msgCounts} />
                     </Tab>
-                    <Tab eventKey="members" disabled={process.env.NODE_ENV === "production"} title={<><GroupIcon className="mr-2" />멤버별 통계(개발중)</>}>
+                    <Tab eventKey="members" className="mt-4" disabled={process.env.NODE_ENV === "production"} title={<><GroupIcon className="mr-2" />멤버별 통계(개발중)</>}>
                       <EachMembers members={members} />
                     </Tab>
-                    <Tab eventKey="ranking" disabled={process.env.NODE_ENV === "production"} title={<><FontAwesomeIcon icon={faTrophy} className="mr-2" />순위(개발중)</>}></Tab>
+                    <Tab eventKey="ranking" className="mt-4" disabled={process.env.NODE_ENV === "production"} title={<><FontAwesomeIcon icon={faTrophy} className="mr-2" />순위(개발중)</>}></Tab>
                   </Tabs>
                 </Row>
               </>
