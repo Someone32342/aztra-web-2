@@ -110,6 +110,9 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
     }
   }, [])
 
+  const ticketsSet = new Set(data?.map(o => o.uuid))
+  const finalSelectedSet = new Set(Array.from(selectedTickets).filter(o => ticketsSet.has(o)))
+
   const TicketListCard: React.FC<TicketListCardProps> = ({ ticket, onCheckChange, checked }) => {
     const [showClose, setShowClose] = useState(false)
 
@@ -274,9 +277,6 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
         mutate()
       })
   }
-
-  const ticketsSet = new Set(data?.map(o => o.uuid))
-  const finalSelectedSet = new Set(Array.from(selectedTickets).filter(o => ticketsSet.has(o)))
 
   return (
     <>

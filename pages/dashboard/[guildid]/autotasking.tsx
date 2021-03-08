@@ -101,6 +101,9 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
     }
   }, [])
 
+  const tasksSet = new Set(data?.map(o => o.uuid))
+  const finalSelectedSet = new Set(Array.from(selectedTasks).filter(o => tasksSet.has(o)))
+
   const TaskListCard: React.FC<TaskListCardProps> = ({ taskset, onCheckChange, checked }) => {
     let eventName = `(알 수 없는 동작: ${taskset.type})`
 
@@ -257,9 +260,6 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
         mutate()
       })
   }
-
-  const tasksSet = new Set(data?.map(o => o.uuid))
-  const finalSelectedSet = new Set(Array.from(selectedTasks).filter(o => tasksSet.has(o)))
 
   return (
     <>

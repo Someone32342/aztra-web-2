@@ -284,6 +284,10 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
     }
   }, [])
 
+  const warnsSet = new Set(warns?.map(o => o.uuid))
+  
+  const finalSelectedSet = new Set(Array.from(selectedWarns).filter(o => warnsSet.has(o)))
+
   const filterSortWarns = (search?: string) => (
     warns
       ?.filter(one => {
@@ -380,9 +384,6 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
       .then(() => warnsMutate())
       .finally(() => setSelectedWarns(new Set))
   }
-
-  const warnsSet = new Set(warns?.map(o => o.uuid))
-  const finalSelectedSet = new Set(Array.from(selectedWarns).filter(o => warnsSet.has(o)))
 
   return (
     <>
