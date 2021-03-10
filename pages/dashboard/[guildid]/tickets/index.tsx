@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import axios, { AxiosError } from 'axios'
 import { Button, ButtonGroup, Card, Col, Container, Form, Modal, OverlayTrigger, Row, Spinner, Table, Tooltip } from 'react-bootstrap'
-import { Add as AddIcon, Delete as DeleteIcon, Close as CloseIcon, Settings as SettingsIcon, FormatListBulleted as ListIcon } from '@material-ui/icons'
+import { Add as AddIcon, Delete as DeleteIcon, Close as CloseIcon, Settings as SettingsIcon, FormatListBulleted as ListIcon, Edit as EditIcon } from '@material-ui/icons'
 import api from 'datas/api'
 
 import { GetServerSideProps, NextPage } from 'next'
@@ -92,7 +92,7 @@ const TicketSets: NextPage<TicketSetsRouterProps> = ({ guildId }) => {
   }, [])
 
   const TicketsetListCard: React.FC<TicketsetListCardProps> = ({ ticketSet, onCheckChange, checked }) => {
-    const Actions = (
+    const Actions: React.FC = () => (
       <ButtonGroup>
         <OverlayTrigger
           placement="top"
@@ -121,6 +121,19 @@ const TicketSets: NextPage<TicketSetsRouterProps> = ({ guildId }) => {
             Router.push(`/dashboard/${guildId}/tickets/${ticketSet.uuid}/list`, undefined, { shallow: true })
           }>
             <SettingsIcon />
+          </Button>
+        </OverlayTrigger>
+
+        <OverlayTrigger
+          placement="top"
+          overlay={
+            <Tooltip id="task-list-row-remove-task">
+              티켓 수정하기
+            </Tooltip>
+          }
+        >
+          <Button variant="dark" className="d-flex px-1 remove-before">
+            <EditIcon />
           </Button>
         </OverlayTrigger>
       </ButtonGroup>
@@ -158,13 +171,13 @@ const TicketSets: NextPage<TicketSetsRouterProps> = ({ guildId }) => {
               </span>
             </td>
             <td className="align-middle text-center">
-              {Actions}
+              <Actions />
             </td>
           </>
             : <>
               <td className="align-top text-center">
                 <Form.Check
-                  id={`taskset-check-${ticketSet.uuid}`}
+                  id={`ticketset-check-${ticketSet.uuid}`}
                   type="checkbox"
                   custom
                   checked={checked}
@@ -186,7 +199,7 @@ const TicketSets: NextPage<TicketSetsRouterProps> = ({ guildId }) => {
                     생성 카테고리: <b className="ml-2">{ticketSet.category_opened ? `#${channels?.find(o => o.id === ticketSet.category_opened)?.name ?? <i>(존재하지 않는 채널)</i>}` : "(선택 안 함)"}</b>
                   </div>
                   <div className="mt-2">
-                    {Actions}
+                    <Actions />
                   </div>
                 </div>
               </td>
@@ -282,7 +295,7 @@ const TicketSets: NextPage<TicketSetsRouterProps> = ({ guildId }) => {
 
                       <Row className="justify-content-end align-items-center pt-2">
                         <div className="mr-4" style={{ color: data.length >= 15 ? 'gold' : 'white' }}><b>{data.length}/15</b> 개 사용됨</div>
-                        <Button variant="aztra" size="sm" className="d-flex align-items-center mr-3" onClick={() => {
+                        <Button variant="aztra" size="sm" className="d-flex align-items-center my-1" onClick={() => {
                           setAddNew(true)
                           animateScroll.scrollToTop({
                             duration: 500,
@@ -291,7 +304,7 @@ const TicketSets: NextPage<TicketSetsRouterProps> = ({ guildId }) => {
                           <AddIcon className="mr-1" />
                           새로 등록
                         </Button>
-                        <Button variant="danger" size="sm" className="d-flex align-items-center" disabled={!finalSelectedSet.size} onClick={() => setShowSelectedDel(true)}>
+                        <Button variant="danger" size="sm" className="d-flex align-items-center ml-3 my-1" disabled={!finalSelectedSet.size} onClick={() => setShowSelectedDel(true)}>
                           <DeleteIcon className="mr-1" />
                           선택 항목 삭제
                         </Button>
@@ -325,7 +338,7 @@ const TicketSets: NextPage<TicketSetsRouterProps> = ({ guildId }) => {
                       </Row>
 
                       <Row className="flex-column mt-3">
-                        <Table id="warn-list-table" variant="dark" style={{
+                        <Table id="ticketset-list-table" variant="dark" style={{
                           tableLayout: 'fixed'
                         }} >
                           <thead>
@@ -346,10 +359,10 @@ const TicketSets: NextPage<TicketSetsRouterProps> = ({ guildId }) => {
                                   }}
                                 />
                               </th>
-                              <th className="text-center text-md-left" style={{ maxWidth: 400 }}>이름</th>
-                              <th className="text-center text-md-left" style={{ maxWidth: 150 }}>이모지</th>
-                              <th className="text-center text-md-left" style={{ maxWidth: 150 }}>채널</th>
-                              <th className="text-center text-md-left">생성 카테고리</th>
+                              <th className="text-center text-md-left d-none d-md-table-cell" style={{ maxWidth: 400 }}>이름</th>
+                              <th className="text-center text-md-left d-none d-md-table-cell" style={{ maxWidth: 150 }}>이모지</th>
+                              <th className="text-center text-md-left d-none d-md-table-cell" style={{ maxWidth: 150 }}>채널</th>
+                              <th className="text-center text-md-left d-none d-md-table-cell">생성 카테고리</th>
                               <th style={{ width: 100 }} className="d-none d-md-table-cell" />
                               <th className="d-md-none" />
                             </tr>

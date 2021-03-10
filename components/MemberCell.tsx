@@ -33,7 +33,7 @@ const MemberCell: React.FC<MemberCellProps> = ({ member, guildId, wrap = false }
               }}
               {...triggerHandler}
             />
-            <div className={wrap ? "ml-lg-3" : "ml-3"}>
+            <div className={wrap ? "ml-lg-2" : "ml-2"}>
               <span className={`${wrap ? 'd-none d-lg-block' : ''} font-weight-bold`}>
                 {member.displayName}
               </span>
