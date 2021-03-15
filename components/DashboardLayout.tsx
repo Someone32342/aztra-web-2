@@ -1,201 +1,151 @@
-import React, { Component, createRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Container, Row, Col, Button, Modal } from 'react-bootstrap'
 
 import Sidebar from './Sidebar'
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import urljoin from 'url-join'
 import api from 'datas/api'
 import { PartialGuildExtend } from 'types/DiscordTypes'
 import Cookies from 'universal-cookie'
 import styles from 'styles/components/DashboardLayout.module.scss'
+import useSWR from 'swr'
 
 interface DashboardLayoutProps {
   guildId: string
-  children?: ((guild: PartialGuildExtend | null) => React.ReactNode)
+  children?: ((guild?: PartialGuildExtend | null) => React.ReactNode)
 }
 
-interface DashboardLayoutState {
-  guild: PartialGuildExtend | null
-  fetchDone: boolean
-  sidebarOpen: boolean
-  winWidth: number | null
-  winHeight: number | null
-  guildCache: PartialGuildExtend | null
-}
+const DashboardLayout: React.FC<DashboardLayoutProps> = ({ guildId, children }) => {
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [winWidth, setWinWidth] = useState<number | null>(null)
 
-export default class DashboardLayout extends Component<DashboardLayoutProps, DashboardLayoutState> {
-  state: DashboardLayoutState = {
-    guild: null,
-    fetchDone: false,
-    sidebarOpen: false,
-    winWidth: null,
-    winHeight: null,
-    guildCache: null
-  }
+  const sidebarHeaderRef = useRef<HTMLDivElement>(null)
 
-  sidebarHeaderRef: React.RefObject<HTMLDivElement> = createRef()
-  mounted: boolean = false
-
-  getGuild = async (token: string) => {
-    await axios.get(urljoin(api, '/discord/users/@me/guilds'), {
+  const { data, error } = useSWR<PartialGuildExtend[], AxiosError>(
+    new Cookies().get('ACCESS_TOKEN') ? urljoin(api, `/discord/users/@me/guilds`) : null,
+    url => axios.get(url, {
       headers: {
-        Authorization: `Bearer ${token}`
+        Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
       }
     })
-      .then(res => {
-        let guild = res.data.find((one: PartialGuildExtend) => one.id === this.props.guildId && one.bot_joined)
-
-        if (this.mounted) this.setState({ guild, guildCache: guild })
-        if (this.state.guild) localStorage.setItem('guildCache', JSON.stringify(guild))
-      })
-      .catch(e => {
-        if (this.mounted) this.setState({ guild: null })
-        console.log(e)
-      })
-      .finally(() => {
-        if (this.mounted) this.setState({ fetchDone: true })
-      })
-  }
-
-  componentDidMount() {
-    this.mounted = true
-    this.updateWindowState()
-    window.addEventListener('resize', this.updateWindowState)
-
-    const guildCacheString = localStorage.getItem('guildCache')
-    this.setState({ guildCache: guildCacheString === null ? null : JSON.parse(guildCacheString) })
-
-    const token = new Cookies().get("ACCESS_TOKEN")
-    if (token) {
-      this.getGuild(token)
+      .then(r => r.data),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false
     }
-  }
+  )
 
-  componentWillUnmount() {
-    this.mounted = false
-    window.removeEventListener('resize', this.updateWindowState)
-  }
+  const guild = data?.find(one => one.id === guildId && one.bot_joined)
 
-  updateWindowState = () => {
-    this.setState({
-      winWidth: window.innerWidth,
-      winHeight: window.innerHeight
-    })
-  }
+  useEffect(() => {
+    const updateWindowState = () => {
+      setWinWidth(window.innerWidth)
+    }
+    updateWindowState()
+    window.addEventListener('resize', updateWindowState)
+    return () => window.removeEventListener('resize', updateWindowState)
+  })
 
-  closeSidebar = () => this.setState({ sidebarOpen: false })
+  const closeSidebar = () => setSidebarOpen(false)
 
-  render() {
-    const { children } = this.props
-    const { guild, guildCache } = this.state
+  const isXSsize = (winWidth || 0) < 768
 
-    const isXSsize = (this.state?.winWidth || 0) < 768
+  return (
+    <Container fluid className={styles.DashboardLayoutContainer}>
+      <Row>
+        {/* 대시보드 사이드바 */}
+        <Col xl={2} lg={3} md={3} className="Dashboardroute-sidebar">
 
-    return (
-      <Container fluid className={styles.DashboardLayoutContainer}>
-        <Row>
-          {/* 대시보드 사이드바 */}
-          <Col xl={2} lg={3} md={3} className="Dashboardroute-sidebar">
-
-            <Container className="pl-0 pr-0 pb-1" id="sidebar-header">
-              {/* 사이드바 헤더 */}
-              <Row>
-                <Col xs={isXSsize ? 10 : 12} md={12} ref={this.sidebarHeaderRef}>
-                  <div className="d-flex pl-1 font-weight-bold align-items-center"
-                    style={{
-                      fontSize: '1.05rem',
-                      fontFamily: "NanumSquare",
-                    }}
-                  >
-                    {
-                      ((guildCache || guild)?.id === this.props.guildId) && (
-                        <img
-                          alt=""
-                          src={
-                            guildCache?.id === this.props.guildId
-                              ? `https://cdn.discordapp.com/icons/${guildCache?.id}/${guildCache?.icon}.png`
-                              : `https://cdn.discordapp.com/icons/${guild?.id}/${guild?.icon}.png`
-                          }
-                          style={{ maxHeight: 40, marginRight: 15, borderRadius: '70%' }}
-                        />
-                      )
-                    }
-                    {
-                      guild
-                        ? guild.name
-                        : guildCache?.id === this.props.guildId
-                          ? guildCache?.name
-                          : '서버 정보를 불러오는 중...'
-                    }
-                  </div>
-                </Col>
-                <Col xs={isXSsize ? 2 : 0} className="text-center my-auto pl-1 d-md-none">
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    aria-controls="sidebar-collapse"
-                    aria-expanded={this.state.sidebarOpen}
-                    onClick={() => this.setState({ sidebarOpen: !this.state.sidebarOpen })}
-                    style={{
-                      fontSize: '9pt'
-                    }}
-                  >
-                    메뉴
-                  </Button>
-                </Col>
-              </Row>
-              {/* 사이드바 본문 */}
-              <Row>
-                <Col>
+          <Container className="pl-0 pr-0 pb-1" id="sidebar-header">
+            {/* 사이드바 헤더 */}
+            <Row>
+              <Col xs={isXSsize ? 10 : 12} md={12} ref={sidebarHeaderRef}>
+                <div className="d-flex pl-1 font-weight-bold align-items-center"
+                  style={{
+                    fontSize: '1.05rem',
+                    fontFamily: "NanumSquare",
+                  }}
+                >
                   {
-                    isXSsize
-                      ? (
-                        this.state.sidebarOpen && (
-                          <div className="Dashboardroute-sidebar-body">
-                            <Sidebar guild={guild || guildCache!} onSelect={this.closeSidebar} />
-                          </div>
-                        )
-                      )
-                      : (
-                        <div className="Dashboardroute-sidebar-body" style={{
-                          height: `calc(100vh - ${this.sidebarHeaderRef.current?.clientHeight}px - 90px)`
-                        }}>
-                          <Sidebar guild={guild || guildCache!} onSelect={this.closeSidebar} />
+                    (guild?.id === guildId) && (
+                      <img
+                        alt=""
+                        src={`https://cdn.discordapp.com/icons/${guild?.id}/${guild?.icon}.png`}
+                        style={{ maxHeight: 40, marginRight: 15, borderRadius: '70%' }}
+                      />
+                    )
+                  }
+                  {guild?.name ?? '서버 정보를 불러오는 중...'}
+                </div>
+              </Col>
+              <Col xs={isXSsize ? 2 : 0} className="text-center my-auto pl-1 d-md-none">
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  aria-controls="sidebar-collapse"
+                  aria-expanded={sidebarOpen}
+                  onClick={() => setSidebarOpen(!sidebarOpen)}
+                  style={{
+                    fontSize: '9pt'
+                  }}
+                >
+                  메뉴
+                  </Button>
+              </Col>
+            </Row>
+            {/* 사이드바 본문 */}
+            <Row>
+              <Col>
+                {
+                  isXSsize
+                    ? (
+                      sidebarOpen && (
+                        <div className="Dashboardroute-sidebar-body">
+                          <Sidebar guild={guild} onSelect={closeSidebar} />
                         </div>
                       )
-                  }
-                </Col>
-              </Row>
-            </Container>
-          </Col>
+                    )
+                    : (
+                      <div className="Dashboardroute-sidebar-body" style={{
+                        height: `calc(100vh - ${sidebarHeaderRef.current?.clientHeight}px - 90px)`
+                      }}>
+                        <Sidebar guild={guild} onSelect={closeSidebar} />
+                      </div>
+                    )
+                }
+              </Col>
+            </Row>
+          </Container>
+        </Col>
 
-          {/* 대시보드 본문 */}
-          <Col xl={10} lg={9} md={9} className="Dashboardroute-body">
-            {children ? children(guild) : null}
-          </Col>
-        </Row>
-        <Modal className="modal-dark" show={this.state.fetchDone && !guild} centered onHide={() => { }}>
-          <Modal.Header>
-            <Modal.Title style={{ fontFamily: "NanumSquare" }}>
-              서버를 찾을 수 없습니다!
+        {/* 대시보드 본문 */}
+        <Col xl={10} lg={9} md={9} className="Dashboardroute-body">
+          {children ? children(guild) : null}
+        </Col>
+      </Row>
+      <Modal className="modal-dark" show={error?.response?.status === 404} centered onHide={() => { }}>
+        <Modal.Header>
+          <Modal.Title style={{ fontFamily: "NanumSquare" }}>
+            서버를 찾을 수 없습니다!
             </Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <p>
-              서버를 불러오는 데 실패했습니다! 다음 중 하나는 아닌지 확인해주세요.
+        </Modal.Header>
+        <Modal.Body>
+          <p>
+            서버를 불러오는 데 실패했습니다! 다음 중 하나는 아닌지 확인해주세요.
             </p>
-            <ul>
-              <li>사용자가 들어가있지 않은 서버</li>
-              <li>Aztra가 들어가있지 않은 서버</li>
-              <li>사용자에게 관리자 권한이 없는 경우</li>
-              <li>존재하지 않는 서버</li>
-            </ul>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="info" href="/servers">서버 목록으로</Button>
-          </Modal.Footer>
-        </Modal>
-      </Container>
-    )
-  }
+          <ul>
+            <li>사용자가 들어가있지 않은 서버</li>
+            <li>Aztra가 들어가있지 않은 서버</li>
+            <li>사용자에게 관리자 권한이 없는 경우</li>
+            <li>존재하지 않는 서버</li>
+          </ul>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="info" href="/servers">서버 목록으로</Button>
+        </Modal.Footer>
+      </Modal>
+    </Container>
+  )
 }
+
+export default DashboardLayout

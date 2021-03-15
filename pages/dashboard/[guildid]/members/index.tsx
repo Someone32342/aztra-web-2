@@ -112,7 +112,7 @@ const Members: NextPage<MembersRouterProps> = ({ guildId }) => {
       <Layout>
         <DashboardLayout guildId={guildId}>
           {
-            () => (
+            guild => (
               <div style={{
                 fontFamily: 'NanumBarunGothic'
               }}>
@@ -122,7 +122,7 @@ const Members: NextPage<MembersRouterProps> = ({ guildId }) => {
                 <Row>
                   <Col>
                     {
-                      members
+                      guild && members
                         ? <Form>
                           <Form.Group>
                             <Row>
@@ -194,7 +194,7 @@ const Members: NextPage<MembersRouterProps> = ({ guildId }) => {
                             </Row>
 
                             <Row className="flex-column mb-5">
-                              {slicedMembers?.map(one => <MemberListCard key={one.user.id} member={one} guildId={guildId as string} />)}
+                              {slicedMembers?.map(one => <MemberListCard key={one.user.id} member={one} guild={guild} />)}
                             </Row>
 
                             <Row>

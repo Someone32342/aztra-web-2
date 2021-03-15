@@ -118,22 +118,9 @@ const TicketSets: NextPage<TicketSetsRouterProps> = ({ guildId }) => {
           }
         >
           <Button variant="dark" className="d-flex px-1 remove-before" onClick={() =>
-            Router.push(`/dashboard/${guildId}/tickets/${ticketSet.uuid}/list`, undefined, { shallow: true })
+            Router.push(`/dashboard/${guildId}/tickets/${ticketSet.uuid}/settings`, undefined, { shallow: true })
           }>
             <SettingsIcon />
-          </Button>
-        </OverlayTrigger>
-
-        <OverlayTrigger
-          placement="top"
-          overlay={
-            <Tooltip id="task-list-row-remove-task">
-              티켓 수정하기
-            </Tooltip>
-          }
-        >
-          <Button variant="dark" className="d-flex px-1 remove-before">
-            <EditIcon />
           </Button>
         </OverlayTrigger>
       </ButtonGroup>
@@ -235,7 +222,7 @@ const TicketSets: NextPage<TicketSetsRouterProps> = ({ guildId }) => {
       <Layout>
         <DashboardLayout guildId={guildId}>
           {
-            guild => data && channels ? (
+            guild => guild && data && channels ? (
               <div>
                 <Row className="dashboard-section">
                   <div>

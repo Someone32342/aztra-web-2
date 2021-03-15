@@ -16,7 +16,7 @@ import {
 import Link from 'next/link'
 
 interface SidebarProps {
-  guild: PartialGuild
+  guild?: PartialGuild | null
   onSelect?: (eventKey: string | null, e: React.SyntheticEvent<unknown>) => void
 }
 

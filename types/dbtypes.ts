@@ -54,8 +54,6 @@ export interface MsgCount {
   count_bot: number
 }
 
-type TicketPermsOpenClose = { opened: { allow: number, deny: number }, closed: { allow: number, deny: number } }
-
 export interface TicketSetPOST {
   guild: string
   name: string
@@ -64,6 +62,14 @@ export interface TicketSetPOST {
   category: string | null
   access_roles: string[]
   mention_roles: boolean
+}
+
+export interface TicketPerms {
+  type: 'role' | 'member' | 'opener'
+  id?: string
+  allow: number
+  deny: number
+  mention: boolean
 }
 
 export interface TicketSet {
@@ -76,18 +82,15 @@ export interface TicketSet {
   category_closed: string | null
   message: string
 
-  access_roles: string[]
-  other_roles: string[]
+  perms_open: TicketPerms[]
+  perms_closed: TicketPerms[]
 
-  mention_roles: boolean
+  opener_perms: TicketPerms
+
   ticket_number: number
 
   create_message: string
   initial_message: string
-
-  opener_perms: TicketPermsOpenClose
-  access_perms: TicketPermsOpenClose
-  other_perms: TicketPermsOpenClose
 }
 
 export interface Ticket {

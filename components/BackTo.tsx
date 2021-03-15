@@ -16,7 +16,7 @@ export default function BackTo({ name, to, className }: BackToProps) {
     <Link href={to}>
       <div className={cx("d-flex", "align-items-center", "cursor-pointer", className?.split(' '))}>
         <FontAwesomeIcon icon={faChevronLeft} className="mr-2" />
-        [{name}] (으)로 돌아가기
+        <b className="pr-2">[{name}]</b>(으)로 돌아가기
       </div>
     </Link>
   )
