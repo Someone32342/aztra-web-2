@@ -285,7 +285,7 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                 <Row>
                   <Col>
                     {
-                      data && members && roles && channels
+                      guild && data && members && roles && channels
                         ? <Form noValidate>
                           {
                             addNew &&
