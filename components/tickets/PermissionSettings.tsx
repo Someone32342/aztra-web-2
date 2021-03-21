@@ -1,17 +1,19 @@
-import { Add as AddIcon, Close as CloseIcon, Check as CheckIcon, Lock as LockIcon } from '@material-ui/icons'
+import { Add as AddIcon, Close as CloseIcon, Check as CheckIcon, Lock as LockIcon, RemoveCircleOutline as RemoveCircleOutlineIcon } from '@material-ui/icons'
+import axios from 'axios'
+import api from 'datas/api'
 import React, { useState } from 'react'
-import { Form, Container, Row, Nav, Col, Dropdown, ButtonGroup, Button, Card } from 'react-bootstrap'
-import { Ticket, TicketSet } from 'types/dbtypes'
-import { ChannelMinimal, MemberMinimal, PartialGuildExtend, Permissions, Role } from 'types/DiscordTypes'
+import { Form, Container, Row, Nav, Col, Dropdown, ButtonGroup, Button, Card, Spinner } from 'react-bootstrap'
+import { TicketPerms, TicketSet } from 'types/dbtypes'
+import { MemberMinimal, PartialGuildExtend, Permissions, Role } from 'types/DiscordTypes'
+import Cookies from 'universal-cookie'
 
 
 interface PermissionSettingsProps {
-  channels: ChannelMinimal[]
   ticketSet: TicketSet
-  tickets: Ticket[]
   guild: PartialGuildExtend
   roles: Role[]
   members: MemberMinimal[]
+  mutate: Function
 }
 
 const PermissionSwitch: React.FC<{ state?: boolean | null, onChange?: (state: boolean | null) => void }> = ({ state, onChange }) => {
@@ -26,43 +28,119 @@ const PermissionSwitch: React.FC<{ state?: boolean | null, onChange?: (state: bo
   )
 }
 
-const PermissionSettings: React.FC<PermissionSettingsProps> = ({ channels, ticketSet, tickets, guild, roles, members }) => {
-  const [allowPerms, setAllowPerms] = useState(0)
-  const [denyPerms, setDenyPerms] = useState(0)
+const PermissionSettings: React.FC<PermissionSettingsProps> = ({ ticketSet, guild, roles, members, mutate }) => {
+  const [saveError, setSaveError] = useState(false)
+  const [saving, setSaving] = useState(false)
+
   const [permType, setPermType] = useState<'open' | 'closed'>('open')
+
+  const [openPermSets, setOpenPermSets] = useState(ticketSet.perms_open)
+  const [closedPermSets, setClosedPermSets] = useState(ticketSet.perms_closed)
+  const [currentPermSets, setCurrentPermSets] = permType === 'open' ? [openPermSets, setOpenPermSets] : [closedPermSets, setClosedPermSets]
+
+  const openerPerms = currentPermSets.find(o => o.type === 'opener')!
+  const [active, setActive] = useState<Pick<TicketPerms, 'id' | 'type'>>({ type: openerPerms.type })
 
   const permTitleCls = "d-flex justify-content-between align-items-center pr-3 py-3"
 
+  const AddableRoles = roles.filter(r => r.id !== guild?.id && !r.managed && !currentPermSets.find(o => o.id === r.id))
+
+  const isChanged = () => (
+    (ticketSet.perms_open.length !== openPermSets.length || !ticketSet.perms_open.every(o => openPermSets.some(r => o.id === r.id && o.type === r.type && o.allow === r.allow && o.deny === r.deny && o.mention === r.mention)))
+    || (ticketSet.perms_closed.length !== closedPermSets.length || !ticketSet.perms_closed.every(o => closedPermSets.some(r => o.id === r.id && o.type === r.type && o.allow === r.allow && o.deny === r.deny && o.mention === r.mention)))
+  )
+
   return (
     <Form as={Container} fluid className="mt-3">
-      <Card as={Row} bg="transparent border-dark" className="my-3">
-        <Card.Body className="px-3 py-2 d-flex">
-          <Form.Check id="open-ticket-perm" className="ml-1 mr-3" type="radio" custom label="열린 티켓 권한" checked={permType === "open"} onChange={() => setPermType('open')} />
-          <Form.Check id="closed-ticket-perm" className="ml-1 mr-3" type="radio" custom label="닫힌 티켓 권한" checked={permType === "closed"} onChange={() => setPermType('closed')} />
-        </Card.Body>
-      </Card>
+      <Row className="align-items-center mb-5 mb-md-2">
+        <Col className="px-0 pr-md-3">
+          <Card bg="transparent border-dark">
+            <Card.Body className="px-3 py-0 d-md-flex align-items-center justify-content-between">
+              <div className="d-md-flex">
+                <Form.Check id="open-ticket-perm" className="ml-1 mr-3 my-2" type="radio" custom label="열린 티켓 권한" checked={permType === "open"} onChange={() => {
+                  setPermType('open')
+                  setActive({ type: 'opener' })
+                }} />
+                <Form.Check id="closed-ticket-perm" className="ml-1 mr-3 my-2" type="radio" custom label="닫힌 티켓 권한" checked={permType === "closed"} onChange={() => {
+                  setPermType('closed')
+                  setActive({ type: 'opener' })
+                }} />
+              </div>
+            </Card.Body>
+          </Card>
+        </Col>
+        <Col xs={12} md="auto" className="px-0 d-flex">
+          <Button
+            variant={saveError ? "danger" : "aztra"}
+            disabled={saving || saveError || !isChanged()}
+            className="mt-md-2 mb-2 mt-3 font-weight-bold w-100"
+            style={{
+              minWidth: 160
+            }}
+            onClick={() => {
+              setSaving(true)
+
+              const patchData: Partial<Omit<TicketSet, 'guild' | 'uuid'>> = {
+                perms_open: openPermSets,
+                perms_closed: closedPermSets,
+              }
+
+              axios.patch(`${api}/servers/${ticketSet.guild}/ticketsets/${ticketSet.uuid}`, patchData, {
+                headers: {
+                  Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
+                },
+              })
+                .then(() => mutate())
+                .catch(() => setSaveError(false))
+                .finally(() => setSaving(false))
+            }}
+          >
+            {
+              saving
+                ? <>
+                  <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
+                  <span className="pl-2">저장 중...</span>
+                </>
+                : <span>{saveError ? "오류" : isChanged() ? "저장하기" : "저장됨"}</span>
+            }
+          </Button>
+        </Col>
+      </Row>
       <Row>
         <Container fluid className="p-0">
           <Row>
             <Col xs={12} xl={3}>
               <Nav variant="pills" className="flex-column">
-                <Nav.Link className="my-1 bg-only-dark justify-content-between d-flex align-items-center"><b>(티켓 생성자 권한)</b><LockIcon fontSize="small" /></Nav.Link>
+                <Nav.Link className={`my-1 justify-content-between d-flex align-items-center ${active.id === openerPerms.id && active.type === 'opener' ? "bg-only-dark" : ""}`} onClick={() => setActive({ id: openerPerms.id, type: 'opener' })}><b>(티켓 생성자 권한)</b><LockIcon fontSize="small" /></Nav.Link>
                 {
-                  (permType === "open" ? ticketSet.perms_open : ticketSet.perms_closed).map(o => {
-                    return <Nav.Link className={`my-1 ${false ? "bg-only-dark": ""}`}>
-                      {o.type === "member" ? members.find(m => m.user.id === o.id)?.user.tag : o.type === "role" ? roles.find(r => r.id === o.id)?.name : null}
+                  (currentPermSets.filter(o => o.type !== 'opener')).sort((a, b) => (roles.find(r => r.id === b.id)?.position ?? -1) - (roles.find(r => r.id === a.id)?.position ?? -1)).map(o => {
+                    return <Nav.Link key={`${o.type}-${o.id}`} className={`py-0 d-flex justify-content-between align-items-center ${active.id === o.id && active.type === "role" ? "bg-only-dark" : ""}`}>
+                      <span className="py-2 w-100" onClick={() => setActive({ id: o.id, type: 'role' })}>
+                        {o.type === "member" ? members.find(m => m.user.id === o.id)?.user.tag : o.type === "role" ? roles.find(r => r.id === o.id)?.name : null}
+                      </span>
+                      <span className="d-flex align-items-center" onClick={() => {
+                        setCurrentPermSets(currentPermSets.filter(c => c.id !== o.id || c.type !== o.type))
+                        setActive({ type: 'opener' })
+                      }}>
+                        <RemoveCircleOutlineIcon htmlColor="lightgray" fontSize="small" />
+                      </span>
                     </Nav.Link>
                   })
                 }
 
-                <Dropdown className="dropdown-menu-dark" onSelect={() => { }}>
-                  <Dropdown.Toggle as={Nav.Link} id="add-role-member" size="sm" variant="link" className="my-1 remove-after d-flex align-items-center border-0 shadow-none bg-transparent" >
+                <Dropdown className="dropdown-menu-dark" onSelect={e => {
+                  const role = roles.find(r => r.id === e)
+                  if (!role) return
+                  setActive({ id: role.id, type: 'role' })
+                  setCurrentPermSets(currentPermSets.concat({ id: role.id, allow: 0, deny: 0, type: 'role', mention: false }))
+                }}>
+                  <Dropdown.Toggle disabled={!AddableRoles.length} as={Nav.Link} id="add-role-member" size="sm" variant="link" className="my-1 remove-after d-flex align-items-center border-0 shadow-none bg-transparent" >
                     <AddIcon className="mr-2" />
                     새 역할/멤버 권한 추가
                   </Dropdown.Toggle>
                   <Dropdown.Menu className="bg-dark" style={{ maxHeight: 300, overflowY: 'scroll' }}>
                     {
-                      roles.filter(r => r.id !== guild?.id && !r.managed).sort((a, b) => b.position - a.position).map(r => (
+                      AddableRoles.sort((a, b) => b.position - a.position).map(r => (
                         <Dropdown.Item key={r.id} eventKey={r.id} active={false} style={{ color: '#' + r.color.toString(16) }}>
                           {r.name}
                         </Dropdown.Item>
@@ -94,24 +172,29 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({ channels, ticke
                     ].map(([n, name]) => {
                       const num = n as number
 
-                      const allow = allowPerms & num
-                      const deny = denyPerms & num
+                      const activePerms = currentPermSets.find(o => o.id === active.id && o.type === active.type)
+                      if (!activePerms) return null
 
-                      return <Col xs={12} lg={6} className={permTitleCls} style={{ fontFamily: "NanumSquare" }}>
+                      const allow = activePerms.allow & num
+                      const deny = activePerms.deny & num
+
+                      return <Col key={n} xs={12} lg={6} className={permTitleCls} style={{ fontFamily: "NanumSquare" }}>
                         <span className="mr-3">{name}</span>
                         <PermissionSwitch state={allow ? true : deny ? false : null} onChange={state => {
+                          console.log(currentPermSets)
+
+                          const otherPerms = currentPermSets.filter(o => o.id !== active.id || o.type !== active.type)
+
                           switch (state) {
                             case true:
-                              setAllowPerms(allowPerms | num)
-                              denyPerms & num && setDenyPerms(denyPerms - num)
+                              setCurrentPermSets(otherPerms.concat([{ ...activePerms, allow: activePerms.allow | num, ...(deny ? { deny: activePerms.deny - num } : {}) }]))
                               break
                             case false:
-                              allowPerms & num && setAllowPerms(allowPerms - num)
-                              setDenyPerms(denyPerms | num)
+                              setCurrentPermSets(otherPerms.concat([{ ...activePerms, deny: activePerms.deny | num, ...(allow ? { allow: activePerms.allow - num } : {}) }]))
                               break
                             case null:
-                              allowPerms & num && setAllowPerms(allowPerms - num)
-                              denyPerms & num && setDenyPerms(denyPerms - num)
+                              allow && setCurrentPermSets(otherPerms.concat([{ ...activePerms, allow: activePerms.allow - num }]))
+                              deny && setCurrentPermSets(otherPerms.concat([{ ...activePerms, deny: activePerms.deny - num }]))
                               break
                           }
                         }} />
@@ -119,6 +202,18 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({ channels, ticke
                     })
                   }
                 </Row>
+                {
+                  active.type !== "opener" && (
+                    <Row className="pt-4">
+                      <Button variant="outline-danger" onClick={() => {
+                        setCurrentPermSets(currentPermSets.filter(o => o.id !== active.id || o.type !== active.type))
+                        setActive({ type: 'opener' })
+                      }}>
+                        이 역할/멤버 권한 제거
+                      </Button>
+                    </Row>
+                  )
+                }
               </Container>
             </Col>
           </Row>

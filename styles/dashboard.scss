@@ -55,8 +55,8 @@
     padding-top: 50px;
     padding-bottom: 80px;
     @include media-breakpoint-up(xs) {
-        padding-left: 50px;
-        padding-right: 50px;
+        padding-left: 40px;
+        padding-right: 40px;
     }
     @include media-breakpoint-up(md) {
         padding-left: 60px;
@@ -109,6 +109,7 @@
     }
     @extend .scrollbar-dark;
 }
+
 .Dashboardroute-sidebar-body {
     margin-top: 0.5rem;
     // 모바일 사이즈가 아닌 경우 사이드바 본문의 높이는 React의 render에서 정합니다.
@@ -153,7 +154,7 @@
         word-break: keep-all;
     }
     td {
-        word-break: break-all;;
+        word-break: break-all;
     }
 }
 

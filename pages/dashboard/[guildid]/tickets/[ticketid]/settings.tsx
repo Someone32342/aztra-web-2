@@ -48,7 +48,7 @@ type TabsType = 'general' | 'permissions' | 'message'
 const TicketSettings: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
   const [activeTab, setActiveTab] = useState<TabsType>("general")
 
-  const { data } = useSWR<TicketSet[], AxiosError>(
+  const { data, mutate } = useSWR<TicketSet[], AxiosError>(
     new Cookies().get('ACCESS_TOKEN') ? urljoin(api, `/servers/${guildId}/ticketsets`) : null,
     url => axios.get(url, {
       headers: {
@@ -156,10 +156,10 @@ const TicketSettings: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
                       setActiveTab(e as TabsType)
                     }}>
                       <Tab eventKey="general" title={<><InfoOutlinedIcon className="mr-2" />일반 설정</>}>
-                        <GeneralSettings channels={channels} ticketSet={ticketSet!} tickets={tickets!} />
+                        <GeneralSettings channels={channels} ticketSet={ticketSet!} tickets={tickets!} mutate={mutate} />
                       </Tab>
                       <Tab eventKey="permissions" title={<><AssignmentIndIcon className="mr-2" />권한 설정</>}>
-                        <PermissionSettings channels={channels} ticketSet={ticketSet!} tickets={tickets!} roles={roles} members={members} guild={guild} />
+                        <PermissionSettings ticketSet={ticketSet!} roles={roles} members={members} guild={guild} mutate={mutate} />
                       </Tab>
                       <Tab eventKey="message" title={<><ChatIcon className="mr-2" />메시지 설정</>}>
                       </Tab>

@@ -85,8 +85,6 @@ export interface TicketSet {
   perms_open: TicketPerms[]
   perms_closed: TicketPerms[]
 
-  opener_perms: TicketPerms
-
   ticket_number: number
 
   create_message: string

@@ -2,28 +2,47 @@ import React, { useState } from 'react'
 import { faHashtag } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import ChannelSelectCard from 'components/forms/ChannelSelectCard'
-import { Form, Container, Row, Col, Card, Button, Dropdown } from 'react-bootstrap'
+import { Form, Container, Row, Col, Card, Button, Dropdown, Spinner } from 'react-bootstrap'
 import { Ticket, TicketSet } from 'types/dbtypes'
 import { ChannelMinimal } from 'types/DiscordTypes'
 import filterChannels from 'utils/filterChannels'
 import EmojiPickerI18n from 'defs/EmojiPickerI18n'
 import { Emoji, Picker } from 'emoji-mart'
-
+import axios from 'axios'
+import api from 'datas/api'
+import Cookies from 'universal-cookie'
 
 interface GeneralSettingsProps {
   channels: ChannelMinimal[]
   ticketSet: TicketSet
   tickets: Ticket[]
+  mutate: Function
 }
 
-const GeneralSettings: React.FC<GeneralSettingsProps> = ({ channels, ticketSet, tickets }) => {
-  const [newChannel, setNewChannel] = useState<ChannelMinimal | null>(null)
+const GeneralSettings: React.FC<GeneralSettingsProps> = ({ channels, ticketSet, tickets, mutate }) => {
+  const [saveError, setSaveError] = useState(false)
+  const [saving, setSaving] = useState(false)
+
+  const [newName, setNewName] = useState<string | null>(null)
+  const [newChannel, setNewChannel] = useState<string | null>(null)
   const [newEmoji, setNewEmoji] = useState<string | null>(null)
-  const [newOpenCategory, setNewOpenCategory] = useState<string | 0>(0)
-  const [newClosedCategory, setNewClosedCategory] = useState<string | 0>(0)
+  const [newOpenCategory, setNewOpenCategory] = useState<string | null | 0>(null)
+  const [newClosedCategory, setNewClosedCategory] = useState<string | null | 0>(null)
   const [channelSearch, setChannelSearch] = useState<string>('')
 
+  const [ticketNameValidate, setTicketNameValidate] = useState<boolean | null>(null)
+
   const ticketChannels = tickets.map(o => o.channel)
+
+  const isChanged = () => (
+    (newName !== null && ticketSet.name !== newName)
+    || (newChannel !== null && ticketSet.channel !== newChannel)
+    || (newEmoji !== null && ticketSet.emoji !== newEmoji)
+    || (newOpenCategory !== null && ticketSet.category_opened !== (newOpenCategory || null))
+    || (newClosedCategory !== null && ticketSet.category_closed !== (newClosedCategory || null))
+  )
+
+  const filteredChannels = filterChannels(channels.filter(o => !ticketChannels.includes(o.id)), channelSearch)
 
   return (
     <Form as={Container} fluid className="mt-3">
@@ -35,7 +54,15 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({ channels, ticketSet, 
         <Form.Label column sm="auto" className="font-weight-bold">티켓 이름</Form.Label>
         <Col>
           <Form.Group>
-            <Form.Control type="text" defaultValue={ticketSet?.name} className="shadow-sm" />
+            <Form.Control type="text" className="shadow-sm" value={newName ?? ticketSet.name} isInvalid={ticketNameValidate === false} onChange={e => {
+              const value = e.target.value
+              setTicketNameValidate(value.length !== 0 && value.length <= 100)
+              setNewName(value)
+            }} />
+            <Form.Control.Feedback type="invalid">
+              {(newName?.length ?? -1) === 0 && "필수 입력입니다."}
+              {(newName?.length ?? -1) > 100 && "100자 이하여야 합니다."}
+            </Form.Control.Feedback>
           </Form.Group>
         </Col>
       </Row>
@@ -65,7 +92,7 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({ channels, ticketSet, 
             <Container fluid>
               <Row className="mb-3 flex-column">
                 {
-                  newChannel || channels?.find(one => one.id === ticketSet?.channel)
+                  channels?.find(one => one.id === (newChannel ?? ticketSet?.channel))
                     ? <>
                       <h5 className="pr-2">현재 선택됨: </h5>
                       <Card bg="secondary">
@@ -74,7 +101,7 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({ channels, ticketSet, 
                           fontSize: '13pt'
                         }}>
                           <FontAwesomeIcon icon={faHashtag} className="mr-2 my-auto" size="sm" />
-                          {newChannel?.name || channels?.find(one => one.id === ticketSet?.channel)?.name}
+                          {channels?.find(one => one.id === (newChannel ?? ticketSet?.channel))?.name}
                         </Card.Header>
                       </Card>
                     </>
@@ -86,7 +113,7 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({ channels, ticketSet, 
                 <input hidden={true} />
                 <Form.Control type="text" placeholder="채널 검색" onChange={(e) => setChannelSearch(e.target.value)} />
                 <Form.Text className="py-1">
-                  {channels?.length}개 채널 찾음
+                  {filteredChannels.length}개 채널 찾음
                 </Form.Text>
               </Row>
               <Row style={{
@@ -96,18 +123,17 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({ channels, ticketSet, 
                 display: 'block'
               }}>
                 {
-                  filterChannels(channels.filter(o => !ticketChannels.includes(o.id)), channelSearch)
-                    .map(one =>
-                      <ChannelSelectCard
-                        key={one.id}
-                        selected={newChannel === one || (!newChannel && one.id === ticketSet?.channel)}
-                        channelData={{
-                          channelName: one.name,
-                          parentChannelName: channels?.find(c => c.id === one.parentID)?.name
-                        }}
-                        onClick={() => setNewChannel(one)}
-                      />
-                    )
+                  filteredChannels.map(one =>
+                    <ChannelSelectCard
+                      key={one.id}
+                      selected={newChannel === one.id || (!newChannel && one.id === ticketSet?.channel)}
+                      channelData={{
+                        channelName: one.name,
+                        parentChannelName: channels?.find(c => c.id === one.parentID)?.name
+                      }}
+                      onClick={() => setNewChannel(one.id)}
+                    />
+                  )
                 }
               </Row>
             </Container>
@@ -121,14 +147,14 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({ channels, ticketSet, 
       <Row className="pb-2">
         <Form.Label column sm="auto" className="font-weight-bold">티켓이 열렸을 때</Form.Label>
         <Col xs={6}>
-          <Form.Control as="select" className="shadow-sm" style={{ fontSize: 15 }} defaultValue={ticketSet.category_opened ?? 0} value={newOpenCategory} onChange={e => setNewOpenCategory(e.target.value)} >
+          <Form.Control as="select" className="shadow-sm" style={{ fontSize: 15 }} value={newOpenCategory ?? ticketSet.category_opened ?? 0} onChange={e => setNewOpenCategory(e.target.value === "0" ? 0 : e.target.value)} >
             <option value={0}>(선택 안 함)</option>
             {
               channels
                 .filter(o => o.type === "category")
                 .sort((a, b) => a.rawPosition - b.rawPosition)
                 .map(o =>
-                  <option value={o.id}>{o.name}</option>
+                  <option key={o.id} value={o.id}>{o.name}</option>
                 )
             }
           </Form.Control>
@@ -137,14 +163,14 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({ channels, ticketSet, 
       <Row>
         <Form.Label column sm="auto" className="font-weight-bold">티켓이 닫혔을 때</Form.Label>
         <Col xs={6}>
-          <Form.Control as="select" className="shadow-sm" style={{ fontSize: 15 }} defaultValue={ticketSet.category_closed ?? 0} value={newClosedCategory} onChange={e => setNewClosedCategory(e.target.value)} >
+          <Form.Control as="select" className="shadow-sm" style={{ fontSize: 15 }} value={newClosedCategory ?? ticketSet.category_closed ?? 0} onChange={e => setNewClosedCategory(e.target.value === "0" ? 0 : e.target.value)} >
             <option value={0}>(선택 안 함)</option>
             {
               channels
                 .filter(o => o.type === "category")
                 .sort((a, b) => a.rawPosition - b.rawPosition)
                 .map(o =>
-                  <option value={o.id}>{o.name}</option>
+                  <option key={o.id} value={o.id}>{o.name}</option>
                 )
             }
           </Form.Control>
@@ -153,12 +179,40 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({ channels, ticketSet, 
 
       <Row className="mt-4">
         <Button
-          variant={"aztra"}
+          variant={saveError ? "danger" : "aztra"}
+          disabled={saving || saveError || !isChanged() || ticketNameValidate === false}
+          onClick={() => {
+            setSaving(true)
+
+            const patchData: Partial<Omit<TicketSet, 'guild' | 'uuid'>> = {
+              name: newName ?? undefined,
+              channel: newChannel ?? undefined,
+              emoji: newEmoji ?? undefined,
+              category_opened: (newOpenCategory === 0 ? null : newOpenCategory === null ? undefined : newOpenCategory),
+              category_closed: (newClosedCategory === 0 ? null : newClosedCategory === null ? undefined : newClosedCategory)
+            }
+
+            axios.patch(`${api}/servers/${ticketSet.guild}/ticketsets/${ticketSet.uuid}`, patchData, {
+              headers: {
+                Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
+              },
+            })
+              .then(() => mutate())
+              .catch(() => setSaveError(false))
+              .finally(() => setSaving(false))
+          }}
           style={{
             minWidth: 140
           }}
         >
-          저장하기
+          {
+            saving
+              ? <>
+                <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
+                <span className="pl-2">저장 중...</span>
+              </>
+              : <span>{saveError ? "오류" : isChanged() ? "저장하기" : "저장됨"}</span>
+          }
         </Button>
       </Row>
     </Form>
