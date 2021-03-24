@@ -41,9 +41,12 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({ ticketSet, guil
   const openerPerms = currentPermSets.find(o => o.type === 'opener')!
   const [active, setActive] = useState<Pick<TicketPerms, 'id' | 'type'>>({ type: openerPerms.type })
 
+  const [addSearch, setAddSearch] = useState('')
+
   const permTitleCls = "d-flex justify-content-between align-items-center pr-3 py-3"
 
   const AddableRoles = roles.filter(r => r.id !== guild?.id && !r.managed && !currentPermSets.find(o => o.id === r.id))
+  const AddableMembers = members.filter(m => !currentPermSets.find(o => o.id === m.user.id))
 
   const isChanged = () => (
     (ticketSet.perms_open.length !== openPermSets.length || !ticketSet.perms_open.every(o => openPermSets.some(r => o.id === r.id && o.type === r.type && o.allow === r.allow && o.deny === r.deny && o.mention === r.mention)))
@@ -113,45 +116,123 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({ ticketSet, guil
               <Nav variant="pills" className="flex-column">
                 <Nav.Link className={`my-1 justify-content-between d-flex align-items-center ${active.id === openerPerms.id && active.type === 'opener' ? "bg-only-dark" : ""}`} onClick={() => setActive({ id: openerPerms.id, type: 'opener' })}><b>(티켓 생성자 권한)</b><LockIcon fontSize="small" /></Nav.Link>
                 {
-                  (currentPermSets.filter(o => o.type !== 'opener')).sort((a, b) => (roles.find(r => r.id === b.id)?.position ?? -1) - (roles.find(r => r.id === a.id)?.position ?? -1)).map(o => {
-                    return <Nav.Link key={`${o.type}-${o.id}`} className={`py-0 d-flex justify-content-between align-items-center ${active.id === o.id && active.type === "role" ? "bg-only-dark" : ""}`}>
-                      <span className="py-2 w-100" onClick={() => setActive({ id: o.id, type: 'role' })}>
-                        {o.type === "member" ? members.find(m => m.user.id === o.id)?.user.tag : o.type === "role" ? roles.find(r => r.id === o.id)?.name : null}
-                      </span>
-                      <span className="d-flex align-items-center" onClick={() => {
-                        setCurrentPermSets(currentPermSets.filter(c => c.id !== o.id || c.type !== o.type))
-                        setActive({ type: 'opener' })
-                      }}>
-                        <RemoveCircleOutlineIcon htmlColor="lightgray" fontSize="small" />
-                      </span>
-                    </Nav.Link>
-                  })
+                  currentPermSets
+                    .filter(o => o.type === "role")
+                    .sort((a, b) => (roles.find(r => r.id === b.id)?.position ?? -1) - (roles.find(r => r.id === a.id)?.position ?? -1))
+                    .map(o => {
+                      const role = roles.find(r => r.id === o.id)
+
+                      return <Nav.Link key={`${o.type}-${o.id}`} className={`py-0 d-flex justify-content-between align-items-center ${active.id === o.id && active.type === o.type ? "bg-only-dark" : ""}`}>
+                        <span className="py-2 w-100" onClick={() => setActive({ id: o.id, type: o.type })} style={{ color: '#' + role?.color.toString(16) }}>
+                          {role?.name}
+                        </span>
+                        <span className="d-flex align-items-center" onClick={() => {
+                          setCurrentPermSets(currentPermSets.filter(c => c.id !== o.id || c.type !== o.type))
+                          setActive({ type: 'opener' })
+                        }}>
+                          <RemoveCircleOutlineIcon htmlColor="lightgray" fontSize="small" />
+                        </span>
+                      </Nav.Link>
+                    })
+                }
+                {
+                  currentPermSets
+                    .filter(o => o.type === "member")
+                    .sort((a, b) => {
+                      let aName = members.find(m => m.user.id === a.id)?.displayName ?? ''
+                      let bName = members.find(m => m.user.id === b.id)?.displayName ?? ''
+                      if (aName > bName) return 1
+                      else if (aName < bName) return -1
+                      return 0
+                    })
+                    .map(o => {
+                      const member = members.find(m => m.user.id === o.id)
+
+                      return <Nav.Link key={`${o.type}-${o.id}`} className={`py-0 d-flex justify-content-between align-items-center ${active.id === o.id && active.type === o.type ? "bg-only-dark" : ""}`}>
+                        <span className="py-2 w-100 d-flex align-items-center" onClick={() => setActive({ id: o.id, type: o.type })}>
+                          <img className="rounded-circle mr-2" src={member?.user.avatar ? `https://cdn.discordapp.com/avatars/${member?.user.id}/${member?.user.avatar}.jpeg?size=32` : member?.user.defaultAvatarURL} style={{ width: 28, height: 28 }} />
+                          {member?.user.tag}
+                        </span>
+                        <span className="d-flex align-items-center" onClick={() => {
+                          setCurrentPermSets(currentPermSets.filter(c => c.id !== o.id || c.type !== o.type))
+                          setActive({ type: 'opener' })
+                        }}>
+                          <RemoveCircleOutlineIcon htmlColor="lightgray" fontSize="small" />
+                        </span>
+                      </Nav.Link>
+                    })
                 }
 
                 <Dropdown className="dropdown-menu-dark" onSelect={e => {
-                  const role = roles.find(r => r.id === e)
-                  if (!role) return
-                  setActive({ id: role.id, type: 'role' })
-                  setCurrentPermSets(currentPermSets.concat({ id: role.id, allow: 0, deny: 0, type: 'role', mention: false }))
+                  const [type, id] = e!.split(' ')
+
+                  if (type === "role") {
+                    const role = roles.find(r => r.id === id)
+                    if (!role) return
+                    setActive({ id: role.id, type: 'role' })
+                    setCurrentPermSets(currentPermSets.concat({ id: role.id, allow: 0, deny: 0, type: 'role', mention: false }))
+                  }
+                  else {
+                    const member = members.find(m => m.user.id === id)
+                    if (!member) return
+                    setActive({ id: member.user.id, type: 'member' })
+                    setCurrentPermSets(currentPermSets.concat({ id: member.user.id, allow: 0, deny: 0, type: 'member', mention: false }))
+                  }
                 }}>
                   <Dropdown.Toggle disabled={!AddableRoles.length} as={Nav.Link} id="add-role-member" size="sm" variant="link" className="my-1 remove-after d-flex align-items-center border-0 shadow-none bg-transparent" >
                     <AddIcon className="mr-2" />
                     새 역할/멤버 권한 추가
                   </Dropdown.Toggle>
-                  <Dropdown.Menu className="bg-dark" style={{ maxHeight: 300, overflowY: 'scroll' }}>
+                  <Dropdown.Menu className="bg-dark" style={{ maxHeight: 300, minWidth: 240, overflowY: 'scroll' }}>
+                    <Form.Control id="add-role-member-search" className="mb-2" type="text" placeholder="역할 또는 멤버 검색..." value={addSearch} onChange={e => setAddSearch(e.target.value)} />
                     {
-                      AddableRoles.sort((a, b) => b.position - a.position).map(r => (
-                        <Dropdown.Item key={r.id} eventKey={r.id} active={false} style={{ color: '#' + r.color.toString(16) }}>
-                          {r.name}
-                        </Dropdown.Item>
-                      ))
+                      AddableRoles
+                        .filter(one => {
+                          if (!addSearch) return true
+                          let searchLowercase = addSearch.normalize().toLowerCase()
+                          return one.name.normalize().toLowerCase().includes(searchLowercase)
+                        })
+                        .sort((a, b) => b.position - a.position)
+                        .map(r => (
+                          <Dropdown.Item key={r.id} eventKey={`role ${r.id}`} active={false} style={{ color: '#' + r.color.toString(16) }}>
+                            {r.name}
+                          </Dropdown.Item>
+                        ))
+                    }
+                    <hr className="my-2" />
+                    {
+                      AddableMembers
+                        .filter(one => {
+                          if (!addSearch) return true
+                          let searchLowercase = addSearch.normalize().toLowerCase()
+                          return one.user.tag?.normalize().toLowerCase().includes(searchLowercase) || one.nickname?.normalize().toLowerCase().includes(searchLowercase)
+                        })
+                        .sort((a, b) => Number(b.displayName) - Number(a.displayName))
+                        .map(m => (
+                          <Dropdown.Item className="my-1" key={m.user.id} eventKey={`member ${m.user.id}`} active={false}>
+                            <img className="rounded-circle mr-2" src={m.user.avatar ? `https://cdn.discordapp.com/avatars/${m.user.id}/${m.user.avatar}.jpeg?size=32` : m.user.defaultAvatarURL} style={{ width: 32, height: 32 }} />
+                            {m.displayName}
+                          </Dropdown.Item>
+                        ))
                     }
                   </Dropdown.Menu>
                 </Dropdown>
               </Nav>
             </Col>
+            <Col className="d-xl-none">
+              <hr style={{ borderColor: '#4e5058', borderWidth: 2 }} />
+            </Col>
             <Col xs={12} xl={9}>
               <Container fluid>
+                <Row className="py-3">
+                  <Col>
+                    <Form.Check id="mention-on-ticket-open" type="checkbox" custom label="티켓이 열릴 때 이 역할/멤버 멘션하기" checked={currentPermSets.find(o => o.id === active.id && o.type === active.type)?.mention} onChange={() => {
+                      const activePerm = currentPermSets.find(o => o.id === active.id && o.type === active.type)
+                      if (!activePerm) return
+                      setCurrentPermSets(currentPermSets.filter(o => o.id !== active.id || o.type !== active.type).concat({ ...activePerm, mention: !activePerm.mention }))
+                    }} />
+                  </Col>
+                </Row>
                 <Row style={{ fontSize: 18 }}>
                   {
                     [
@@ -204,7 +285,7 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({ ticketSet, guil
                 </Row>
                 {
                   active.type !== "opener" && (
-                    <Row className="pt-4">
+                    <Row className="mt-4">
                       <Button variant="outline-danger" onClick={() => {
                         setCurrentPermSets(currentPermSets.filter(o => o.id !== active.id || o.type !== active.type))
                         setActive({ type: 'opener' })

@@ -118,7 +118,7 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
     }
   }, [])
 
-  const ticketsSet = new Set(data?.map(o => o.uuid))
+  const ticketsSet = new Set(data?.map(o => o.uuid).filter(o => data?.find(a => a.uuid === o)?.status === activeTab))
   const finalSelectedSet = new Set(Array.from(selectedTickets).filter(o => data?.find(a => a.uuid === o)?.status === activeTab && ticketsSet.has(o)))
 
   const TicketListCard: React.FC<TicketListCardProps> = ({ ticket, onCheckChange, checked }) => {
@@ -200,10 +200,11 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
                 }
               })
               .then(() => {
-                mutate()
-                let se = new Set(selectedTickets)
-                se.delete(ticket.uuid)
-                setSelectedTickets(se)
+                mutate().then(() => {
+                  let se = new Set(selectedTickets)
+                  se.delete(ticket.uuid)
+                  setSelectedTickets(se)
+                })
               })
           }}>
             확인
@@ -285,9 +286,9 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
                 id="tickets-select-all"
                 custom
                 type="checkbox"
-                checked={!!data?.length && ticketsSet.size === finalSelectedSet.size && Array.from(ticketsSet).every(value => finalSelectedSet.has(value))}
+                checked={!!data?.length && !!ticketsSet.size && ticketsSet.size === finalSelectedSet.size && Array.from(ticketsSet).every(value => finalSelectedSet.has(value))}
                 onChange={() => {
-                  if (ticketsSet.size === finalSelectedSet.size && Array.from(ticketsSet).every(value => finalSelectedSet.has(value))) {
+                  if (!!ticketsSet.size && ticketsSet.size === finalSelectedSet.size && Array.from(ticketsSet).every(value => finalSelectedSet.has(value))) {
                     setSelectedTickets(new Set)
                   }
                   else {
@@ -334,8 +335,7 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
         }
       })
       .then(() => {
-        setSelectedTickets(new Set)
-        mutate()
+        mutate().then(() => setSelectedTickets(new Set))
       })
   }
 
