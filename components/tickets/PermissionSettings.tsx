@@ -224,15 +224,19 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({ ticketSet, guil
             </Col>
             <Col xs={12} xl={9}>
               <Container fluid>
-                <Row className="py-3">
-                  <Col>
-                    <Form.Check id="mention-on-ticket-open" type="checkbox" custom label="티켓이 열릴 때 이 역할/멤버 멘션하기" checked={currentPermSets.find(o => o.id === active.id && o.type === active.type)?.mention} onChange={() => {
-                      const activePerm = currentPermSets.find(o => o.id === active.id && o.type === active.type)
-                      if (!activePerm) return
-                      setCurrentPermSets(currentPermSets.filter(o => o.id !== active.id || o.type !== active.type).concat({ ...activePerm, mention: !activePerm.mention }))
-                    }} />
-                  </Col>
-                </Row>
+                {
+                  permType === "open" && (
+                    <Row className="py-3">
+                      <Col>
+                        <Form.Check id="mention-on-ticket-open" type="checkbox" custom label="티켓이 열릴 때 이 역할/멤버 멘션하기" checked={currentPermSets.find(o => o.id === active.id && o.type === active.type)?.mention} onChange={() => {
+                          const activePerm = currentPermSets.find(o => o.id === active.id && o.type === active.type)
+                          if (!activePerm) return
+                          setCurrentPermSets(currentPermSets.filter(o => o.id !== active.id || o.type !== active.type).concat({ ...activePerm, mention: !activePerm.mention }))
+                        }} />
+                      </Col>
+                    </Row>
+                  )
+                }
                 <Row style={{ fontSize: 18 }}>
                   {
                     [
