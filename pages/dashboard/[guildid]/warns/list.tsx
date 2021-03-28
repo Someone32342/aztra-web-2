@@ -285,7 +285,7 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
   }, [])
 
   const warnsSet = new Set(warns?.map(o => o.uuid))
-  
+
   const finalSelectedSet = new Set(Array.from(selectedWarns).filter(o => warnsSet.has(o)))
 
   const filterSortWarns = (search?: string) => (
@@ -487,7 +487,7 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
                                   fontWeight: 900,
                                 }}>
                                   경고 취소하기
-                              </Modal.Title>
+                                </Modal.Title>
                               </Modal.Header>
                               <Modal.Body className="py-4">
                                 선택한 경고 {finalSelectedSet.size}개를 취소하시겠습니까?
@@ -498,10 +498,10 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
                                   delSelectedWarns()
                                 }}>
                                   확인
-                              </Button>
+                                </Button>
                                 <Button variant="dark" onClick={() => setShowSelectedDel(false)}>
                                   닫기
-                              </Button>
+                                </Button>
                               </Modal.Footer>
                             </Modal>
 

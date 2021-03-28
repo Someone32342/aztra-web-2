@@ -13,7 +13,7 @@ interface BackToProps {
 
 export default function BackTo({ name, to, className }: BackToProps) {
   return (
-    <Link href={to}>
+    <Link href={to} shallow>
       <div className={cx("d-flex", "align-items-center", "cursor-pointer", className?.split(' '))}>
         <FontAwesomeIcon icon={faChevronLeft} className="mr-2" />
         <b className="pr-2">[{name}]</b>(으)로 돌아가기

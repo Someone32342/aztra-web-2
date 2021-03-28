@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import axios, { AxiosError } from 'axios'
 import api from 'datas/api'
 import { ChannelMinimal, MemberMinimal, Role } from 'types/DiscordTypes';
-import { Row, Container, Spinner, Tab, Tabs, Card } from 'react-bootstrap';
+import { Row, Container, Spinner, Tab, Tabs, Card, Modal, Button } from 'react-bootstrap';
 import { InfoOutlined as InfoOutlinedIcon, AssignmentInd as AssignmentIndIcon, Chat as ChatIcon } from '@material-ui/icons'
 
 import BackTo from 'components/BackTo';
@@ -24,6 +24,7 @@ import urljoin from 'url-join';
 import Head from 'next/head';
 import GeneralSettings from 'components/tickets/GeneralSettings';
 import PermissionSettings from 'components/tickets/PermissionSettings';
+import Router from 'next/router';
 dayjs.locale('ko')
 dayjs.extend(dayjsRelativeTime)
 dayjs.extend(dayjsUTC)
@@ -121,7 +122,7 @@ const TicketSettings: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
     }
   }, [])
 
-  const ticketSet = data?.find(o => o.uuid === ticketId)
+  const ticketSet = data?.find(o => o.uuid === ticketId && !o.deleted)
 
   return (
     <>
@@ -151,19 +152,44 @@ const TicketSettings: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
                   </Row>
 
                   <Row className="flex-column mt-3 nav-tabs-dark">
-                    <Tabs activeKey={activeTab} id="ticket-list-tabs" transition={false} onSelect={e => {
-                      location.hash = e ?? "general"
-                      setActiveTab(e as TabsType)
-                    }}>
-                      <Tab eventKey="general" title={<><InfoOutlinedIcon className="mr-2" />일반 설정</>}>
-                        <GeneralSettings channels={channels} ticketSet={ticketSet!} tickets={tickets!} mutate={mutate} />
-                      </Tab>
-                      <Tab eventKey="permissions" title={<><AssignmentIndIcon className="mr-2" />권한 설정</>}>
-                        <PermissionSettings ticketSet={ticketSet!} roles={roles} members={members} guild={guild} mutate={mutate} />
-                      </Tab>
-                      <Tab eventKey="message" title={<><ChatIcon className="mr-2" />메시지 설정</>}>
-                      </Tab>
-                    </Tabs>
+                    {
+                      ticketSet
+                        ? (
+                          <Tabs activeKey={activeTab} id="ticket-list-tabs" transition={false} onSelect={e => {
+                            location.hash = e ?? "general"
+                            setActiveTab(e as TabsType)
+                          }}>
+                            <Tab eventKey="general" title={<><InfoOutlinedIcon className="mr-2" />일반 설정</>}>
+                              <GeneralSettings channels={channels} ticketSet={ticketSet} tickets={tickets!} mutate={mutate} />
+                            </Tab>
+                            <Tab eventKey="permissions" title={<><AssignmentIndIcon className="mr-2" />권한 설정</>}>
+                              <PermissionSettings ticketSet={ticketSet} roles={roles} members={members} guild={guild} mutate={mutate} />
+                            </Tab>
+                            <Tab eventKey="message" title={<><ChatIcon className="mr-2" />메시지 설정</>}>
+                            </Tab>
+                          </Tabs>
+                        )
+                        : (
+                          <Modal className="modal-dark" show centered onHide={() => { }}>
+                            <Modal.Header closeButton>
+                              <Modal.Title style={{
+                                fontFamily: "NanumSquare",
+                                fontWeight: 900,
+                              }}>
+                                존재하지 않는 티켓 설정
+                              </Modal.Title>
+                            </Modal.Header>
+                            <Modal.Body className="py-4">
+                              티켓 설정을 찾는 데 실패했습니다! 해당 티켓이 삭제되었을 수 있습니다.
+                            </Modal.Body>
+                            <Modal.Footer className="justify-content-end">
+                              <Button variant="aztra" onClick={() => Router.push(`/dashboard/${guildId}/tickets`, undefined, { shallow: true })}>
+                                티켓 목록으로 돌아가기
+                              </Button>
+                            </Modal.Footer>
+                          </Modal>
+                        )
+                    }
                   </Row>
                 </>
               )

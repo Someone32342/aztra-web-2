@@ -69,7 +69,7 @@ export interface TicketPerms {
   id?: string
   allow: number
   deny: number
-  mention: boolean
+  mention?: boolean
 }
 
 export interface TicketSet {
@@ -89,6 +89,7 @@ export interface TicketSet {
 
   create_message: string
   initial_message: string
+  deleted: boolean
 }
 
 export interface Ticket {
