@@ -55,7 +55,7 @@ export default function Footer() {
           </Col>
         </Row>
         <div className={cx("FooterCopyright", "text-center")}>
-          Copyright © 2020 InfiniteTeam All rights reserved.
+          Copyright © 2020-2021 InfiniteTeam All rights reserved.
         </div>
       </Container>
     </footer>
