@@ -13,6 +13,7 @@ interface GrowthProps {
 const Growth: React.FC<GrowthProps> = ({ memberCounts, msgCounts }) => {
   const memberCountChartRef = useRef<Line>(null)
   const msgCountChartRef = useRef<Line>(null)
+  const msgCountTimelineChartRef = useRef<Bar>(null)
   const [isXS, setIsXS] = useState<boolean | null>(null)
   const [isLGP, setisLGP] = useState<boolean | null>(null)
 
@@ -323,7 +324,7 @@ const Growth: React.FC<GrowthProps> = ({ memberCounts, msgCounts }) => {
             </div>
           </div>
           <div className="ml-auto d-flex my-2 my-sm-auto">
-            <Button className="mx-1 my-1 d-flex align-items-center" variant="info" style={{ wordBreak: 'keep-all' }} size="sm" onClick={() => chartDownload(memberCountChartRef)} >
+            <Button className="mx-1 my-1 d-flex align-items-center" variant="info" style={{ wordBreak: 'keep-all' }} size="sm" onClick={() => chartDownload(msgCountTimelineChartRef)} >
               <ImageIcon className="mr-2" />
               이미지 다운로드
             </Button>
@@ -336,7 +337,7 @@ const Growth: React.FC<GrowthProps> = ({ memberCounts, msgCounts }) => {
           height: 320
         }}>
           <Bar
-            ref={memberCountChartRef}
+            ref={msgCountTimelineChartRef}
             data={{
               labels: Array.from(Array(47).keys()).map(o => {
                 if (o % 2 !== 0) return ''
