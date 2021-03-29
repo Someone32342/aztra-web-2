@@ -48,15 +48,17 @@ export const getServerSideProps: GetServerSideProps<TicketListProps> = async con
   }
 }
 
+type TabsType = 'open' | 'closed'
+
 const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
   const [selectedTickets, setSelectedTickets] = useState<Set<string>>(new Set)
   const [showSelectedClose, setShowSelectedClose] = useState(false)
-  const [activeTab, setActiveTab] = useState<"open" | "closed">("open")
+  const [activeTab, setActiveTab] = useState<TabsType>("open")
 
   const [isMD, setIsMD] = useState<boolean | null>(null)
 
   const { data, mutate } = useSWR<Ticket[], AxiosError>(
-    new Cookies().get('ACCESS_TOKEN') ? urljoin(api, `/servers/${guildId}/tickets`) : null,
+    new Cookies().get('ACCESS_TOKEN') ? urljoin(api, `/servers/${guildId}/tickets/${ticketId}`) : null,
     url => axios.get(url, {
       headers: {
         Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
@@ -111,6 +113,11 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
       window.location.assign('/login')
     }
     else {
+      const tab = location.hash.slice(1)
+      if (['open', 'closed'].includes(tab)) {
+        setActiveTab(tab as TabsType)
+      }
+
       const resize = () => setIsMD(window.innerWidth >= 768)
       resize()
       window.addEventListener('resize', resize)
@@ -378,7 +385,10 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
                   </Row>
 
                   <Row className="flex-column mt-2 nav-tabs-dark">
-                    <Tabs activeKey={activeTab} id="ticket-list-tabs" transition={false} onSelect={e => setActiveTab((e as any) ?? "open")}>
+                    <Tabs activeKey={activeTab} id="ticket-list-tabs" transition={false} onSelect={e => {
+                      location.hash = e ?? "open"
+                      setActiveTab((e as TabsType) ?? "open")
+                    }}>
                       <Tab eventKey="open" title={<><ErrorOutlineIcon className="mr-2" />열린 티켓</>}>
                         <ListTable mode="open" />
                       </Tab>
