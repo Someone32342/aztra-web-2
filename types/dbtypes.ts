@@ -70,6 +70,7 @@ export interface TicketPerms {
   allow: number
   deny: number
   mention?: boolean
+  ext_allow?: number
 }
 
 export interface TicketSet {

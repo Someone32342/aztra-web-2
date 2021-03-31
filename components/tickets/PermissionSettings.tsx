@@ -16,13 +16,13 @@ interface PermissionSettingsProps {
   mutate: Function
 }
 
-const PermissionSwitch: React.FC<{ state?: boolean | null, onChange?: (state: boolean | null) => void }> = ({ state, onChange }) => {
+const PermissionSwitch: React.FC<{ state?: boolean | null, onChange?: (state: boolean | null) => void, nullable?: boolean }> = ({ state, onChange, nullable = true }) => {
   const cls = "shadow-none"
 
   return (
     <ButtonGroup size="sm">
       <Button className={cls} variant={state === false ? "danger" : "outline-danger"} onClick={() => onChange && onChange(false)}><CloseIcon /></Button>
-      <Button className={cls} variant={(state ?? null) === null ? "secondary" : "outline-secondary"} onClick={() => onChange && onChange(null)}><span className="px-2">/</span></Button>
+      {nullable && <Button className={cls} variant={(state ?? null) === null ? "secondary" : "outline-secondary"} onClick={() => onChange && onChange(null)}><span className="px-2">/</span></Button>}
       <Button className={cls} variant={state === true ? "success" : "outline-success"} onClick={() => onChange && onChange(true)}><CheckIcon /></Button>
     </ButtonGroup>
   )
@@ -48,10 +48,11 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({ ticketSet, guil
   const AddableRoles = roles.filter(r => r.id !== guild?.id && !r.managed && !currentPermSets.find(o => o.id === r.id))
   const AddableMembers = members.filter(m => !currentPermSets.find(o => o.id === m.user.id))
 
-  const isChanged = () => (
-    (ticketSet.perms_open.length !== openPermSets.length || !ticketSet.perms_open.every(o => openPermSets.some(r => o.id === r.id && o.type === r.type && o.allow === r.allow && o.deny === r.deny && o.mention === r.mention)))
-    || (ticketSet.perms_closed.length !== closedPermSets.length || !ticketSet.perms_closed.every(o => closedPermSets.some(r => o.id === r.id && o.type === r.type && o.allow === r.allow && o.deny === r.deny && o.mention === r.mention)))
-  )
+  const isChanged = () => {
+    const check = (o: TicketPerms, r: TicketPerms) => o.id === r.id && o.type === r.type && o.allow === r.allow && o.deny === r.deny && o.mention === r.mention && o.ext_allow === r.ext_allow
+    return (ticketSet.perms_open.length !== openPermSets.length || !ticketSet.perms_open.every(o => openPermSets.some(r => check(o, r))))
+      || (ticketSet.perms_closed.length !== closedPermSets.length || !ticketSet.perms_closed.every(o => closedPermSets.some(r => check(o, r))))
+  }
 
   return (
     <Form as={Container} fluid className="mt-3">
@@ -239,6 +240,40 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({ ticketSet, guil
                 }
                 <Row style={{ fontSize: 18 }}>
                   {
+                    permType === "open" &&
+                    [
+                      [0x1, "티켓 닫기"],
+                      [0x2, "티켓 다시 열기"],
+                      [0x4, "티켓 삭제하기"]
+                    ].map(([n, name]) => {
+                      const num = n as number
+
+                      const activePerms = currentPermSets.find(o => o.id === active.id && o.type === active.type)
+                      if (!activePerms) return null
+
+                      const ext_allow = (activePerms.ext_allow ?? 0) & num
+
+                      return <Col key={n} xs={12} lg={6} className={permTitleCls} style={{ fontFamily: "NanumSquare" }}>
+                        <span className="mr-3">{name}</span>
+                        <PermissionSwitch state={ext_allow ? true : false} nullable={false} onChange={state => {
+                          const otherPerms = currentPermSets.filter(o => o.id !== active.id || o.type !== active.type)
+
+                          switch (state) {
+                            case true:
+                              setCurrentPermSets(otherPerms.concat([{ ...activePerms, ext_allow: (activePerms.ext_allow ?? 0) | num }]))
+                              break
+                            case false:
+                              setCurrentPermSets(otherPerms.concat([{ ...activePerms, ext_allow: (activePerms.ext_allow ?? 0) - num, }]))
+                              break
+                          }
+                        }} />
+                      </Col>
+                    })
+                  }
+                </Row>
+                {permType === "open" && <hr style={{ borderColor: '#4e5058', borderWidth: 1 }} />}
+                <Row style={{ fontSize: 18 }}>
+                  {
                     [
                       [Permissions.VIEW_CHANNEL, "채널 보기"],
                       [Permissions.MANAGE_CHANNELS, "채널 관리"],
@@ -266,8 +301,6 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({ ticketSet, guil
                       return <Col key={n} xs={12} lg={6} className={permTitleCls} style={{ fontFamily: "NanumSquare" }}>
                         <span className="mr-3">{name}</span>
                         <PermissionSwitch state={allow ? true : deny ? false : null} onChange={state => {
-                          console.log(currentPermSets)
-
                           const otherPerms = currentPermSets.filter(o => o.id !== active.id || o.type !== active.type)
 
                           switch (state) {
