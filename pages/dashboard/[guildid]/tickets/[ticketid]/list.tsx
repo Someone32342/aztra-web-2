@@ -4,7 +4,7 @@ import axios, { AxiosError } from 'axios'
 import api from 'datas/api'
 import { ChannelMinimal, MemberMinimal } from 'types/DiscordTypes';
 import { Row, Container, Spinner, Form, Table, Tab, Tabs, Card, Button, ButtonGroup, OverlayTrigger, Tooltip, Modal, Col } from 'react-bootstrap';
-import { ErrorOutline as ErrorOutlineIcon, Check as CheckIcon, LockOutlined as LockIcon, SettingsBackupRestoreOutlined as RestoreOutlinedIcon } from '@material-ui/icons'
+import { ErrorOutline as ErrorOutlineIcon, Check as CheckIcon, LockOutlined as LockIcon, SettingsBackupRestoreOutlined as RestoreOutlinedIcon, Delete as DeleteIcon } from '@material-ui/icons'
 
 import BackTo from 'components/BackTo';
 
@@ -129,7 +129,7 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
   const finalSelectedSet = new Set(Array.from(selectedTickets).filter(o => data?.find(a => a.uuid === o)?.status === activeTab && ticketsSet.has(o)))
 
   const TicketListCard: React.FC<TicketListCardProps> = ({ ticket, onCheckChange, checked }) => {
-    const [showClose, setShowClose] = useState(false)
+    const [showModal, setShowModal] = useState<'close' | 'reopen' | 'delete' | null>(null)
 
     const channel = channels?.find(o => o.id === ticket.channel)
 
@@ -143,7 +143,7 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
             </Tooltip>
           }
         >
-          <Button variant="dark" className="d-flex px-1 remove-before" onClick={() => setShowClose(true)}>
+          <Button variant="dark" className="d-flex px-1 remove-before" onClick={() => setShowModal('close')}>
             <LockIcon />
           </Button>
         </OverlayTrigger>
@@ -156,24 +156,37 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
             </Tooltip>
           }
         >
-          <Button variant="dark" className="d-flex px-1 remove-before" onClick={() => setShowClose(true)}>
+          <Button variant="dark" className="d-flex px-1 remove-before" onClick={() => setShowModal('reopen')}>
             <RestoreOutlinedIcon />
+          </Button>
+        </OverlayTrigger>
+        }
+        {ticket.status === "closed" && <OverlayTrigger
+          placement="top"
+          overlay={
+            <Tooltip id="task-list-row-remove-task">
+              티켓 삭제하기
+            </Tooltip>
+          }
+        >
+          <Button variant="dark" className="d-flex px-1 remove-before" onClick={() => setShowModal('delete')}>
+            <DeleteIcon />
           </Button>
         </OverlayTrigger>
         }
       </ButtonGroup>
 
-      <Modal className="modal-dark" show={showClose} onHide={() => setShowClose(false)} centered>
+      <Modal className="modal-dark" show={!!showModal} onHide={() => setShowModal(null)} centered>
         <Modal.Header closeButton>
           <Modal.Title style={{
             fontFamily: "NanumSquare",
             fontWeight: 900,
           }}>
-            {ticket.status === "open" ? "티켓 닫기" : "티켓 다시 열기"}
+            {showModal === "close" ? "티켓 닫기" : showModal === "reopen" ? "티켓 다시 열기" : "티켓 삭제하기"}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body className="py-4">
-          이 티켓을 {ticket.status === "open" ? "닫으시겠" : "다시 여"}시겠습니까?
+          이 티켓을 {showModal === "close" ? "닫으시겠" : showModal === "reopen" ? "다시 여" : "삭제하"}시겠습니까?
           <Card bg="dark" className="mt-3">
             <Card.Body>
               <Row className="pb-1">
@@ -196,12 +209,31 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
           </Card>
         </Modal.Body>
         <Modal.Footer className="justify-content-end">
-          <Button variant={ticket.status === "open" ? "danger" : "secondary"} onClick={async () => {
-            setShowClose(false)
-            axios.post(`${api}/servers/${guildId}/tickets/${ticket.status === "open" ? "close" : "reopen"}`, {
-              tickets: [ticket.uuid]
-            },
-              {
+          <Button variant={showModal === "close" ? "info" : showModal === "reopen" ? "secondary" : "danger"} onClick={async () => {
+            setShowModal(null)
+            
+            if (showModal !== "delete") {
+              axios.post(`${api}/servers/${guildId}/tickets/${showModal}`, {
+                tickets: [ticket.uuid]
+              },
+                {
+                  headers: {
+                    Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
+                  }
+                })
+                .then(() => {
+                  mutate().then(() => {
+                    let se = new Set(selectedTickets)
+                    se.delete(ticket.uuid)
+                    setSelectedTickets(se)
+                  })
+                })
+            }
+            else {
+              axios.delete(`${api}/servers/${guildId}/tickets`, {
+                data: {
+                  tickets: [ticket.uuid]
+                },
                 headers: {
                   Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
                 }
@@ -213,10 +245,11 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
                   setSelectedTickets(se)
                 })
               })
+            }
           }}>
             확인
           </Button>
-          <Button variant="dark" onClick={() => setShowClose(false)}>
+          <Button variant="dark" onClick={() => setShowModal(null)}>
             닫기
           </Button>
         </Modal.Footer>
