@@ -25,6 +25,7 @@ import Head from 'next/head';
 import GeneralSettings from 'components/tickets/GeneralSettings';
 import PermissionSettings from 'components/tickets/PermissionSettings';
 import Router from 'next/router';
+import MessageSettings from 'components/tickets/MessageSettings';
 dayjs.locale('ko')
 dayjs.extend(dayjsRelativeTime)
 dayjs.extend(dayjsUTC)
@@ -166,6 +167,7 @@ const TicketSettings: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
                               <PermissionSettings ticketSet={ticketSet} roles={roles} members={members} guild={guild} mutate={mutate} />
                             </Tab>
                             <Tab eventKey="message" title={<><ChatIcon className="mr-2" />메시지 설정</>}>
+                              <MessageSettings ticketSet={ticketSet} mutate={mutate} />
                             </Tab>
                           </Tabs>
                         )

@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Button, Row, Col, Form, Spinner, Container, Card, Alert } from 'react-bootstrap'
+import { Button, Row, Col, Form, Spinner, Container, Card, Alert, Modal, Table } from 'react-bootstrap'
 import TextareaAutosize from 'react-textarea-autosize'
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faHashtag, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons'
+import { Code as CodeIcon } from '@material-ui/icons'
 
 import axios, { AxiosError } from 'axios'
 
@@ -23,32 +24,6 @@ import filterChannels from 'utils/filterChannels';
 
 interface GreetingsRouterProps {
   guildId: string
-}
-
-interface GreetingsState {
-  data: GreetingsType | null
-  fetchDone: boolean
-  useJoin: boolean
-  useLeave: boolean
-  saving: boolean
-  channels: ChannelMinimal[] | null
-  channelFetchDone: boolean
-  channelSearch: string
-  newChannel: ChannelMinimal | null
-  filteredChannels: ChannelMinimal[] | null
-
-  validation_incomingTitle: boolean | null
-  validation_incomingDesc: boolean | null
-  validation_outgoingTitle: boolean | null
-  validation_outgoingDesc: boolean | null
-  validation_channel: boolean | null
-
-  incomingTitle: string | null
-  incomingDesc: string | null
-  outgoingTitle: string | null
-  outgoingDesc: string | null
-
-  saveError: boolean
 }
 
 type handleFieldChangeTypes = 'incomingTitle' | 'incomingDesc' | 'outgoingTitle' | 'outgoingDesc' | 'channel'
@@ -81,6 +56,8 @@ const Greetings: NextPage<GreetingsRouterProps> = ({ guildId }) => {
   const [newChannel, setNewChannel] = useState<ChannelMinimal | null>(null)
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState(false)
+
+  const [showFormattings, setShowFormattings] = useState(false)
 
   const { data, mutate } = useSWR<GreetingsType, AxiosError>(
     new Cookies().get('ACCESS_TOKEN') ? urljoin(api, `/servers/${guildId}/greetings`) : null,
@@ -229,11 +206,58 @@ const Greetings: NextPage<GreetingsRouterProps> = ({ guildId }) => {
                     </div>
                   </div>
                 </Row>
+
+                <Modal className="modal-dark" show={showFormattings} onHide={() => setShowFormattings(false)} centered size="lg">
+                  <Modal.Header closeButton>
+                    <Modal.Title style={{
+                      fontFamily: "NanumSquare",
+                      fontWeight: 900,
+                    }}>
+                      서식문자 목록
+                    </Modal.Title>
+                  </Modal.Header>
+                  <Modal.Body className="py-4">
+                    <Table variant="dark">
+                      <thead>
+                        <tr>
+                          <th>코드</th>
+                          <th>설명</th>
+                          <th>예시</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {
+                          [
+                            ['username', '대상 멤버의 이름', 'Aztra'],
+                            ['usertag', '대상 멤버의 태그', '2412'],
+                            ['userid', '대상 멤버의 ID', '751339721782722570'],
+                            ['guild', '서버의 이름', "Arpa's Server"],
+                            ['membercount', '서버의 멤버 수', '904'],
+                            ['usermention', '유저를 멘션', '@Aztra'],
+                          ].map(([c, d, e]) => <tr key={c as string}>
+                            <td>${`{${c}}`}</td>
+                            <td>{d}</td>
+                            <td>{e}</td>
+                          </tr>)
+                        }
+                      </tbody>
+                    </Table>
+                  </Modal.Body>
+                  <Modal.Footer className="justify-content-end">
+                    <Button variant="dark" onClick={() => setShowFormattings(false)}>
+                      닫기
+                    </Button>
+                  </Modal.Footer>
+                </Modal>
+
                 <Row>
                   <Col>
                     <Form noValidate>
-                      <Row className="pb-2">
+                      <Row className="pb-2 align-items-center">
                         <h4>반기는 메시지</h4>
+                        <Button variant="dark" className="ml-auto d-flex align-items-center mb-2" size="sm" onClick={() => setShowFormattings(true)} >
+                          <CodeIcon className="mr-2" fontSize="small" />서식문자 목록
+                        </Button>
                       </Row>
 
                       <Form.Group controlId="incomingUse">
@@ -284,8 +308,11 @@ const Greetings: NextPage<GreetingsRouterProps> = ({ guildId }) => {
                         </Form.Group>
                       </div>
 
-                      <Row className="pt-4 pb-2">
+                      <Row className="pt-4 pb-2 align-items-center">
                         <h4>나가는 메시지</h4>
+                        <Button variant="dark" className="ml-auto d-flex align-items-center mb-2" size="sm" onClick={() => setShowFormattings(true)} >
+                          <CodeIcon className="mr-2" fontSize="small" />서식문자 목록
+                        </Button>
                       </Row>
 
                       <Form.Group controlId="outgoingUse">

@@ -119,7 +119,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ guildId, children }) 
         </Col>
 
         {/* 대시보드 본문 */}
-        <Col xl={10} lg={9} md={9} className="Dashboardroute-body">
+        <Col xl={10} lg={9} md={9} className="Dashboardroute-body" spellCheck={false}>
           {children ? children(guild) : null}
         </Col>
       </Row>
