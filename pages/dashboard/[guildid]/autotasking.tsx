@@ -546,14 +546,14 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                                 />
                               }
                               {
-                                editData?.type === "emoji_role" &&
+                                editData?.type === "join_role" &&
                                 <JoinRole
                                   guild={guild} channels={channels ?? []} roles={roles ?? []} saving={editSaving} saveError={editError} editMode closeButton
                                   defaultTask={editData}
                                   onSubmit={({ data, params }) => {
                                     const postData: TaskSet<{}, JoinRoleData> = {
                                       uuid: edit!,
-                                      type: "emoji_role",
+                                      type: "join_role",
                                       params: params,
                                       data: data
                                     }
