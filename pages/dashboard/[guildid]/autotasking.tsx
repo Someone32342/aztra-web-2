@@ -388,7 +388,7 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                                             postTask(postData)
                                           }}
                                           />}
-                                          {taskType === "join_role" && <JoinRole guild={guild} channels={channels ?? []} roles={roles ?? []} saving={saving} saveError={saveError} onSubmit={({ data, params }) => {
+                                          {taskType === "join_role" && <JoinRole guild={guild} roles={roles ?? []} saving={saving} saveError={saveError} onSubmit={({ data, params }) => {
                                             const postData: Omit<TaskSet<{}, JoinRoleData>, 'uuid'> = {
                                               type: taskType,
                                               params: params,
@@ -548,7 +548,7 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                               {
                                 editData?.type === "join_role" &&
                                 <JoinRole
-                                  guild={guild} channels={channels ?? []} roles={roles ?? []} saving={editSaving} saveError={editError} editMode closeButton
+                                  guild={guild} roles={roles ?? []} saving={editSaving} saveError={editError} editMode closeButton
                                   defaultTask={editData}
                                   onSubmit={({ data, params }) => {
                                     const postData: TaskSet<{}, JoinRoleData> = {

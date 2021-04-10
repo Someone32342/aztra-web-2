@@ -9,7 +9,6 @@ import RoleBadge, { AddRole } from "components/forms/RoleBadge"
 
 interface JoinRoleProps {
   guild: PartialGuild | null
-  channels: ChannelMinimal[]
   roles: Role[]
   saving?: boolean
   saveError?: boolean
@@ -20,8 +19,8 @@ interface JoinRoleProps {
   onClose?: Function
 }
 
-const JoinRole: React.FC<JoinRoleProps> = ({ guild, channels, roles, saving, saveError, editMode, closeButton, defaultTask, onSubmit, onClose }) => {
-  const [newData, setNewData] = useState<JoinRoleData>({ add: [] })
+const JoinRole: React.FC<JoinRoleProps> = ({ guild, roles, saving, saveError, editMode, closeButton, defaultTask, onSubmit, onClose }) => {
+  const [newData, setNewData] = useState<JoinRoleData>(defaultTask?.data ?? { add: [] })
 
   return (
     <>
