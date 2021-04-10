@@ -17,6 +17,8 @@ const MessageSettings: React.FC<MessageSettingsProps> = ({ ticketSet, mutate }) 
   const [saveError, setSaveError] = useState(false)
   const [saving, setSaving] = useState(false)
 
+  const [newOpenChannelName, setNewOpenChannelName] = useState<string | null>(null)
+  const [newClosedChannelName, setNewClosedChannelName] = useState<string | null>(null)
   const [newCreateMessage, setNewCreateMessage] = useState<string | null>(null)
   const [newInitialMessage, setNewInitialMessage] = useState<string | null>(null)
   const [createMessageValidate, setCreateMessageValidate] = useState<boolean | null>(null)
@@ -31,6 +33,94 @@ const MessageSettings: React.FC<MessageSettingsProps> = ({ ticketSet, mutate }) 
 
   return (
     <Form as={Container} fluid className="mt-3">
+      <Row className="py-2">
+        <div className="d-flex align-items-center pb-2 w-100">
+          <h4 className="pr-5 mb-0">티켓 채널 이름 설정</h4>
+          <Button variant="dark" className="ml-auto d-flex align-items-center" size="sm" onClick={() => setShowFormattings(true)} >
+            <CodeIcon className="mr-2" fontSize="small" />서식문자 목록
+          </Button>
+        </div>
+
+        <Modal className="modal-dark" show={showFormattings} onHide={() => setShowFormattings(false)} centered size="lg">
+          <Modal.Header closeButton>
+            <Modal.Title style={{
+              fontFamily: "NanumSquare",
+              fontWeight: 900,
+            }}>
+              서식문자 목록
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body className="py-4">
+            <Table variant="dark">
+              <thead>
+                <tr>
+                  <th>코드</th>
+                  <th>설명</th>
+                  <th>예시</th>
+                </tr>
+              </thead>
+              <tbody>
+                {
+                  [
+                    ['opener_name', '티켓 생성자 이름', 'Aztra'],
+                    ['opener_tag', '티켓 생성자의 태그', '2412'],
+                    ['opener_id', '티켓 생성자의 ID', '751339721782722570'],
+                    ['ticket_number', '티켓 번호', '12'],
+                    ['ticket_name', '티켓 이름', '신고'],
+                    ['ticket_emoji', '티켓 이모지', <Emoji emoji="+1" set="twitter" size={18}/>]
+                  ].map(([c, d, e]) => <tr key={c as string}>
+                    <td>${`{${c}}`}</td>
+                    <td>{d}</td>
+                    <td>{e}</td>
+                  </tr>)
+                }
+              </tbody>
+            </Table>
+          </Modal.Body>
+          <Modal.Footer className="justify-content-end">
+            <Button variant="dark" onClick={() => setShowFormattings(false)}>
+              닫기
+            </Button>
+          </Modal.Footer>
+        </Modal>
+      </Row>
+
+      <Row>
+        <Form.Label column sm="auto" className="font-weight-bold">열린 티켓 채널 이름</Form.Label>
+        <Col>
+          <Form.Group>
+            <Form.Control
+              type="text"
+              className="shadow-sm"
+              value={newOpenChannelName ?? ticketSet.create_message}
+              placeholder="예) ${ticket_name}-${ticket_number}"
+              onChange={e => {
+                const value = e.target.value
+                setNewOpenChannelName(value)
+              }}
+            />
+          </Form.Group>
+        </Col>
+      </Row>
+
+      <Row>
+        <Form.Label column sm="auto" className="font-weight-bold">닫힌 티켓 채널 이름</Form.Label>
+        <Col>
+          <Form.Group>
+            <Form.Control
+              type="text"
+              className="shadow-sm"
+              value={newClosedChannelName ?? ticketSet.create_message}
+              placeholder="예) ${ticket_name}-${ticket_number}-닫힘"
+              onChange={e => {
+                const value = e.target.value
+                setNewClosedChannelName(value)
+              }}
+            />
+          </Form.Group>
+        </Col>
+      </Row>
+
       <Row className="py-2">
         <div className="d-flex align-items-center pb-2 w-100">
           <h4 className="pr-5 mb-0">메시지 설정</h4>

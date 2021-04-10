@@ -8,7 +8,6 @@ import Link from 'next/link'
 import classNames from 'classnames/bind'
 import styles from 'styles/components/Navibar.module.scss'
 import links from 'datas/links'
-import Image from 'next/image'
 
 import MenuIcon from '@material-ui/icons/Menu';
 

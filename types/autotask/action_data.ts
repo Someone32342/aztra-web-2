@@ -3,3 +3,7 @@ export type EmojiRoleData = {
   add: string[]
   remove: string[]
 }
+
+export type JoinRoleData = {
+  add: string[]
+}

@@ -90,6 +90,10 @@ export interface TicketSet {
 
   create_message: string
   initial_message: string
+
+  channel_name_open: string
+  channel_name_closed: string
+
   deleted: boolean
 }
 
