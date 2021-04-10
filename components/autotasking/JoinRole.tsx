@@ -1,10 +1,11 @@
 import React, { useState } from "react"
-import { Button, Col, Form, Row, Spinner } from "react-bootstrap"
+import { Button, Col, Dropdown, Form, Row, Spinner, Card } from "react-bootstrap"
 import { Check as CheckIcon, Close as CloseIcon } from '@material-ui/icons'
 
 import { JoinRoleData } from "types/autotask/action_data"
 import { ChannelMinimal, PartialGuild, Role } from "types/DiscordTypes"
 import { TaskSet } from "types/autotask"
+import RoleBadge, { AddRole } from "components/forms/RoleBadge"
 
 interface JoinRoleProps {
   guild: PartialGuild | null
@@ -24,7 +25,7 @@ const JoinRole: React.FC<JoinRoleProps> = ({ guild, channels, roles, saving, sav
 
   return (
     <>
-      <Row className="pt-4">
+      <Row>
         <Col>
           <Form.Label className="pt-2 h5 font-weight-bold">역할 추가하기:</Form.Label>
           <Form.Text>멤버가 서버에 참여했을 때 자동으로 추가할 역할을 선택하세요.</Form.Text>
@@ -33,17 +34,46 @@ const JoinRole: React.FC<JoinRoleProps> = ({ guild, channels, roles, saving, sav
 
       <Row>
         <Col>
-          {
-            newData.map(one => (
-              
-            ))
-          }
+          <Card style={{ backgroundColor: '#4b505a' }} className="my-3">
+            <Card.Body className="d-flex flex-wrap align-items-center py-2">
+              {
+                newData.add.map(one => {
+                  const role = roles.find(o => o.id === one)
+                  if (!role) return null
+
+                  return <RoleBadge key={role.id} className="pr-2 py-1" name={role.name ?? ''} color={'#' + (role.color ? role.color.toString(16) : 'fff')} removeable onRemove={() => {
+                    setNewData({
+                      ...newData,
+                      add: newData.add?.filter(r => r !== one)
+                    })
+                  }} />
+                })
+              }
+              <Dropdown className="dropdown-menu-dark" onSelect={key => {
+                if (newData.add.includes(key!)) return
+                setNewData({
+                  ...newData,
+                  add: newData?.add?.concat(key!) ?? newData?.add
+                })
+              }}>
+                <Dropdown.Toggle className="remove-after py-1" as={AddRole} id="add-role-select-toggle" />
+                <Dropdown.Menu style={{ maxHeight: 300, overflowY: 'scroll' }}>
+                  {
+                    roles.filter(r => r.id !== guild?.id && !r.managed).sort((a, b) => b.position - a.position).map(r => (
+                      <Dropdown.Item key={r.id} eventKey={r.id} style={{ color: '#' + r.color.toString(16) }}>
+                        {r.name}
+                      </Dropdown.Item>
+                    ))
+                  }
+                </Dropdown.Menu>
+              </Dropdown>
+            </Card.Body>
+          </Card>
         </Col>
       </Row>
 
       <Row>
         <Col>
-          <hr className="mt-0" style={{ borderColor: '#4e5058', borderWidth: 2 }} />
           <div className="d-flex">
             <Button
               className="pl-2 d-flex justify-content-center align-items-center"

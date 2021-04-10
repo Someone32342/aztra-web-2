@@ -15,11 +15,12 @@ import urljoin from 'url-join'
 import { ChannelMinimal, MemberMinimal, Role } from 'types/DiscordTypes'
 import Head from 'next/head'
 import { TaskSet } from 'types/autotask'
-import { EmojiRoleData } from 'types/autotask/action_data'
+import { EmojiRoleData, JoinRoleData } from 'types/autotask/action_data'
 import EmojiRole from 'components/autotasking/EmojiRole'
 import { EmojiRoleParams } from 'types/autotask/params'
 import RoleBadge from 'components/forms/RoleBadge'
 import { Emoji } from 'emoji-mart'
+import JoinRole from 'components/autotasking/JoinRole'
 
 interface AutoTaskingRouterProps {
   guildId: string
@@ -158,6 +159,21 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
           </div>
         ))
         break
+
+      case 'join_role':
+        eventName = "멤버가 참여했을 때 역할 추가"
+
+        let joinRoleTaskData: JoinRoleData = taskset.data
+        taskContent = <div className="py-1 d-flex align-items-center">
+          <b className="pr-2">멤버 참여시 역할 추가:</b>
+          {
+            joinRoleTaskData.add.map(r => {
+              const role = roles?.find(one => one.id === r)
+              return <RoleBadge key={r} className="mr-2" name={role?.name ?? '(존재하지 않는 역할)'} color={'#' + (role?.color ? role?.color.toString(16) : 'fff')} />
+            })
+          }
+        </div>
+        break
     }
 
     return (
@@ -261,6 +277,51 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
       })
   }
 
+  const patchTask = (postData: TaskSet) => {
+    setEditSaving(true)
+    axios.patch(`${api}/servers/${guildId}/autotasking`,
+      [postData],
+      {
+        headers: {
+          Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
+        }
+      }
+    )
+      .then(() => {
+        mutate()
+          .then(() => {
+            setEditSaving(false)
+            setEdit(null)
+          })
+      })
+      .catch(() => setEditError(true))
+  }
+
+  const postTask = (postData: Omit<TaskSet, 'uuid'>) => {
+    setSaving(true)
+    axios.post(`${api}/servers/${guildId}/autotasking`, postData,
+      {
+        headers: {
+          Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
+        }
+      }
+    )
+      .then(() => {
+        mutate()
+          .then(() => {
+            animateScroll.scrollToTop({
+              isDynamic: true
+            })
+            setTaskType(0)
+            setAddNew(false)
+          })
+      })
+      .catch(() => setSaveError(true))
+      .finally(() => setSaving(false))
+  }
+
+  const editData = data?.find(o => o.uuid === edit)
+
   return (
     <>
       <Head>
@@ -310,6 +371,7 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                                             <Form.Control className="shadow-sm" style={{ fontSize: 15 }} as="select" value={taskType} onChange={e => setTaskType(e.target.value)}>
                                               <option value={0}>유형 선택</option>
                                               <option value="emoji_role">반응했을 때 역할 추가/제거</option>
+                                              <option value="join_role">멤버가 참여했을 때 역할 추가</option>
                                             </Form.Control>
                                           </Col>
                                         </Row>
@@ -323,26 +385,16 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                                               params: params,
                                               data: data
                                             }
-                                            setSaving(true)
-                                            axios.post(`${api}/servers/${guildId}/autotasking`, postData,
-                                              {
-                                                headers: {
-                                                  Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
-                                                }
-                                              }
-                                            )
-                                              .then(() => {
-                                                mutate()
-                                                  .then(() => {
-                                                    animateScroll.scrollToTop({
-                                                      isDynamic: true
-                                                    })
-                                                    setTaskType(0)
-                                                    setAddNew(false)
-                                                  })
-                                              })
-                                              .catch(() => setSaveError(true))
-                                              .finally(() => setSaving(false))
+                                            postTask(postData)
+                                          }}
+                                          />}
+                                          {taskType === "join_role" && <JoinRole guild={guild} channels={channels ?? []} roles={roles ?? []} saving={saving} saveError={saveError} onSubmit={({ data, params }) => {
+                                            const postData: Omit<TaskSet<{}, JoinRoleData>, 'uuid'> = {
+                                              type: taskType,
+                                              params: params,
+                                              data: data
+                                            }
+                                            postTask(postData)
                                           }}
                                           />}
                                         </Form.Group>
@@ -477,10 +529,10 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                             </Modal.Header>
                             <Modal.Body className="py-4">
                               {
-                                data.find(o => o.uuid === edit)?.type === "emoji_role" &&
+                                editData?.type === "emoji_role" &&
                                 <EmojiRole
                                   guild={guild} channels={channels ?? []} roles={roles ?? []} saving={editSaving} saveError={editError} editMode closeButton
-                                  defaultTask={data.find(o => o.uuid === edit)}
+                                  defaultTask={editData}
                                   onSubmit={({ data, params }) => {
                                     const postData: TaskSet<EmojiRoleParams, EmojiRoleData[]> = {
                                       uuid: edit!,
@@ -488,23 +540,24 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                                       params: params,
                                       data: data
                                     }
-                                    setEditSaving(true)
-                                    axios.patch(`${api}/servers/${guildId}/autotasking`,
-                                      [postData],
-                                      {
-                                        headers: {
-                                          Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
-                                        }
-                                      }
-                                    )
-                                      .then(() => {
-                                        mutate()
-                                          .then(() => {
-                                            setEditSaving(false)
-                                            setEdit(null)
-                                          })
-                                      })
-                                      .catch(() => setEditError(true))
+                                    patchTask(postData)
+                                  }}
+                                  onClose={() => setEdit(null)}
+                                />
+                              }
+                              {
+                                editData?.type === "emoji_role" &&
+                                <JoinRole
+                                  guild={guild} channels={channels ?? []} roles={roles ?? []} saving={editSaving} saveError={editError} editMode closeButton
+                                  defaultTask={editData}
+                                  onSubmit={({ data, params }) => {
+                                    const postData: TaskSet<{}, JoinRoleData> = {
+                                      uuid: edit!,
+                                      type: "emoji_role",
+                                      params: params,
+                                      data: data
+                                    }
+                                    patchTask(postData)
                                   }}
                                   onClose={() => setEdit(null)}
                                 />

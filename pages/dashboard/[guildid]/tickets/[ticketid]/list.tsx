@@ -52,7 +52,7 @@ type TabsType = 'open' | 'closed'
 
 const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
   const [selectedTickets, setSelectedTickets] = useState<Set<string>>(new Set)
-  const [showSelectedClose, setShowSelectedClose] = useState(false)
+  const [showSelectedClose, setShowSelectedClose] = useState<'reopen' | 'close' | 'delete' | false>(false)
   const [activeTab, setActiveTab] = useState<TabsType>("open")
 
   const [isMD, setIsMD] = useState<boolean | null>(null)
@@ -211,7 +211,7 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
         <Modal.Footer className="justify-content-end">
           <Button variant={showModal === "close" ? "info" : showModal === "reopen" ? "secondary" : "danger"} onClick={async () => {
             setShowModal(null)
-            
+
             if (showModal !== "delete") {
               axios.post(`${api}/servers/${guildId}/tickets/${showModal}`, {
                 tickets: [ticket.uuid]
@@ -238,13 +238,13 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
                   Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
                 }
               })
-              .then(() => {
-                mutate().then(() => {
-                  let se = new Set(selectedTickets)
-                  se.delete(ticket.uuid)
-                  setSelectedTickets(se)
+                .then(() => {
+                  mutate().then(() => {
+                    let se = new Set(selectedTickets)
+                    se.delete(ticket.uuid)
+                    setSelectedTickets(se)
+                  })
                 })
-              })
             }
           }}>
             확인
@@ -365,16 +365,28 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
     )
   }
 
-  const SelectedTicketsAction = (type: "close" | "reopen") => {
-    axios.post(`${api}/servers/${guildId}/tickets/${type}`, {
-      tickets: Array.from(finalSelectedSet)
-    },
-      {
-        headers: {
-          Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
-        }
-      })
+  const SelectedTicketsAction = (type: "close" | "reopen" | "delete") => {
+    (
+      type === 'delete' ?
+        axios.delete(`${api}/servers/${guildId}/tickets`, {
+          data: {
+            tickets: Array.from(finalSelectedSet)
+          },
+          headers: {
+            Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
+          }
+        })
+        : axios.post(`${api}/servers/${guildId}/tickets/${type}`, {
+          tickets: Array.from(finalSelectedSet)
+        },
+          {
+            headers: {
+              Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
+            }
+          })
+    )
       .then(() => {
+        console.log('ds')
         mutate().then(() => setSelectedTickets(new Set))
       })
   }
@@ -407,14 +419,22 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
                   </Row>
 
                   <Row className="justify-content-end align-items-center mt-3">
-                    {activeTab === "open" && <Button variant="danger" size="sm" className="d-flex align-items-center my-1" disabled={!finalSelectedSet.size} onClick={() => setShowSelectedClose(true)}>
+                    {activeTab === "open" && <Button variant="danger" size="sm" className="d-flex align-items-center my-1" disabled={!finalSelectedSet.size} onClick={() => setShowSelectedClose('close')}>
                       <LockIcon className="mr-1" />
                       선택 티켓 닫기
                     </Button>}
-                    {activeTab === "closed" && <Button variant="secondary" size="sm" className="d-flex align-items-center my-1" disabled={!finalSelectedSet.size} onClick={() => setShowSelectedClose(true)}>
-                      <LockIcon className="mr-1" />
-                      선택 티켓 다시 열기
-                    </Button>}
+                    {activeTab === "closed" &&
+                      <>
+                        <Button variant="secondary" size="sm" className="d-flex align-items-center my-1" disabled={!finalSelectedSet.size} onClick={() => setShowSelectedClose('reopen')}>
+                          <LockIcon className="mr-1" />
+                          선택 티켓 다시 열기
+                        </Button>
+                        <Button variant="danger" size="sm" className="ml-3 d-flex align-items-center my-1" disabled={!finalSelectedSet.size} onClick={() => setShowSelectedClose('delete')}>
+                          <DeleteIcon className="mr-1" />
+                          선택 티켓 삭제
+                        </Button>
+                      </>
+                    }
                   </Row>
 
                   <Row className="flex-column mt-2 nav-tabs-dark">
@@ -438,33 +458,24 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
                           fontFamily: "NanumSquare",
                           fontWeight: 900,
                         }}>
-                          {activeTab === "open" ? "티켓 닫기" : "티켓 다시 열기"}
+                          {showSelectedClose === "close" ? "티켓 닫기" : showSelectedClose === "reopen" ? "티켓 다시 열기" : "티켓 삭제하기"}
                         </Modal.Title>
                       </Modal.Header>
                       <Modal.Body className="py-4">
-                        {activeTab === "open"
-                          ? <>
-                            <p className="font-weight-bold" style={{ fontSize: 17 }}>
-                              선택한 티켓 {finalSelectedSet.size}개를 닫으시겠습니까?
-                            </p>
-                            <small>
-                              - 티켓을 닫으면 <b>닫힌 티켓</b>으로 분류되며, 닫힌 티켓 설정대로 카테고리, 채널 이름과 권한 등이 변경됩니다.
-                            </small>
-                          </>
-                          : <>
-                            <p className="font-weight-bold" style={{ fontSize: 17 }}>
-                              선택한 티켓 {finalSelectedSet.size}개를 다시 여시겠습니까?
-                            </p>
-                            <small>
-                              - 티켓을 다시 열면 <b>열린 티켓</b>으로 분류되며, 열린 티켓 설정대로 카테고리, 채널 이름과 권한 등이 변경됩니다.
-                            </small>
-                          </>
+                        <p className="font-weight-bold" style={{ fontSize: 17 }}>
+                          선택한 티켓 {finalSelectedSet.size}개를 {showSelectedClose === "close" ? "닫으시" : showSelectedClose === "reopen" ? "다시 여시" : "삭제하시"}겠습니까?
+                        </p>
+                        {
+                          ['close', 'reopen'].includes(showSelectedClose || '') &&
+                          <small>
+                            - 티켓을 {showSelectedClose === "close" ? "닫으면" : "다시 열면"} <b>{showSelectedClose === "close" ? "닫힌 티켓" : "열린 티켓"}</b>으로 분류되며, {showSelectedClose === "close" ? "닫힌 티켓" : "열린 티켓"} 설정대로 카테고리, 채널 이름과 권한 등이 변경됩니다.
+                          </small>
                         }
                       </Modal.Body>
                       <Modal.Footer className="justify-content-end">
                         <Button variant={activeTab === "open" ? "danger" : "secondary"} onClick={async () => {
                           setShowSelectedClose(false)
-                          SelectedTicketsAction(activeTab === "open" ? "close" : "reopen")
+                          showSelectedClose !== false && SelectedTicketsAction(showSelectedClose)
                         }}>
                           확인
                         </Button>

@@ -138,9 +138,9 @@ export default function Servers() {
                     height: 50,
                     width: 50
                   }} />
-                  <h3 className="pt-5">
+                  <h4 className="pt-5">
                     서버 목록을 가져오고 있습니다...
-                </h3>
+                </h4>
                 </div>
                 : guild_cards
             }
