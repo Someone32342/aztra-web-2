@@ -31,15 +31,19 @@ const MessageSettings: React.FC<MessageSettingsProps> = ({ ticketSet, mutate }) 
   const [showFormattings, setShowFormattings] = useState<'set' | 'ticket' | false>(false)
 
   const isChanged = () => (
-    (newOpenChannelName !== null && ticketSet.channel_name_open !== newOpenChannelName)
-    || (newClosedChannelName !== null && ticketSet.channel_name_closed !== newClosedChannelName)
-    || (newCreateMessage !== null && ticketSet.create_message !== newCreateMessage)
-    || (newInitialMessage !== null && ticketSet.initial_message !== newInitialMessage)
+    (
+      (newOpenChannelName !== null && ticketSet.channel_name_open !== newOpenChannelName)
+      || (newClosedChannelName !== null && ticketSet.channel_name_closed !== newClosedChannelName)
+      || (newCreateMessage !== null && ticketSet.create_message !== newCreateMessage)
+      || (newInitialMessage !== null && ticketSet.initial_message !== newInitialMessage)
+    )
+      && ![openChannelNameValidate, closedChannelNameValidate, createMessageValidate, initialMessageValidate].includes(false)
+
   )
 
   return (
     <Form as={Container} fluid className="mt-3">
-      <Row className="py-2">
+      <Row className="pt-3 pb-2">
         <div className="d-flex align-items-center pb-2 w-100">
           <h4 className="pr-5 mb-0">티켓 채널 이름 설정</h4>
           <Button variant="dark" className="ml-auto d-flex align-items-center" size="sm" onClick={() => setShowFormattings('set')} >

@@ -19,12 +19,11 @@ interface EmojiRoleProps {
   saveError?: boolean
   editMode?: boolean
   closeButton?: boolean
-  defaultData?: TicketSet
   onSubmit?: (data: TicketSetPOST, event: React.MouseEvent<HTMLElement, MouseEvent>) => void
   onClose?: Function
 }
 
-const TicketForm: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, saveError, editMode, closeButton, defaultData, onSubmit, onClose }) => {
+const TicketForm: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, saveError, editMode, closeButton, onSubmit, onClose }) => {
   const [channelSearch, setChannelSearch] = useState('')
   const [selectedChannel, setSelectedChannel] = useState<string | null>(null)
   const [selectedCategory, setSelectedCategory] = useState<string | 0>(0)
@@ -92,20 +91,18 @@ const TicketForm: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, 
                 display: 'block'
               }}>
                 {
-                  channels
-                    ? filterChannels(channels, channelSearch)
-                      .map(one =>
-                        <ChannelSelectCard
-                          key={one.id}
-                          selected={selectedChannel === one.id}
-                          channelData={{
-                            channelName: one.name,
-                            parentChannelName: channels?.find(c => c.id === one.parentID)?.name
-                          }}
-                          onClick={() => setSelectedChannel(one.id)}
-                        />
-                      )
-                    : <h4>불러오는 중</h4>
+                  filterChannels(channels, channelSearch)
+                    .map(one =>
+                      <ChannelSelectCard
+                        key={one.id}
+                        selected={selectedChannel === one.id}
+                        channelData={{
+                          channelName: one.name,
+                          parentChannelName: channels?.find(c => c.id === one.parentID)?.name
+                        }}
+                        onClick={() => setSelectedChannel(one.id)}
+                      />
+                    )
                 }
               </Row>
             </Container>

@@ -59,7 +59,8 @@ const TicketSettings: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
     })
       .then(r => r.data),
     {
-      refreshInterval: 5000
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false
     }
   )
 

@@ -123,7 +123,7 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({ channels, ticketSet, 
                 display: 'block'
               }}>
                 {
-                  filteredChannels.map(one =>
+                  filteredChannels.filter(o => !tickets.find(t => t.channel === o.id)).map(one =>
                     <ChannelSelectCard
                       key={one.id}
                       selected={newChannel === one.id || (!newChannel && one.id === ticketSet?.channel)}
