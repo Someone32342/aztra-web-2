@@ -4,7 +4,7 @@ import axios, { AxiosError } from 'axios'
 import api from 'datas/api'
 import { ChannelMinimal, MemberMinimal } from 'types/DiscordTypes';
 import { Row, Container, Spinner, Form, Table, Tab, Tabs, Card, Button, ButtonGroup, OverlayTrigger, Tooltip, Modal, Col } from 'react-bootstrap';
-import { ErrorOutline as ErrorOutlineIcon, Check as CheckIcon, LockOutlined as LockIcon, SettingsBackupRestoreOutlined as RestoreOutlinedIcon, Delete as DeleteIcon } from '@material-ui/icons'
+import { ErrorOutline as ErrorOutlineIcon, Check as CheckIcon, LockOutlined as LockIcon, SettingsBackupRestoreOutlined as RestoreOutlinedIcon, Delete as DeleteIcon, Close as CloseIcon } from '@material-ui/icons'
 
 import BackTo from 'components/BackTo';
 
@@ -35,7 +35,8 @@ interface TicketListProps {
 interface TicketListCardProps {
   onCheckChange?: ((event: React.ChangeEvent<HTMLInputElement>) => void)
   checked?: boolean
-  ticket: Ticket
+  ticket: Ticket,
+  deletedMode?: boolean
 }
 
 export const getServerSideProps: GetServerSideProps<TicketListProps> = async context => {
@@ -48,7 +49,7 @@ export const getServerSideProps: GetServerSideProps<TicketListProps> = async con
   }
 }
 
-type TabsType = 'open' | 'closed'
+type TabsType = 'open' | 'closed' | 'deleted'
 
 const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
   const [selectedTickets, setSelectedTickets] = useState<Set<string>>(new Set)
@@ -128,7 +129,7 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
   const ticketsSet = new Set(data?.map(o => o.uuid).filter(o => data?.find(a => a.uuid === o)?.status === activeTab))
   const finalSelectedSet = new Set(Array.from(selectedTickets).filter(o => data?.find(a => a.uuid === o)?.status === activeTab && ticketsSet.has(o)))
 
-  const TicketListCard: React.FC<TicketListCardProps> = ({ ticket, onCheckChange, checked }) => {
+  const TicketListCard: React.FC<TicketListCardProps> = ({ ticket, onCheckChange, checked, deletedMode = false }) => {
     const [showModal, setShowModal] = useState<'close' | 'reopen' | 'delete' | null>(null)
 
     const channel = channels?.find(o => o.id === ticket.channel)
@@ -161,7 +162,7 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
           </Button>
         </OverlayTrigger>
         }
-        {ticket.status === "closed" && <OverlayTrigger
+        {ticket.status !== "deleted" && <OverlayTrigger
           placement="top"
           overlay={
             <Tooltip id="task-list-row-remove-task">
@@ -259,22 +260,28 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
     return (
       <tr>
         {
+          !deletedMode &&
+          <td className="align-middle text-center">
+            <Form.Check
+              id={`ticket-check-${ticket.uuid}`}
+              type="checkbox"
+              custom
+              checked={checked}
+              onChange={onCheckChange}
+            />
+          </td>
+        }
+        {
           isMD ? <>
-            <td className="align-middle text-center">
-              <Form.Check
-                id={`ticket-check-${ticket.uuid}`}
-                type="checkbox"
-                custom
-                checked={checked}
-                onChange={onCheckChange}
-              />
-            </td>
             <td className="align-middle">
               <b>#{ticket.number}</b>
             </td>
-            <td className="align-middle font-weight-bold">
-              {channel ? `#${channel.name}` : <i>(존재하지 않는 채널)</i>}
-            </td>
+            {
+              !deletedMode && 
+              <td className="align-middle font-weight-bold">
+                {channel ? `#${channel.name}` : <i>(존재하지 않는 채널)</i>}
+              </td>
+            }
             <td className="align-middle">
               <MemberCell member={members?.find(o => o.user.id === ticket.opener)!} guildId={guildId} />
             </td>
@@ -283,28 +290,19 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
             </td>
           </>
             : <>
-              <td className="align-top text-center">
-                <Form.Check
-                  id={`ticket-check-${ticket.uuid}`}
-                  type="checkbox"
-                  custom
-                  checked={checked}
-                  onChange={onCheckChange}
-                />
-              </td>
               <td>
                 <div className="font-weight-bold pb-2" style={{ fontSize: 18 }}>
                   #{ticket.number}
                 </div>
                 <div>
                   <div>
-                    <b>채널:</b> <span className="ml-2">{channel ? `#${channel.name}` : <i>(존재하지 않는 채널)</i>}</span>
+                    {!deletedMode && <><b>채널:</b> <span className="ml-2">{channel ? `#${channel.name}` : <i>(존재하지 않는 채널)</i>}</span></>}
                   </div>
                   <div className="d-flex">
                     <b>생성자:</b> <span className="ml-3"><MemberCell member={members?.find(o => o.user.id === ticket.opener)!} guildId={guildId} /></span>
                   </div>
                   <div className="mt-2">
-                    <Actions />
+                    {!deletedMode && <Actions />}
                   </div>
                 </div>
               </td>
@@ -314,7 +312,7 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
     )
   }
 
-  const ListTable: React.FC<{ mode: 'open' | 'closed' }> = ({ mode }) => {
+  const ListTable: React.FC<{ mode: TabsType }> = ({ mode }) => {
     return (
       <Table id={`ticket-${mode}-list-table`} variant="dark" style={{
         tableLayout: 'fixed'
@@ -325,6 +323,7 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
               <Form.Check
                 id="tickets-select-all"
                 custom
+                hidden={mode === "deleted"}
                 type="checkbox"
                 checked={!!data?.length && !!ticketsSet.size && ticketsSet.size === finalSelectedSet.size && Array.from(ticketsSet).every(value => finalSelectedSet.has(value))}
                 onChange={() => {
@@ -338,7 +337,7 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
               />
             </th>
             <th className="d-none d-md-table-cell">티켓번호</th>
-            <th className="d-none d-md-table-cell" style={{ maxWidth: 400 }}>채널</th>
+            {mode !== "deleted" && <th className="d-none d-md-table-cell" style={{ maxWidth: 400 }}>채널</th>}
             <th className="d-none d-md-table-cell">생성자</th>
             <th className="d-none d-md-table-cell" style={{ width: 100 }} />
             <th className="d-md-none" />
@@ -346,7 +345,7 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
         </thead>
         <tbody>
           {data?.filter(o => o.status === mode).sort((a, b) => b.number - a.number).map(one =>
-            <TicketListCard key={one.uuid} ticket={one} checked={finalSelectedSet.has(one.uuid)}
+            <TicketListCard key={one.uuid} ticket={one} checked={finalSelectedSet.has(one.uuid)} deletedMode={mode === "deleted"}
               onCheckChange={() => {
                 let sel = new Set(finalSelectedSet)
 
@@ -424,16 +423,16 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
                       선택 티켓 닫기
                     </Button>}
                     {activeTab === "closed" &&
-                      <>
-                        <Button variant="secondary" size="sm" className="d-flex align-items-center my-1" disabled={!finalSelectedSet.size} onClick={() => setShowSelectedClose('reopen')}>
-                          <LockIcon className="mr-1" />
-                          선택 티켓 다시 열기
-                        </Button>
-                        <Button variant="danger" size="sm" className="ml-3 d-flex align-items-center my-1" disabled={!finalSelectedSet.size} onClick={() => setShowSelectedClose('delete')}>
-                          <DeleteIcon className="mr-1" />
-                          선택 티켓 삭제
-                        </Button>
-                      </>
+                      <Button variant="secondary" size="sm" className="d-flex align-items-center my-1" disabled={!finalSelectedSet.size} onClick={() => setShowSelectedClose('reopen')}>
+                        <LockIcon className="mr-1" />
+                        선택 티켓 다시 열기
+                      </Button>
+                    }
+                    {activeTab !== "deleted" &&
+                      <Button variant="dark" size="sm" className="ml-3 d-flex align-items-center my-1" disabled={!finalSelectedSet.size} onClick={() => setShowSelectedClose('delete')}>
+                        <DeleteIcon className="mr-1" />
+                        선택 티켓 삭제
+                      </Button>
                     }
                   </Row>
 
@@ -447,6 +446,9 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
                       </Tab>
                       <Tab eventKey="closed" title={<><CheckIcon className="mr-2" />닫힌 티켓</>}>
                         <ListTable mode="closed" />
+                      </Tab>
+                      <Tab eventKey="deleted" title={<><CloseIcon className="mr-2" />삭제된 티켓</>}>
+                        <ListTable mode="deleted" />
                       </Tab>
                     </Tabs>
                   </Row>
@@ -465,12 +467,13 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
                         <p className="font-weight-bold" style={{ fontSize: 17 }}>
                           선택한 티켓 {finalSelectedSet.size}개를 {showSelectedClose === "close" ? "닫으시" : showSelectedClose === "reopen" ? "다시 여시" : "삭제하시"}겠습니까?
                         </p>
-                        {
-                          ['close', 'reopen'].includes(showSelectedClose || '') &&
-                          <small>
-                            - 티켓을 {showSelectedClose === "close" ? "닫으면" : "다시 열면"} <b>{showSelectedClose === "close" ? "닫힌 티켓" : "열린 티켓"}</b>으로 분류되며, {showSelectedClose === "close" ? "닫힌 티켓" : "열린 티켓"} 설정대로 카테고리, 채널 이름과 권한 등이 변경됩니다.
-                          </small>
-                        }
+                        <small>
+                          {
+                            showSelectedClose === "delete"
+                            ? <b>- 티켓을 삭제하면 복구할 수 없습니다!</b>
+                            : <>- 티켓을 {showSelectedClose === "close" ? "닫으면" : "다시 열면"} <b>{showSelectedClose === "close" ? "닫힌 티켓" : "열린 티켓"}</b>으로 분류되며, {showSelectedClose === "close" ? "닫힌 티켓" : "열린 티켓"} 설정대로 카테고리, 채널 이름과 권한 등이 변경됩니다.</>
+                          }
+                        </small>
                       </Modal.Body>
                       <Modal.Footer className="justify-content-end">
                         <Button variant={activeTab === "open" ? "danger" : "secondary"} onClick={async () => {

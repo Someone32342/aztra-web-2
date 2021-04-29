@@ -6,7 +6,6 @@ import api from 'datas/api'
 import { PartialGuildExtend } from 'types/DiscordTypes'
 import {
   ArrowForward as ArrowForwardIcon,
-  Warning as WarningIcon
 } from '@material-ui/icons'
 import Layout from 'components/Layout';
 
