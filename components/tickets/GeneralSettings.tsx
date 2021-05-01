@@ -82,8 +82,13 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({ channels, ticketSet, 
         </Col>
       </Row>
 
+      <Row>
+        <Col className="p-0">
+          <hr style={{ borderColor: '#4e5058', borderWidth: 2 }} />
+        </Col>
+      </Row>
 
-      <Row className="pt-4 pb-2">
+      <Row className="py-3">
         <h4 className="pr-5">생성 메시지 채널</h4>
       </Row>
       <Row>
@@ -141,7 +146,13 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({ channels, ticketSet, 
         </Col>
       </Row>
 
-      <Row className="pt-4 pb-2">
+      <Row>
+        <Col className="p-0">
+          <hr style={{ borderColor: '#4e5058', borderWidth: 2 }} />
+        </Col>
+      </Row>
+
+      <Row className="pt-3 pb-2">
         <h4 className="pr-5">티켓 카테고리</h4>
       </Row>
       <Row className="pb-2">
@@ -160,7 +171,7 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({ channels, ticketSet, 
           </Form.Control>
         </Col>
       </Row>
-      <Row>
+      <Row className="pb-3">
         <Form.Label column sm="auto" className="font-weight-bold">티켓이 닫혔을 때</Form.Label>
         <Col xs={6}>
           <Form.Control as="select" className="shadow-sm" style={{ fontSize: 15 }} value={newClosedCategory ?? ticketSet.category_closed ?? 0} onChange={e => setNewClosedCategory(e.target.value === "0" ? 0 : e.target.value)} >
@@ -177,7 +188,36 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({ channels, ticketSet, 
         </Col>
       </Row>
 
-      <Row className="mt-4">
+      <Row>
+        <Col className="p-0">
+          <hr style={{ borderColor: '#4e5058', borderWidth: 2 }} />
+        </Col>
+      </Row>
+
+      <Row className="py-2">
+        생성 메시지를 실수로 삭제하셨거나 찾을 수 없나요? 다시 보낼 수 있습니다!
+      </Row>
+      <Row className="pb-3">
+        <Button variant="blurple" size="sm" onClick={() => {
+          axios.post(`${api}/servers/${ticketSet.guild}/ticketsets/${ticketSet.uuid}/resend`, {},
+            {
+              headers: {
+                Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
+              }
+            }
+          )
+        }}>
+          생성 메시지 다시 보내기
+        </Button>
+      </Row>
+
+      <Row>
+        <Col className="p-0">
+          <hr style={{ borderColor: '#4e5058', borderWidth: 2 }} />
+        </Col>
+      </Row>
+
+      <Row className="mt-2">
         <Button
           variant={saveError ? "danger" : "aztra"}
           disabled={saving || saveError || !isChanged() || ticketNameValidate === false}
