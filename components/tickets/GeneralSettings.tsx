@@ -2,13 +2,13 @@ import React, { useState } from 'react'
 import { faHashtag } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import ChannelSelectCard from 'components/forms/ChannelSelectCard'
-import { Form, Container, Row, Col, Card, Button, Dropdown, Spinner } from 'react-bootstrap'
+import { Form, Container, Row, Col, Card, Button, Dropdown, Spinner, Modal } from 'react-bootstrap'
 import { Ticket, TicketSet } from 'types/dbtypes'
 import { ChannelMinimal } from 'types/DiscordTypes'
 import filterChannels from 'utils/filterChannels'
 import EmojiPickerI18n from 'defs/EmojiPickerI18n'
 import { Emoji, Picker } from 'emoji-mart'
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import api from 'datas/api'
 import Cookies from 'universal-cookie'
 
@@ -29,6 +29,7 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({ channels, ticketSet, 
   const [newOpenCategory, setNewOpenCategory] = useState<string | null | 0>(null)
   const [newClosedCategory, setNewClosedCategory] = useState<string | null | 0>(null)
   const [channelSearch, setChannelSearch] = useState<string>('')
+  const [resend, setResend] = useState<'wating' | 'error' | 'limited' | 'done' | false>(false)
 
   const [ticketNameValidate, setTicketNameValidate] = useState<boolean | null>(null)
 
@@ -195,10 +196,11 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({ channels, ticketSet, 
       </Row>
 
       <Row className="py-2">
-        생성 메시지를 실수로 삭제하셨거나 찾을 수 없나요? 다시 보낼 수 있습니다!
+        티켓 생성 메시지를 실수로 삭제하셨거나 찾을 수 없나요? 다시 보낼 수 있습니다!
       </Row>
       <Row className="pb-3">
         <Button variant="blurple" size="sm" onClick={() => {
+          setResend('wating')
           axios.post(`${api}/servers/${ticketSet.guild}/ticketsets/${ticketSet.uuid}/resend`, {},
             {
               headers: {
@@ -206,10 +208,37 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({ channels, ticketSet, 
               }
             }
           )
+            .then(() => {
+              setResend(false)
+
+            })
+            .catch((_e) => {
+              let e: AxiosError = _e
+              if (e.response?.status === 429) setResend('limited')
+              else setResend('error')
+            })
         }}>
           생성 메시지 다시 보내기
         </Button>
       </Row>
+
+      <Modal className="modal-dark" show={resend !== false} onHide={() => setResend(false)} centered>
+        <Modal.Body className="py-4">
+          {
+            resend === "wating"
+              ? "티켓 생성 메시지를 다시 보내고 있습니다..."
+              : resend === "limited"
+                ? "봇 과부하 방지를 위해 1분에 한 번만 보낼 수 있습니다. 1분 후에 다시 시도하세요!"
+                : resend === "error"
+                && "오류가 발생했습니다!"
+          }
+        </Modal.Body>
+        <Modal.Footer className="justify-content-end">
+          <Button variant="dark" onClick={() => setResend(false)}>
+            닫기
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
       <Row>
         <Col className="p-0">
