@@ -7,12 +7,12 @@ import { GuideGroupType } from 'types/GuideIndexTypes';
 import { ArrowForward as ArrowForwardIcon, ArrowBack as ArrowBackIcon } from '@material-ui/icons'
 import Link from 'next/link'
 
-interface DocViewWithNavProps {
+interface DocViewProps {
   pageId: string
   index: GuideGroupType
 }
 
-const DocViewWithNav: React.FC<DocViewWithNavProps> = ({ pageId, index }) => {
+const DocView: React.FC<DocViewProps> = ({ pageId, index }) => {
   const [sidebarHide, setSidebarHide] = useState(true)
 
   const theme = 'light' as unknown
@@ -140,4 +140,4 @@ const DocViewWithNav: React.FC<DocViewWithNavProps> = ({ pageId, index }) => {
   )
 }
 
-export default DocViewWithNav
+export default DocView

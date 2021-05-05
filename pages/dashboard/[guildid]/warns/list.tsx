@@ -3,8 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import axios, { AxiosError } from 'axios'
 import api from 'datas/api'
 import { Warns as WarnsType } from 'types/dbtypes';
-import MobileAlert from 'components/MobileAlert'
-import { Row, Col, Form, Container, Spinner, Button, Table, ButtonGroup, OverlayTrigger, Tooltip, Modal, Overlay, Collapse } from 'react-bootstrap';
+import { Row, Col, Form, Container, Spinner, Button, Table, ButtonGroup, OverlayTrigger, Tooltip, Modal, Overlay, Collapse, Pagination } from 'react-bootstrap';
 import { MemberMinimal } from 'types/DiscordTypes';
 import { RemoveCircleOutline, FileCopy as FileCopyIcon, OpenInNew as OpenInNewIcon, Delete as DeleteIcon } from '@material-ui/icons'
 import BackTo from 'components/BackTo';
@@ -25,6 +24,7 @@ type WarnSearchType = 'reason' | 'target' | 'warnby'
 
 type WarnSortType = 'latest' | 'oldest' | 'count' | 'count_least'
 
+const PER_PAGE = 50
 
 interface WarnsListCardProps {
   target: MemberMinimal
@@ -57,8 +57,38 @@ const WarnsListCard: React.FC<WarnsListCardProps> = ({ target, warnby, warn, gui
       })
   }
 
-  return (
-    <tr>
+  const ActionBar = (
+    <ButtonGroup>
+      <OverlayTrigger
+        placement="top"
+        overlay={
+          <Tooltip id="warn-list-row-remove-warn">
+            이 경고 취소하기
+          </Tooltip>
+        }
+      >
+        <Button variant="dark" className="d-flex px-1 remove-before" onClick={() => setShowDel(true)}>
+          <RemoveCircleOutline />
+        </Button>
+      </OverlayTrigger>
+
+      <OverlayTrigger
+        placement="top"
+        overlay={
+          <Tooltip id="warn-list-row-remove-warn">
+            경고 자세히 보기
+          </Tooltip>
+        }
+      >
+        <Button variant="dark" className="d-flex px-1 remove-before" onClick={() => setShowInfo(true)}>
+          <OpenInNewIcon />
+        </Button>
+      </OverlayTrigger>
+    </ButtonGroup>
+  )
+
+  return <>
+    <tr className="d-none d-lg-table-row">
       <td className="align-middle text-center">
         <Form.Check
           id={`warn-check-${warn.uuid}`}
@@ -70,10 +100,10 @@ const WarnsListCard: React.FC<WarnsListCardProps> = ({ target, warnby, warn, gui
       </td>
       <td className="align-middle">
         <div className="d-flex justify-content-center justify-content-lg-start">
-          <MemberCell member={target!} guildId={guildId} wrap />
+          <MemberCell member={target!} guildId={guildId} />
         </div>
       </td>
-      <td className="align-middle d-none d-md-table-cell">
+      <td className="align-middle">
         <span className="d-inline-block text-truncate mw-100 align-middle">
           {warn.reason}
         </span>
@@ -81,145 +111,154 @@ const WarnsListCard: React.FC<WarnsListCardProps> = ({ target, warnby, warn, gui
       <td className="align-middle">{warn.count}회</td>
       <td className="align-middle">
         <div className="d-flex justify-content-center justify-content-lg-start">
-          <MemberCell member={warnby!} guildId={guildId} wrap />
+          <MemberCell member={warnby!} guildId={guildId} />
         </div>
       </td>
       <td className="align-middle text-center">
-        <ButtonGroup>
-          <OverlayTrigger
-            placement="top"
-            overlay={
-              <Tooltip id="warn-list-row-remove-warn">
-                이 경고 취소하기
-              </Tooltip>
-            }
-          >
-            <Button variant="dark" className="d-flex px-1 remove-before" onClick={() => setShowDel(true)}>
-              <RemoveCircleOutline />
-            </Button>
-          </OverlayTrigger>
-
-          <Modal className="modal-dark" show={showDel} onHide={() => setShowDel(false)} centered>
-            <Modal.Header closeButton>
-              <Modal.Title style={{
-                fontFamily: "NanumSquare",
-                fontWeight: 900,
-              }}>
-                경고 취소하기
-              </Modal.Title>
-            </Modal.Header>
-            <Modal.Body className="py-4">
-              이 경고를 취소하시겠습니까?
-              <div className="pt-3">
-                <span className="font-weight-bold">경고 사유</span>: {warn.reason}
-              </div>
-            </Modal.Body>
-            <Modal.Footer className="justify-content-end">
-              <Button variant="aztra" onClick={async () => {
-                setShowDel(false)
-                delWarn(warn.uuid)
-              }}>
-                확인
-              </Button>
-              <Button variant="dark" onClick={() => setShowDel(false)}>
-                닫기
-              </Button>
-            </Modal.Footer>
-          </Modal>
-
-          <OverlayTrigger
-            placement="top"
-            overlay={
-              <Tooltip id="warn-list-row-remove-warn">
-                경고 자세히 보기
-              </Tooltip>
-            }
-          >
-            <Button variant="dark" className="d-flex px-1 remove-before" onClick={() => setShowInfo(true)}>
-              <OpenInNewIcon />
-            </Button>
-          </OverlayTrigger>
-
-          <Modal className="modal-dark" show={showInfo} onHide={() => setShowInfo(false)} centered size="lg">
-            <Modal.Header closeButton>
-              <Modal.Title style={{
-                fontFamily: "NanumSquare",
-                fontWeight: 900,
-              }}>
-                경고 상세 정보
-              </Modal.Title>
-            </Modal.Header>
-            <Modal.Body className="py-4">
-              <Container>
-                <Row>
-                  <Col xs={12} md={6}>
-                    <h5 className="font-weight-bold">대상 멤버</h5>
-                    <p>
-                      <MemberCell guildId={guildId!} member={target} />
-                    </p>
-                  </Col>
-                  <Col xs={12} md={6}>
-                    <h5 className="font-weight-bold">경고 부여자</h5>
-                    <p>
-                      <MemberCell guildId={guildId!} member={warnby} />
-                    </p>
-                  </Col>
-                </Row>
-                <Row>
-                  <Col xs={12} md={6}>
-                    <h5 className="font-weight-bold">경고 횟수</h5>
-                    <p>
-                      {warn.count}회
-                    </p>
-                  </Col>
-                  <Col xs={12} md={6}>
-                    <h5 className="font-weight-bold">경고 날짜</h5>
-                    <p>
-                      {new Date(warn.dt).toLocaleString()}
-                    </p>
-                  </Col>
-                </Row>
-                <Row>
-                  <Col xs={12}>
-                    <h5 className="font-weight-bold">경고 사유</h5>
-                    <p ref={warnReasonRef}>
-                      {warn.reason}
-                    </p>
-                  </Col>
-                </Row>
-              </Container>
-            </Modal.Body>
-            <Modal.Footer className="justify-content-between">
-              <div>
-                <Button ref={copyButtonRef} size="sm" variant="aztra" onClick={() => {
-                  navigator.clipboard.writeText(warn.reason)
-                    .then(async () => {
-                      if (!copied) {
-                        setCopied(true)
-                        await setTimeout(() => setCopied(false), 800)
-                      }
-                    })
-                }}>
-                  <FileCopyIcon className="mr-2" style={{ transform: 'scale(0.9)' }} />
-                  경고 사유 복사
-                </Button>
-
-                <Overlay target={copyButtonRef.current} show={copied}>
-                  {(props) => (
-                    <Tooltip id="wan-copied-tooltop" {...props}>
-                      복사됨!
-                    </Tooltip>
-                  )}
-                </Overlay>
-              </div>
-              <Button variant="success" onClick={() => setShowInfo(false)}>닫기</Button>
-            </Modal.Footer>
-          </Modal>
-
-        </ButtonGroup>
+        {ActionBar}
       </td>
     </tr>
-  )
+    <tr className="d-lg-none">
+      <td className="align-middle text-center">
+        <Form.Check
+          id={`warn-check-${warn.uuid}`}
+          type="checkbox"
+          custom
+          checked={checked}
+          onChange={onCheckChange}
+        />
+      </td>
+      <td>
+        <div className="pb-1 d-flex align-items-center">
+          <b className="pr-2" style={{ fontSize: 15 }}>대상 멤버:</b>
+          <MemberCell member={target!} guildId={guildId} />
+        </div>
+        <div className="pb-1">
+          <b className="pr-2" style={{ fontSize: 15 }}>경고 횟수:</b>
+          <span className="d-inline-block text-truncate mw-100 align-middle" style={{ fontSize: 14 }}>
+            {warn.count}회
+          </span>
+        </div>
+        <div className="pb-1">
+          <b className="pr-2" style={{ fontSize: 15 }}>경고 사유:</b>
+          <span className="d-inline-block text-truncate mw-100 align-middle" style={{ fontSize: 14 }}>
+            {warn.reason}
+          </span>
+        </div>
+        <div className="pb-1 d-flex align-items-center">
+          <b className="pr-2" style={{ fontSize: 15 }}>경고 부여자:</b>
+          <MemberCell member={warnby!} guildId={guildId} />
+        </div>
+        <div>
+          {ActionBar}
+        </div>
+      </td>
+    </tr>
+
+    <Modal className="modal-dark" show={showDel} onHide={() => setShowDel(false)} centered>
+      <Modal.Header closeButton>
+        <Modal.Title style={{
+          fontFamily: "NanumSquare",
+          fontWeight: 900,
+        }}>
+          경고 취소하기
+        </Modal.Title>
+      </Modal.Header>
+      <Modal.Body className="py-4">
+        이 경고를 취소하시겠습니까?
+        <div className="pt-3">
+          <span className="font-weight-bold">경고 사유</span>: {warn.reason}
+        </div>
+      </Modal.Body>
+      <Modal.Footer className="justify-content-end">
+        <Button variant="aztra" onClick={async () => {
+          setShowDel(false)
+          delWarn(warn.uuid)
+        }}>
+          확인
+        </Button>
+        <Button variant="dark" onClick={() => setShowDel(false)}>
+          닫기
+        </Button>
+      </Modal.Footer>
+    </Modal>
+
+    <Modal className="modal-dark" show={showInfo} onHide={() => setShowInfo(false)} centered size="lg">
+      <Modal.Header closeButton>
+        <Modal.Title style={{
+          fontFamily: "NanumSquare",
+          fontWeight: 900,
+        }}>
+          경고 상세 정보
+        </Modal.Title>
+      </Modal.Header>
+      <Modal.Body className="py-4">
+        <Container>
+          <Row>
+            <Col xs={12} md={6}>
+              <h5 className="font-weight-bold">대상 멤버</h5>
+              <p>
+                <MemberCell guildId={guildId!} member={target} />
+              </p>
+            </Col>
+            <Col xs={12} md={6}>
+              <h5 className="font-weight-bold">경고 부여자</h5>
+              <p>
+                <MemberCell guildId={guildId!} member={warnby} />
+              </p>
+            </Col>
+          </Row>
+          <Row>
+            <Col xs={12} md={6}>
+              <h5 className="font-weight-bold">경고 횟수</h5>
+              <p>
+                {warn.count}회
+              </p>
+            </Col>
+            <Col xs={12} md={6}>
+              <h5 className="font-weight-bold">경고 날짜</h5>
+              <p>
+                {new Date(warn.dt).toLocaleString()}
+              </p>
+            </Col>
+          </Row>
+          <Row>
+            <Col xs={12}>
+              <h5 className="font-weight-bold">경고 사유</h5>
+              <p ref={warnReasonRef}>
+                {warn.reason}
+              </p>
+            </Col>
+          </Row>
+        </Container>
+      </Modal.Body>
+      <Modal.Footer className="justify-content-between">
+        <div>
+          <Button ref={copyButtonRef} size="sm" variant="aztra" onClick={() => {
+            navigator.clipboard.writeText(warn.reason)
+              .then(async () => {
+                if (!copied) {
+                  setCopied(true)
+                  await setTimeout(() => setCopied(false), 800)
+                }
+              })
+          }}>
+            <FileCopyIcon className="mr-2" style={{ transform: 'scale(0.9)' }} />
+            경고 사유 복사
+          </Button>
+
+          <Overlay target={copyButtonRef.current} show={copied}>
+            {(props) => (
+              <Tooltip id="wan-copied-tooltop" {...props}>
+                복사됨!
+              </Tooltip>
+            )}
+          </Overlay>
+        </div>
+        <Button variant="success" onClick={() => setShowInfo(false)}>닫기</Button>
+      </Modal.Footer>
+    </Modal>
+  </>
 }
 
 export const getServerSideProps: GetServerSideProps<WarnsListRouteProps> = async context => {
@@ -237,6 +276,7 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
   const [sortType, setSortType] = useState<WarnSortType>('latest')
   const [selectedWarns, setSelectedWarns] = useState<Set<string>>(new Set)
   const [showSelectedDel, setShowSelectedDel] = useState(false)
+  const [page, setPage] = useState(0)
 
   const searchRef = useRef<HTMLInputElement>(null)
 
@@ -260,7 +300,7 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
     }
   )
 
-  const { data: members, mutate: membersMutate } = useSWR<MemberMinimal[], AxiosError>(
+  const { data: members } = useSWR<MemberMinimal[], AxiosError>(
     new Cookies().get('ACCESS_TOKEN') ? urljoin(api, `/discord/guilds/${guildId}/members`) : null,
     url => axios.get(url, {
       headers: {
@@ -299,10 +339,10 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
             return one.reason.normalize().toLowerCase().includes(searchLowercase)
           case 'target':
             let target = members?.find(m => m.user.id === one.member)
-            return target?.user.tag?.normalize().toLowerCase().includes(searchLowercase) || target?.nickname?.normalize().toLowerCase().includes(searchLowercase)
+            return target?.user.tag?.normalize().toLowerCase().includes(searchLowercase) || target?.nickname?.normalize().toLowerCase().includes(searchLowercase) || target?.user.id.startsWith(search)
           case 'warnby':
             let warnby = members?.find(m => m.user.id === one.warnby)
-            return warnby?.user.tag?.normalize().toLowerCase().includes(searchLowercase) || warnby?.nickname?.normalize().toLowerCase().includes(searchLowercase)
+            return warnby?.user.tag?.normalize().toLowerCase().includes(searchLowercase) || warnby?.nickname?.normalize().toLowerCase().includes(searchLowercase) || warnby?.user.id.startsWith(search)
           default:
             return false
         }
@@ -335,41 +375,23 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
     setSortType(sortType)
   }
 
-  const filteredWarns = (
-    (filterSortWarns(warnSearch) || warns)?.map(one => {
-      const target = members?.find(m => m.user.id === one.member)
-      const warnby = members?.find(m => m.user.id === one.warnby)
-      return (
-        <WarnsListCard
-          key={one.uuid}
-          target={target!}
-          warnby={warnby!}
-          warn={one}
-          guildId={guildId}
-          onDelete={() => {
-            const sel = new Set(finalSelectedSet)
-            sel.delete(one.uuid)
-            setSelectedWarns(sel)
-            warnsMutate()
+  const filteredWarns = filterSortWarns(warnSearch) || warns
+  const slicedMembers = filteredWarns?.slice(page * PER_PAGE, (page + 1) * PER_PAGE)
 
-          }}
-          checked={finalSelectedSet.has(one.uuid)}
-          onCheckChange={() => {
-            console.log(finalSelectedSet.has(one.uuid))
-            let sel = new Set(finalSelectedSet)
-
-            if (sel.has(one.uuid)) {
-              sel.delete(one.uuid)
-            }
-            else {
-              sel.add(one.uuid)
-            }
-
-            setSelectedWarns(sel)
-          }}
-        />
-      )
-    })
+  const PageBar = (
+    <div className="pagination-dark d-flex justify-content-center">
+      <Pagination>
+        <Pagination.First onClick={() => setPage(0)} />
+        {
+          Array.from(Array(Math.trunc((filteredWarns?.length ?? 0) / PER_PAGE) || 1).keys())
+            .filter(o =>
+              page - 3 < 0 ? o < 7 : (o >= page - 3 && o <= page + 3)
+            )
+            .map(i => <Pagination.Item key={i + 1} children={i + 1} active={page === i} onClick={() => setPage(i)} />)
+        }
+        <Pagination.Last onClick={() => setPage((Math.trunc((filteredWarns?.length ?? 0) / PER_PAGE) || 1) - 1)} />
+      </Pagination>
+    </div>
   )
 
   const delSelectedWarns = () => {
@@ -403,15 +425,17 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
                     <h3>전체 경고 목록</h3>
                   </div>
                 </Row>
-                <Row className="d-md-none">
-                  <MobileAlert />
-                </Row>
                 <Row>
                   <Col>
                     {
                       members && warns
                         ? <Form>
                           <Form.Group>
+                            <Row>
+                              <Col>
+                                {PageBar}
+                              </Col>
+                            </Row>
                             <Row className="pb-2 justify-content-between">
                               <Col
                                 className="d-flex align-items-end mt-4 mt-xl-0 px-0"
@@ -527,17 +551,51 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
                                         }}
                                       />
                                     </th>
-                                    <th className="text-center text-md-left" style={{ width: '17%' }}>대상 멤버</th>
-                                    <th className="text-center text-md-left d-none d-md-table-cell">경고 사유</th>
-                                    <th className="text-center text-md-left" style={{ width: '10%' }}>경고 횟수</th>
-                                    <th className="text-center text-md-left" style={{ width: '17%' }}>경고 부여자</th>
-                                    <th style={{ width: 100 }} />
+                                    <th className="text-center text-lg-left d-none d-lg-table-cell" style={{ width: '17%' }}>대상 멤버</th>
+                                    <th className="text-center text-lg-left d-none d-lg-table-cell">경고 사유</th>
+                                    <th className="text-center text-lg-left d-none d-lg-table-cell" style={{ width: '10%' }}>경고 횟수</th>
+                                    <th className="text-center text-lg-left d-none d-lg-table-cell" style={{ width: '17%' }}>경고 부여자</th>
+                                    <th style={{ width: 100 }} className="d-none d-lg-table-cell" />
+                                    <th className="d-lg-none" />
                                   </tr>
                                 </thead>
                                 <tbody>
-                                  {filteredWarns}
+                                  {slicedMembers?.map(one =>
+                                    <WarnsListCard
+                                      key={one.uuid}
+                                      target={members?.find(m => m.user.id === one.member)!}
+                                      warnby={members?.find(m => m.user.id === one.warnby)!}
+                                      warn={one}
+                                      guildId={guildId}
+                                      onDelete={() => {
+                                        const sel = new Set(finalSelectedSet)
+                                        sel.delete(one.uuid)
+                                        setSelectedWarns(sel)
+                                        warnsMutate()
+
+                                      }}
+                                      checked={finalSelectedSet.has(one.uuid)}
+                                      onCheckChange={() => {
+                                        console.log(finalSelectedSet.has(one.uuid))
+                                        let sel = new Set(finalSelectedSet)
+
+                                        if (sel.has(one.uuid)) sel.delete(one.uuid)
+                                        else sel.add(one.uuid)
+
+                                        setSelectedWarns(sel)
+                                      }}
+                                    />
+                                  )}
                                 </tbody>
                               </Table>
+                            </Row>
+                            <Row className="justify-content-center mb-5">
+                              {!warns.length && <div className="my-5" style={{ color: 'lightgray' }}>경고가 하나도 없습니다! 평화롭네요.</div>}
+                            </Row>
+                            <Row>
+                              <Col>
+                                {PageBar}
+                              </Col>
                             </Row>
                           </Form.Group>
                         </Form>

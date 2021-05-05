@@ -61,8 +61,8 @@ export default function Servers() {
                     one.icon && <img alt={one.name} src={`https://cdn.discordapp.com/icons/${one.id}/${one.icon}.png`} style={{ maxHeight: 40, marginRight: 15, borderRadius: '70%' }} />
                   }
                   <div>
-                    {one.name
-                    }</div>
+                    {one.name}
+                  </div>
 
                 </div>
               </Col>

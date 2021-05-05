@@ -1,4 +1,4 @@
-import src from "docs/aztra-commands-guide"
+import src from "docs/ticket-guide"
 import DocViewWithNav from "components/docs/DocView"
 import { GetServerSideProps } from "next"
 import Layout from "components/Layout"
@@ -11,11 +11,11 @@ interface Props {
 
 export const getServerSideProps: GetServerSideProps<Props> = async context => ({ props: { pageId: context.query.pageid as string } })
 
-const AztraCommandGuide: React.FC<Props> = ({ pageId }) => {
+const TicketGuide: React.FC<Props> = ({ pageId }) => {
   return (
     <>
       <Head>
-        <title>{src.pages.find(o => o.id === pageId)?.title} - 명령어 가이드</title>
+        <title>{src.pages.find(o => o.id === pageId)?.title} - 티켓 가이드</title>
       </Head>
       <Layout>
         <DocViewWithNav index={src} pageId={pageId} />
@@ -24,4 +24,4 @@ const AztraCommandGuide: React.FC<Props> = ({ pageId }) => {
   )
 }
 
-export default AztraCommandGuide
+export default TicketGuide
