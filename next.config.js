@@ -1,4 +1,7 @@
 module.exports = {
+  future: {
+    webpack5: true,
+  },
   webpack: (config) => {
     const oneOf = config.module.rules.find(
       (rule) => typeof rule.oneOf === 'object'
@@ -21,11 +24,11 @@ module.exports = {
     }
 
     if (!config.isServer) {
-      config.node = {
-        fs: 'empty',
-        net: 'empty',
-        tls: 'empty',
-        "fs-extra": 'empty'
+      config.resolve.fallback = {
+        fs: false,
+        net: false,
+        tls: false,
+        "fs-extra": false
       }
     }
 
@@ -38,5 +41,5 @@ module.exports = {
 
     return config;
   },
-  reactStrictMode: true
+  reactStrictMode: true,
 };
