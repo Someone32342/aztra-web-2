@@ -32,6 +32,7 @@ import dayjsRelativeTime from 'dayjs/plugin/relativeTime'
 import dayjsUTC from 'dayjs/plugin/utc'
 import 'dayjs/locale/ko'
 import { TaskSet } from 'types/autotask';
+import numberWithCommas from 'utils/numberWithCommas';
 dayjs.locale('ko')
 dayjs.extend(dayjsRelativeTime)
 dayjs.extend(dayjsUTC)
@@ -194,12 +195,12 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
                     <div>
                       <PeopleIcon className="mr-2" />
                       <span className="pr-2">전체 멤버 수:</span>
-                      <span>{members.length}</span>
+                      <span>{numberWithCommas(members.length)}</span>
                     </div>
                     <div>
                       <RouterIcon className="mr-2" />
                       <span className="pr-2">전체 봇 수:</span>
-                      <span>{members.filter(o => o.user.bot).length}</span>
+                      <span>{numberWithCommas(members.filter(o => o.user.bot).length)}</span>
                     </div>
                   </Col>
                 </Row>
