@@ -152,7 +152,15 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
       <Layout>
         <DashboardLayout guildId={guildId}>
           {
-            (guild) => guild && members && channels && warns && greetings && serverdata && logging && autotasking && ticketsets ? (
+            (guild) => guild
+              && members !== undefined
+              && channels !== undefined
+              && warns !== undefined
+              && greetings !== undefined
+              && serverdata !== undefined
+              && logging !== undefined
+              && autotasking !== undefined
+              && ticketsets !== undefined ? (
               <div className="text-white" style={{
                 fontFamily: 'NanumSquare'
               }}>
@@ -270,10 +278,10 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
                         </Card.Title>
                         <Card.Text>
                           {
-                            Number(logging.flags)
+                            Number(logging?.flags)
                               ? <>
                                 <div><CheckIcon className="mr-1" fontSize="small" htmlColor="limegreen" />로깅을 사용 중입니다.</div>
-                                <div className="pl-4"><b>#{channels.find(c => c.id === logging.channel)?.name ?? "(알 수 없는 채널)"}</b> 에 로그 메시지를 전송합니다.</div>
+                                <div className="pl-4"><b>#{channels.find(c => c.id === logging?.channel)?.name ?? "(알 수 없는 채널)"}</b> 에 로그 메시지를 전송합니다.</div>
                               </>
                               : <><CloseIcon className="mr-1" fontSize="small" htmlColor="red" />로깅을 사용하고 있지 않습니다.</>
                           }
