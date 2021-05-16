@@ -3,8 +3,8 @@ import { Button, Row, Col, Form, Spinner, Container, Card, Alert, Modal, Table }
 import TextareaAutosize from 'react-textarea-autosize'
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faHashtag, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons'
-import { Code as CodeIcon } from '@material-ui/icons'
+import { faHashtag } from '@fortawesome/free-solid-svg-icons'
+import { Code as CodeIcon, Warning as WarningIcon } from '@material-ui/icons'
 
 import axios, { AxiosError } from 'axios'
 
@@ -424,7 +424,7 @@ const Greetings: NextPage<GreetingsRouterProps> = ({ guildId }) => {
                                 </Container>
                               </Form.Group>
                               : <Alert variant="warning" className="d-flex">
-                                <FontAwesomeIcon icon={faExclamationTriangle} color="darkorange" size="lg" className="my-auto mr-2" />
+                                <WarningIcon className="mr-2" htmlColor="orange" />
                               채널을 선택하려면 먼저 반기는 메시지 또는 나가는 메시지를 사용해야 합니다.
                           </Alert>
                           }
