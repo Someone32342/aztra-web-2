@@ -1,6 +1,6 @@
 {
-  "short_name": "Aztra 대시보드",
-  "name": "미래를 바꿀 디스코드 관리봇, Aztra",
+  "short_name": "Aztra",
+  "name": "Aztra - 미래를 바꿀 디스코드 관리봇",
   "icons": [
     {
       "src": "favicon.ico",
@@ -11,13 +11,13 @@
       "src": "logo192.png",
       "type": "image/png",
       "sizes": "192x192",
-	  "purpose": "maskable"
+      "purpose": "maskable"
     },
     {
       "src": "logo512.png",
       "type": "image/png",
       "sizes": "512x512",
-	  "purpose": "maskable"
+      "purpose": "maskable"
     }
   ],
   "start_url": ".",

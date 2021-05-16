@@ -210,7 +210,7 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
                 </Row>
 
                 <Row>
-                  <Col className="mb-4 d-flex mh-100 w-100" xs={6} lg={3}>
+                  <Col className="mb-4 d-flex mh-100 w-100" xs={12} lg={6} xl={3}>
                     <Card bg="dark" className="shadow mh-100 w-100">
                       <Card.Body className="pt-3">
                         <Card.Title className="font-weight-bold d-flex justify-content-between align-items-center">
@@ -243,7 +243,7 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
                       </Card.Body>
                     </Card>
                   </Col>
-                  <Col className="mb-4 d-flex mh-100 w-100" xs={6} lg={3}>
+                  <Col className="mb-4 d-flex mh-100 w-100" xs={12} lg={6} xl={3}>
                     <Card bg="dark" className="shadow mh-100 w-100">
                       <Card.Body className="pt-3">
                         <Card.Title className="font-weight-bold d-flex justify-content-between align-items-center">
@@ -265,7 +265,7 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
                       </Card.Body>
                     </Card>
                   </Col>
-                  <Col className="mb-4 d-flex mh-100 w-100" xs={6} lg={3}>
+                  <Col className="mb-4 d-flex mh-100 w-100" xs={12} lg={6} xl={3}>
                     <Card bg="dark" className="shadow mh-100 w-100">
                       <Card.Body className="pt-3">
                         <Card.Title className="font-weight-bold d-flex justify-content-between align-items-center">
@@ -290,7 +290,7 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
                       </Card.Body>
                     </Card>
                   </Col>
-                  <Col className="mb-4 d-flex mh-100 w-100" xs={6} lg={3}>
+                  <Col className="mb-4 d-flex mh-100 w-100" xs={12} lg={6} xl={3}>
                     <Card bg="dark" className="shadow mh-100 w-100">
                       <Card.Body className="pt-3">
                         <Card.Title className="font-weight-bold d-flex justify-content-between align-items-center">
@@ -314,7 +314,7 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
                       </Card.Body>
                     </Card>
                   </Col>
-                  <Col className="mb-4 d-flex mh-100 w-100" xs={6} lg={3}>
+                  <Col className="mb-4 d-flex mh-100 w-100" xs={12} lg={6} xl={3}>
                     <Card bg="dark" className="shadow mh-100 w-100">
                       <Card.Body className="pt-3">
                         <Card.Title className="font-weight-bold d-flex justify-content-between align-items-center">
