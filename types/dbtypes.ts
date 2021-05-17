@@ -13,8 +13,9 @@ export interface Greetings {
 }
 
 export interface ServerData {
-  noticeChannel: string
+  noticeChannel: string | null
   sendLevelMessage: boolean
+  prefix: string
 }
 
 export interface Warns {

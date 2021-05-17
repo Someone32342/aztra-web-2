@@ -165,7 +165,7 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
               <div className="text-white" style={{
                 fontFamily: 'NanumSquare'
               }}>
-                <Row className="dashboard-section align-items-center">
+                <Row className="dashboard-section justify-content-center justify-content-lg-start align-items-center">
                   <div
                     className="mr-4"
                     style={{
@@ -219,7 +219,7 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
                             환영 메시지
                           </span>
                           <Link href={`/dashboard/${guild?.id}/greetings`} shallow>
-                            <Button variant="dark" size="sm">관리하기</Button>
+                            <Button variant="dark" size="sm" className="m-0">관리하기</Button>
                           </Link>
                         </Card.Title>
                         <Card.Text>

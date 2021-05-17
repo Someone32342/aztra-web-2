@@ -197,9 +197,8 @@ const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
               <div>
                 <Row className="dashboard-section">
                   <div>
-                    <h3 className="d-flex">
+                    <h3>
                       로깅 설정
-                    <Badge variant="aztra" className="ml-2 mb-auto mt-1" style={{ fontSize: 15 }}>베타</Badge>
                     </h3>
                     <div className="py-2">
                       서버에서 무언가 새로 추가되거나, 변경되거나, 제거되었을 때 그 내용을 특정 채널에 기록합니다.

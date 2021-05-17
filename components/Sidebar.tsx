@@ -11,7 +11,8 @@ import {
   TrendingUp as TrendingUpIcon,
   EventNote as EventNoteIcon,
   List as ListIcon,
-  CreditCard as CreditCardIcon
+  CreditCard as CreditCardIcon,
+  Settings as SettingsIcon
 } from '@material-ui/icons'
 import Link from 'next/link'
 
@@ -54,6 +55,20 @@ export default function Sidebar(props: SidebarProps) {
                 <HomeIcon />
               </div>
               메인
+            </Nav.Link>
+          </Link>
+        </Nav.Item>
+        <Nav.Item>
+          <Link href={`/dashboard/${guild?.id}/general`} shallow={true}>
+            <Nav.Link
+              className="d-flex mb-1"
+              href={`/dashboard/${guild?.id}/general`}
+              active={location?.pathname.startsWith(`/dashboard/${guild?.id}/general`)}
+            >
+              <div style={iconStyle} className="mr-3">
+                <SettingsIcon />
+              </div>
+              일반 설정
             </Nav.Link>
           </Link>
         </Nav.Item>

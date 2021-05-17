@@ -47,18 +47,17 @@ const Leveling: NextPage<LevelingRouterProps> = ({ guildId }) => {
 
   const save = async () => {
     setSaving(true)
-    let saveData: ServerData = {
+    let saveData: Partial<ServerData> = {
       sendLevelMessage: useLevelupMessage,
-      noticeChannel: data?.noticeChannel!
     }
 
     try {
-      await axios.post(`${api}/servers/${guildId}/serverdata`, saveData, {
+      await axios.patch(`${api}/servers/${guildId}/serverdata`, saveData, {
         headers: {
           Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
         },
       })
-      mutate(saveData)
+      await mutate()
     }
     catch (e) {
       setSaveError(true)
@@ -67,8 +66,6 @@ const Leveling: NextPage<LevelingRouterProps> = ({ guildId }) => {
       setSaving(false)
     }
   }
-
-  const handleSubmit = save
 
   useEffect(() => {
     if (!new Cookies().get('ACCESS_TOKEN')) {
@@ -127,7 +124,7 @@ const Leveling: NextPage<LevelingRouterProps> = ({ guildId }) => {
                           }
                           checked={useLevelupMessage}
                           onChange={() => setUseLevelupMessage(!useLevelupMessage)}
-                          aria-controls="incomingForm"
+                          aria-controls="useLeveling"
                           aria-expanded={!!useLevelupMessage}
                         />
                       </Form.Group>
@@ -136,7 +133,7 @@ const Leveling: NextPage<LevelingRouterProps> = ({ guildId }) => {
                         <Button
                           variant={saveError ? "danger" : "aztra"}
                           disabled={saving || saveError || !isChanged()}
-                          onClick={handleSubmit}
+                          onClick={save}
                           style={{
                             minWidth: 140
                           }}

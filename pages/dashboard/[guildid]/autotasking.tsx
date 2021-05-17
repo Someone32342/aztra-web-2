@@ -336,7 +336,6 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                   <div>
                     <h3>
                       자동 작업 설정
-                      <Badge variant="aztra" className="ml-2 mb-auto mt-1" style={{ fontSize: 15 }}>베타</Badge>
                     </h3>
                     <div className="py-2">
                       어떤 동작이 발생했을 때 여러가지 작업을 자동으로 수행할 수 있습니다.
