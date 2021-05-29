@@ -4,7 +4,16 @@ import axios, { AxiosError } from 'axios'
 import api from 'datas/api'
 import { ChannelMinimal, MemberMinimal } from 'types/DiscordTypes';
 import { Row, Container, Spinner, Form, Table, Tab, Tabs, Card, Button, ButtonGroup, OverlayTrigger, Tooltip, Modal, Col } from 'react-bootstrap';
-import { ErrorOutline as ErrorOutlineIcon, Check as CheckIcon, LockOutlined as LockIcon, SettingsBackupRestoreOutlined as RestoreOutlinedIcon, Delete as DeleteIcon, Close as CloseIcon } from '@material-ui/icons'
+import {
+  ErrorOutline as ErrorOutlineIcon,
+  Check as CheckIcon,
+  LockOutlined as LockIcon,
+  SettingsBackupRestoreOutlined as RestoreOutlinedIcon,
+  Delete as DeleteIcon,
+  Close as CloseIcon,
+  Description as DescriptionIcon,
+  SaveAlt as SaveAltIcon
+} from '@material-ui/icons'
 
 import BackTo from 'components/BackTo';
 
@@ -131,6 +140,8 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
 
   const TicketListCard: React.FC<TicketListCardProps> = ({ ticket, onCheckChange, checked, deletedMode = false }) => {
     const [showModal, setShowModal] = useState<'close' | 'reopen' | 'delete' | null>(null)
+    const [transcriptModal, setTranscriptModal] = useState<boolean>(false)
+    const [transcriptSrc, setTranscriptSrc] = useState<string | null>(null)
 
     const channel = channels?.find(o => o.id === ticket.channel)
 
@@ -139,7 +150,7 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
         {ticket.status === "open" && <OverlayTrigger
           placement="top"
           overlay={
-            <Tooltip id="task-list-row-remove-task">
+            <Tooltip id="ticket-list-close-ticket">
               티켓 닫기
             </Tooltip>
           }
@@ -152,7 +163,7 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
         {ticket.status === "closed" && <OverlayTrigger
           placement="top"
           overlay={
-            <Tooltip id="task-list-row-remove-task">
+            <Tooltip id="ticket-list-reopen-ticket">
               티켓 다시 열기
             </Tooltip>
           }
@@ -165,13 +176,26 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
         {ticket.status !== "deleted" && <OverlayTrigger
           placement="top"
           overlay={
-            <Tooltip id="task-list-row-remove-task">
+            <Tooltip id="ticket-list-delete-ticket">
               티켓 삭제하기
             </Tooltip>
           }
         >
           <Button variant="dark" className="d-flex px-1 remove-before" onClick={() => setShowModal('delete')}>
             <DeleteIcon />
+          </Button>
+        </OverlayTrigger>
+        }
+        {ticket.status === "open" && location.search.includes('tson') && <OverlayTrigger
+          placement="top"
+          overlay={
+            <Tooltip id="ticket-list-transcript">
+              대화 내역
+            </Tooltip>
+          }
+        >
+          <Button hidden variant="dark" className="d-flex px-1 remove-before" onClick={() => setTranscriptModal(true)}>
+            <DescriptionIcon />
           </Button>
         </OverlayTrigger>
         }
@@ -255,6 +279,68 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
           </Button>
         </Modal.Footer>
       </Modal>
+
+      <Modal
+        className="modal-dark"
+        size="xl"
+        animation={false}
+        show={!!transcriptModal}
+        onShow={() => {
+          if (transcriptSrc) return
+          axios.get(`${api}/servers/${guildId}/tickets/${ticket.uuid}/transcript`, {
+            headers: {
+              Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
+            }
+          })
+            .then(res => {
+              setTranscriptSrc(res.data)
+            })
+        }}
+        onHide={() => {
+          setTranscriptModal(false)
+          setTranscriptSrc(null)
+        }} centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title style={{
+            fontFamily: "NanumSquare",
+            fontWeight: 900,
+          }}>
+            대화 내역
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="py-4" style={{ height: '70vh' }}>
+          {
+            transcriptSrc
+              ? <iframe src={`data:text/html;charset=utf-8, ${encodeURIComponent(transcriptSrc)}`} className="w-100 h-100" style={{ border: 'none' }} />
+              : <Container className="d-flex align-items-center justify-content-center flex-column h-100">
+                <h3 className="pb-4">불러오는 중</h3>
+                <Spinner animation="border" variant="aztra" />
+              </Container>
+          }
+        </Modal.Body>
+        <Modal.Footer className="justify-content-between">
+          <Button variant="info" onClick={() => {
+            const file = new Blob(["\ufeff" + transcriptSrc], { type: 'data:text/html;charset=utf-8' })
+
+            const link = document.createElement('a')
+            link.href = URL.createObjectURL(file)
+            link.download = `ticket-transcript-${ticket.channel}.html`
+            document.body.appendChild(link)
+            link.click()
+            document.body.removeChild(link)
+          }}>
+            <SaveAltIcon className="mr-2" />
+            보고서 다운로드
+          </Button>
+          <Button variant="dark" onClick={() => {
+            setTranscriptModal(false)
+            setTranscriptSrc(null)
+          }}>
+            닫기
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </>
 
     return (
@@ -277,7 +363,7 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
               <b>#{ticket.number}</b>
             </td>
             {
-              !deletedMode && 
+              !deletedMode &&
               <td className="align-middle font-weight-bold">
                 {channel ? `#${channel.name}` : <i>(존재하지 않는 채널)</i>}
               </td>
@@ -319,27 +405,29 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
       }} >
         <thead>
           <tr>
-            <th className="align-middle text-center" style={{ width: 50 }}>
-              <Form.Check
-                id="tickets-select-all"
-                custom
-                hidden={mode === "deleted"}
-                type="checkbox"
-                checked={!!data?.length && !!ticketsSet.size && ticketsSet.size === finalSelectedSet.size && Array.from(ticketsSet).every(value => finalSelectedSet.has(value))}
-                onChange={() => {
-                  if (!!ticketsSet.size && ticketsSet.size === finalSelectedSet.size && Array.from(ticketsSet).every(value => finalSelectedSet.has(value))) {
-                    setSelectedTickets(new Set)
-                  }
-                  else {
-                    setSelectedTickets(ticketsSet)
-                  }
-                }}
-              />
-            </th>
-            <th className="d-none d-md-table-cell">티켓번호</th>
+            {
+              mode !== "deleted" &&
+              <th className="align-middle text-center" style={{ width: 50 }}>
+                <Form.Check
+                  id="tickets-select-all"
+                  custom
+                  type="checkbox"
+                  checked={!!data?.length && !!ticketsSet.size && ticketsSet.size === finalSelectedSet.size && Array.from(ticketsSet).every(value => finalSelectedSet.has(value))}
+                  onChange={() => {
+                    if (!!ticketsSet.size && ticketsSet.size === finalSelectedSet.size && Array.from(ticketsSet).every(value => finalSelectedSet.has(value))) {
+                      setSelectedTickets(new Set)
+                    }
+                    else {
+                      setSelectedTickets(ticketsSet)
+                    }
+                  }}
+                />
+              </th>
+            }
+            <th className="d-none d-md-table-cell" style={{ width: 200 }}>티켓번호</th>
             {mode !== "deleted" && <th className="d-none d-md-table-cell" style={{ maxWidth: 400 }}>채널</th>}
             <th className="d-none d-md-table-cell">생성자</th>
-            <th className="d-none d-md-table-cell" style={{ width: 100 }} />
+            <th className="d-none d-md-table-cell" style={{ width: 140 }} />
             <th className="d-md-none" />
           </tr>
         </thead>
@@ -470,8 +558,8 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
                         <small>
                           {
                             showSelectedClose === "delete"
-                            ? <b>- 티켓을 삭제하면 복구할 수 없습니다!</b>
-                            : <>- 티켓을 {showSelectedClose === "close" ? "닫으면" : "다시 열면"} <b>{showSelectedClose === "close" ? "닫힌 티켓" : "열린 티켓"}</b>으로 분류되며, {showSelectedClose === "close" ? "닫힌 티켓" : "열린 티켓"} 설정대로 카테고리, 채널 이름과 권한 등이 변경됩니다.</>
+                              ? <b>- 티켓을 삭제하면 복구할 수 없습니다!</b>
+                              : <>- 티켓을 {showSelectedClose === "close" ? "닫으면" : "다시 열면"} <b>{showSelectedClose === "close" ? "닫힌 티켓" : "열린 티켓"}</b>으로 분류되며, {showSelectedClose === "close" ? "닫힌 티켓" : "열린 티켓"} 설정대로 카테고리, 채널 이름과 권한 등이 변경됩니다.</>
                           }
                         </small>
                       </Modal.Body>

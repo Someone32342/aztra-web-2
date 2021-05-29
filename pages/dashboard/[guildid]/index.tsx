@@ -33,6 +33,7 @@ import dayjsUTC from 'dayjs/plugin/utc'
 import 'dayjs/locale/ko'
 import { TaskSet } from 'types/autotask';
 import numberWithCommas from 'utils/numberWithCommas';
+import Router from 'next/router';
 dayjs.locale('ko')
 dayjs.extend(dayjsRelativeTime)
 dayjs.extend(dayjsUTC)
@@ -491,7 +492,10 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
         </DashboardLayout>
       </Layout>
 
-      <Modal className="modal-dark" show={isFirst} centered size="lg" onHide={() => setIsFirst(false)}>
+      <Modal className="modal-dark" show={isFirst} centered size="lg" onHide={() => {
+        setIsFirst(false)
+        Router.reload()
+      }}>
         <Modal.Header>
           <Modal.Title style={{ fontFamily: "NanumSquare" }}>
             환영합니다!
@@ -520,7 +524,12 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
           </ul>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="aztra" onClick={() => setIsFirst(false)}>사용 시작하기!</Button>
+          <Button variant="aztra" onClick={() => {
+            setIsFirst(false)
+            Router.reload()
+          }}>
+            사용 시작하기!
+          </Button>
         </Modal.Footer>
       </Modal>
     </>
