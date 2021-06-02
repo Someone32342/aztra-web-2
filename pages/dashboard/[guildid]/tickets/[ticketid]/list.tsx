@@ -12,7 +12,8 @@ import {
   Delete as DeleteIcon,
   Close as CloseIcon,
   Description as DescriptionIcon,
-  SaveAlt as SaveAltIcon
+  SaveAlt as SaveAltIcon,
+  Refresh as RefreshIcon
 } from '@material-ui/icons'
 
 import BackTo from 'components/BackTo';
@@ -320,19 +321,36 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
           }
         </Modal.Body>
         <Modal.Footer className="justify-content-between">
-          <Button variant="info" onClick={() => {
-            const file = new Blob(["\ufeff" + transcriptSrc], { type: 'data:text/html;charset=utf-8' })
+          <div>
+            <Button className="mr-2" variant="info" onClick={() => {
+              const file = new Blob(["\ufeff" + transcriptSrc], { type: 'data:text/html;charset=utf-8' })
 
-            const link = document.createElement('a')
-            link.href = URL.createObjectURL(file)
-            link.download = `ticket-transcript-${ticket.channel}.html`
-            document.body.appendChild(link)
-            link.click()
-            document.body.removeChild(link)
-          }}>
-            <SaveAltIcon className="mr-2" />
-            보고서 다운로드
-          </Button>
+              const link = document.createElement('a')
+              link.href = URL.createObjectURL(file)
+              link.download = `ticket-transcript-${ticket.channel}.html`
+              document.body.appendChild(link)
+              link.click()
+              document.body.removeChild(link)
+            }}>
+              <SaveAltIcon className="mr-2" />
+              보고서 다운로드
+            </Button>
+            <Button variant="dark" onClick={() => {
+              setTranscriptSrc(null)
+              axios.get(`${api}/servers/${guildId}/tickets/${ticket.uuid}/transcript`, {
+                headers: {
+                  Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
+                }
+              })
+                .then(res => {
+                  if (!transcriptSrc) setTranscriptSrc(res.data)
+                })
+            }}>
+              <RefreshIcon className="mr-2" />
+              내역 업데이트
+            </Button>
+          </div>
+
           <Button variant="dark" onClick={() => {
             setTranscriptModal(false)
             setTranscriptSrc(null)
