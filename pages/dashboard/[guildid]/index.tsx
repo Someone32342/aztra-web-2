@@ -492,10 +492,7 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
         </DashboardLayout>
       </Layout>
 
-      <Modal className="modal-dark" show={isFirst} centered size="lg" onHide={() => {
-        setIsFirst(false)
-        Router.reload()
-      }}>
+      <Modal className="modal-dark" show={isFirst} centered size="lg" onHide={() => setIsFirst(false)}>
         <Modal.Header>
           <Modal.Title style={{ fontFamily: "NanumSquare" }}>
             환영합니다!
@@ -524,10 +521,7 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
           </ul>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="aztra" onClick={() => {
-            setIsFirst(false)
-            Router.reload()
-          }}>
+          <Button variant="aztra" onClick={() => setIsFirst(false)}>
             사용 시작하기!
           </Button>
         </Modal.Footer>
