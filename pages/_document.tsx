@@ -3,7 +3,7 @@ import GA_ID from 'datas/ga'
 
 export default class Doc extends Document {
   render() {
-    let _culs = localStorage.getItem('cached_user')
+    let _culs = localStorage ? localStorage.getItem('cached_user') : null
     const cachedUser = _culs ? JSON.parse(_culs) : null
 
     return (
