@@ -3,6 +3,9 @@ import GA_ID from 'datas/ga'
 
 export default class Doc extends Document {
   render() {
+    let _culs = localStorage.getItem('cached_user')
+    const cachedUser = _culs ? JSON.parse(_culs) : null
+
     return (
       <Html lang="ko">
         <Head>
@@ -57,7 +60,15 @@ export default class Doc extends Document {
                     gtag('config', '${GA_ID}', {
                       page_path: window.location.pathname,
                     });
-                  `,
+                  ` 
+                  + cachedUser 
+                  ? `
+                    gtag('config', 'MEASUREMENT_ID', {
+                      'user_id': '${cachedUser.id}'
+                    });
+                  `
+                  : ''
+                  ,
                 }}
               />
             </>
