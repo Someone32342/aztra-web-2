@@ -25,10 +25,10 @@ const GAScripts: React.FC = () => {
             page_path: window.location.pathname,
           });
         ` 
-        + cachedUser?.id
+        + cachedUser
         ? `
           gtag('config', 'MEASUREMENT_ID', {
-            'user_id': '${cachedUser.id}'
+            'user_id': '${cachedUser}'
           });
         `
         : ''
