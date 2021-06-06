@@ -1,4 +1,5 @@
 import Document, { Html, Main, NextScript, Head } from 'next/document'
+import GA_ID from 'datas/ga'
 
 export default class Doc extends Document {
   render() {
@@ -42,6 +43,25 @@ export default class Doc extends Document {
           <meta property='og:site_name' content='Aztra' />
           <meta property='og:url' content='https://aztra.xyz' />
           <meta property='og:image' content='https://aztra.xyz/logo192.png' />
+
+          {
+            process.env.NODE_ENV === "production" &&
+            <>
+              <script async src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} />
+              <script
+                dangerouslySetInnerHTML={{
+                  __html: `
+                    window.dataLayer = window.dataLayer || [];
+                    function gtag(){dataLayer.push(arguments);}
+                    gtag('js', new Date());
+                    gtag('config', '${GA_ID}', {
+                      page_path: window.location.pathname,
+                    });
+                  `,
+                }}
+              />
+            </>
+          }
         </Head>
         <body>
           <noscript>You need to enable JavaScript to run this app.</noscript>

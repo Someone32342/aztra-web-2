@@ -7,6 +7,7 @@ import LevelingCommands from './leveling-commands.md'
 import WarnCommands from './warn-commands.md'
 import ManageCommands from './manage-commands.md'
 import SettingCommands from './setting-commands.md'
+import TicketCommands from './ticket-commands.md'
 
 const index: GuideGroupType = {
   id: "aztra-commands-guide",
@@ -48,6 +49,11 @@ const index: GuideGroupType = {
       id: "setting-commands",
       title: "기능설정 명령어",
       content: SettingCommands
+    },
+    {
+      id: "ticket-commands",
+      title: "티켓 명령어",
+      content: TicketCommands
     }
   ]
 }
