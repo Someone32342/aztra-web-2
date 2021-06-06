@@ -1,11 +1,46 @@
 import Document, { Html, Main, NextScript, Head } from 'next/document'
 import GA_ID from 'datas/ga'
+import { useEffect, useState } from 'react'
+
+const GAScripts: React.FC = () => {
+  const [cachedUser, setCachedUser] = useState<any | null>(null)
+
+  useEffect(() => {
+    let _culs = localStorage.getItem('cached_user')
+    if (!_culs) return
+
+    setCachedUser(JSON.parse(_culs)?.id ?? null)
+  }, [])
+
+  return process.env.NODE_ENV === "production" 
+  ? <>
+    <script async src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} />
+    <script
+      dangerouslySetInnerHTML={{
+        __html: `
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', '${GA_ID}', {
+            page_path: window.location.pathname,
+          });
+        ` 
+        + cachedUser 
+        ? `
+          gtag('config', 'MEASUREMENT_ID', {
+            'user_id': '${cachedUser.id}'
+          });
+        `
+        : ''
+        ,
+      }}
+    />
+  </>
+  : null
+}
 
 export default class Doc extends Document {
   render() {
-    let _culs = typeof window !== "undefined" ? localStorage.getItem('cached_user') : null
-    const cachedUser = _culs ? JSON.parse(_culs) : {}
-
     return (
       <Html lang="ko">
         <Head>
@@ -47,32 +82,7 @@ export default class Doc extends Document {
           <meta property='og:url' content='https://aztra.xyz' />
           <meta property='og:image' content='https://aztra.xyz/logo192.png' />
 
-          {
-            process.env.NODE_ENV === "production" &&
-            <>
-              <script async src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} />
-              <script
-                dangerouslySetInnerHTML={{
-                  __html: `
-                    window.dataLayer = window.dataLayer || [];
-                    function gtag(){dataLayer.push(arguments);}
-                    gtag('js', new Date());
-                    gtag('config', '${GA_ID}', {
-                      page_path: window.location.pathname,
-                    });
-                  ` 
-                  + cachedUser?.id 
-                  ? `
-                    gtag('config', 'MEASUREMENT_ID', {
-                      'user_id': '${cachedUser.id}'
-                    });
-                  `
-                  : ''
-                  ,
-                }}
-              />
-            </>
-          }
+          <GAScripts />
         </Head>
         <body>
           <noscript>You need to enable JavaScript to run this app.</noscript>
