@@ -4,7 +4,7 @@ import GA_ID from 'datas/ga'
 export default class Doc extends Document {
   render() {
     let _culs = typeof window !== "undefined" ? localStorage.getItem('cached_user') : null
-    const cachedUser = _culs ? JSON.parse(_culs) : null
+    const cachedUser = _culs ? JSON.parse(_culs) : {}
 
     return (
       <Html lang="ko">
@@ -61,7 +61,7 @@ export default class Doc extends Document {
                       page_path: window.location.pathname,
                     });
                   ` 
-                  + cachedUser 
+                  + cachedUser?.id 
                   ? `
                     gtag('config', 'MEASUREMENT_ID', {
                       'user_id': '${cachedUser.id}'
