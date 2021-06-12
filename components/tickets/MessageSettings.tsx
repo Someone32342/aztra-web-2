@@ -53,6 +53,9 @@ const MessageSettings: React.FC<MessageSettingsProps> = ({ ticketSet, mutate }) 
 
         <FormatStrings show={showFormattings === 'set'} onHide={() => setShowFormattings(false)} data={
           [
+            ['opener_name', '티켓 생성자 이름', 'Aztra'],
+            ['opener_tag', '티켓 생성자의 태그', '2412'],
+            ['opener_id', '티켓 생성자의 ID', '751339721782722570'],
             ['ticket_number', '티켓 번호', '12'],
             ['ticket_name', '티켓 이름', '신고'],
             ['ticket_emoji', '티켓 이모지', <Emoji emoji="+1" set="twitter" size={18} />]
@@ -121,6 +124,7 @@ const MessageSettings: React.FC<MessageSettingsProps> = ({ ticketSet, mutate }) 
             ['opener_name', '티켓 생성자 이름', 'Aztra'],
             ['opener_tag', '티켓 생성자의 태그', '2412'],
             ['opener_id', '티켓 생성자의 ID', '751339721782722570'],
+            ['opener_mention', '티켓 생성자의 멘션', '@Aztra'],
             ['ticket_number', '티켓 번호', '12'],
             ['ticket_name', '티켓 이름', '신고'],
             ['ticket_emoji', '티켓 이모지', <Emoji emoji="+1" set="twitter" size={18} />]
