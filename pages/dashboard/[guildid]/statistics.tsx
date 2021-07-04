@@ -100,7 +100,6 @@ const Statistics: NextPage<StatisticsProps> = ({ guildId }) => {
                   <div>
                     <h3>
                       통계
-                      <Badge variant="aztra" className="ml-2 mb-auto mt-1" style={{ fontSize: 15 }}>베타</Badge>
                     </h3>
                     <div className="py-2">
                       서버의 각종 통계를 보여줍니다. Aztra가 초대된 이후에 정보 수집이 시작됩니다. 메시지 통계는 Aztra에 <b>메시지 읽기</b> 권한이 있는 채널만 수집됩니다.
