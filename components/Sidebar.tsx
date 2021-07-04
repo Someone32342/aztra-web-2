@@ -154,6 +154,7 @@ export default function Sidebar(props: SidebarProps) {
               </div>
               <div>
                 자동 작업
+                <Badge variant="warning" className="ml-2 my-auto" style={{ fontSize: 14 }}>점검중</Badge>
               </div>
             </Nav.Link>
           </Link>
