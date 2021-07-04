@@ -170,7 +170,6 @@ export default function Sidebar(props: SidebarProps) {
               </div>
               <div>
                 통계
-                <Badge variant="aztra" className="ml-2 my-auto" style={{ fontSize: 14 }}>베타</Badge>
               </div>
             </Nav.Link>
           </Link>
@@ -187,7 +186,6 @@ export default function Sidebar(props: SidebarProps) {
               </div>
               <div>
                 티켓 설정
-                <Badge variant="aztra" className="ml-2 my-auto" style={{ fontSize: 14 }}>베타</Badge>
               </div>
             </Nav.Link>
           </Link>

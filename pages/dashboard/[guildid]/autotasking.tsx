@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import axios, { AxiosError } from 'axios'
-import { Badge, Button, ButtonGroup, Card, Col, Container, Form, Modal, OverlayTrigger, Row, Spinner, Table, Tooltip } from 'react-bootstrap'
+import { Button, ButtonGroup, Card, Col, Container, Form, Modal, OverlayTrigger, Row, Spinner, Table, Tooltip } from 'react-bootstrap'
 import { Add as AddIcon, Delete as DeleteIcon, RemoveCircleOutline, Edit as EditIcon, Close as CloseIcon } from '@material-ui/icons'
 import Twemoji from 'react-twemoji'
 import api from 'datas/api'
@@ -19,7 +19,8 @@ import { EmojiRoleData, JoinRoleData } from 'types/autotask/action_data'
 import EmojiRole from 'components/autotasking/EmojiRole'
 import { EmojiRoleParams } from 'types/autotask/params'
 import RoleBadge from 'components/forms/RoleBadge'
-import { Emoji } from 'emoji-mart'
+import { Emoji, getEmojiDataFromNative } from 'emoji-mart'
+import emojiData from 'emoji-mart/data/all.json'
 import JoinRole from 'components/autotasking/JoinRole'
 
 interface AutoTaskingRouterProps {
@@ -53,6 +54,7 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
   const [editSaving, setEditSaving] = useState(false)
   const [saveError, setSaveError] = useState(false)
   const [editError, setEditError] = useState(false)
+  const [isLG, setIsLG] = useState<boolean | null>(null)
 
   const { data, mutate } = useSWR<TaskSet[], AxiosError>(
     new Cookies().get('ACCESS_TOKEN') ? urljoin(api, `/servers/${guildId}/autotasking`) : null,
@@ -100,6 +102,12 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
       localStorage.setItem('loginFrom', lct.pathname + lct.search)
       window.location.assign('/login')
     }
+    else {
+      const resize = () => setIsLG(window.innerWidth >= 992)
+      resize()
+      window.addEventListener('resize', resize)
+      return () => window.removeEventListener('resize', resize)
+    }
   }, [])
 
   const tasksSet = new Set(data?.map(o => o.uuid))
@@ -133,7 +141,7 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
         taskContent = taskdata.map(o => (
           <div key={o.emoji}>
             <div className="py-1 font-weight-bold d-flex align-items-center">
-              <Emoji emoji={o.emoji} set="twitter" size={22} />
+              <Emoji emoji={getEmojiDataFromNative(o.emoji, 'twitter', emojiData as any)} set="twitter" size={22} />
               <span className="pl-2">{" "} 이모지에서:</span>
             </div>
             {
@@ -176,88 +184,113 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
         break
     }
 
+    const ActionBar = (
+      <ButtonGroup>
+        <OverlayTrigger
+          placement="top"
+          overlay={
+            <Tooltip id="task-list-row-remove-task">
+              이 작업 제거하기
+            </Tooltip>
+          }
+        >
+          <Button variant="dark" className="d-flex px-1 remove-before" onClick={() => {
+            axios.delete(`${api}/servers/${guildId}/autotasking`, {
+              data: {
+                tasks: [taskset.uuid]
+              },
+              headers: {
+                Authorization: `Bearer ${new Cookies().get("ACCESS_TOKEN")}`
+              }
+            })
+              .then(() => mutate())
+          }}>
+            <RemoveCircleOutline />
+          </Button>
+        </OverlayTrigger>
+
+        <OverlayTrigger
+          placement="top"
+          overlay={
+            <Tooltip id="task-list-row-remove-task">
+              작업 수정하기
+            </Tooltip>
+          }
+        >
+          <Button variant="dark" className="d-flex px-1 remove-before" onClick={() => setEdit(taskset.uuid)}>
+            <EditIcon />
+          </Button>
+        </OverlayTrigger>
+
+      </ButtonGroup>
+    )
+
     return (
       <tr>
-        <td className="align-middle text-center">
-          <Form.Check
-            id={`taskset-check-${taskset.uuid}`}
-            type="checkbox"
-            custom
-            checked={checked}
-            onChange={onCheckChange}
-          />
-        </td>
+        {
+          isLG ? <>
+            <td className="align-middle text-center">
+              <Form.Check
+                id={`taskset-check-${taskset.uuid}`}
+                type="checkbox"
+                custom
+                checked={checked}
+                onChange={onCheckChange}
+              />
+            </td>
 
-        <td className="align-middle d-lg-none">
-          <span className="d-inline-block mw-100 font-weight-bold">
-            {eventName}
-          </span>
-          <div>
-            {eventContent}
-          </div>
-          <hr className="my-2" style={{ borderColor: '#4e5058', borderWidth: 2 }} />
-          <div className="mw-100 align-middle cursor-pointer">
-            <Twemoji options={{ className: "Twemoji" }}>
-              {taskContent}
-            </Twemoji>
-          </div>
-        </td>
+            <td className="align-middle">
+              <span className="d-inline-block mw-100 font-weight-bold">
+                {eventName}
+              </span>
+              <div>
+                {eventContent}
+              </div>
+            </td>
+            <td className="align-middle">
+              <div className="mw-100 align-middle cursor-pointer">
+                <Twemoji options={{ className: "Twemoji" }}>
+                  {taskContent}
+                </Twemoji>
+              </div>
+            </td>
+            <td className="align-middle text-center">
+              {ActionBar}
+            </td>
+          </>
+            : <>
+              <td className="align-middle text-center">
+                <Form.Check
+                  id={`taskset-check-${taskset.uuid}`}
+                  type="checkbox"
+                  custom
+                  checked={checked}
+                  onChange={onCheckChange}
+                />
+              </td>
+              <td>
+                <span className="d-inline-block mw-100 font-weight-bold">
+                  {eventName}
+                </span>
 
-        <td className="align-middle d-none d-lg-table-cell">
-          <span className="d-inline-block mw-100 font-weight-bold">
-            {eventName}
-          </span>
-          <div>
-            {eventContent}
-          </div>
-        </td>
-        <td className="align-middle d-none d-lg-table-cell">
-          <div className="mw-100 align-middle cursor-pointer">
-            <Twemoji options={{ className: "Twemoji" }}>
-              {taskContent}
-            </Twemoji>
-          </div>
-        </td>
-        <td className="align-middle text-center">
-          <ButtonGroup>
-            <OverlayTrigger
-              placement="top"
-              overlay={
-                <Tooltip id="task-list-row-remove-task">
-                  이 작업 제거하기
-                </Tooltip>
-              }
-            >
-              <Button variant="dark" className="d-flex px-1 remove-before" onClick={() => {
-                axios.delete(`${api}/servers/${guildId}/autotasking`, {
-                  data: {
-                    tasks: [taskset.uuid]
-                  },
-                  headers: {
-                    Authorization: `Bearer ${new Cookies().get("ACCESS_TOKEN")}`
-                  }
-                })
-                  .then(() => mutate())
-              }}>
-                <RemoveCircleOutline />
-              </Button>
-            </OverlayTrigger>
+                <div className="mb-4">
+                  {eventContent}
+                </div>
 
-            <OverlayTrigger
-              placement="top"
-              overlay={
-                <Tooltip id="task-list-row-remove-task">
-                  작업 수정하기
-                </Tooltip>
-              }
-            >
-              <Button variant="dark" className="d-flex px-1 remove-before" onClick={() => setEdit(taskset.uuid)}>
-                <EditIcon />
-              </Button>
-            </OverlayTrigger>
+                <div className="mw-100 align-middle cursor-pointer">
+                  <Twemoji options={{ className: "Twemoji" }}>
+                    {taskContent}
+                  </Twemoji>
+                </div>
 
-          </ButtonGroup>
-        </td>
+                <hr style={{ borderColor: '#4e5058', borderWidth: 2 }} />
+
+                <div>
+                  {ActionBar}
+                </div>
+              </td>
+            </>
+        }
       </tr>
     )
   }
@@ -407,7 +440,7 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
 
                           <Row className="justify-content-end align-items-center pt-2">
                             <div className="mr-4" style={{ color: data.length >= 15 ? 'gold' : 'white' }}><b>{data.length}/15</b> 개 사용됨</div>
-                            <Button variant="aztra" size="sm" className="d-flex align-items-center mr-3" disabled={data.length >= 15} onClick={() => {
+                            <Button variant="aztra" size="sm" className="d-flex align-items-center my-1" disabled={data.length >= 15} onClick={() => {
                               setAddNew(true)
                               animateScroll.scrollToTop({
                                 duration: 500,
@@ -416,7 +449,7 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                               <AddIcon className="mr-1" />
                               새로 추가
                             </Button>
-                            <Button variant="danger" size="sm" className="d-flex align-items-center" disabled={!finalSelectedSet.size} onClick={() => setShowSelectedDel(true)}>
+                            <Button variant="danger" size="sm" className="d-flex align-items-center ml-3 my-1" disabled={!finalSelectedSet.size} onClick={() => setShowSelectedDel(true)}>
                               <DeleteIcon className="mr-1" />
                               선택 항목 삭제
                             </Button>
@@ -455,7 +488,7 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                             }} >
                               <thead>
                                 <tr>
-                                  <th className="align-middle text-center" style={{ width: 50 }}>
+                                  <th className="align-middle text-lg-center" style={{ width: 50 }}>
                                     <Form.Check
                                       id="task-select-all"
                                       custom
@@ -474,7 +507,7 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                                   <th className="d-lg-none" />
                                   <th className="text-center text-lg-left d-none d-lg-table-cell" style={{ width: 250 }}>작업 유형</th>
                                   <th className="text-center text-lg-left d-none d-lg-table-cell">작업 내용</th>
-                                  <th style={{ width: 100 }} />
+                                  <th className="d-none d-lg-table-cell" style={{ width: 100 }} />
                                 </tr>
                               </thead>
                               <tbody>
@@ -512,8 +545,8 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                                   })
                                 }}>
                                   새로 추가
-                                  </span>
-                                  해보세요!
+                                </span>
+                                해보세요!
                               </div>
                             }
                           </Row>

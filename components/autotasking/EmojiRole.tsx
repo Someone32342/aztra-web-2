@@ -3,7 +3,7 @@ import { Button, ButtonGroup, Card, Col, Container, Dropdown, Form, Modal, Overl
 import { Add as AddIcon, RemoveCircleOutline, Check as CheckIcon, Close as CloseIcon } from '@material-ui/icons'
 import RoleBadge, { AddRole } from "components/forms/RoleBadge"
 import EmojiPickerI18n from "defs/EmojiPickerI18n"
-import { Emoji, Picker } from "emoji-mart"
+import { Emoji, Picker, getEmojiDataFromNative } from "emoji-mart"
 
 import styles from 'styles/components/autotasking/EmojiRole.module.scss'
 import classNames from 'classnames/bind'
@@ -19,6 +19,9 @@ import prefixes from 'datas/prefixes'
 import Cookies from "universal-cookie"
 import { TaskSet } from "types/autotask"
 import filterChannels from "utils/filterChannels"
+import emoji from 'node-emoji'
+import emoji2 from 'node-emoji-new'
+import emojiData from 'emoji-mart/data/all.json'
 const cx = classNames.bind(styles)
 
 interface EmojiRoleProps {
@@ -65,7 +68,6 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, s
         setSelectMessageToken(null)
         setSelectMessageStatus("done")
         setNewParams({ ...newParams, message: data.messageID })
-        console.log(data.messageID)
       })
       .catch(_e => {
         if (_e.isAxiosError) {
@@ -284,16 +286,17 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, s
                 {
                   <td className="align-middle">
                     <div className="position-relative mb-3 d-flex align-items-center">
-                      {newData?.emoji && <span className="mr-3"><Emoji emoji={newData.emoji} set="twitter" size={28} /></span>}
+                      {newData?.emoji && <span className="mr-3"><Emoji emoji={getEmojiDataFromNative(newData.emoji, 'twitter', emojiData as any)} set="twitter" size={28} /></span>}
                       <Dropdown>
                         <Dropdown.Toggle id="ds" size="sm" variant="secondary" className="remove-after">
                           이모지 선택하기
                         </Dropdown.Toggle>
                         <Dropdown.Menu className="py-0">
-                          <Picker showSkinTones={false} showPreview={false} i18n={EmojiPickerI18n} theme="dark" set="twitter" onClick={emoji => {
+                          <Picker showSkinTones={false} showPreview={false} i18n={EmojiPickerI18n} theme="dark" set="twitter" onSelect={e => {
+                            if (!e.id) return
                             setNewData({
                               ...newData,
-                              emoji: emoji.id ?? null
+                              emoji: (emoji.hasEmoji(e.id) ? emoji.get(e.id) : emoji2.get(e.id)) ?? null
                             })
                           }} />
                         </Dropdown.Menu>
@@ -374,17 +377,18 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, s
                   <tr key={o.emoji} className="d-lg-none">
                     <td className="align-middle w-100">
                       <div className="position-relative d-flex align-items-center my-2">
-                        {o.emoji && <span className="mr-3"><Emoji emoji={o.emoji} set="twitter" size={28} /></span>}
+                        {o.emoji && <span className="mr-3"><Emoji emoji={getEmojiDataFromNative(o.emoji, 'twitter', emojiData as any)} set="twitter" size={28} /></span>}
                         <Dropdown>
                           <Dropdown.Toggle id="ds" size="sm" variant="secondary" className="remove-after">
                             이모지 변경하기
                           </Dropdown.Toggle>
                           <Dropdown.Menu className="py-0">
-                            <Picker showSkinTones={false} showPreview={false} i18n={EmojiPickerI18n} theme="dark" set="twitter" onClick={emoji => {
+                            <Picker showSkinTones={false} showPreview={false} i18n={EmojiPickerI18n} theme="dark" set="twitter" onSelect={e => {
+                              if (!e.id) return
                               const data = { ...o }
-                              data.emoji = emoji.id!
+                              data.emoji = emoji.hasEmoji(e.id) ? emoji.get(e.id) : emoji2.get(e.id)
 
-                              const datas = newAddedData.filter(a => a.emoji !== o.emoji ? a.emoji !== emoji.id : false)
+                              const datas = newAddedData.filter(a => a.emoji !== o.emoji ? a.emoji !== data.emoji : false)
                               datas.splice(idx, 0, data)
                               setNewAddedData(datas)
                             }} />
@@ -486,15 +490,16 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, s
                     <Dropdown.Toggle id="ds" size="sm" variant={newData?.emoji ? "dark" : "secondary"} className="remove-after">
                       {
                         newData?.emoji
-                          ? <Emoji emoji={newData.emoji} set="twitter" size={28} />
+                          ? <Emoji emoji={getEmojiDataFromNative(newData.emoji, 'twitter', emojiData as any)} set="twitter" size={28} />
                           : "이모지 선택하기"
                       }
                     </Dropdown.Toggle>
                     <Dropdown.Menu className="py-0">
-                      <Picker showSkinTones={false} showPreview={false} i18n={EmojiPickerI18n} theme="dark" set="twitter" onClick={emoji => {
+                      <Picker showSkinTones={false} showPreview={false} i18n={EmojiPickerI18n} theme="dark" set="twitter" onSelect={e => {
+                        if (!e.id) return
                         setNewData({
                           ...newData,
-                          emoji: emoji.id ?? null
+                          emoji: (emoji.hasEmoji(e.id) ? emoji.get(e.id) : emoji2.get(e.id)) ?? null
                         })
                       }} />
                     </Dropdown.Menu>
@@ -578,16 +583,17 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, s
                         <Dropdown.Toggle id="ds" size="sm" variant={o?.emoji ? "dark" : "secondary"} className="remove-after">
                           {
                             o?.emoji
-                              ? <Emoji emoji={o.emoji} set="twitter" size={28} />
+                              ? <Emoji emoji={getEmojiDataFromNative(o.emoji, 'twitter', emojiData as any)} set="twitter" size={28} />
                               : "이모지 선택하기"
                           }
                         </Dropdown.Toggle>
                         <Dropdown.Menu className="py-0">
-                          <Picker showSkinTones={false} showPreview={false} i18n={EmojiPickerI18n} theme="dark" set="twitter" onClick={emoji => {
+                          <Picker showSkinTones={false} showPreview={false} i18n={EmojiPickerI18n} theme="dark" set="twitter" onSelect={e => {
+                            if (!e.id) return
                             const data = { ...o }
-                            data.emoji = emoji.id!
+                            data.emoji = emoji.hasEmoji(e.id) ? emoji.get(e.id) : emoji2.get(e.id)
 
-                            const datas = newAddedData.filter(a => a.emoji !== o.emoji ? a.emoji !== emoji.id : false)
+                            const datas = newAddedData.filter(a => a.emoji !== o.emoji ? a.emoji !== data.emoji : false)
                             datas.splice(idx, 0, data)
                             setNewAddedData(datas)
                           }} />

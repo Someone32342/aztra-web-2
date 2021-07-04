@@ -8,7 +8,10 @@ import filterChannels from 'utils/filterChannels'
 import { TicketSetPOST } from 'types/dbtypes'
 import { PartialGuild, ChannelMinimal, Role } from 'types/DiscordTypes'
 import EmojiPickerI18n from 'defs/EmojiPickerI18n'
-import { Emoji, Picker } from 'emoji-mart'
+import { Emoji, Picker, getEmojiDataFromNative } from 'emoji-mart'
+import emojiData from 'emoji-mart/data/all.json'
+import emoji from 'node-emoji'
+import emoji2 from 'node-emoji-new'
 import RoleBadge, { AddRole } from 'components/forms/RoleBadge'
 
 interface EmojiRoleProps {
@@ -118,13 +121,14 @@ const TicketForm: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, 
               <Dropdown.Toggle id="ds" size="sm" variant={selectedEmoji ? "dark" : "secondary"} className="remove-after">
                 {
                   selectedEmoji
-                    ? <Emoji emoji={selectedEmoji} set="twitter" size={28} />
+                    ? <Emoji emoji={getEmojiDataFromNative(selectedEmoji, 'twitter', emojiData as any)} set="twitter" size={28} />
                     : "이모지 선택하기"
                 }
               </Dropdown.Toggle>
               <Dropdown.Menu className="py-0">
-                <Picker showSkinTones={false} showPreview={false} i18n={EmojiPickerI18n} theme="dark" set="twitter" onClick={emoji => {
-                  setSelectedEmoji(emoji.id ?? null)
+                <Picker showSkinTones={false} showPreview={false} i18n={EmojiPickerI18n} theme="dark" set="twitter" onClick={e => {
+                  if (!e.id) return
+                  setSelectedEmoji(emoji.hasEmoji(e.id) ? emoji.get(e.id) : emoji2.get(e.id))
                 }} />
               </Dropdown.Menu>
             </Dropdown>

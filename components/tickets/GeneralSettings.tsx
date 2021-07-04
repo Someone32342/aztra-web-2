@@ -7,7 +7,10 @@ import { Ticket, TicketSet } from 'types/dbtypes'
 import { ChannelMinimal } from 'types/DiscordTypes'
 import filterChannels from 'utils/filterChannels'
 import EmojiPickerI18n from 'defs/EmojiPickerI18n'
-import { Emoji, Picker } from 'emoji-mart'
+import { Emoji, Picker, getEmojiDataFromNative } from 'emoji-mart'
+import emoji from 'node-emoji'
+import emoji2 from 'node-emoji-new'
+import emojiData from 'emoji-mart/data/all.json'
 import axios, { AxiosError } from 'axios'
 import api from 'datas/api'
 import Cookies from 'universal-cookie'
@@ -72,11 +75,12 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({ channels, ticketSet, 
         <Col>
           <Dropdown>
             <Dropdown.Toggle id="ds" size="sm" variant="dark" className="remove-after d-flex align-items-center border-0 shadow-none bg-transparent" >
-              <Emoji emoji={newEmoji ?? ticketSet.emoji} set="twitter" size={28} />
+              <Emoji emoji={getEmojiDataFromNative(newEmoji ?? ticketSet.emoji, 'twitter', emojiData as any)} set="twitter" size={28} />
             </Dropdown.Toggle>
             <Dropdown.Menu className="py-0">
-              <Picker showSkinTones={false} showPreview={false} i18n={EmojiPickerI18n} theme="dark" set="twitter" onClick={emoji => {
-                setNewEmoji(emoji.id ?? null)
+              <Picker showSkinTones={false} showPreview={false} i18n={EmojiPickerI18n} theme="dark" set="twitter" onSelect={e => {
+                if (!e.id) return
+                setNewEmoji(emoji.hasEmoji(e.id) ? emoji.get(e.id) : emoji2.get(e.id))
               }} />
             </Dropdown.Menu>
           </Dropdown>
