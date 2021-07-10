@@ -75,7 +75,7 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({ channels, ticketSet, 
         <Col>
           <Dropdown>
             <Dropdown.Toggle id="ds" size="sm" variant="dark" className="remove-after d-flex align-items-center border-0 shadow-none bg-transparent" >
-              <Emoji emoji={getEmojiDataFromNative(newEmoji ?? ticketSet.emoji, 'twitter', emojiData as any)} set="twitter" size={28} />
+              {newEmoji ?? ticketSet.emoji}
             </Dropdown.Toggle>
             <Dropdown.Menu className="py-0">
               <Picker showSkinTones={false} showPreview={false} i18n={EmojiPickerI18n} theme="dark" set="twitter" onSelect={e => {
