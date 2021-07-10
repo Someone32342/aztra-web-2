@@ -16,6 +16,8 @@ import { TicketSet } from 'types/dbtypes'
 import { ChannelMinimal, Role } from 'types/DiscordTypes'
 import { animateScroll } from 'react-scroll'
 import TicketForm from 'components/tickets/TicketForm'
+import { Emoji, getEmojiDataFromNative } from 'emoji-mart'
+import emojiData from 'emoji-mart/data/all.json'
 
 interface TicketSetsRouterProps {
   guildId: string
@@ -125,6 +127,8 @@ const TicketSets: NextPage<TicketSetsRouterProps> = ({ guildId }) => {
       </ButtonGroup>
     )
 
+    const emd = getEmojiDataFromNative(ticketSet.emoji, 'twitter', emojiData as any)
+
     return <>
       <tr>
         {
@@ -144,7 +148,7 @@ const TicketSets: NextPage<TicketSetsRouterProps> = ({ guildId }) => {
               </span>
             </td>
             <td className="align-middle">
-              {ticketSet.emoji}
+              {emd ? <Emoji size={28} emoji={emd} set="twitter" /> : ticketSet.emoji}
             </td>
             <td className="align-middle">
               <span className="d-inline-block text-truncate mw-100 align-middle cursor-pointer font-weight-bold">
@@ -176,7 +180,7 @@ const TicketSets: NextPage<TicketSetsRouterProps> = ({ guildId }) => {
                 </div>
                 <div>
                   <div>
-                    이모지: {ticketSet.emoji}
+                    이모지: {emd ? <Emoji size={28} emoji={emd} set="twitter" /> : ticketSet.emoji}
                   </div>
                   <div>
                     채널: <b className="ml-2">#{channels?.find(o => o.id === ticketSet.channel)?.name ?? <i>(존재하지 않는 채널)</i>}</b>

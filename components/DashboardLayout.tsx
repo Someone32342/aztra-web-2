@@ -101,7 +101,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ guildId, children }) 
                     ? (
                       sidebarOpen && (
                         <div className="Dashboardroute-sidebar-body">
-                          <Sidebar guild={guild} onSelect={closeSidebar} />
+                          <Sidebar guildId={guild?.id ?? guildId} onSelect={closeSidebar} />
                         </div>
                       )
                     )
@@ -109,7 +109,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ guildId, children }) 
                       <div className="Dashboardroute-sidebar-body" style={{
                         height: `calc(100vh - ${sidebarHeaderRef.current?.clientHeight}px - 90px)`
                       }}>
-                        <Sidebar guild={guild} onSelect={closeSidebar} />
+                        <Sidebar guildId={guild?.id ?? guildId} onSelect={closeSidebar} />
                       </div>
                     )
                 }

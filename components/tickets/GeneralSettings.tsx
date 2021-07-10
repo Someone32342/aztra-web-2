@@ -48,6 +48,8 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({ channels, ticketSet, 
 
   const filteredChannels = filterChannels(channels.filter(o => !ticketChannels.includes(o.id)), channelSearch)
 
+  const emd = getEmojiDataFromNative(newEmoji ?? ticketSet.emoji, 'twitter', emojiData as any)
+
   return (
     <Form as={Container} fluid className="mt-3">
       <Row className="pt-3 pb-2">
@@ -75,7 +77,7 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({ channels, ticketSet, 
         <Col>
           <Dropdown>
             <Dropdown.Toggle id="ds" size="sm" variant="dark" className="remove-after d-flex align-items-center border-0 shadow-none bg-transparent" >
-              {newEmoji ?? ticketSet.emoji}
+              {emd ? <Emoji size={28} emoji={emd} set="twitter" /> : (newEmoji ?? ticketSet.emoji)}
             </Dropdown.Toggle>
             <Dropdown.Menu className="py-0">
               <Picker showSkinTones={false} showPreview={false} i18n={EmojiPickerI18n} theme="dark" set="twitter" onSelect={e => {

@@ -138,34 +138,38 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
         )
 
         let taskdata: EmojiRoleData[] = taskset.data
-        taskContent = taskdata.map(o => (
-          <div key={o.emoji}>
-            <div className="py-1 font-weight-bold d-flex align-items-center">
-              <Emoji emoji={getEmojiDataFromNative(o.emoji, 'twitter', emojiData as any)} set="twitter" size={22} />
-              <span className="pl-2">{" "} 이모지에서:</span>
+        taskContent = taskdata.map(o => {
+          const emd = getEmojiDataFromNative(o.emoji, 'twitter', emojiData as any)
+
+          return (
+            <div key={o.emoji}>
+              <div className="py-1 font-weight-bold d-flex align-items-center">
+                {emd ? <Emoji size={22} emoji={emd} set="twitter" /> : o.emoji}
+                <span className="pl-2">{" "} 이모지에서:</span>
+              </div>
+              {
+                !!o.add.length &&
+                <div className="d-flex flex-wrap pb-1 pl-3">
+                  <span className="font-weight-bold pr-2" style={{ color: 'limegreen' }}>- 반응 추가시 역할 추가:</span>
+                  {o.add.map(r => {
+                    const role = roles?.find(one => one.id === r)
+                    return <RoleBadge key={r} className="mr-2" name={role?.name ?? '(존재하지 않는 역할)'} color={'#' + (role?.color ? role?.color.toString(16) : 'fff')} />
+                  })}
+                </div>
+              }
+              {
+                !!o.remove.length &&
+                <div className="d-flex flex-wrap pb-1 pl-3">
+                  <span className="font-weight-bold pr-2" style={{ color: 'salmon' }}>- 반응 제거시 역할 제거:</span>
+                  {o.remove.map(r => {
+                    const role = roles?.find(one => one.id === r)
+                    return <RoleBadge key={r} className="mr-2" name={role?.name ?? '(존재하지 않는 역할)'} color={'#' + (role?.color ? role?.color.toString(16) : 'fff')} />
+                  })}
+                </div>
+              }
             </div>
-            {
-              !!o.add.length &&
-              <div className="d-flex flex-wrap pb-1 pl-3">
-                <span className="font-weight-bold pr-2" style={{ color: 'limegreen' }}>- 반응 추가시 역할 추가:</span>
-                {o.add.map(r => {
-                  const role = roles?.find(one => one.id === r)
-                  return <RoleBadge key={r} className="mr-2" name={role?.name ?? '(존재하지 않는 역할)'} color={'#' + (role?.color ? role?.color.toString(16) : 'fff')} />
-                })}
-              </div>
-            }
-            {
-              !!o.remove.length &&
-              <div className="d-flex flex-wrap pb-1 pl-3">
-                <span className="font-weight-bold pr-2" style={{ color: 'salmon' }}>- 반응 제거시 역할 제거:</span>
-                {o.remove.map(r => {
-                  const role = roles?.find(one => one.id === r)
-                  return <RoleBadge key={r} className="mr-2" name={role?.name ?? '(존재하지 않는 역할)'} color={'#' + (role?.color ? role?.color.toString(16) : 'fff')} />
-                })}
-              </div>
-            }
-          </div>
-        ))
+          )
+        })
         break
 
       case 'join_role':

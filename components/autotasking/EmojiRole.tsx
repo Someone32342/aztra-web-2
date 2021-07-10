@@ -87,6 +87,8 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, s
     if (cancelSelectMessage) cancelSelectMessage.cancel()
   }
 
+  const emd = newData.emoji ? getEmojiDataFromNative(newData.emoji, 'twitter', emojiData as any) : null
+
   return (
     <>
       <Row>
@@ -286,7 +288,7 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, s
                 {
                   <td className="align-middle">
                     <div className="position-relative mb-3 d-flex align-items-center">
-                      {newData?.emoji && <span className="mr-3"><Emoji emoji={getEmojiDataFromNative(newData.emoji, 'twitter', emojiData as any)} set="twitter" size={28} /></span>}
+                      {newData?.emoji && <span className="mr-3">{emd ? <Emoji size={28} emoji={emd} set="twitter" /> : newData.emoji}</span>}
                       <Dropdown>
                         <Dropdown.Toggle id="ds" size="sm" variant="secondary" className="remove-after">
                           이모지 선택하기
@@ -373,114 +375,118 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, s
               </tr>
 
               {
-                newAddedData.map((o, idx) => (
-                  <tr key={o.emoji} className="d-lg-none">
-                    <td className="align-middle w-100">
-                      <div className="position-relative d-flex align-items-center my-2">
-                        {o.emoji && <span className="mr-3"><Emoji emoji={getEmojiDataFromNative(o.emoji, 'twitter', emojiData as any)} set="twitter" size={28} /></span>}
-                        <Dropdown>
-                          <Dropdown.Toggle id="ds" size="sm" variant="secondary" className="remove-after">
-                            이모지 변경하기
-                          </Dropdown.Toggle>
-                          <Dropdown.Menu className="py-0">
-                            <Picker showSkinTones={false} showPreview={false} i18n={EmojiPickerI18n} theme="dark" set="twitter" onSelect={e => {
-                              if (!e.id) return
-                              const data = { ...o }
-                              data.emoji = emoji.hasEmoji(e.id) ? emoji.get(e.id) : emoji2.get(e.id)
+                newAddedData.map((o, idx) => {
+                  const em = getEmojiDataFromNative(o.emoji, 'twitter', emojiData as any)
 
-                              const datas = newAddedData.filter(a => a.emoji !== o.emoji ? a.emoji !== data.emoji : false)
-                              datas.splice(idx, 0, data)
-                              setNewAddedData(datas)
-                            }} />
-                          </Dropdown.Menu>
-                        </Dropdown>
-                      </div>
+                  return (
+                    <tr key={o.emoji} className="d-lg-none">
+                      <td className="align-middle w-100">
+                        <div className="position-relative d-flex align-items-center my-2">
+                          {o.emoji && <span className="mr-3">{em ? <Emoji size={28} emoji={em} set="twitter" /> : o.emoji}</span>}
+                          <Dropdown>
+                            <Dropdown.Toggle id="ds" size="sm" variant="secondary" className="remove-after">
+                              이모지 변경하기
+                            </Dropdown.Toggle>
+                            <Dropdown.Menu className="py-0">
+                              <Picker showSkinTones={false} showPreview={false} i18n={EmojiPickerI18n} theme="dark" set="twitter" onSelect={e => {
+                                if (!e.id) return
+                                const data = { ...o }
+                                data.emoji = emoji.hasEmoji(e.id) ? emoji.get(e.id) : emoji2.get(e.id)
 
-                      <div className="d-flex flex-wrap align-items-center position-relative my-1">
-                        <span className="pr-2">반응했을 때 추가할 역할:</span>
-                        {
-                          o.add.map(one => {
-                            const role = roles.find(r => r.id === one)
-                            return <RoleBadge key={one} className="pr-2 py-1" name={role?.name ?? ''} color={'#' + (role?.color ? role?.color.toString(16) : 'fff')} removeable onRemove={() => {
-                              const data = { ...o }
-                              data.add = o.add.filter(r => r !== one)
+                                const datas = newAddedData.filter(a => a.emoji !== o.emoji ? a.emoji !== data.emoji : false)
+                                datas.splice(idx, 0, data)
+                                setNewAddedData(datas)
+                              }} />
+                            </Dropdown.Menu>
+                          </Dropdown>
+                        </div>
 
-                              const datas = newAddedData.filter(a => a.emoji !== o.emoji)
-                              datas.splice(idx, 0, data)
-                              setNewAddedData(datas)
-                            }} />
-                          })
-                        }
-                        <Dropdown className="dropdown-menu-dark" onSelect={key => {
-                          const data = { ...o }
-                          data.add = o.add.concat(key!) ?? o.add
+                        <div className="d-flex flex-wrap align-items-center position-relative my-1">
+                          <span className="pr-2">반응했을 때 추가할 역할:</span>
+                          {
+                            o.add.map(one => {
+                              const role = roles.find(r => r.id === one)
+                              return <RoleBadge key={one} className="pr-2 py-1" name={role?.name ?? ''} color={'#' + (role?.color ? role?.color.toString(16) : 'fff')} removeable onRemove={() => {
+                                const data = { ...o }
+                                data.add = o.add.filter(r => r !== one)
 
-                          const datas = newAddedData.filter(a => a.emoji !== o.emoji)
-                          datas.splice(idx, 0, data)
-                          setNewAddedData(datas)
-                        }}>
-                          <Dropdown.Toggle className="remove-after py-1" as={AddRole} id="add-role-select-toggle" />
-                          <Dropdown.Menu style={{ maxHeight: 300, overflowY: 'scroll' }}>
-                            {
-                              roles.filter(r => r.id !== guild?.id && !r.managed).sort((a, b) => b.position - a.position).map(r => (
-                                <Dropdown.Item key={r.id} eventKey={r.id} style={{ color: '#' + r.color.toString(16) }}>
-                                  {r.name}
-                                </Dropdown.Item>
-                              ))
-                            }
-                          </Dropdown.Menu>
-                        </Dropdown>
-                      </div>
+                                const datas = newAddedData.filter(a => a.emoji !== o.emoji)
+                                datas.splice(idx, 0, data)
+                                setNewAddedData(datas)
+                              }} />
+                            })
+                          }
+                          <Dropdown className="dropdown-menu-dark" onSelect={key => {
+                            const data = { ...o }
+                            data.add = o.add.concat(key!) ?? o.add
 
-                      <div className="d-flex flex-wrap align-items-center position-relative my-1">
-                        <span className="pr-2">반응 제거했을 때 제거할 역할:</span>
-                        {
-                          o.remove.map(one => {
-                            const role = roles.find(r => r.id === one)
-                            return <RoleBadge key={one} className="pr-2 py-1" name={role?.name ?? ''} color={'#' + (role?.color ? role?.color.toString(16) : 'fff')} removeable onRemove={() => {
-                              const data = { ...o }
-                              data.remove = o.remove.filter(r => r !== one)
-
-                              const datas = newAddedData.filter(a => a.emoji !== o.emoji)
-                              datas.splice(idx, 0, data)
-                              setNewAddedData(datas)
-                            }} />
-                          })
-                        }
-                        <Dropdown className="dropdown-menu-dark" onSelect={key => {
-                          const data = { ...o }
-                          data.remove = o.remove.concat(key!) ?? o.remove
-
-                          const datas = newAddedData.filter(a => a.emoji !== o.emoji)
-                          datas.splice(idx, 0, data)
-                          setNewAddedData(datas)
-                        }}>
-                          <Dropdown.Toggle className="remove-after py-1" as={AddRole} id="remove-role-select-toggle" />
-                          <Dropdown.Menu style={{ maxHeight: 300, overflowY: 'scroll' }}>
-                            {
-                              roles.filter(r => r.id !== guild?.id && !r.managed).sort((a, b) => b.position - a.position).map(r => (
-                                <Dropdown.Item key={r.id} eventKey={r.id} style={{ color: '#' + r.color.toString(16) }}>
-                                  {r.name}
-                                </Dropdown.Item>
-                              ))
-                            }
-                          </Dropdown.Menu>
-                        </Dropdown>
-                      </div>
-
-                      <div className="my-2">
-                        <ButtonGroup>
-                          <Button variant="outline-warning" size="sm" className="d-flex remove-before align-items-center" onClick={() => {
-                            setNewAddedData(newAddedData.filter(one => one.emoji !== o.emoji))
+                            const datas = newAddedData.filter(a => a.emoji !== o.emoji)
+                            datas.splice(idx, 0, data)
+                            setNewAddedData(datas)
                           }}>
-                            <RemoveCircleOutline className="mr-2" />
-                            삭제
-                          </Button>
-                        </ButtonGroup>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                            <Dropdown.Toggle className="remove-after py-1" as={AddRole} id="add-role-select-toggle" />
+                            <Dropdown.Menu style={{ maxHeight: 300, overflowY: 'scroll' }}>
+                              {
+                                roles.filter(r => r.id !== guild?.id && !r.managed).sort((a, b) => b.position - a.position).map(r => (
+                                  <Dropdown.Item key={r.id} eventKey={r.id} style={{ color: '#' + r.color.toString(16) }}>
+                                    {r.name}
+                                  </Dropdown.Item>
+                                ))
+                              }
+                            </Dropdown.Menu>
+                          </Dropdown>
+                        </div>
+
+                        <div className="d-flex flex-wrap align-items-center position-relative my-1">
+                          <span className="pr-2">반응 제거했을 때 제거할 역할:</span>
+                          {
+                            o.remove.map(one => {
+                              const role = roles.find(r => r.id === one)
+                              return <RoleBadge key={one} className="pr-2 py-1" name={role?.name ?? ''} color={'#' + (role?.color ? role?.color.toString(16) : 'fff')} removeable onRemove={() => {
+                                const data = { ...o }
+                                data.remove = o.remove.filter(r => r !== one)
+
+                                const datas = newAddedData.filter(a => a.emoji !== o.emoji)
+                                datas.splice(idx, 0, data)
+                                setNewAddedData(datas)
+                              }} />
+                            })
+                          }
+                          <Dropdown className="dropdown-menu-dark" onSelect={key => {
+                            const data = { ...o }
+                            data.remove = o.remove.concat(key!) ?? o.remove
+
+                            const datas = newAddedData.filter(a => a.emoji !== o.emoji)
+                            datas.splice(idx, 0, data)
+                            setNewAddedData(datas)
+                          }}>
+                            <Dropdown.Toggle className="remove-after py-1" as={AddRole} id="remove-role-select-toggle" />
+                            <Dropdown.Menu style={{ maxHeight: 300, overflowY: 'scroll' }}>
+                              {
+                                roles.filter(r => r.id !== guild?.id && !r.managed).sort((a, b) => b.position - a.position).map(r => (
+                                  <Dropdown.Item key={r.id} eventKey={r.id} style={{ color: '#' + r.color.toString(16) }}>
+                                    {r.name}
+                                  </Dropdown.Item>
+                                ))
+                              }
+                            </Dropdown.Menu>
+                          </Dropdown>
+                        </div>
+
+                        <div className="my-2">
+                          <ButtonGroup>
+                            <Button variant="outline-warning" size="sm" className="d-flex remove-before align-items-center" onClick={() => {
+                              setNewAddedData(newAddedData.filter(one => one.emoji !== o.emoji))
+                            }}>
+                              <RemoveCircleOutline className="mr-2" />
+                              삭제
+                            </Button>
+                          </ButtonGroup>
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                })
               }
 
               {/* PC 전용 */}
@@ -490,7 +496,7 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, s
                     <Dropdown.Toggle id="ds" size="sm" variant={newData?.emoji ? "dark" : "secondary"} className="remove-after">
                       {
                         newData?.emoji
-                          ? <Emoji emoji={getEmojiDataFromNative(newData.emoji, 'twitter', emojiData as any)} set="twitter" size={28} />
+                          ? (emd ? <Emoji size={28} emoji={emd} set="twitter" /> : newData.emoji)
                           : "이모지 선택하기"
                       }
                     </Dropdown.Toggle>
@@ -576,124 +582,128 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, s
               <div className="mb-3" />
 
               {
-                newAddedData.map((o, idx) => (
-                  <tr key={o.emoji} className="d-none d-lg-table-row">
-                    <td className="text-lg-center align-middle position-relative" >
-                      <Dropdown>
-                        <Dropdown.Toggle id="ds" size="sm" variant={o?.emoji ? "dark" : "secondary"} className="remove-after">
-                          {
-                            o?.emoji
-                              ? <Emoji emoji={getEmojiDataFromNative(o.emoji, 'twitter', emojiData as any)} set="twitter" size={28} />
-                              : "이모지 선택하기"
-                          }
-                        </Dropdown.Toggle>
-                        <Dropdown.Menu className="py-0">
-                          <Picker showSkinTones={false} showPreview={false} i18n={EmojiPickerI18n} theme="dark" set="twitter" onSelect={e => {
-                            if (!e.id) return
-                            const data = { ...o }
-                            data.emoji = emoji.hasEmoji(e.id) ? emoji.get(e.id) : emoji2.get(e.id)
+                newAddedData.map((o, idx) => {
+                  const em = getEmojiDataFromNative(o.emoji, 'twitter', emojiData as any)
 
-                            const datas = newAddedData.filter(a => a.emoji !== o.emoji ? a.emoji !== data.emoji : false)
+                  return (
+                    <tr key={o.emoji} className="d-none d-lg-table-row">
+                      <td className="text-lg-center align-middle position-relative" >
+                        <Dropdown>
+                          <Dropdown.Toggle id="ds" size="sm" variant={o.emoji ? "dark" : "secondary"} className="remove-after">
+                            {
+                              o.emoji
+                                ? (em ? <Emoji size={28} emoji={em} set="twitter" /> : o.emoji)
+                                : "이모지 선택하기"
+                            }
+                          </Dropdown.Toggle>
+                          <Dropdown.Menu className="py-0">
+                            <Picker showSkinTones={false} showPreview={false} i18n={EmojiPickerI18n} theme="dark" set="twitter" onSelect={e => {
+                              if (!e.id) return
+                              const data = { ...o }
+                              data.emoji = emoji.hasEmoji(e.id) ? emoji.get(e.id) : emoji2.get(e.id)
+
+                              const datas = newAddedData.filter(a => a.emoji !== o.emoji ? a.emoji !== data.emoji : false)
+                              datas.splice(idx, 0, data)
+                              setNewAddedData(datas)
+                            }} />
+                          </Dropdown.Menu>
+                        </Dropdown>
+                      </td>
+                      <td className="align-middle">
+                        <div className="d-flex flex-wrap align-items-center position-relative" >
+                          {
+                            o.add.map(one => {
+                              const role = roles.find(r => r.id === one)
+                              return <RoleBadge key={one} className="pr-2 py-1" name={role?.name ?? ''} color={'#' + (role?.color ? role?.color.toString(16) : 'fff')} removeable onRemove={() => {
+                                const data = { ...o }
+                                data.add = o.add.filter(r => r !== one)
+
+                                const datas = newAddedData.filter(a => a.emoji !== o.emoji)
+                                datas.splice(idx, 0, data)
+                                setNewAddedData(datas)
+                              }} />
+                            })
+                          }
+                          <Dropdown className="dropdown-menu-dark" onSelect={key => {
+                            const data = { ...o }
+                            data.add = o.add.concat(key!) ?? o.add
+
+                            const datas = newAddedData.filter(a => a.emoji !== o.emoji)
                             datas.splice(idx, 0, data)
                             setNewAddedData(datas)
-                          }} />
-                        </Dropdown.Menu>
-                      </Dropdown>
-                    </td>
-                    <td className="align-middle">
-                      <div className="d-flex flex-wrap align-items-center position-relative" >
-                        {
-                          o.add.map(one => {
-                            const role = roles.find(r => r.id === one)
-                            return <RoleBadge key={one} className="pr-2 py-1" name={role?.name ?? ''} color={'#' + (role?.color ? role?.color.toString(16) : 'fff')} removeable onRemove={() => {
-                              const data = { ...o }
-                              data.add = o.add.filter(r => r !== one)
+                          }}>
+                            <Dropdown.Toggle className="remove-after py-1" as={AddRole} id="add-role-select-toggle" />
+                            <Dropdown.Menu style={{ maxHeight: 300, overflowY: 'scroll' }}>
+                              {
+                                roles.filter(r => r.id !== guild?.id && !r.managed).sort((a, b) => b.position - a.position).map(r => (
+                                  <Dropdown.Item key={r.id} eventKey={r.id} style={{ color: '#' + r.color.toString(16) }}>
+                                    {r.name}
+                                  </Dropdown.Item>
+                                ))
+                              }
+                            </Dropdown.Menu>
+                          </Dropdown>
+                        </div>
+                      </td>
+                      <td className="align-middle">
+                        <div className="d-flex flex-wrap align-items-center position-relative" >
+                          {
+                            o.remove.map(one => {
+                              const role = roles.find(r => r.id === one)
+                              return <RoleBadge key={one} className="pr-2 py-1" name={role?.name ?? ''} color={'#' + (role?.color ? role?.color.toString(16) : 'fff')} removeable onRemove={() => {
+                                const data = { ...o }
+                                data.remove = o.remove.filter(r => r !== one)
 
-                              const datas = newAddedData.filter(a => a.emoji !== o.emoji)
-                              datas.splice(idx, 0, data)
-                              setNewAddedData(datas)
-                            }} />
-                          })
-                        }
-                        <Dropdown className="dropdown-menu-dark" onSelect={key => {
-                          const data = { ...o }
-                          data.add = o.add.concat(key!) ?? o.add
+                                const datas = newAddedData.filter(a => a.emoji !== o.emoji)
+                                datas.splice(idx, 0, data)
+                                setNewAddedData(datas)
+                              }} />
+                            })
+                          }
+                          <Dropdown className="dropdown-menu-dark" onSelect={key => {
+                            const data = { ...o }
+                            data.remove = o.remove.concat(key!) ?? o.remove
 
-                          const datas = newAddedData.filter(a => a.emoji !== o.emoji)
-                          datas.splice(idx, 0, data)
-                          setNewAddedData(datas)
-                        }}>
-                          <Dropdown.Toggle className="remove-after py-1" as={AddRole} id="add-role-select-toggle" />
-                          <Dropdown.Menu style={{ maxHeight: 300, overflowY: 'scroll' }}>
-                            {
-                              roles.filter(r => r.id !== guild?.id && !r.managed).sort((a, b) => b.position - a.position).map(r => (
-                                <Dropdown.Item key={r.id} eventKey={r.id} style={{ color: '#' + r.color.toString(16) }}>
-                                  {r.name}
-                                </Dropdown.Item>
-                              ))
-                            }
-                          </Dropdown.Menu>
-                        </Dropdown>
-                      </div>
-                    </td>
-                    <td className="align-middle">
-                      <div className="d-flex flex-wrap align-items-center position-relative" >
-                        {
-                          o.remove.map(one => {
-                            const role = roles.find(r => r.id === one)
-                            return <RoleBadge key={one} className="pr-2 py-1" name={role?.name ?? ''} color={'#' + (role?.color ? role?.color.toString(16) : 'fff')} removeable onRemove={() => {
-                              const data = { ...o }
-                              data.remove = o.remove.filter(r => r !== one)
-
-                              const datas = newAddedData.filter(a => a.emoji !== o.emoji)
-                              datas.splice(idx, 0, data)
-                              setNewAddedData(datas)
-                            }} />
-                          })
-                        }
-                        <Dropdown className="dropdown-menu-dark" onSelect={key => {
-                          const data = { ...o }
-                          data.remove = o.remove.concat(key!) ?? o.remove
-
-                          const datas = newAddedData.filter(a => a.emoji !== o.emoji)
-                          datas.splice(idx, 0, data)
-                          setNewAddedData(datas)
-                        }}>
-                          <Dropdown.Toggle className="remove-after py-1" as={AddRole} id="remove-role-select-toggle" />
-                          <Dropdown.Menu style={{ maxHeight: 300, overflowY: 'scroll' }}>
-                            {
-                              roles.filter(r => r.id !== guild?.id && !r.managed).sort((a, b) => b.position - a.position).map(r => (
-                                <Dropdown.Item key={r.id} eventKey={r.id} style={{ color: '#' + r.color.toString(16) }}>
-                                  {r.name}
-                                </Dropdown.Item>
-                              ))
-                            }
-                          </Dropdown.Menu>
-                        </Dropdown>
-                      </div>
-                    </td>
-                    <td className="align-middle">
-                      <div className="d-flex justify-content-end">
-                        <ButtonGroup>
-                          <OverlayTrigger
-                            placement="top"
-                            overlay={
-                              <Tooltip id={`emoji-remove-list-${idx}`}>
-                                삭제
-                              </Tooltip>
-                            }
-                          >
-                            <Button variant="dark" className="d-flex px-1 remove-before" onClick={() => {
-                              setNewAddedData(newAddedData.filter(one => one.emoji !== o.emoji))
-                            }}>
-                              <RemoveCircleOutline />
-                            </Button>
-                          </OverlayTrigger>
-                        </ButtonGroup>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                            const datas = newAddedData.filter(a => a.emoji !== o.emoji)
+                            datas.splice(idx, 0, data)
+                            setNewAddedData(datas)
+                          }}>
+                            <Dropdown.Toggle className="remove-after py-1" as={AddRole} id="remove-role-select-toggle" />
+                            <Dropdown.Menu style={{ maxHeight: 300, overflowY: 'scroll' }}>
+                              {
+                                roles.filter(r => r.id !== guild?.id && !r.managed).sort((a, b) => b.position - a.position).map(r => (
+                                  <Dropdown.Item key={r.id} eventKey={r.id} style={{ color: '#' + r.color.toString(16) }}>
+                                    {r.name}
+                                  </Dropdown.Item>
+                                ))
+                              }
+                            </Dropdown.Menu>
+                          </Dropdown>
+                        </div>
+                      </td>
+                      <td className="align-middle">
+                        <div className="d-flex justify-content-end">
+                          <ButtonGroup>
+                            <OverlayTrigger
+                              placement="top"
+                              overlay={
+                                <Tooltip id={`emoji-remove-list-${idx}`}>
+                                  삭제
+                                </Tooltip>
+                              }
+                            >
+                              <Button variant="dark" className="d-flex px-1 remove-before" onClick={() => {
+                                setNewAddedData(newAddedData.filter(one => one.emoji !== o.emoji))
+                              }}>
+                                <RemoveCircleOutline />
+                              </Button>
+                            </OverlayTrigger>
+                          </ButtonGroup>
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                })
               }
             </tbody>
           </Table>

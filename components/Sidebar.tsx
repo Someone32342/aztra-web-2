@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import { Badge, Nav } from 'react-bootstrap'
-import { PartialGuild } from 'types/DiscordTypes'
 import {
   Home as HomeIcon,
   PersonAdd as PersonAddIcon,
@@ -17,11 +16,11 @@ import {
 import Link from 'next/link'
 
 interface SidebarProps {
-  guild?: PartialGuild | null
+  guildId: string
   onSelect?: (eventKey: string | null, e: React.SyntheticEvent<unknown>) => void
 }
 
-export default function Sidebar(props: SidebarProps) {
+const Sidebar: React.FC<SidebarProps> = ({ guildId, onSelect }) => {
   const [location, setLocation] = useState<Location | null>(null)
 
   useEffect(() => {
@@ -33,7 +32,6 @@ export default function Sidebar(props: SidebarProps) {
     width: 20,
   }
 
-  const guild = props.guild
   return (
     <>
       <Nav
@@ -42,14 +40,14 @@ export default function Sidebar(props: SidebarProps) {
         style={{
           paddingRight: 0
         }}
-        onSelect={props.onSelect}
+        onSelect={onSelect}
       >
         <Nav.Item>
-          <Link href={`/dashboard/${guild?.id}`} shallow={true}>
+          <Link href={`/dashboard/${guildId}`} shallow={true}>
             <Nav.Link
               className="d-flex mb-1"
-              href={`/dashboard/${guild?.id}`}
-              active={location?.pathname === `/dashboard/${guild?.id}`}
+              href={`/dashboard/${guildId}`}
+              active={location?.pathname === `/dashboard/${guildId}`}
             >
               <div style={iconStyle} className="mr-3">
                 <HomeIcon />
@@ -59,11 +57,11 @@ export default function Sidebar(props: SidebarProps) {
           </Link>
         </Nav.Item>
         <Nav.Item>
-          <Link href={`/dashboard/${guild?.id}/general`} shallow={true}>
+          <Link href={`/dashboard/${guildId}/general`} shallow={true}>
             <Nav.Link
               className="d-flex mb-1"
-              href={`/dashboard/${guild?.id}/general`}
-              active={location?.pathname.startsWith(`/dashboard/${guild?.id}/general`)}
+              href={`/dashboard/${guildId}/general`}
+              active={location?.pathname.startsWith(`/dashboard/${guildId}/general`)}
             >
               <div style={iconStyle} className="mr-3">
                 <SettingsIcon />
@@ -73,11 +71,11 @@ export default function Sidebar(props: SidebarProps) {
           </Link>
         </Nav.Item>
         <Nav.Item>
-          <Link href={`/dashboard/${guild?.id}/greetings`} shallow={true}>
+          <Link href={`/dashboard/${guildId}/greetings`} shallow={true}>
             <Nav.Link
               className="d-flex mb-1"
-              href={`/dashboard/${guild?.id}/greetings`}
-              active={location?.pathname.startsWith(`/dashboard/${guild?.id}/greetings`)}
+              href={`/dashboard/${guildId}/greetings`}
+              active={location?.pathname.startsWith(`/dashboard/${guildId}/greetings`)}
             >
               <div style={iconStyle} className="mr-3">
                 <PersonAddIcon />
@@ -87,11 +85,11 @@ export default function Sidebar(props: SidebarProps) {
           </Link>
         </Nav.Item>
         <Nav.Item>
-          <Link href={`/dashboard/${guild?.id}/members`} shallow={true}>
+          <Link href={`/dashboard/${guildId}/members`} shallow={true}>
             <Nav.Link
               className="d-flex mb-1"
-              href={`/dashboard/${guild?.id}/members`}
-              active={location?.pathname.startsWith(`/dashboard/${guild?.id}/members`)}
+              href={`/dashboard/${guildId}/members`}
+              active={location?.pathname.startsWith(`/dashboard/${guildId}/members`)}
             >
               <div style={iconStyle} className="mr-3">
                 <GroupIcon />
@@ -101,11 +99,11 @@ export default function Sidebar(props: SidebarProps) {
           </Link>
         </Nav.Item>
         <Nav.Item>
-          <Link href={`/dashboard/${guild?.id}/warns`} shallow={true}>
+          <Link href={`/dashboard/${guildId}/warns`} shallow={true}>
             <Nav.Link
               className="d-flex mb-1"
-              href={`/dashboard/${guild?.id}/warns`}
-              active={location?.pathname.startsWith(`/dashboard/${guild?.id}/warns`)}
+              href={`/dashboard/${guildId}/warns`}
+              active={location?.pathname.startsWith(`/dashboard/${guildId}/warns`)}
             >
               <div style={iconStyle} className="mr-3">
                 <ReportProblemRoundedIcon />
@@ -115,11 +113,11 @@ export default function Sidebar(props: SidebarProps) {
           </Link>
         </Nav.Item>
         <Nav.Item>
-          <Link href={`/dashboard/${guild?.id}/leveling`} shallow={true}>
+          <Link href={`/dashboard/${guildId}/leveling`} shallow={true}>
             <Nav.Link
               className="d-flex mb-1"
-              href={`/dashboard/${guild?.id}/leveling`}
-              active={location?.pathname.startsWith(`/dashboard/${guild?.id}/leveling`)}
+              href={`/dashboard/${guildId}/leveling`}
+              active={location?.pathname.startsWith(`/dashboard/${guildId}/leveling`)}
             >
               <div style={iconStyle} className="mr-3">
                 <DataUsageIcon />
@@ -129,11 +127,11 @@ export default function Sidebar(props: SidebarProps) {
           </Link>
         </Nav.Item>
         <Nav.Item>
-          <Link href={`/dashboard/${guild?.id}/logging`} shallow={true}>
+          <Link href={`/dashboard/${guildId}/logging`} shallow={true}>
             <Nav.Link
               className="d-flex mb-1"
-              href={`/dashboard/${guild?.id}/logging`}
-              active={location?.pathname.startsWith(`/dashboard/${guild?.id}/logging`)}
+              href={`/dashboard/${guildId}/logging`}
+              active={location?.pathname.startsWith(`/dashboard/${guildId}/logging`)}
             >
               <div style={iconStyle} className="mr-3">
                 <HistoryIcon style={{ transform: 'scale(1.1)' }} />
@@ -143,11 +141,11 @@ export default function Sidebar(props: SidebarProps) {
           </Link>
         </Nav.Item>
         <Nav.Item>
-          <Link href={`/dashboard/${guild?.id}/autotasking`} shallow={true}>
+          <Link href={`/dashboard/${guildId}/autotasking`} shallow={true}>
             <Nav.Link
               className="d-flex mb-1"
-              href={`/dashboard/${guild?.id}/autotasking`}
-              active={location?.pathname.startsWith(`/dashboard/${guild?.id}/autotasking`)}
+              href={`/dashboard/${guildId}/autotasking`}
+              active={location?.pathname.startsWith(`/dashboard/${guildId}/autotasking`)}
             >
               <div style={iconStyle} className="mr-3">
                 <EventNoteIcon style={{ transform: 'scale(1.1)' }} />
@@ -159,11 +157,11 @@ export default function Sidebar(props: SidebarProps) {
           </Link>
         </Nav.Item>
         <Nav.Item>
-          <Link href={`/dashboard/${guild?.id}/statistics`} shallow={true}>
+          <Link href={`/dashboard/${guildId}/statistics`} shallow={true}>
             <Nav.Link
               className="d-flex mb-1"
-              href={`/dashboard/${guild?.id}/statistics`}
-              active={location?.pathname.startsWith(`/dashboard/${guild?.id}/statistics`)}
+              href={`/dashboard/${guildId}/statistics`}
+              active={location?.pathname.startsWith(`/dashboard/${guildId}/statistics`)}
             >
               <div style={iconStyle} className="mr-3">
                 <TrendingUpIcon style={{ transform: 'scale(1.1)' }} />
@@ -175,11 +173,11 @@ export default function Sidebar(props: SidebarProps) {
           </Link>
         </Nav.Item>
         <Nav.Item>
-          <Link href={`/dashboard/${guild?.id}/tickets`} shallow={true}>
+          <Link href={`/dashboard/${guildId}/tickets`} shallow={true}>
             <Nav.Link
               className="d-flex mb-1"
-              href={`/dashboard/${guild?.id}/tickets`}
-              active={location?.pathname.startsWith(`/dashboard/${guild?.id}/tickets`)}
+              href={`/dashboard/${guildId}/tickets`}
+              active={location?.pathname.startsWith(`/dashboard/${guildId}/tickets`)}
             >
               <div style={iconStyle} className="mr-3">
                 <CreditCardIcon style={{ transform: 'scale(1.1)' }} />
@@ -194,11 +192,11 @@ export default function Sidebar(props: SidebarProps) {
           process.env.NODE_ENV === "development" && (
             <>
               <Nav.Item>
-                <Link href={`/dashboard/${guild?.id}/billboards`} shallow={true}>
+                <Link href={`/dashboard/${guildId}/billboards`} shallow={true}>
                   <Nav.Link
                     className="d-flex mb-1"
-                    href={`/dashboard/${guild?.id}/billboards`}
-                    active={location?.pathname.startsWith(`/dashboard/${guild?.id}/billboards`)}
+                    href={`/dashboard/${guildId}/billboards`}
+                    active={location?.pathname.startsWith(`/dashboard/${guildId}/billboards`)}
                   >
                     <div style={iconStyle} className="mr-3">
                       <ListIcon style={{ transform: 'scale(1.1)' }} />
@@ -216,5 +214,6 @@ export default function Sidebar(props: SidebarProps) {
       </Nav>
     </>
   )
-
 }
+
+export default Sidebar
