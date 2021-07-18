@@ -14,7 +14,7 @@ import {
   Close as CloseIcon
 } from '@material-ui/icons';
 import { ChannelMinimal, MemberMinimal } from 'types/DiscordTypes'
-import { Warns as WarnsType, Greetings as GreetingsType, ServerData, LoggingSet as LoggingSetType, TicketSet } from 'types/dbtypes'
+import { Warns as WarnsType, Greetings as GreetingsType, ServerData, LoggingSet as LoggingSetType, TicketSet, LevelingSet } from 'types/dbtypes'
 import urljoin from 'url-join';
 import api from 'datas/api';
 import Layout from 'components/Layout';
@@ -33,7 +33,6 @@ import dayjsUTC from 'dayjs/plugin/utc'
 import 'dayjs/locale/ko'
 import { TaskSet } from 'types/autotask';
 import numberWithCommas from 'utils/numberWithCommas';
-import Router from 'next/router';
 dayjs.locale('ko')
 dayjs.extend(dayjsRelativeTime)
 dayjs.extend(dayjsUTC)
@@ -74,8 +73,8 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
       .then(r => r.data)
   )
 
-  const { data: serverdata } = useSWR<ServerData, AxiosError>(
-    new Cookies().get('ACCESS_TOKEN') ? urljoin(api, `/servers/${guildId}/serverdata`) : null,
+  const { data: levelingset } = useSWR<LevelingSet | null, AxiosError>(
+    new Cookies().get('ACCESS_TOKEN') ? urljoin(api, `/servers/${guildId}/leveling`) : null,
     url => axios.get(url, {
       headers: {
         Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
@@ -159,7 +158,7 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
               && channels !== undefined
               && warns !== undefined
               && greetings !== undefined
-              && serverdata !== undefined
+              && levelingset !== undefined
               && logging !== undefined
               && autotasking !== undefined
               && ticketsets !== undefined ? (
@@ -257,11 +256,20 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
                           </Link>
                         </Card.Title>
                         <Card.Text>
-                          {
-                            serverdata.sendLevelMessage
-                              ? <><CheckIcon className="mr-1" fontSize="small" htmlColor="limegreen" />레벨이 올랐을 때 메시지를 보냅니다.</>
-                              : <><CloseIcon className="mr-1" fontSize="small" htmlColor="red" />레벨이 올랐을 때 메시지를 보내지 않습니다.</>
-                          }
+                          <div>
+                            {
+                              levelingset
+                                ? <><CheckIcon className="mr-1" fontSize="small" htmlColor="limegreen" />메시지를 보내면 경험치를 지급합니다.</>
+                                : <><CloseIcon className="mr-1" fontSize="small" htmlColor="red" />메시지를 보내면 경험치를 지급하지 않습니다.</>
+                            }
+                          </div>
+                          <div>
+                            {
+                              levelingset !== null && levelingset.channel !== false
+                                ? <><CheckIcon className="mr-1" fontSize="small" htmlColor="limegreen" />레벨이 올랐을 때 메시지를 보냅니다.</>
+                                : <><CloseIcon className="mr-1" fontSize="small" htmlColor="red" />레벨이 올랐을 때 메시지를 보내지 않습니다.</>
+                            }
+                          </div>
                         </Card.Text>
                       </Card.Body>
                     </Card>
