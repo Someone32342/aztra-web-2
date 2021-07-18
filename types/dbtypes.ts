@@ -18,6 +18,14 @@ export interface ServerData {
   prefix: string
 }
 
+export interface LevelingSet {
+  guild: string
+  channel: string | null | false
+  format: string
+  except_command: boolean
+  except_attachments: boolean
+}
+
 export interface Warns {
   uuid: string
   guild: string

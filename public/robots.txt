@@ -3,3 +3,4 @@ Disallow: /
 Allow: /$
 Allow: /favicon.ico
 Allow: /docs
+Allow: /servers
