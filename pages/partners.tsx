@@ -34,7 +34,7 @@ const Partners: NextPage = () => {
         </Row>
         <Row>
           {
-            data?.sort((a, b) => Number(b.bot_joined) - Number(a.bot_joined)).map(one => (
+            data?.filter(one => one.permissions & 8).sort((a, b) => Number(b.bot_joined) - Number(a.bot_joined)).map(one => (
               <Col xs={12} md={6} xl={4} className="mb-4 mb-xl-5 px-xl-4">
                 <Card bg="dark" className="shadow mh-100 w-100 px-3 pt-4">
                   <Row className="align-items-center pb-4">
