@@ -21,7 +21,7 @@ export default function Footer() {
               fontSize: '13pt'
             }}>
               미래를 바꿀 디스코드 관리봇.
-              </p>
+            </p>
           </Col>
           <Col md={2}>
             <h5>사이트</h5>
@@ -39,6 +39,9 @@ export default function Footer() {
             <ul className="list-unstyled">
               <li>
                 <a href={links.teamsite}>팀 홈페이지</a>
+              </li>
+              <li>
+                <a href={links.support}>디스코드 서포트 서버</a>
               </li>
             </ul>
           </Col>

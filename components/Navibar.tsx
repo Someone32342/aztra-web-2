@@ -1,5 +1,5 @@
 import React from 'react'
-import { Nav, Navbar, NavDropdown, Container } from 'react-bootstrap'
+import { Nav, Navbar, NavDropdown, Container, OverlayTrigger, Tooltip } from 'react-bootstrap'
 import axios from 'axios'
 import oauth2 from 'datas/oauth'
 import urljoin from 'url-join'
@@ -13,6 +13,7 @@ import MenuIcon from '@material-ui/icons/Menu';
 
 import Cookies from 'universal-cookie'
 import Router from 'next/router'
+import { NewReleases as NewReleasesIcon } from '@material-ui/icons'
 
 const cx = classNames.bind(styles)
 
@@ -118,6 +119,14 @@ export default class Navibar extends React.Component<{}, NavibarState> {
                     봇 가이드
                   </Nav.Link>
                 </Link>
+                <Link href="/partners">
+                  <Nav.Link href="/partners" className={styles.Navlink} hidden>
+                    <div className="d-flex">
+                      파트너 서버
+                      <div className="ml-2 mt-1 rounded-circle" style={{ width: 5, height: 5, backgroundColor: '#A566FF' }} />
+                    </div>
+                  </Nav.Link>
+                </Link>
                 <NavDropdown title="지원 및 문의" id="navdropdown-support" className={cx("dropdown-menu-dark", "Navlink", "NavDropdownWhiteTitle")}>
                   <NavDropdown.Item className="dropdown-item-dark pl-3" href={links.support} target="_blank">
                     <img src="/assets/images/discord-logo-white.png" className="mr-2" style={{ width: 25, height: 25 }} />
@@ -160,7 +169,7 @@ export default class Navibar extends React.Component<{}, NavibarState> {
                       } >
                         <NavDropdown.Item className="dropdown-item-dark" onClick={this.handleLogout}>
                           로그아웃
-                          </NavDropdown.Item>
+                        </NavDropdown.Item>
                       </NavDropdown>
                     </>
                     : <Nav.Link onClick={this.handleLogin}>로그인</Nav.Link>
