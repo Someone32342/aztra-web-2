@@ -43,7 +43,7 @@ const Partners: NextPage = () => {
                   variant="aztra"
                   size="lg"
                   className="font-weight-bold"
-                  style={{ fontFamily: 'NanumSquare', width: 200, boxShadow: '0 0 15px 7px rgba(111, 63, 173, 0.8)' }}
+                  style={{ fontFamily: 'NanumSquare', width: 220, boxShadow: '0 0 15px 7px rgba(111, 63, 173, 0.8)' }}
                   href="https://forms.gle/r7RjGUa8mT722SB46"
                   target="_blank"
                 >
@@ -62,7 +62,7 @@ const Partners: NextPage = () => {
                   ["새 기능 체험 및 피드백", "누구보다도 먼저 Aztra의 새 기능을 체험하세요! 개발자와 실시간으로 소통하고 오류 제보 또는 개선을 요청할 수 있습니다!", NewReleasesIcon],
                   ['Aztra Partners 서버 초대', 'Aztra 파트너 서버의 운영진들이 모인 서버에 초대해드립니다. 서로의 서버를 소개해보세요!', ForumIcon],
                   ['서버 홍보', 'Aztra 사이트에 서버가 등록되어 여러분의 서버를 소개하고 홍보할 수 있습니다!', ShareIcon],
-                  ['개발자 방문 서비스', '버그나 오류 발생 등으로 봇 사용에 문제가 발생했을 때, 스스로 해결이 어려운 경우 개발자가 서버에 직접 방문하여 도와드립니다.', BusinessCenterIcon, 3]
+                  ['개발자 방문 서비스', '봇 사용중 해결하기 어려운 문제 발생시 개발자가 직접 방문하여 원인 분석과 문제 해결을 진행합니다.', BusinessCenterIcon, 3]
                 ] as Array<[string, string, any, number | undefined]>)
                   .map((o, i) => (
                     <Col xs={12} lg={6} xl={3} key={i} className="px-4 mb-5" style={{ fontFamily: 'NanumSquare' }}>
