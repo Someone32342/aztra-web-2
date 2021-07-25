@@ -130,15 +130,15 @@ const Partners: NextPage = () => {
                   <Card.Body>
                     <Card.Title as="h4" className="text-center">필수 조건</Card.Title>
                     <hr className="mt-0 mb-4" style={{ borderColor: '#4e5058', borderWidth: 2 }} />
-                    <div className="d-flex justify-content-center">
+                    <div className="d-lg-flex justify-content-center">
                       <div className="mx-4">
-                        <p>아래 조건을 <b>모두</b> 만족해야 합니다.</p>
+                        <p>- 아래 조건을 <b>모두</b> 만족해야 합니다.</p>
                         <ul style={{ lineHeight: 1.8 }}>
                           <li>Aztra를 주 관리봇 또는 보조 관리봇으로 사용해야 합니다.</li>
                         </ul>
                       </div>
                       <div className="mx-4">
-                        <p>아래 <b>금지 사항에 해당하지 않아야</b> 합니다.</p>
+                        <p>- 아래 <b>금지 사항에 해당하지 않아야</b> 합니다.</p>
                         <ul style={{ lineHeight: 1.8 }}>
                           <li>불법 프로그램(게임 핵 등)을 판매하거나 취급하는 서버</li>
                           <li>불법 음란물을 판매하거나 유포하는 서버</li>
@@ -156,7 +156,7 @@ const Partners: NextPage = () => {
               </Col>
             </Row>
             <Row>
-              <Col>
+              <Col xs={12} lg={4} className="mb-4">
                 <Card bg="aztra-dark" className="shadow h-100">
                   <Card.Body>
                     <Card.Title as="h4" className="pb-2">파트너 레벨 1</Card.Title>
@@ -172,7 +172,7 @@ const Partners: NextPage = () => {
                   </Card.Body>
                 </Card>
               </Col>
-              <Col>
+              <Col xs={12} lg={4} className="mb-4">
                 <Card bg="aztra-dark" className="shadow h-100">
                   <Card.Body>
                     <Card.Title as="h4" className="pb-2">파트너 레벨 2</Card.Title>
@@ -185,7 +185,7 @@ const Partners: NextPage = () => {
                   </Card.Body>
                 </Card>
               </Col>
-              <Col>
+              <Col xs={12} lg={4} className="mb-4">
                 <Card bg="aztra-dark" className="shadow h-100">
                   <Card.Body>
                     <Card.Title as="h4" className="pb-2">파트너 레벨 3</Card.Title>
