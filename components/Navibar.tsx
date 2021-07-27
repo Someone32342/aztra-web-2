@@ -120,7 +120,7 @@ export default class Navibar extends React.Component<{}, NavibarState> {
                   </Nav.Link>
                 </Link>
                 <Link href="/partners">
-                  <Nav.Link href="/partners" className={styles.Navlink} hidden>
+                  <Nav.Link href="/partners" className={styles.Navlink}>
                     <div className="d-flex">
                       파트너 서버
                       <div className="ml-2 mt-1 rounded-circle" style={{ width: 5, height: 5, backgroundColor: '#A566FF' }} />

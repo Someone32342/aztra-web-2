@@ -131,13 +131,14 @@ const Partners: NextPage = () => {
                     <Card.Title as="h4" className="text-center">필수 조건</Card.Title>
                     <hr className="mt-0 mb-4" style={{ borderColor: '#4e5058', borderWidth: 2 }} />
                     <div className="d-lg-flex justify-content-center">
-                      <div className="mx-4">
+                      <div className="mx-lg-4">
                         <p>- 아래 조건을 <b>모두</b> 만족해야 합니다.</p>
                         <ul style={{ lineHeight: 1.8 }}>
                           <li>Aztra를 주 관리봇 또는 보조 관리봇으로 사용해야 합니다.</li>
+                          <li>Aztra를 신청일로부터 적어도 1개월 이상 사용해야 합니다.</li>
                         </ul>
                       </div>
-                      <div className="mx-4">
+                      <div className="mx-lg-4">
                         <p>- 아래 <b>금지 사항에 해당하지 않아야</b> 합니다.</p>
                         <ul style={{ lineHeight: 1.8 }}>
                           <li>불법 프로그램(게임 핵 등)을 판매하거나 취급하는 서버</li>
@@ -181,6 +182,9 @@ const Partners: NextPage = () => {
                       <li>
                         <p>멤버 수:<br /><b>1천 멤버 이상</b>이여야 합니다.</p>
                       </li>
+                      <li>
+                        <p>메시지 수:<br /><i>아직 미정이며, 추후 심사를 통해 기준을 확정할 예정입니다.</i></p>
+                      </li>
                     </ul>
                   </Card.Body>
                 </Card>
@@ -193,6 +197,9 @@ const Partners: NextPage = () => {
                     <ul>
                       <li>
                         <p>멤버 수:<br /><b>1만 멤버 이상</b>이여야 합니다.</p>
+                      </li>
+                      <li>
+                        <p>메시지 수:<br /><i>아직 미정이며, 추후 심사를 통해 기준을 확정할 예정입니다.</i></p>
                       </li>
                     </ul>
                   </Card.Body>

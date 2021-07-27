@@ -32,6 +32,9 @@ export default function Footer() {
               <li>
                 <Link href="/servers">대시보드</Link>
               </li>
+              <li>
+                <Link href="/partners">파트너 서버</Link>
+              </li>
             </ul>
           </Col>
           <Col md={2}>
