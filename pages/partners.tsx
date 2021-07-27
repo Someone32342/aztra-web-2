@@ -3,7 +3,7 @@ import axios, { AxiosError } from "axios";
 import Layout from "components/Layout";
 import api from "datas/api";
 import { NextPage } from "next";
-import { Badge, Button, Card, Col, Container, Row } from 'react-bootstrap'
+import { Badge, Button, Card, Col, Container, OverlayTrigger, Row, Tooltip } from 'react-bootstrap'
 import useSWR from "swr";
 import { PartialGuildExtend } from "types/DiscordTypes";
 import Cookies from "universal-cookie";
@@ -54,13 +54,16 @@ const Partners: NextPage = () => {
           </Container>
           <Container fluid className="text-white bg-aztra-dark py-4" style={{ padding: '0 8%' }}>
             <Row className="justify-content-center my-5 pb-5">
-              <h3 style={{ fontFamily: 'NanumSquare' }}>파트너 서버로 등록되면 다음과 같은 혜택이 주어집니다!</h3>
+              <div className="text-center">
+                <h3 className="pb-2" style={{ fontFamily: 'NanumSquare' }}>파트너 서버로 등록되면 다음과 같은 혜택이 주어집니다!</h3>
+                <div>혜택은 앞으로 계속해서 추가됩니다.</div>
+              </div>
             </Row>
             <Row className="pb-5">
               {
                 ([
                   ["새 기능 체험 및 피드백", "누구보다도 먼저 Aztra의 새 기능을 체험하세요! 개발자와 실시간으로 소통하고 오류 제보 또는 개선을 요청할 수 있습니다!", NewReleasesIcon],
-                  ['Aztra Partners 서버 초대', 'Aztra 파트너 서버의 운영진들이 모인 서버에 초대해드립니다. 서로의 서버를 소개해보세요!', ForumIcon],
+                  ['Aztra Partners 서버 초대', 'Aztra 개발자와 파트너 서버의 운영진들이 모인 서버에 초대해드립니다. 서로의 서버를 자랑하고, 개발자와 편하게 소통하세요!', ForumIcon],
                   ['서버 홍보', 'Aztra 사이트에 서버가 등록되어 여러분의 서버를 소개하고 홍보할 수 있습니다!', ShareIcon],
                   ['개발자 방문 서비스', '봇 사용중 해결하기 어려운 문제 발생시 개발자가 직접 방문하여 원인 분석과 문제 해결을 진행합니다.', BusinessCenterIcon, 3]
                 ] as Array<[string, string, any, number | undefined]>)
@@ -130,15 +133,16 @@ const Partners: NextPage = () => {
                   <Card.Body>
                     <Card.Title as="h4" className="text-center">필수 조건</Card.Title>
                     <hr className="mt-0 mb-4" style={{ borderColor: '#4e5058', borderWidth: 2 }} />
-                    <div className="d-lg-flex justify-content-center">
-                      <div className="mx-lg-4">
+                    <Row className="d-lg-flex justify-content-center">
+                      <Col xs={12} lg={6}>
                         <p>- 아래 조건을 <b>모두</b> 만족해야 합니다.</p>
                         <ul style={{ lineHeight: 1.8 }}>
                           <li>Aztra를 주 관리봇 또는 보조 관리봇으로 사용해야 합니다.</li>
                           <li>Aztra를 신청일로부터 적어도 1개월 이상 사용해야 합니다.</li>
+                          <li>누구나 참여할 수 있는 공개 서버여야 하며, 서버의 방향성이 뚜렷하고 깨끗한 운영이 이루어져야 합니다.</li>
                         </ul>
-                      </div>
-                      <div className="mx-lg-4">
+                      </Col>
+                      <Col xs={12} lg={6} >
                         <p>- 아래 <b>금지 사항에 해당하지 않아야</b> 합니다.</p>
                         <ul style={{ lineHeight: 1.8 }}>
                           <li>불법 프로그램(게임 핵 등)을 판매하거나 취급하는 서버</li>
@@ -150,8 +154,8 @@ const Partners: NextPage = () => {
                           </li>
                           <li>그 외 대한민국 현행법에 저촉되는 사항이 있는 서버</li>
                         </ul>
-                      </div>
-                    </div>
+                      </Col>
+                    </Row>
                   </Card.Body>
                 </Card>
               </Col>
@@ -180,7 +184,7 @@ const Partners: NextPage = () => {
                     <p>추가적으로 아래 조건을 모두 만족해야 합니다.</p>
                     <ul>
                       <li>
-                        <p>멤버 수:<br /><b>1천 멤버 이상</b>이여야 합니다.</p>
+                        <p>멤버 수:<br /><b>3천 멤버 이상</b>이여야 합니다.</p>
                       </li>
                       <li>
                         <p>메시지 수:<br /><i>아직 미정이며, 추후 심사를 통해 기준을 확정할 예정입니다.</i></p>
