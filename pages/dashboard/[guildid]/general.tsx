@@ -13,7 +13,7 @@ import urljoin from 'url-join'
 import Head from 'next/head'
 import { ChannelMinimal } from 'types/DiscordTypes'
 import ChannelSelectCard from 'components/forms/ChannelSelectCard'
-import { faHashtag } from '@fortawesome/free-solid-svg-icons'
+import { faBullhorn, faHashtag } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import filterChannels from 'utils/filterChannels'
 
@@ -149,7 +149,7 @@ const General: NextPage<GeneralRouterProps> = ({ guildId }) => {
     )
   }
 
-  const filteredChannels = filterChannels(channels ?? [], channelSearch)
+  const filteredChannels = filterChannels(channels ?? [], channelSearch, ['text', 'news'])
 
   return (
     <>
@@ -252,7 +252,11 @@ const General: NextPage<GeneralRouterProps> = ({ guildId }) => {
                                               fontFamily: 'NanumSquare',
                                               fontSize: '13pt'
                                             }}>
-                                              <FontAwesomeIcon icon={faHashtag} className="mr-2 my-auto" size="sm" />
+                                              {
+                                                channels?.find(one => one.id === (noticeChannel ?? data.noticeChannel))?.type === 'text'
+                                                  ? <FontAwesomeIcon icon={faHashtag} className="mr-2 my-auto" size="sm" />
+                                                  : <FontAwesomeIcon icon={faBullhorn} className="mr-2 my-auto" size="sm" />
+                                              }
                                               {channels?.find(one => one.id === (noticeChannel ?? data.noticeChannel))?.name}
                                             </Card.Header>
                                           </Card>
