@@ -32,22 +32,22 @@ dayjs.extend(dayjsUTC)
 
 interface TicketListProps {
   guildId: string
-  ticketId: string
+  ticketsetId: string
 }
 
 export const getServerSideProps: GetServerSideProps<TicketListProps> = async context => {
-  const { guildid, ticketid } = context.query
+  const { guildid, ticketsetid } = context.query
   return {
     props: {
       guildId: guildid as string,
-      ticketId: ticketid as string
+      ticketsetId: ticketsetid as string
     }
   }
 }
 
 type TabsType = 'general' | 'permissions' | 'message'
 
-const TicketSettings: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
+const TicketSettings: NextPage<TicketListProps> = ({ guildId, ticketsetId }) => {
   const [activeTab, setActiveTab] = useState<TabsType>("general")
 
   const { data, mutate } = useSWR<TicketSet[], AxiosError>(
@@ -124,7 +124,7 @@ const TicketSettings: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
     }
   }, [])
 
-  const ticketSet = data?.find(o => o.uuid === ticketId && !o.deleted)
+  const ticketSet = data?.find(o => o.uuid === ticketsetId && !o.deleted)
 
   return (
     <>

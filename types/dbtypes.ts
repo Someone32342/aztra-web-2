@@ -114,3 +114,13 @@ export interface Ticket {
   number: number
   status: 'open' | 'closed' | 'deleted'
 }
+
+export interface TranscriptMinimal {
+  uuid: string
+  ticketid: string
+  created_at: string
+}
+
+export interface Transcript extends TranscriptMinimal {
+  html: string
+}

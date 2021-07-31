@@ -23,6 +23,7 @@
     "cookie": "^0.4.1",
     "dayjs": "^1.10.3",
     "emoji-mart": "^3.0.1",
+    "html-react-parser": "^1.2.7",
     "next": "^10.2.3",
     "next-pwa": "^5.2.21",
     "node-emoji": "^1.10.0",

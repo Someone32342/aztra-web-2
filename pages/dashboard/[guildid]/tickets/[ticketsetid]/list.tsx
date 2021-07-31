@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-
 import axios, { AxiosError } from 'axios'
 import api from 'datas/api'
 import { ChannelMinimal, MemberMinimal } from 'types/DiscordTypes';
@@ -12,19 +11,14 @@ import {
   Delete as DeleteIcon,
   Close as CloseIcon,
   Description as DescriptionIcon,
-  SaveAlt as SaveAltIcon,
-  Refresh as RefreshIcon
 } from '@material-ui/icons'
-
 import BackTo from 'components/BackTo';
-
 import { Ticket, TicketSet } from 'types/dbtypes';
-
 import { GetServerSideProps, NextPage } from 'next';
+import Router from 'next/router'
 import Layout from 'components/Layout';
 import DashboardLayout from 'components/DashboardLayout';
 import Cookies from 'universal-cookie';
-
 import dayjs from 'dayjs';
 import dayjsRelativeTime from 'dayjs/plugin/relativeTime'
 import dayjsUTC from 'dayjs/plugin/utc'
@@ -39,7 +33,7 @@ dayjs.extend(dayjsUTC)
 
 interface TicketListProps {
   guildId: string
-  ticketId: string
+  ticketsetId: string
 }
 
 interface TicketListCardProps {
@@ -50,18 +44,18 @@ interface TicketListCardProps {
 }
 
 export const getServerSideProps: GetServerSideProps<TicketListProps> = async context => {
-  const { guildid, ticketid } = context.query
+  const { guildid, ticketsetid } = context.query
   return {
     props: {
       guildId: guildid as string,
-      ticketId: ticketid as string
+      ticketsetId: ticketsetid as string
     }
   }
 }
 
 type TabsType = 'open' | 'closed' | 'deleted'
 
-const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
+const TicketList: NextPage<TicketListProps> = ({ guildId, ticketsetId }) => {
   const [selectedTickets, setSelectedTickets] = useState<Set<string>>(new Set)
   const [showSelectedClose, setShowSelectedClose] = useState<'reopen' | 'close' | 'delete' | false>(false)
   const [activeTab, setActiveTab] = useState<TabsType>("open")
@@ -69,7 +63,7 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
   const [isMD, setIsMD] = useState<boolean | null>(null)
 
   const { data, mutate } = useSWR<Ticket[], AxiosError>(
-    new Cookies().get('ACCESS_TOKEN') ? urljoin(api, `/servers/${guildId}/tickets/${ticketId}`) : null,
+    new Cookies().get('ACCESS_TOKEN') ? urljoin(api, `/servers/${guildId}/tickets/${ticketsetId}`) : null,
     url => axios.get(url, {
       headers: {
         Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
@@ -195,7 +189,12 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
             </Tooltip>
           }
         >
-          <Button hidden variant="dark" className="d-flex px-1 remove-before" onClick={() => setTranscriptModal(true)}>
+          <Button
+            hidden
+            variant="dark"
+            className="d-flex px-1 remove-before"
+            onClick={() => Router.push(`/dashboard/${guildId}/tickets/${ticketsetId}/${ticket.uuid}/transcripts`, undefined, { shallow: true })}
+          >
             <DescriptionIcon />
           </Button>
         </OverlayTrigger>
@@ -276,85 +275,6 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
             확인
           </Button>
           <Button variant="dark" onClick={() => setShowModal(null)}>
-            닫기
-          </Button>
-        </Modal.Footer>
-      </Modal>
-
-      <Modal
-        className="modal-dark"
-        size="xl"
-        animation={false}
-        show={!!transcriptModal}
-        onShow={() => {
-          if (transcriptSrc) return
-          axios.get(`${api}/servers/${guildId}/tickets/${ticket.uuid}/transcript`, {
-            headers: {
-              Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
-            }
-          })
-            .then(res => {
-              setTranscriptSrc(res.data)
-            })
-        }}
-        onHide={() => {
-          setTranscriptModal(false)
-          setTranscriptSrc(null)
-        }} centered
-      >
-        <Modal.Header closeButton>
-          <Modal.Title style={{
-            fontFamily: "NanumSquare",
-            fontWeight: 900,
-          }}>
-            대화 내역
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body className="py-4" style={{ height: '70vh' }}>
-          {
-            transcriptSrc
-              ? <iframe src={`data:text/html;charset=utf-8, ${encodeURIComponent(transcriptSrc)}`} className="w-100 h-100" style={{ border: 'none' }} />
-              : <Container className="d-flex align-items-center justify-content-center flex-column h-100">
-                <h3 className="pb-4">불러오는 중</h3>
-                <Spinner animation="border" variant="aztra" />
-              </Container>
-          }
-        </Modal.Body>
-        <Modal.Footer className="justify-content-between">
-          <div>
-            <Button className="mr-2" variant="info" onClick={() => {
-              const file = new Blob(["\ufeff" + transcriptSrc], { type: 'data:text/html;charset=utf-8' })
-
-              const link = document.createElement('a')
-              link.href = URL.createObjectURL(file)
-              link.download = `ticket-transcript-${ticket.channel}.html`
-              document.body.appendChild(link)
-              link.click()
-              document.body.removeChild(link)
-            }}>
-              <SaveAltIcon className="mr-2" />
-              보고서 다운로드
-            </Button>
-            <Button variant="dark" onClick={() => {
-              setTranscriptSrc(null)
-              axios.get(`${api}/servers/${guildId}/tickets/${ticket.uuid}/transcript`, {
-                headers: {
-                  Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
-                }
-              })
-                .then(res => {
-                  if (!transcriptSrc) setTranscriptSrc(res.data)
-                })
-            }}>
-              <RefreshIcon className="mr-2" />
-              내역 업데이트
-            </Button>
-          </div>
-
-          <Button variant="dark" onClick={() => {
-            setTranscriptModal(false)
-            setTranscriptSrc(null)
-          }}>
             닫기
           </Button>
         </Modal.Footer>
@@ -518,7 +438,7 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketId }) => {
                     <Card bg="dark">
                       <Card.Body className="py-2 d-flex align-items-center">
                         티켓:
-                        <h5 className="mb-0 pl-2" style={{ fontFamily: "NanumSquare" }}>{ticketsets?.find(o => o.uuid === ticketId)?.name}</h5>
+                        <h5 className="mb-0 pl-2" style={{ fontFamily: "NanumSquare" }}>{ticketsets?.find(o => o.uuid === ticketsetId)?.name}</h5>
                       </Card.Body>
                     </Card>
                   </Row>

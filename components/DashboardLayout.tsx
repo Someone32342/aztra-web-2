@@ -21,7 +21,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ guildId, children }) 
 
   const sidebarHeaderRef = useRef<HTMLDivElement>(null)
 
-  const { data, error } = useSWR<PartialGuildExtend[], AxiosError>(
+  const { data, error, isValidating } = useSWR<PartialGuildExtend[], AxiosError>(
     new Cookies().get('ACCESS_TOKEN') ? urljoin(api, `/discord/users/@me/guilds`) : null,
     url => axios.get(url, {
       headers: {
@@ -123,7 +123,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ guildId, children }) 
           {children ? children(guild) : null}
         </Col>
       </Row>
-      <Modal className="modal-dark" show={error?.response?.status === 404} centered onHide={() => { }}>
+      <Modal className="modal-dark" show={!isValidating && !guild} centered onHide={() => { }}>
         <Modal.Header>
           <Modal.Title style={{ fontFamily: "NanumSquare" }}>
             서버를 찾을 수 없습니다!
