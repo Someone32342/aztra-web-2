@@ -181,7 +181,7 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketsetId }) => {
           </Button>
         </OverlayTrigger>
         }
-        {ticket.status === "open" && location.search.includes('tson') && <OverlayTrigger
+        {ticket.status === "open" && <OverlayTrigger
           placement="top"
           overlay={
             <Tooltip id="ticket-list-transcript">
@@ -190,7 +190,6 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketsetId }) => {
           }
         >
           <Button
-            hidden
             variant="dark"
             className="d-flex px-1 remove-before"
             onClick={() => Router.push(`/dashboard/${guildId}/tickets/${ticketsetId}/${ticket.uuid}/transcripts`, undefined, { shallow: true })}
