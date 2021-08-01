@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios, { AxiosError } from 'axios'
 import api from 'datas/api'
-import { Row, Container, Spinner, Card, Col, Nav, Button } from 'react-bootstrap';
+import { Row, Container, Spinner, Card, Col, Nav, Button, Modal } from 'react-bootstrap';
 import BackTo from 'components/BackTo';
 import { Ticket, TicketSet, Transcript, TranscriptMinimal } from 'types/dbtypes';
 import { GetServerSideProps, NextPage } from 'next';
@@ -15,7 +15,7 @@ import 'dayjs/locale/ko'
 import useSWR from 'swr';
 import urljoin from 'url-join';
 import Head from 'next/head';
-import { SaveAlt as SaveAltIcon } from '@material-ui/icons'
+import { SaveAlt as SaveAltIcon, Add as AddIcon } from '@material-ui/icons'
 dayjs.locale('ko')
 dayjs.extend(dayjsRelativeTime)
 dayjs.extend(dayjsUTC)
@@ -41,6 +41,7 @@ const Transcripts: NextPage<TranscriptProps> = ({ guildId, ticketsetId, ticketId
   const [iframeHeight, setIframeHeight] = useState<number | null>(null)
   const [iframeLoad, setIframeLoad] = useState(false)
   const [selectedTranscript, setSelectedTranscript] = useState<string | null>(null)
+  const [resend, setResend] = useState<'wating' | 'error' | 'limited' | 'done' | false>(false)
 
   const { data: tickets } = useSWR<Ticket[], AxiosError>(
     new Cookies().get('ACCESS_TOKEN') ? urljoin(api, `/servers/${guildId}/tickets/${ticketsetId}`) : null,
@@ -71,7 +72,7 @@ const Transcripts: NextPage<TranscriptProps> = ({ guildId, ticketsetId, ticketId
   const ticketset = ticketsets?.find(o => o.uuid === ticketsetId)
   const ticket = tickets?.find(o => o.uuid === ticketId)
 
-  const { data: transcripts, mutate: mutateTranscripts } = useSWR<TranscriptMinimal[], AxiosError>(
+  const { data: transcripts, mutate: mutateTranscripts, isValidating: isValidatingTranscripts } = useSWR<TranscriptMinimal[], AxiosError>(
     new Cookies().get('ACCESS_TOKEN') && ticket ? urljoin(api, `/servers/${guildId}/tickets/${ticket.uuid}/transcripts`) : null,
     url => axios.get(url, {
       headers: {
@@ -122,7 +123,7 @@ const Transcripts: NextPage<TranscriptProps> = ({ guildId, ticketsetId, ticketId
       <Layout>
         <DashboardLayout guildId={guildId}>
           {
-            () => ticket && ticketsets
+            () => ticket && ticketsets && (transcripts === undefined ? !isValidatingTranscripts : true)
               ? (
                 <>
                   <Row className="dashboard-section">
@@ -144,24 +145,21 @@ const Transcripts: NextPage<TranscriptProps> = ({ guildId, ticketsetId, ticketId
                   {
                     transcripts !== undefined
                       ? <>
-                        <Row className="mt-4">
-                          <Button className="mr-2 d-flex align-items-center" variant="aztra" size="sm" onClick={() => {
-                            const file = new Blob(["\ufeff" + transcript], { type: 'data:text/html;charset=utf-8' })
-
-                            const link = document.createElement('a')
-                            link.href = URL.createObjectURL(file)
-                            link.download = `ticket-transcript-${ticket?.channel}.html`
-                            document.body.appendChild(link)
-                            link.click()
-                            document.body.removeChild(link)
-                          }}>
-                            <SaveAltIcon className="mr-1" fontSize="small" />
-                            보고서 다운로드
-                          </Button>
-                        </Row>
-
                         <Row className="mt-3">
                           <Col xs={12} lg={9} className="px-0">
+                            <Button className="mr-2 mb-3 d-flex align-items-center" variant="aztra" size="sm" onClick={() => {
+                              const file = new Blob(["\ufeff" + transcript], { type: 'data:text/html;charset=utf-8' })
+
+                              const link = document.createElement('a')
+                              link.href = URL.createObjectURL(file)
+                              link.download = `ticket-transcript-${ticket?.channel}.html`
+                              document.body.appendChild(link)
+                              link.click()
+                              document.body.removeChild(link)
+                            }}>
+                              <SaveAltIcon className="mr-1" fontSize="small" />
+                              보고서 다운로드
+                            </Button>
                             {
                               transcript &&
                               <iframe
@@ -180,11 +178,40 @@ const Transcripts: NextPage<TranscriptProps> = ({ guildId, ticketsetId, ticketId
                             }
                           </Col>
                           <Col xs={{ span: 12, order: "first" }} lg={{ span: 3, order: "last" }} className="px-0 px-lg-3">
-                            <Nav className="flex-column mt-3 mt-lg-0 mb-4" variant="pills" onSelect={e => {
+                            <Nav className="flex-column mt-3 mt-lg-0 mb-4" variant="pills" activeKey={selectedTranscript ?? undefined} onSelect={e => {
                               if (e === selectedTranscript) return
                               setIframeLoad(false)
                               setSelectedTranscript(e)
                             }}>
+                              <Nav.Link className="bg-only-dark mb-2 d-flex align-items-center" onClick={() => {
+                                setResend('wating')
+                                axios.post(`${api}/servers/${guildId}/tickets/${ticket.uuid}/transcripts/generate`, {},
+                                  {
+                                    headers: {
+                                      Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
+                                    }
+                                  }
+                                )
+                                  .then(async r => {
+                                    setResend(false)
+                                    await mutateTranscripts(
+                                      transcripts
+                                        .concat({ uuid: r.data.uuid, ticketid: r.data.ticketid, created_at: r.data.created_at })
+                                        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()),
+                                      false
+                                    )
+                                    await mutateTranscript(r.data, false)
+                                    setSelectedTranscript(r.data.uuid)
+                                  })
+                                  .catch((_e) => {
+                                    let e: AxiosError = _e
+                                    if (e.response?.status === 429) setResend('limited')
+                                    else setResend('error')
+                                  })
+                              }}>
+                                <AddIcon className="mr-2" />
+                                새로 생성하기
+                              </Nav.Link>
                               {
                                 transcripts?.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).map(one =>
                                   <Nav.Link
@@ -197,6 +224,24 @@ const Transcripts: NextPage<TranscriptProps> = ({ guildId, ticketsetId, ticketId
                                 )
                               }
                             </Nav>
+
+                            <Modal className="modal-dark" show={resend !== false} onHide={() => setResend(false)} centered>
+                              <Modal.Body className="py-4">
+                                {
+                                  resend === "wating"
+                                    ? "대화 내역을 생성하고 있습니다...."
+                                    : resend === "limited"
+                                      ? "봇 과부하 방지를 위해 5분에 1번만 보낼 수 있습니다. 1분 후에 다시 시도하세요!"
+                                      : resend === "error"
+                                      && "오류가 발생했습니다!"
+                                }
+                              </Modal.Body>
+                              <Modal.Footer className="justify-content-end">
+                                <Button variant="dark" onClick={() => setResend(false)}>
+                                  닫기
+                                </Button>
+                              </Modal.Footer>
+                            </Modal>
                           </Col>
                         </Row>
                       </>
