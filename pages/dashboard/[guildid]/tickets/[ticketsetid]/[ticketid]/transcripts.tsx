@@ -41,7 +41,7 @@ const Transcripts: NextPage<TranscriptProps> = ({ guildId, ticketsetId, ticketId
   const [iframeHeight, setIframeHeight] = useState<number | null>(null)
   const [iframeLoad, setIframeLoad] = useState(false)
   const [selectedTranscript, setSelectedTranscript] = useState<string | null>(null)
-  const [resend, setResend] = useState<'wating' | 'error' | 'limited' | 'done' | false>(false)
+  const [createNew, setCreateNew] = useState<'wating' | 'error' | 'limited' | 'done' | false>(false)
 
   const { data: tickets } = useSWR<Ticket[], AxiosError>(
     new Cookies().get('ACCESS_TOKEN') ? urljoin(api, `/servers/${guildId}/tickets/${ticketsetId}`) : null,
@@ -84,7 +84,7 @@ const Transcripts: NextPage<TranscriptProps> = ({ guildId, ticketsetId, ticketId
       refreshInterval: 5000,
       revalidateOnFocus: false,
       onSuccess: data => {
-        !selectedTranscript && setSelectedTranscript(data[0].uuid)
+        !selectedTranscript && setSelectedTranscript(data.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0].uuid)
       }
     }
   )
@@ -148,7 +148,7 @@ const Transcripts: NextPage<TranscriptProps> = ({ guildId, ticketsetId, ticketId
                         <Row className="mt-3">
                           <Col xs={12} lg={9} className="px-0">
                             <Button className="mr-2 mb-3 d-flex align-items-center" variant="aztra" size="sm" onClick={() => {
-                              const file = new Blob(["\ufeff" + transcript], { type: 'data:text/html;charset=utf-8' })
+                              const file = new Blob(["\ufeff" + transcript?.html], { type: 'data:text/html;charset=utf-8' })
 
                               const link = document.createElement('a')
                               link.href = URL.createObjectURL(file)
@@ -184,7 +184,7 @@ const Transcripts: NextPage<TranscriptProps> = ({ guildId, ticketsetId, ticketId
                               setSelectedTranscript(e)
                             }}>
                               <Nav.Link className="bg-only-dark mb-2 d-flex align-items-center" disabled={ticket.status === "deleted"} onClick={() => {
-                                setResend('wating')
+                                setCreateNew('wating')
                                 axios.post(`${api}/servers/${guildId}/tickets/${ticket.uuid}/transcripts/generate`, {},
                                   {
                                     headers: {
@@ -193,7 +193,7 @@ const Transcripts: NextPage<TranscriptProps> = ({ guildId, ticketsetId, ticketId
                                   }
                                 )
                                   .then(async r => {
-                                    setResend(false)
+                                    setCreateNew(false)
                                     await mutateTranscripts(
                                       transcripts
                                         .concat({ uuid: r.data.uuid, ticketid: r.data.ticketid, created_at: r.data.created_at })
@@ -205,8 +205,8 @@ const Transcripts: NextPage<TranscriptProps> = ({ guildId, ticketsetId, ticketId
                                   })
                                   .catch((_e) => {
                                     let e: AxiosError = _e
-                                    if (e.response?.status === 429) setResend('limited')
-                                    else setResend('error')
+                                    if (e.response?.status === 429) setCreateNew('limited')
+                                    else setCreateNew('error')
                                   })
                               }}>
                                 <AddIcon className="mr-2" />
@@ -224,24 +224,6 @@ const Transcripts: NextPage<TranscriptProps> = ({ guildId, ticketsetId, ticketId
                                 )
                               }
                             </Nav>
-
-                            <Modal className="modal-dark" show={resend !== false} onHide={() => setResend(false)} centered>
-                              <Modal.Body className="py-4">
-                                {
-                                  resend === "wating"
-                                    ? "대화 내역을 생성하고 있습니다...."
-                                    : resend === "limited"
-                                      ? "봇 과부하 방지를 위해 5분에 1번만 보낼 수 있습니다. 1분 후에 다시 시도하세요!"
-                                      : resend === "error"
-                                      && "오류가 발생했습니다!"
-                                }
-                              </Modal.Body>
-                              <Modal.Footer className="justify-content-end">
-                                <Button variant="dark" onClick={() => setResend(false)}>
-                                  닫기
-                                </Button>
-                              </Modal.Footer>
-                            </Modal>
                           </Col>
                         </Row>
                       </>
@@ -249,19 +231,26 @@ const Transcripts: NextPage<TranscriptProps> = ({ guildId, ticketsetId, ticketId
                         <h3 className="mb-4">
                           {
                             ticket.status === "deleted"
-                            ? "저장된 대화 내역이 없습니다!"
-                            : "아직 저장된 대화 내역이 없습니다!"
+                              ? "저장된 대화 내역이 없습니다!"
+                              : "아직 저장된 대화 내역이 없습니다!"
                           }
                         </h3>
                         <Button variant="aztra" hidden={ticket.status === "deleted"} onClick={() => {
+                          setCreateNew('wating')
                           axios.post(`${api}/servers/${guildId}/tickets/${ticket.uuid}/transcripts/generate`, undefined, {
                             headers: {
                               Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
                             }
                           })
                             .then(r => {
-                              mutateTranscripts([{ uuid: r.data.uuid, ticketid: r.data.ticketid, created_at: r.data.created_at }])
-                              mutateTranscript(r.data)
+                              setCreateNew(false)
+                              mutateTranscripts([{ uuid: r.data.uuid, ticketid: r.data.ticketid, created_at: r.data.created_at }], false)
+                              mutateTranscript(r.data, false)
+                            })
+                            .catch(_e => {
+                              let e: AxiosError = _e
+                              if (e.response?.status === 429) setCreateNew('limited')
+                              else setCreateNew('error')
                             })
                         }}>
                           새로 생성하기
@@ -279,6 +268,24 @@ const Transcripts: NextPage<TranscriptProps> = ({ guildId, ticketsetId, ticketId
           }
         </DashboardLayout>
       </Layout>
+
+      <Modal className="modal-dark" show={createNew !== false} onHide={() => setCreateNew(false)} centered>
+        <Modal.Body className="py-4">
+          {
+            createNew === "wating"
+              ? "대화 내역을 생성하고 있습니다...."
+              : createNew === "limited"
+                ? "봇 과부하 방지를 위해 1분에 1번만 생성할 수 있습니다. 1분 후에 다시 시도하세요!"
+                : createNew === "error"
+                && "오류가 발생했습니다!"
+          }
+        </Modal.Body>
+        <Modal.Footer className="justify-content-end">
+          <Button variant="dark" onClick={() => setCreateNew(false)}>
+            닫기
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </>
   )
 }
