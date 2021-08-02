@@ -13,7 +13,7 @@ import {
   Description as DescriptionIcon,
 } from '@material-ui/icons'
 import BackTo from 'components/BackTo';
-import { Ticket, TicketSet } from 'types/dbtypes';
+import { Ticket, TicketSet, TranscriptMinimal } from 'types/dbtypes';
 import { GetServerSideProps, NextPage } from 'next';
 import Router from 'next/router'
 import Layout from 'components/Layout';
@@ -111,6 +111,16 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketsetId }) => {
       .then(r => r.data)
   )
 
+  const { data: transcripts } = useSWR<TranscriptMinimal[], AxiosError>(
+    new Cookies().get('ACCESS_TOKEN') ? urljoin(api, `/servers/${guildId}/tickets/${ticketsetId}/transcripts`) : null,
+    url => axios.get(url, {
+      headers: {
+        Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
+      }
+    })
+      .then(r => r.data)
+  )
+
   useEffect(() => {
     if (!new Cookies().get('ACCESS_TOKEN')) {
       const lct = window.location
@@ -135,8 +145,6 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketsetId }) => {
 
   const TicketListCard: React.FC<TicketListCardProps> = ({ ticket, onCheckChange, checked, deletedMode = false }) => {
     const [showModal, setShowModal] = useState<'close' | 'reopen' | 'delete' | null>(null)
-    const [transcriptModal, setTranscriptModal] = useState<boolean>(false)
-    const [transcriptSrc, setTranscriptSrc] = useState<string | null>(null)
 
     const channel = channels?.find(o => o.id === ticket.channel)
 
@@ -181,22 +189,25 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketsetId }) => {
           </Button>
         </OverlayTrigger>
         }
-        {ticket.status === "open" && <OverlayTrigger
-          placement="top"
-          overlay={
-            <Tooltip id="ticket-list-transcript">
-              대화 내역
-            </Tooltip>
-          }
-        >
-          <Button
-            variant="dark"
-            className="d-flex px-1 remove-before"
-            onClick={() => Router.push(`/dashboard/${guildId}/tickets/${ticketsetId}/${ticket.uuid}/transcripts`, undefined, { shallow: true })}
+        {
+          (ticket.status !== "deleted" || transcripts?.find(o => o.ticketid === ticket.uuid)) &&
+          <OverlayTrigger
+            placement="top"
+            overlay={
+              <Tooltip id="ticket-list-transcript">
+                대화 내역
+              </Tooltip>
+            }
           >
-            <DescriptionIcon />
-          </Button>
-        </OverlayTrigger>
+            <Button
+              variant="dark"
+              className="d-flex px-1 remove-before"
+              onClick={() => Router.push(`/dashboard/${guildId}/tickets/${ticketsetId}/${ticket.uuid}/transcripts`, undefined, { shallow: true })}
+            >
+              <DescriptionIcon />
+            </Button>
+          </OverlayTrigger>
+
         }
       </ButtonGroup>
 

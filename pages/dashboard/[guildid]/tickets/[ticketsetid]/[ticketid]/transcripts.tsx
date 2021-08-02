@@ -73,7 +73,7 @@ const Transcripts: NextPage<TranscriptProps> = ({ guildId, ticketsetId, ticketId
   const ticket = tickets?.find(o => o.uuid === ticketId)
 
   const { data: transcripts, mutate: mutateTranscripts, isValidating: isValidatingTranscripts } = useSWR<TranscriptMinimal[], AxiosError>(
-    new Cookies().get('ACCESS_TOKEN') && ticket ? urljoin(api, `/servers/${guildId}/tickets/${ticket.uuid}/transcripts`) : null,
+    new Cookies().get('ACCESS_TOKEN') && ticket ? urljoin(api, `/servers/${guildId}/tickets/${ticket.setuuid}/${ticket.uuid}/transcripts`) : null,
     url => axios.get(url, {
       headers: {
         Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
@@ -137,7 +137,7 @@ const Transcripts: NextPage<TranscriptProps> = ({ guildId, ticketsetId, ticketId
                     <Card bg="dark">
                       <Card.Body className="py-2 d-flex align-items-center">
                         티켓:
-                        <h5 className="mb-0 pl-2" style={{ fontFamily: "NanumSquare" }}>{ticketset?.name} # {ticketset?.ticket_number}</h5>
+                        <h5 className="mb-0 pl-2" style={{ fontFamily: "NanumSquare" }}>{ticketset?.name} # {ticket.number}</h5>
                       </Card.Body>
                     </Card>
                   </Row>
@@ -183,7 +183,7 @@ const Transcripts: NextPage<TranscriptProps> = ({ guildId, ticketsetId, ticketId
                               setIframeLoad(false)
                               setSelectedTranscript(e)
                             }}>
-                              <Nav.Link className="bg-only-dark mb-2 d-flex align-items-center" onClick={() => {
+                              <Nav.Link className="bg-only-dark mb-2 d-flex align-items-center" disabled={ticket.status === "deleted"} onClick={() => {
                                 setResend('wating')
                                 axios.post(`${api}/servers/${guildId}/tickets/${ticket.uuid}/transcripts/generate`, {},
                                   {
@@ -246,8 +246,14 @@ const Transcripts: NextPage<TranscriptProps> = ({ guildId, ticketsetId, ticketId
                         </Row>
                       </>
                       : <Container fluid className="text-center" style={{ marginTop: 180 }}>
-                        <h3 className="mb-4">아직 저장된 대화 내역이 없습니다!</h3>
-                        <Button variant="aztra" onClick={() => {
+                        <h3 className="mb-4">
+                          {
+                            ticket.status === "deleted"
+                            ? "저장된 대화 내역이 없습니다!"
+                            : "아직 저장된 대화 내역이 없습니다!"
+                          }
+                        </h3>
+                        <Button variant="aztra" hidden={ticket.status === "deleted"} onClick={() => {
                           axios.post(`${api}/servers/${guildId}/tickets/${ticket.uuid}/transcripts/generate`, undefined, {
                             headers: {
                               Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
