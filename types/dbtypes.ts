@@ -113,6 +113,7 @@ export interface Ticket {
   opener: string
   number: number
   status: 'open' | 'closed' | 'deleted'
+  created_at: string
 }
 
 export interface TranscriptMinimal {

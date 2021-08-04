@@ -11,7 +11,7 @@ import { CircularProgressbarWithChildren } from 'react-circular-progressbar';
 import BackTo from 'components/BackTo';
 
 import { calcLevel, getAccumulateExp, getRequiredEXP } from '@aztra/level-utils'
-import { Exp, Warns } from 'types/dbtypes';
+import { Exp, Ticket, TicketSet, Warns } from 'types/dbtypes';
 
 import { GetServerSideProps, NextPage } from 'next';
 import Link from 'next/link';
@@ -69,10 +69,7 @@ const MemberDashboard: NextPage<MemberDashboardRouteProps> = ({ guildId, memberI
         Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
       }
     })
-      .then(r => r.data),
-    {
-      refreshInterval: 5000
-    }
+      .then(r => r.data)
   )
 
   const { data: exps } = useSWR<Exp[], AxiosError>(
@@ -82,10 +79,27 @@ const MemberDashboard: NextPage<MemberDashboardRouteProps> = ({ guildId, memberI
         Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
       }
     })
-      .then(r => r.data),
-    {
-      refreshInterval: 5000
-    }
+      .then(r => r.data)
+  )
+
+  const { data: ticketsets } = useSWR<TicketSet[], AxiosError>(
+    new Cookies().get('ACCESS_TOKEN') ? urljoin(api, `/servers/${guildId}/ticketsets`) : null,
+    url => axios.get(url, {
+      headers: {
+        Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
+      }
+    })
+      .then(r => r.data)
+  )
+
+  const { data: tickets } = useSWR<Ticket[], AxiosError>(
+    new Cookies().get('ACCESS_TOKEN') ? urljoin(api, `/servers/${guildId}/tickets`) : null,
+    url => axios.get(url, {
+      headers: {
+        Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`
+      }
+    })
+      .then(r => r.data)
   )
 
   useEffect(() => {
@@ -147,6 +161,7 @@ const MemberDashboard: NextPage<MemberDashboardRouteProps> = ({ guildId, memberI
   const memberWarns = warns
     ?.filter(one => one.member === member?.user.id)
     .sort((a, b) => new Date(b.dt).getTime() - new Date(a.dt).getTime())
+    .slice(0, 5)
     .map(one => (
       <Card key={one.uuid} bg="dark" className="mb-2 shadow-sm shadow">
         <Card.Body as={Row} className="py-1 d-flex justify-content-between">
@@ -172,6 +187,34 @@ const MemberDashboard: NextPage<MemberDashboardRouteProps> = ({ guildId, memberI
       </Card>
     ))
 
+  const memberTickets = tickets
+    ?.filter(o => o.status === "open" && o.opener === member.user.id)
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    .slice(0, 5)
+    .map(one => (
+      <Card key={one.uuid} bg="dark" className="mb-2 shadow-sm shadow">
+        <Card.Body as={Row} className="py-1 d-flex justify-content-between">
+          <Col xs={9} className="d-flex">
+            <div className="my-auto d-inline-block text-truncate">
+              {ticketsets?.find(o => o.uuid === one.setuuid)?.name}#{one.number}
+            </div>
+          </Col>
+          <Col xs={3} className="d-flex align-items-center my-0 justify-content-end">
+            <div className="my-auto small" style={{
+              color: 'lightgrey'
+            }}>
+              <div className="text-right">
+                {one.status === "open" ? "열림" : "닫힘"}
+              </div>
+              <div className="text-right">
+                {dayjs.utc(one.created_at).local().fromNow()}
+              </div>
+            </div>
+          </Col>
+        </Card.Body>
+      </Card>
+    ))
+
   return (
     <>
       <Head>
@@ -180,7 +223,7 @@ const MemberDashboard: NextPage<MemberDashboardRouteProps> = ({ guildId, memberI
       <Layout>
         <DashboardLayout guildId={guildId}>
           {
-            () => member && exps && warns
+            () => member && exps && warns && ticketsets && tickets
               ? (
                 <div>
                   <Row className="dashboard-section">
@@ -197,9 +240,9 @@ const MemberDashboard: NextPage<MemberDashboardRouteProps> = ({ guildId, memberI
                         height: 128
                       }}>
                         <img
-                          alt={member?.user.username!}
+                          alt={member.user.username!}
                           className="rounded-circle no-drag"
-                          src={member?.user.avatar ? `https://cdn.discordapp.com/avatars/${member?.user.id}/${member?.user.avatar}` : member?.user.defaultAvatarURL}
+                          src={member.user.avatar ? `https://cdn.discordapp.com/avatars/${member.user.id}/${member.user.avatar}` : member.user.defaultAvatarURL}
                           style={{
                             width: 128,
                             height: 128
@@ -237,25 +280,25 @@ const MemberDashboard: NextPage<MemberDashboardRouteProps> = ({ guildId, memberI
                       <div style={{
                         fontSize: '24pt'
                       }}>
-                        {member?.displayName}
+                        {member.displayName}
                         {
-                          member?.user.bot &&
+                          member.user.bot &&
                           <Badge variant="blurple" className="ml-2 font-weight-bold mt-2 align-text-top" style={{
                             fontSize: '11pt'
                           }}>
                             BOT
-                        </Badge>
+                          </Badge>
                         }
                       </div>
                       <div style={{
                         fontSize: '17pt'
                       }}>
-                        {member?.user.username}
+                        {member.user.username}
                         <span className="ml-1 font-weight-bold" style={{
                           color: '#8f8f8f',
                           fontSize: '13pt'
                         }}>
-                          #{member?.user.discriminator}
+                          #{member.user.discriminator}
                         </span>
                       </div>
                     </div>
@@ -355,19 +398,19 @@ const MemberDashboard: NextPage<MemberDashboardRouteProps> = ({ guildId, memberI
                             color: 'lightgrey'
                           }}>
                             금방
-                        </small>
+                          </small>
                         </Card.Body>
                       </Card>
                       <Card bg="dark" className="mb-2 shadow-sm">
                         <Card.Body className="py-2 d-flex justify-content-between">
                           <div>
                             <FontAwesomeIcon icon={faUserPlus} className="mr-2" />
-                            {member?.user.username} 이(가) 새로 들어왔습니다.
-                        </div>
+                            {member.user.username} 이(가) 새로 들어왔습니다.
+                          </div>
                           <small style={{
                             color: 'lightgrey'
                           }}>
-                            {dayjs.utc(member?.joinedAt!).local().fromNow()}
+                            {dayjs.utc(member.joinedAt!).local().fromNow()}
                           </small>
                         </Card.Body>
                       </Card>
@@ -379,10 +422,10 @@ const MemberDashboard: NextPage<MemberDashboardRouteProps> = ({ guildId, memberI
                       <div className="d-flex justify-content-between">
                         <h4 className="mb-3">받은 경고</h4>
                         <div>
-                          <Link href={`/dashboard/${guildId}/warns/list?search=${encodeURIComponent(member?.user.tag || '')}&type=target`}>
+                          <Link href={`/dashboard/${guildId}/warns/list?search=${encodeURIComponent(member.user.tag || '')}&type=target`}>
                             <Button hidden={!warns?.length} variant="aztra" size="sm">
                               더보기
-                          </Button>
+                            </Button>
                           </Link>
                         </div>
                       </div>
@@ -395,10 +438,14 @@ const MemberDashboard: NextPage<MemberDashboardRouteProps> = ({ guildId, memberI
                       }
                     </Col>
                     <Col className="pb-5" xs={12} xl={6}>
-                      <h4 className="mb-3">티켓</h4>
-                      <Alert variant="aztra">
-                        개발 중인 기능입니다!
-                    </Alert>
+                      <h4 className="mb-3">최근 열린 티켓</h4>
+                      {
+                        memberTickets?.length
+                        ? memberTickets
+                        : <div className="d-flex align-items-center justify-content-center h-75">
+                        <div className="my-4" style={{ color: 'lightgray' }}>열린 티켓이 없습니다!</div>
+                      </div>
+                      }
                     </Col>
                   </Row>
                 </div>

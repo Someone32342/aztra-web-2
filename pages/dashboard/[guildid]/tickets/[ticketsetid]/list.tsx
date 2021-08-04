@@ -310,6 +310,9 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketsetId }) => {
             <td className="align-middle">
               <b>#{ticket.number}</b>
             </td>
+            <td className="align-middle">
+              <MemberCell member={members?.find(o => o.user.id === ticket.opener)!} guildId={guildId} />
+            </td>
             {
               !deletedMode &&
               <td className="align-middle font-weight-bold">
@@ -317,7 +320,7 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketsetId }) => {
               </td>
             }
             <td className="align-middle">
-              <MemberCell member={members?.find(o => o.user.id === ticket.opener)!} guildId={guildId} />
+              {new Date(ticket.created_at).toLocaleString()}
             </td>
             <td className="align-middle text-right">
               <Actions />
@@ -334,6 +337,9 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketsetId }) => {
                   </div>
                   <div className="d-flex">
                     <b>생성자:</b> <span className="ml-3"><MemberCell member={members?.find(o => o.user.id === ticket.opener)!} guildId={guildId} /></span>
+                  </div>
+                  <div className="d-flex">
+                    <b>생성 일자:</b> <span className="ml-3">{new Date(ticket.created_at).toLocaleString()}</span>
                   </div>
                   <div className="mt-2">
                     {!deletedMode && <Actions />}
@@ -373,8 +379,9 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketsetId }) => {
               </th>
             }
             <th className="d-none d-md-table-cell" style={{ width: 200 }}>티켓번호</th>
-            {mode !== "deleted" && <th className="d-none d-md-table-cell" style={{ maxWidth: 400 }}>채널</th>}
             <th className="d-none d-md-table-cell">생성자</th>
+            {mode !== "deleted" && <th className="d-none d-md-table-cell" style={{ maxWidth: 400 }}>채널</th>}
+            <th className="d-none d-md-table-cell">생성 일자</th>
             <th className="d-none d-md-table-cell" style={{ width: 140 }} />
             <th className="d-md-none" />
           </tr>
