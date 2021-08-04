@@ -188,7 +188,7 @@ const MemberDashboard: NextPage<MemberDashboardRouteProps> = ({ guildId, memberI
     ))
 
   const memberTickets = tickets
-    ?.filter(o => o.status === "open" && o.opener === member.user.id)
+    ?.filter(o => o.status === "open" && o.opener === member?.user.id)
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
     .slice(0, 5)
     .map(one => (
