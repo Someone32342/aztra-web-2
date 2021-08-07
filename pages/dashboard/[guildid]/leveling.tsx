@@ -447,7 +447,7 @@ const Leveling: NextPage<LevelingRouterProps> = ({ guildId }) => {
                                               selected={(newChannel ?? data?.channel) === one.id}
                                               channelData={{
                                                 channelName: one.name,
-                                                parentChannelName: channels?.find(c => c.id === one.parentID)?.name
+                                                parentChannelName: channels?.find(c => c.id === one.parentId)?.name
                                               }}
                                               onClick={() => setNewChannel(one.id)}
                                             />

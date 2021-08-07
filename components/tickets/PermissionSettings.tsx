@@ -1,6 +1,5 @@
 import { Add as AddIcon, Close as CloseIcon, Check as CheckIcon, Lock as LockIcon, RemoveCircleOutline as RemoveCircleOutlineIcon } from '@material-ui/icons'
 import axios from 'axios'
-import ChangesNotSaved from 'components/ChangesNotSaved'
 import api from 'datas/api'
 import React, { useState } from 'react'
 import { Form, Container, Row, Nav, Col, Dropdown, ButtonGroup, Button, Card, Spinner } from 'react-bootstrap'
@@ -44,7 +43,7 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({ ticketSet, guil
 
   const [addSearch, setAddSearch] = useState('')
 
-  const permTitleCls = "d-flex justify-content-between align-items-center pr-3 py-3"
+  const permTitleCls = "d-flex justify-content-between align-items-center pr-3 py-2"
 
   const AddableRoles = roles.filter(r => r.id !== guild?.id && !r.managed && !currentPermSets.find(o => o.id === r.id))
   const AddableMembers = members.filter(m => !currentPermSets.find(o => o.id === m.user.id))
@@ -245,14 +244,15 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({ ticketSet, guil
                     [
                       [0x1, "티켓 닫기"],
                       [0x2, "티켓 다시 열기"],
-                      [0x4, "티켓 삭제하기"]
+                      [0x4, "티켓 삭제하기"],
+                      [0x8, "대화 내역 생성하기"]
                     ].map(([n, name]) => {
                       const num = n as number
 
                       const activePerms = currentPermSets.find(o => o.id === active.id && o.type === active.type)
                       if (!activePerms) return null
 
-                      const ext_allow = (activePerms.ext_allow ?? 0) & num
+                      const ext_allow = Number(BigInt(activePerms.ext_allow ?? 0) & BigInt(num))
 
                       return <Col key={n} xs={12} lg={6} className={permTitleCls} style={{ fontFamily: "NanumSquare" }}>
                         <span className="mr-3">{name}</span>
@@ -261,10 +261,10 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({ ticketSet, guil
 
                           switch (state) {
                             case true:
-                              setCurrentPermSets(otherPerms.concat([{ ...activePerms, ext_allow: (activePerms.ext_allow ?? 0) | num }]))
+                              setCurrentPermSets(otherPerms.concat([{ ...activePerms, ext_allow: Number(BigInt(activePerms.ext_allow ?? 0) | BigInt(num)) }]))
                               break
                             case false:
-                              setCurrentPermSets(otherPerms.concat([{ ...activePerms, ext_allow: (activePerms.ext_allow ?? 0) - num, }]))
+                              setCurrentPermSets(otherPerms.concat([{ ...activePerms, ext_allow: Number(BigInt(activePerms.ext_allow ?? 0) - BigInt(num)) }]))
                               break
                           }
                         }} />
@@ -282,22 +282,27 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({ ticketSet, guil
                       [Permissions.MANAGE_WEBHOOKS, "웹후크 관리하기"],
                       [Permissions.CREATE_INSTANT_INVITE, "초대 코드 만들기"],
                       [Permissions.SEND_MESSAGES, "메시지 보내기"],
+                      [Permissions.USE_PUBLIC_THREADS, "공개 스레드 사용"],
+                      [Permissions.USE_PRIVATE_THREADS, "비공개 스레드 사용"],
                       [Permissions.EMBED_LINKS, "링크 첨부"],
                       [Permissions.ATTACH_FILES, "파일 첨부"],
                       [Permissions.ADD_REACTIONS, "반응 추가하기"],
                       [Permissions.USE_EXTERNAL_EMOJIS, "외부 이모티콘 사용"],
+                      [Permissions.USE_EXTERNAL_STICKERS, "외부 스티커 사용"],
                       [Permissions.MENTION_EVERYONE, "@everyone, @here, 모든 역할 멘션하기"],
                       [Permissions.MANAGE_MESSAGES, "메시지 관리"],
+                      [Permissions.MANAGE_THREADS, "스레드 관리하기"],
                       [Permissions.READ_MESSAGE_HISTORY, "메시지 기록 보기"],
                       [Permissions.SEND_TTS_MESSAGES, "텍스트 음성 변환 메시지 전송"],
+                      [Permissions.USE_SLASH_COMMANDS, "빗금 명령어 사용"]
                     ].map(([n, name]) => {
                       const num = n as number
 
                       const activePerms = currentPermSets.find(o => o.id === active.id && o.type === active.type)
                       if (!activePerms) return null
 
-                      const allow = activePerms.allow & num
-                      const deny = activePerms.deny & num
+                      const allow = Number(BigInt(activePerms.allow) & BigInt(num))
+                      const deny = Number(BigInt(activePerms.deny) & BigInt(num))
 
                       return <Col key={n} xs={12} lg={6} className={permTitleCls} style={{ fontFamily: "NanumSquare" }}>
                         <span className="mr-3">{name}</span>
@@ -306,14 +311,14 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({ ticketSet, guil
 
                           switch (state) {
                             case true:
-                              setCurrentPermSets(otherPerms.concat([{ ...activePerms, allow: activePerms.allow | num, ...(deny ? { deny: activePerms.deny - num } : {}) }]))
+                              setCurrentPermSets(otherPerms.concat([{ ...activePerms, allow: Number(BigInt(activePerms.allow) | BigInt(num)), ...(deny ? { deny: Number(BigInt(activePerms.deny) - BigInt(num)) } : {}) }]))
                               break
                             case false:
-                              setCurrentPermSets(otherPerms.concat([{ ...activePerms, deny: activePerms.deny | num, ...(allow ? { allow: activePerms.allow - num } : {}) }]))
+                              setCurrentPermSets(otherPerms.concat([{ ...activePerms, deny: Number(BigInt(activePerms.deny) | BigInt(num)), ...(allow ? { allow: Number(BigInt(activePerms.allow) - BigInt(num)) } : {}) }]))
                               break
                             case null:
-                              allow && setCurrentPermSets(otherPerms.concat([{ ...activePerms, allow: activePerms.allow - num }]))
-                              deny && setCurrentPermSets(otherPerms.concat([{ ...activePerms, deny: activePerms.deny - num }]))
+                              allow && setCurrentPermSets(otherPerms.concat([{ ...activePerms, allow: Number(BigInt(activePerms.allow) - BigInt(num)) }]))
+                              deny && setCurrentPermSets(otherPerms.concat([{ ...activePerms, deny: Number(BigInt(activePerms.deny) - BigInt(num)) }]))
                               break
                           }
                         }} />

@@ -125,31 +125,34 @@ const WarnsMain: NextPage<WarnsMainRouterProps> = ({ guildId }) => {
                               <Card key={one.uuid} bg="dark" className="mb-2 shadow-sm shadow">
                                 <Card.Body as={Row} className="py-1 d-flex justify-content-between">
                                   <Col xs={9} className="d-flex px-2">
-                                    <div className="mr-2 my-auto" style={{
-                                      height: 35,
-                                      width: 35
-                                    }}>
-                                      <OverlayTrigger
-                                        placement="top"
-                                        overlay={
-                                          <Tooltip id={`warn-member-${one.member}`}>
-                                            {target?.tag}
-                                          </Tooltip>
-                                        }
-                                      >
-                                        <Link href={`/dashboard/${guildId}/members/${target?.id}`}>
-                                          <img
-                                            src={target?.avatar ? `https://cdn.discordapp.com/avatars/${target?.id}/${target?.avatar}` : target?.defaultAvatarURL}
-                                            alt={target?.tag!}
-                                            className="rounded-circle no-drag"
-                                            style={{
-                                              height: 35,
-                                              width: 35
-                                            }}
-                                          />
-                                        </Link>
-                                      </OverlayTrigger>
-                                    </div>
+                                    {
+                                      target &&
+                                      <div className="mr-2 my-auto" style={{
+                                        height: 35,
+                                        width: 35
+                                      }}>
+                                        <OverlayTrigger
+                                          placement="top"
+                                          overlay={
+                                            <Tooltip id={`warn-member-${one.member}`}>
+                                              {target.tag}
+                                            </Tooltip>
+                                          }
+                                        >
+                                          <Link href={`/dashboard/${guildId}/members/${target.id}`}>
+                                            <img
+                                              src={target.avatar ? `https://cdn.discordapp.com/avatars/${target.id}/${target.avatar}` : target.defaultAvatarURL}
+                                              alt={target.tag!}
+                                              className="rounded-circle no-drag"
+                                              style={{
+                                                height: 35,
+                                                width: 35
+                                              }}
+                                            />
+                                          </Link>
+                                        </OverlayTrigger>
+                                      </div>
+                                    }
                                     <div className="my-auto d-inline-block text-truncate">
                                       {one.reason}
                                     </div>
@@ -160,7 +163,7 @@ const WarnsMain: NextPage<WarnsMainRouterProps> = ({ guildId }) => {
                                     }}>
                                       <div className="text-right">
                                         {one.count}회
-                                  </div>
+                                      </div>
                                       <div className="text-right">
                                         {dayjs.utc(one.dt).local().fromNow()}
                                       </div>
@@ -221,10 +224,10 @@ const WarnsMain: NextPage<WarnsMainRouterProps> = ({ guildId }) => {
                             <Popover id="auto-task-process-popover">
                               <Popover.Title>
                                 자동 작업 수행
-                            </Popover.Title>
+                              </Popover.Title>
                               <Popover.Content>
                                 일정 횟수 이상의 경고를 받거나 해제되었을 때 자동으로 수행할 작업을 정할 수 있습니다.
-                            </Popover.Content>
+                              </Popover.Content>
                             </Popover>
                           } delay={{
                             show: 200,
@@ -243,9 +246,9 @@ const WarnsMain: NextPage<WarnsMainRouterProps> = ({ guildId }) => {
             ) : <Container className="d-flex align-items-center justify-content-center flex-column" style={{
               height: '500px'
             }}>
-                <h3 className="pb-4">불러오는 중</h3>
-                <Spinner animation="border" variant="aztra" />
-              </Container>
+              <h3 className="pb-4">불러오는 중</h3>
+              <Spinner animation="border" variant="aztra" />
+            </Container>
           }
         </DashboardLayout>
       </Layout>

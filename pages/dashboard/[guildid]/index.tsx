@@ -374,31 +374,34 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
                               <Card key={one.uuid} bg="dark" className="mb-2 shadow-sm shadow">
                                 <Card.Body as={Row} className="py-1 d-flex justify-content-between">
                                   <Col xs={9} className="d-flex px-2">
-                                    <div className="mr-2 my-auto" style={{
-                                      height: 35,
-                                      width: 35
-                                    }}>
-                                      <OverlayTrigger
-                                        placement="top"
-                                        overlay={
-                                          <Tooltip id={`warn-member-${one.member}`}>
-                                            {target?.tag}
-                                          </Tooltip>
-                                        }
-                                      >
-                                        <Link href={`/dashboard/${guildId}/members/${target?.id}`}>
-                                          <img
-                                            src={target?.avatar ? `https://cdn.discordapp.com/avatars/${target?.id}/${target?.avatar}` : target?.defaultAvatarURL}
-                                            alt={target?.tag!}
-                                            className="rounded-circle no-drag"
-                                            style={{
-                                              height: 35,
-                                              width: 35
-                                            }}
-                                          />
-                                        </Link>
-                                      </OverlayTrigger>
-                                    </div>
+                                    {
+                                      target &&
+                                      <div className="mr-2 my-auto" style={{
+                                        height: 35,
+                                        width: 35
+                                      }}>
+                                        <OverlayTrigger
+                                          placement="top"
+                                          overlay={
+                                            <Tooltip id={`warn-member-${one.member}`}>
+                                              {target.tag}
+                                            </Tooltip>
+                                          }
+                                        >
+                                          <Link href={`/dashboard/${guildId}/members/${target.id}`}>
+                                            <img
+                                              src={target.avatar ? `https://cdn.discordapp.com/avatars/${target.id}/${target.avatar}` : target.defaultAvatarURL}
+                                              alt={target.tag!}
+                                              className="rounded-circle no-drag"
+                                              style={{
+                                                height: 35,
+                                                width: 35
+                                              }}
+                                            />
+                                          </Link>
+                                        </OverlayTrigger>
+                                      </div>
+                                    }
                                     <div className="my-auto d-inline-block text-truncate">
                                       {one.reason}
                                     </div>

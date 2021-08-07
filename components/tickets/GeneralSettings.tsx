@@ -141,7 +141,7 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({ channels, ticketSet, 
                       selected={newChannel === one.id || (!newChannel && one.id === ticketSet?.channel)}
                       channelData={{
                         channelName: one.name,
-                        parentChannelName: channels?.find(c => c.id === one.parentID)?.name
+                        parentChannelName: channels?.find(c => c.id === one.parentId)?.name
                       }}
                       onClick={() => setNewChannel(one.id)}
                     />
@@ -169,8 +169,8 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({ channels, ticketSet, 
             <option value={0}>(선택 안 함)</option>
             {
               channels
-                .filter(o => o.type === "category")
-                .sort((a, b) => a.rawPosition - b.rawPosition)
+                .filter(o => o.type === 'GUILD_CATEGORY')
+                .sort((a, b) => a.rawPosition! - b.rawPosition!)
                 .map(o =>
                   <option key={o.id} value={o.id}>{o.name}</option>
                 )
@@ -185,8 +185,8 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({ channels, ticketSet, 
             <option value={0}>(선택 안 함)</option>
             {
               channels
-                .filter(o => o.type === "category")
-                .sort((a, b) => a.rawPosition - b.rawPosition)
+                .filter(o => o.type === 'GUILD_CATEGORY')
+                .sort((a, b) => a.rawPosition! - b.rawPosition!)
                 .map(o =>
                   <option key={o.id} value={o.id}>{o.name}</option>
                 )

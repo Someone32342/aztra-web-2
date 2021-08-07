@@ -101,7 +101,7 @@ const TicketForm: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, 
                         selected={selectedChannel === one.id}
                         channelData={{
                           channelName: one.name,
-                          parentChannelName: channels?.find(c => c.id === one.parentID)?.name
+                          parentChannelName: channels?.find(c => c.id === one.parentId)?.name
                         }}
                         onClick={() => setSelectedChannel(one.id)}
                       />
@@ -147,8 +147,8 @@ const TicketForm: React.FC<EmojiRoleProps> = ({ guild, channels, roles, saving, 
                 <option value={0}>(선택 안 함)</option>
                 {
                   channels
-                    .filter(o => o.type === "category")
-                    .sort((a, b) => a.rawPosition - b.rawPosition)
+                    .filter(o => o.type === 'GUILD_CATEGORY')
+                    .sort((a, b) => a.rawPosition! - b.rawPosition!)
                     .map(o =>
                       <option value={o.id}>{o.name}</option>
                     )

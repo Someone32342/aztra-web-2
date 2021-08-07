@@ -90,11 +90,11 @@ export interface Channel {
 
 
 export interface EmojiExtended {
-  animated: boolean
+  animated: boolean | null
   createdAt: number | null
   id: string | null
   identifier: string
-  name: string
+  name: string | null
   url: string | null
 }
 
@@ -150,17 +150,15 @@ export interface UserMinimal {
   system: boolean | null
   tag: string | null
   username: string | null
-  locale: string | null
 }
 
 export interface UserExtended extends UserMinimal {
-  lastMessageID: string | null
-  presence: PresenceExtended
+  presence: PresenceExtended | null
 }
 
 export type UserExtendedFulltimed = Omit<UserExtended, 'createdAt' | 'presence'> & {
   createdAt: Date
-  presence: PresenceExtendedFulltimed
+  presence: PresenceExtendedFulltimed | null
 }
 
 export interface MemberMinimal {
@@ -179,8 +177,6 @@ export interface MemberExtended extends MemberMinimal {
   bannable: boolean
 
   kickable: boolean
-  lastMessageChannelId: string | null
-  lastMessageId: string | null
   manageable: boolean
 
   highestRole: string
@@ -200,11 +196,11 @@ export interface ChannelMinimal {
   id: string
   manageable: boolean
   name: string
-  parentID: string | null
-  position: number
-  rawPosition: number
-  type: string
-  viewable: boolean
+  parentId: string | null
+  position?: number
+  rawPosition?: number
+  type: 'GUILD_TEXT' | 'DM' | 'GUILD_VOICE' | 'GROUP_DM' | 'GUILD_CATEGORY' | 'GUILD_NEWS' | 'GUILD_STORE' | 'GUILD_NEWS_THREAD' | 'GUILD_PUBLIC_THREAD' | 'GUILD_PRIVATE_THREAD' | 'GUILD_STAGE_VOICE' | 'UNKNOWN'
+  viewable?: boolean
 }
 
 export const Permissions: {[key: string]: number} = {
@@ -235,8 +231,14 @@ export const Permissions: {[key: string]: number} = {
   MOVE_MEMBERS: 0x1000000,
   USE_VAD: 0x2000000,
   CHANGE_NICKNAME: 0x4000000,
-  MANAGE_NICKNAMES: 0x8000000,
+  MANAGE_NICKNAMES: 0x80000007,
   MANAGE_ROLES: 0x10000000,
   MANAGE_WEBHOOKS: 0x20000000,
-  MANAGE_EMOJIS: 0x40000000
+  MANAGE_EMOJIS_AND_STICKERS: 0x40000000,
+  USE_SLASH_COMMANDS: 0x80000000,
+  REQUEST_TO_SPEAK: 0x100000000,
+  MANAGE_THREADS: 0x200000000,
+  USE_PUBLIC_THREADS: 0x400000000,
+  USE_PRIVATE_THREADS: 0x800000000,
+  USE_EXTERNAL_STICKERS: 0x1000000000
 }

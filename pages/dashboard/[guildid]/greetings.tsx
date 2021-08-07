@@ -412,7 +412,7 @@ const Greetings: NextPage<GreetingsRouterProps> = ({ guildId }) => {
                                               selected={newChannel === one || (!newChannel && one.id === data?.channel)}
                                               channelData={{
                                                 channelName: one.name,
-                                                parentChannelName: channels?.find(c => c.id === one.parentID)?.name
+                                                parentChannelName: channels?.find(c => c.id === one.parentId)?.name
                                               }}
                                               onClick={() => setNewChannel(one)}
                                             />

@@ -3,7 +3,7 @@ import { Button, Col, Dropdown, Form, Row, Spinner, Card } from "react-bootstrap
 import { Check as CheckIcon, Close as CloseIcon } from '@material-ui/icons'
 
 import { JoinRoleData } from "types/autotask/action_data"
-import { ChannelMinimal, PartialGuild, Role } from "types/DiscordTypes"
+import { PartialGuild, Role } from "types/DiscordTypes"
 import { TaskSet } from "types/autotask"
 import RoleBadge, { AddRole } from "components/forms/RoleBadge"
 

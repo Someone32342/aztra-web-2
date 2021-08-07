@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import axios, { AxiosError } from 'axios'
 import api from 'datas/api'
 import { MemberExtended } from 'types/DiscordTypes';
-import { Row, Col, Card, Container, Spinner, Badge, Button, Alert, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { Row, Col, Card, Container, Spinner, Badge, Button } from 'react-bootstrap';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBug, faExclamationTriangle, faStream, faUserEdit, faUserPlus } from '@fortawesome/free-solid-svg-icons'
@@ -119,7 +119,7 @@ const MemberDashboard: NextPage<MemberDashboardRouteProps> = ({ guildId, memberI
 
   const isBot = member?.user.bot
 
-  switch (member?.user.presence.status) {
+  switch (member?.user.presence?.status) {
     case 'online':
       statusColor = 'limegreen'
       statusName = '온라인'

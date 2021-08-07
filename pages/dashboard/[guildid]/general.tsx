@@ -149,7 +149,7 @@ const General: NextPage<GeneralRouterProps> = ({ guildId }) => {
     )
   }
 
-  const filteredChannels = filterChannels(channels ?? [], channelSearch, ['text', 'news'])
+  const filteredChannels = filterChannels(channels ?? [], channelSearch, ['GUILD_TEXT', 'GUILD_NEWS'])
 
   return (
     <>
@@ -253,7 +253,7 @@ const General: NextPage<GeneralRouterProps> = ({ guildId }) => {
                                               fontSize: '13pt'
                                             }}>
                                               {
-                                                channels?.find(one => one.id === (noticeChannel ?? data.noticeChannel))?.type === 'text'
+                                                channels?.find(one => one.id === (noticeChannel ?? data.noticeChannel))?.type === 'GUILD_TEXT'
                                                   ? <FontAwesomeIcon icon={faHashtag} className="mr-2 my-auto" size="sm" />
                                                   : <FontAwesomeIcon icon={faBullhorn} className="mr-2 my-auto" size="sm" />
                                               }
@@ -285,7 +285,7 @@ const General: NextPage<GeneralRouterProps> = ({ guildId }) => {
                                           selected={noticeChannel === one.id || (!noticeChannel && one.id === data.noticeChannel)}
                                           channelData={{
                                             channelName: one.name,
-                                            parentChannelName: channels?.find(c => c.id === one.parentID)?.name
+                                            parentChannelName: channels?.find(c => c.id === one.parentId)?.name
                                           }}
                                           onClick={() => setNoticeChannel(one.id)}
                                         />

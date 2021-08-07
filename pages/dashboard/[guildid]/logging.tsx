@@ -1,4 +1,4 @@
-import { faExclamationTriangle, faHashtag } from '@fortawesome/free-solid-svg-icons'
+import { faHashtag } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import axios, { AxiosError } from 'axios'
 import DashboardLayout from 'components/DashboardLayout'
@@ -8,7 +8,7 @@ import api from 'datas/api'
 import { GetServerSideProps, NextPage } from 'next'
 import Head from 'next/head'
 import React, { useEffect, useState } from 'react'
-import { Alert, Badge, Button, Card, Col, Container, Form, FormCheckProps, Row, Spinner } from 'react-bootstrap'
+import { Button, Card, Col, Container, Form, FormCheckProps, Row, Spinner } from 'react-bootstrap'
 import useSWR from 'swr'
 import { LoggingSet as LoggingSetType } from 'types/dbtypes'
 import { ChannelMinimal } from 'types/DiscordTypes'
@@ -164,12 +164,13 @@ const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
   )
 
   const toggleFlag = (flagBit: number) => {
-    let fl = Number(flag)
-    if (fl & flagBit) {
-      setFlag((fl - flagBit).toString())
+    let fl = BigInt(flag!)
+    let bigIntFlagBit = BigInt(flagBit)
+    if (fl & bigIntFlagBit) {
+      setFlag((fl - bigIntFlagBit).toString())
     }
     else {
-      setFlag((fl | flagBit).toString())
+      setFlag((fl | bigIntFlagBit).toString())
     }
   }
 
@@ -332,7 +333,7 @@ const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
                                               selected={newChannel === one || (!newChannel && one.id === data?.channel)}
                                               channelData={{
                                                 channelName: one.name,
-                                                parentChannelName: channels?.find(c => c.id === one.parentID)?.name
+                                                parentChannelName: channels?.find(c => c.id === one.parentId)?.name
                                               }}
                                               onClick={() => setNewChannel(one)}
                                             />
