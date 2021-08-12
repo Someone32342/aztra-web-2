@@ -11,7 +11,8 @@ import {
   EventNote as EventNoteIcon,
   List as ListIcon,
   CreditCard as CreditCardIcon,
-  Settings as SettingsIcon
+  Settings as SettingsIcon,
+  Security as SecurityIcon
 } from '@material-ui/icons'
 import Link from 'next/link'
 
@@ -191,6 +192,23 @@ const Sidebar: React.FC<SidebarProps> = ({ guildId, onSelect }) => {
         {
           process.env.NODE_ENV === "development" && (
             <>
+              <Nav.Item>
+                <Link href={`/dashboard/${guildId}/security`} shallow={true}>
+                  <Nav.Link
+                    className="d-flex mb-1"
+                    href={`/dashboard/${guildId}/security`}
+                    active={location?.pathname.startsWith(`/dashboard/${guildId}/security`)}
+                  >
+                    <div style={iconStyle} className="mr-3">
+                      <SecurityIcon style={{ transform: 'scale(1.1)' }} />
+                    </div>
+                    <div>
+                      보안 설정
+                      <Badge variant="danger" className="ml-2 my-auto" style={{ fontSize: 14 }}>개발중</Badge>
+                    </div>
+                  </Nav.Link>
+                </Link>
+              </Nav.Item>
               <Nav.Item>
                 <Link href={`/dashboard/${guildId}/billboards`} shallow={true}>
                   <Nav.Link
