@@ -6,9 +6,6 @@ module.exports = withPWA({
     register: true,
     sw: '/sw.js'
   },
-  future: {
-    webpack5: true,
-  },
   webpack: (config) => {
     const oneOf = config.module.rules.find(
       (rule) => typeof rule.oneOf === 'object'
