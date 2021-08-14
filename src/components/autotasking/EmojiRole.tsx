@@ -117,7 +117,7 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({
       .then(({ data }) => {
         setSelectMessageToken(null);
         setSelectMessageStatus('done');
-        setNewParams({ ...newParams, message: data.messageID });
+        setNewParams({ ...newParams, message: data.messageId });
       })
       .catch((_e) => {
         if (_e.isAxiosError) {
