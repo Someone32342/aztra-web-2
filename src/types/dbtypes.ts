@@ -125,3 +125,11 @@ export interface TranscriptMinimal {
 export interface Transcript extends TranscriptMinimal {
   html: string;
 }
+
+export interface SecureInvite {
+  id: string;
+  guild: string;
+  expires_at: string | null;
+  maxuses: number;
+  currentuses: number;
+}

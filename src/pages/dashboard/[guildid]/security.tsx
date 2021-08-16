@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Row,
   Spinner,
@@ -7,14 +7,27 @@ import {
   Col,
   Badge,
   Button,
-  Card,
+  Modal,
+  Overlay,
+  Tooltip,
 } from 'react-bootstrap';
 import Cookies from 'universal-cookie';
 import Layout from 'components/Layout';
 import DashboardLayout from 'components/DashboardLayout';
 import Head from 'next/head';
 import { GetServerSideProps, NextPage } from 'next';
-import { Add as AddIcon, SignalCellularNullSharp } from '@material-ui/icons';
+import {
+  Add as AddIcon,
+  Check as CheckIcon,
+  Edit as EditIcon,
+  RemoveCircleOutline as RemoveCircleOutlineIcon,
+  FileCopyOutlined as FileCopyOutlinedIcon,
+} from '@material-ui/icons';
+import useSWR from 'swr';
+import { SecureInvite } from 'types/dbtypes';
+import urljoin from 'url-join';
+import axios, { AxiosError } from 'axios';
+import api from 'datas/api';
 
 interface SecurityRouterProps {
   guildId: string;
@@ -31,7 +44,25 @@ export const getServerSideProps: GetServerSideProps<SecurityRouterProps> =
   };
 
 const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
-  const [oauthInvite, setOauthInvite] = useState(false);
+  const [newInvite, setNewInvite] = useState(false);
+  const [newValidity, setNewValidity] = useState(0);
+  const [newMaxUses, setNewMaxUses] = useState(0);
+  const [copied, setCopied] = useState(false);
+  const copyButtonRef = useRef<HTMLButtonElement>(null);
+
+  const { data, mutate } = useSWR<SecureInvite[], AxiosError>(
+    new Cookies().get('ACCESS_TOKEN')
+      ? urljoin(api, `/servers/${guildId}/security/invites`)
+      : null,
+    (url) =>
+      axios
+        .get(url, {
+          headers: {
+            Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`,
+          },
+        })
+        .then((r) => r.data)
+  );
 
   useEffect(() => {
     if (!new Cookies().get('ACCESS_TOKEN')) {
@@ -73,74 +104,233 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                   </div>
                 </Row>
 
-                <Form.Group controlId="middle-auth-type">
-                  <Row className="pb-3">
-                    <Col xs={12}>
-                      <Form.Check
-                        id="by-discord-oauth"
-                        custom
-                        type="checkbox"
-                        label="디스코드 초대 링크 인증 강화"
-                        checked={oauthInvite}
-                        onChange={(e) => setOauthInvite(!oauthInvite)}
+                <Row className="py-3">
+                  <Col>
+                    <Button variant="aztra" onClick={() => setNewInvite(true)}>
+                      <AddIcon className="mr-2" />
+                      초대 링크 추가
+                    </Button>
+                  </Col>
+                </Row>
+
+                {data?.map((one) => (
+                  <Row key={one.id} className="pb-3">
+                    <Col xs={4} className="pr-0">
+                      <Form.Control
+                        className="mb-1 shadow"
+                        type="text"
+                        placeholder={`https://aztra.xyz/invite/${one.id}`}
                       />
                     </Col>
-                  </Row>
+                    <Col xs="auto" className="pl-2">
+                      <div className="d-flex">
+                        <Button
+                          ref={copyButtonRef}
+                          variant="aztra"
+                          className="ml-1 mr-2 d-flex align-items-center"
+                          onClick={() => {
+                            navigator.clipboard
+                              .writeText(`https://aztra.xyz/invite/${one.id}`)
+                              .then(() => {
+                                if (!copied) {
+                                  setCopied(true);
+                                  setTimeout(() => setCopied(false), 800);
+                                }
+                              });
+                          }}
+                        >
+                          <FileCopyOutlinedIcon className="mr-2" />
+                          복사하기
+                        </Button>
 
-                  {oauthInvite && (
-                    <Card bg="dark" className="mb-4">
-                      <Card.Body>
-                        <Row className="pb-3">
-                          <Col xs={4} className="pr-0">
-                            <Form.Control
-                              className="mb-1 shadow"
-                              type="text"
-                              placeholder="https://aztra.xyz/invite/A2Fg15Gvx6"
-                            />
-                          </Col>
-                          <Col xs="auto">
-                            <Button variant="aztra">복사하기</Button>
-                          </Col>
-                        </Row>
-                        <Row>
-                          <Col>
-                            <Button variant="aztra">
-                              <AddIcon className="mr-2" />
-                              초대 링크 추가
-                            </Button>
-                          </Col>
-                        </Row>
-                        <Row className="pl-1 pt-3">
-                          <small>
-                            <Badge variant="aztra" className="ml-2">
-                              PRO
-                            </Badge>{' '}
-                            Aztra Pro로 업그레이드하면 커스텀 링크를 사용할 수
-                            있습니다!
-                          </small>
-                        </Row>
-                      </Card.Body>
-                    </Card>
-                  )}
+                        <Overlay target={copyButtonRef.current} show={copied}>
+                          {(props) => (
+                            <Tooltip id="wan-copied-tooltop" {...props}>
+                              복사됨!
+                            </Tooltip>
+                          )}
+                        </Overlay>
 
-                  <Row className="pb-3">
-                    <Col xs={12}>
-                      <Form.Check
-                        id="by-naver-oauth"
-                        custom
-                        type="checkbox"
-                        label={
-                          <>
-                            네이버 아이디로 인증
-                            <Badge variant="aztra" className="ml-2">
-                              PRO
-                            </Badge>
-                          </>
-                        }
-                      />
+                        <Button
+                          variant="dark"
+                          className="bg-transparent border-0 px-2"
+                        >
+                          <EditIcon />
+                        </Button>
+                        <Button
+                          variant="dark"
+                          className="bg-transparent border-0 px-2"
+                        >
+                          <RemoveCircleOutlineIcon />
+                        </Button>
+                      </div>
                     </Col>
                   </Row>
-                </Form.Group>
+                ))}
+
+                <Modal
+                  className="modal-dark"
+                  show={newInvite}
+                  centered
+                  size="lg"
+                  onHide={() => setNewInvite(false)}
+                >
+                  <Modal.Header>
+                    <Modal.Title
+                      style={{
+                        fontFamily: 'NanumSquare',
+                        fontWeight: 900,
+                      }}
+                    >
+                      보안 초대 링크 생성하기
+                    </Modal.Title>
+                  </Modal.Header>
+                  <Modal.Body className="p-4">
+                    <Row className="pb-3">
+                      <Form.Label column xs="auto" className="pr-0">
+                        초대 링크:
+                      </Form.Label>
+                      <Col className="pr-0">
+                        <Form.Control
+                          className="mb-1 shadow"
+                          type="text"
+                          placeholder="https://aztra.xyz/invite/A2Fg15Gvx6"
+                        />
+                        <small>
+                          <Badge variant="aztra" className="ml-1">
+                            PRO
+                          </Badge>{' '}
+                          Aztra Pro로 업그레이드하면 커스텀 링크를 사용할 수
+                          있습니다!
+                        </small>
+                      </Col>
+                      <Col xs="auto" className="pl-2">
+                        <Button
+                          variant="aztra"
+                          className="d-flex align-items-center"
+                        >
+                          <FileCopyOutlinedIcon className="mr-2" />
+                          복사하기
+                        </Button>
+                      </Col>
+                    </Row>
+
+                    <Row className="pt-2 pb-3">
+                      <Form.Label column xs="auto">
+                        잔여 유효 기간:
+                      </Form.Label>
+                      <Col xs={6}>
+                        <Form.Control
+                          as="select"
+                          className="shadow"
+                          onChange={(e) =>
+                            setNewValidity(Number(e.target.value))
+                          }
+                        >
+                          <option value={0}>만료 기간 없음</option>
+                          <option value={30 * 60}>30분</option>
+                          <option value={60 * 60}>1시간</option>
+                          <option value={6 * 60 * 60}>6시간</option>
+                          <option value={12 * 60 * 60}>12시간</option>
+                          <option value={24 * 60 * 60}>1일</option>
+                          <option value={7 * 24 * 60 * 60}>7일</option>
+                        </Form.Control>
+                      </Col>
+                    </Row>
+
+                    <Row className="pb-3">
+                      <Form.Label column xs="auto">
+                        최대 사용 횟수:
+                      </Form.Label>
+                      <Col xs={6}>
+                        <Form.Control
+                          as="select"
+                          className="shadow"
+                          onChange={(e) =>
+                            setNewMaxUses(Number(e.target.value))
+                          }
+                        >
+                          <option value={0}>제한 없음</option>
+                          {[1, 5, 10, 25, 50, 100].map((i) => (
+                            <option key={i} value={i}>
+                              {i}회
+                            </option>
+                          ))}
+                        </Form.Control>
+                      </Col>
+                    </Row>
+
+                    <Row className="pt-2 pb-3">
+                      <Col xs={12}>
+                        <Form.Check
+                          id="by-discord-oauth"
+                          custom
+                          type="checkbox"
+                          label="디스코드 추가 인증 사용"
+                        />
+                      </Col>
+                    </Row>
+
+                    <Row className="pb-3">
+                      <Col xs={12}>
+                        <Form.Check
+                          id="by-naver-oauth"
+                          custom
+                          type="checkbox"
+                          label={
+                            <>
+                              네이버 아이디로 인증
+                              <Badge variant="aztra" className="ml-2">
+                                PRO
+                              </Badge>
+                            </>
+                          }
+                        />
+                      </Col>
+                    </Row>
+                  </Modal.Body>
+                  <Modal.Footer className="justify-content-end">
+                    <Button
+                      variant="aztra"
+                      onClick={() => {
+                        let current = new Date();
+                        current.setSeconds(current.getSeconds() + newValidity);
+
+                        let data: Omit<
+                          SecureInvite,
+                          'id' | 'guild' | 'currentuses'
+                        > = {
+                          expires_at:
+                            newValidity > 0 ? current.toISOString() : null,
+                          maxuses: newMaxUses,
+                        };
+
+                        axios
+                          .post(
+                            `${api}/servers/${guildId}/security/invites`,
+                            data,
+                            {
+                              headers: {
+                                Authorization: `Bearer ${new Cookies().get(
+                                  'ACCESS_TOKEN'
+                                )}`,
+                              },
+                            }
+                          )
+                          .then(() => {
+                            mutate();
+                            setNewInvite(false);
+                          });
+                      }}
+                    >
+                      <CheckIcon className="mr-2" />
+                      생성하기
+                    </Button>
+                    <Button variant="dark" onClick={() => setNewInvite(false)}>
+                      취소
+                    </Button>
+                  </Modal.Footer>
+                </Modal>
 
                 <Row>
                   <hr
