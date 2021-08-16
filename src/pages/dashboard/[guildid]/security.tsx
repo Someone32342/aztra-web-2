@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Row,
   Spinner,
@@ -7,12 +7,14 @@ import {
   Col,
   Badge,
   Button,
+  Card,
 } from 'react-bootstrap';
 import Cookies from 'universal-cookie';
 import Layout from 'components/Layout';
 import DashboardLayout from 'components/DashboardLayout';
 import Head from 'next/head';
 import { GetServerSideProps, NextPage } from 'next';
+import { Add as AddIcon, SignalCellularNullSharp } from '@material-ui/icons';
 
 interface SecurityRouterProps {
   guildId: string;
@@ -29,6 +31,8 @@ export const getServerSideProps: GetServerSideProps<SecurityRouterProps> =
   };
 
 const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
+  const [oauthInvite, setOauthInvite] = useState(false);
+
   useEffect(() => {
     if (!new Cookies().get('ACCESS_TOKEN')) {
       const lct = window.location;
@@ -77,31 +81,48 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                         custom
                         type="checkbox"
                         label="디스코드 초대 링크 인증 강화"
+                        checked={oauthInvite}
+                        onChange={(e) => setOauthInvite(!oauthInvite)}
                       />
                     </Col>
                   </Row>
-                  <Row className="pl-4 pb-4">
-                    <Form.Label column xs="auto">
-                      초대 링크:
-                    </Form.Label>
-                    <Col xs={4} className="pr-0">
-                      <Form.Control
-                        className="shadow mb-1"
-                        type="text"
-                        placeholder="https://aztra.xyz/invite/A2Fg15Gvx6"
-                      />
-                      <small>
-                        <Badge variant="aztra" className="ml-2">
-                          PRO
-                        </Badge>{' '}
-                        Aztra Pro로 업그레이드하면 커스텀 링크를 사용할 수
-                        있습니다!
-                      </small>
-                    </Col>
-                    <Col xs="auto">
-                      <Button variant="aztra">복사하기</Button>
-                    </Col>
-                  </Row>
+
+                  {oauthInvite && (
+                    <Card bg="dark" className="mb-4">
+                      <Card.Body>
+                        <Row className="pb-3">
+                          <Col xs={4} className="pr-0">
+                            <Form.Control
+                              className="mb-1 shadow"
+                              type="text"
+                              placeholder="https://aztra.xyz/invite/A2Fg15Gvx6"
+                            />
+                          </Col>
+                          <Col xs="auto">
+                            <Button variant="aztra">복사하기</Button>
+                          </Col>
+                        </Row>
+                        <Row>
+                          <Col>
+                            <Button variant="aztra">
+                              <AddIcon className="mr-2" />
+                              초대 링크 추가
+                            </Button>
+                          </Col>
+                        </Row>
+                        <Row className="pl-1 pt-3">
+                          <small>
+                            <Badge variant="aztra" className="ml-2">
+                              PRO
+                            </Badge>{' '}
+                            Aztra Pro로 업그레이드하면 커스텀 링크를 사용할 수
+                            있습니다!
+                          </small>
+                        </Row>
+                      </Card.Body>
+                    </Card>
+                  )}
+
                   <Row className="pb-3">
                     <Col xs={12}>
                       <Form.Check
