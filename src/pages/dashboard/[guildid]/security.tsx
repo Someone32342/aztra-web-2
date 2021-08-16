@@ -225,11 +225,7 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                       </div>
                     </Col>
                   </Row>
-                  <hr
-                    className="my-1"
-                    style={{ borderColor: '#4e5058', borderWidth: 2 }}
-                  />
-                  <Row className="pt-3">
+                  <Row className="pt-2">
                     <Col>
                       <Form.Label className="font-weight-bold h5">
                         위반 시:
