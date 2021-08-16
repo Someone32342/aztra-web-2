@@ -82,23 +82,27 @@ const DocsMain: React.FC = () => {
                   shallow
                   passHref
                 >
-                  <DocsCard
-                    title="Aztra 명령어 가이드"
-                    description="Aztra 전체 명령어 가이드"
-                    icon="/assets/docs/aztra-command-guide/icon.png"
-                    className="w-100"
-                  />
+                  <a className="d-flex w-100">
+                    <DocsCard
+                      title="Aztra 명령어 가이드"
+                      description="Aztra 전체 명령어 가이드"
+                      icon="/assets/docs/aztra-command-guide/icon.png"
+                      className="w-100"
+                    />
+                  </a>
                 </Link>
               </Col>
               {process.env.NODE_ENV === 'development' && (
                 <Col xs={12} md={6} lg={4} className="d-flex">
                   <Link href="/docs/ticket-guide/add-ticket" shallow passHref>
-                    <DocsCard
-                      title="티켓 설정 가이드"
-                      description="티켓 기능 설정이 어려우신가요? 차근차근 알려드립니다."
-                      icon="/assets/docs/aztra-command-guide/icon.png"
-                      className="w-100"
-                    />
+                    <a className="d-flex w-100">
+                      <DocsCard
+                        title="티켓 설정 가이드"
+                        description="티켓 기능 설정이 어려우신가요? 차근차근 알려드립니다."
+                        icon="/assets/docs/aztra-command-guide/icon.png"
+                        className="w-100"
+                      />
+                    </a>
                   </Link>
                 </Col>
               )}

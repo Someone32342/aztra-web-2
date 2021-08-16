@@ -120,6 +120,173 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                     </Col>
                   </Row>
                 </Form.Group>
+
+                <Row>
+                  <hr
+                    className="my-1 w-100"
+                    style={{ borderColor: '#4e5058', borderWidth: 2 }}
+                  />
+                </Row>
+
+                <Row className="py-3 align-items-center">
+                  <div>
+                    <h4>메시지 도배 방지</h4>
+                    <small>악성 유저의 메시지 도배를 막습니다.</small>
+                  </div>
+                </Row>
+
+                <Form.Group controlId="spamming-limit">
+                  <Row className="pb-3">
+                    <Col xs="auto" className="my-auto">
+                      <Form.Check
+                        id="limit-message-check"
+                        custom
+                        type="checkbox"
+                        label="일정 시간동안 메시지 개수 제한하기:"
+                      />
+                    </Col>
+                    <Col className="pl-0">
+                      <div className="d-flex align-items-center">
+                        <Form.Control
+                          className="mr-2"
+                          defaultValue="60"
+                          style={{ width: 60 }}
+                        />
+                        <span>초 동안 최대</span>
+                        <Form.Control
+                          className="mx-2"
+                          defaultValue="20"
+                          style={{ width: 60 }}
+                        />
+                        <span>개</span>
+                      </div>
+                    </Col>
+                  </Row>
+                </Form.Group>
+
+                <Row>
+                  <hr
+                    className="my-1 w-100"
+                    style={{ borderColor: '#4e5058', borderWidth: 2 }}
+                  />
+                </Row>
+
+                <Row className="py-3 align-items-center">
+                  <div>
+                    <h4>멘션 제한</h4>
+                    <small>악성 유저의 무분별한 멘션 도배를 막습니다.</small>
+                  </div>
+                </Row>
+
+                <Form.Group controlId="mention-limit">
+                  <Row className="pb-3">
+                    <Col xs="auto" className="my-auto">
+                      <Form.Check
+                        id="max-by-one-message-check"
+                        custom
+                        type="checkbox"
+                        label="한 메시지당 멘션 최대:"
+                      />
+                    </Col>
+                    <Col className="pl-0">
+                      <div className="d-flex align-items-center">
+                        <Form.Control
+                          className="mr-2"
+                          defaultValue="10"
+                          style={{ width: 60 }}
+                        />
+                        <span>개</span>
+                      </div>
+                    </Col>
+                  </Row>
+                  <Row className="pb-3">
+                    <Col xs="auto" className="my-auto">
+                      <Form.Check
+                        id="max-by-all-timein-message-check"
+                        custom
+                        type="checkbox"
+                        label="일정 시간동안 모든 메시지의 멘션 최대:"
+                      />
+                    </Col>
+                    <Col className="pl-0">
+                      <div className="d-flex align-items-center">
+                        <Form.Control
+                          className="mr-2"
+                          defaultValue="60"
+                          style={{ width: 60 }}
+                        />
+                        <span>초 동안 최대</span>
+                        <Form.Control
+                          className="mx-2"
+                          defaultValue="20"
+                          style={{ width: 60 }}
+                        />
+                        <span>개</span>
+                      </div>
+                    </Col>
+                  </Row>
+                  <hr
+                    className="my-1"
+                    style={{ borderColor: '#4e5058', borderWidth: 2 }}
+                  />
+                  <Row className="pt-3">
+                    <Col>
+                      <Form.Label className="font-weight-bold h5">
+                        위반 시:
+                      </Form.Label>
+                    </Col>
+                  </Row>
+                  <Row className="pl-4">
+                    <Col xs={12} className="pt-3">
+                      <Form.Check
+                        id="on-violate-add-role"
+                        custom
+                        type="checkbox"
+                        label="역할 추가하기"
+                      />
+                    </Col>
+                    <Col xs={12} className="pt-3">
+                      <Form.Check
+                        id="on-violate-remove-role"
+                        custom
+                        type="checkbox"
+                        label="역할 제거하기"
+                      />
+                    </Col>
+                    <Col xs={12} className="pt-3">
+                      <Form.Check
+                        id="on-violate-kick"
+                        custom
+                        type="checkbox"
+                        label="해당 멤버 추방하기"
+                      />
+                    </Col>
+                    <Col xs={12} className="pt-3">
+                      <Form.Check
+                        id="on-violate-ban"
+                        custom
+                        type="checkbox"
+                        label="해당 멤버 차단하기"
+                      />
+                    </Col>
+                    <Col xs={12} className="pt-3">
+                      <Form.Check
+                        id="on-violate-add-warn"
+                        custom
+                        type="checkbox"
+                        label="경고 부여하기"
+                      />
+                    </Col>
+                    <Col xs={12} className="pt-3">
+                      <Form.Check
+                        id="on-violate-mute"
+                        custom
+                        type="checkbox"
+                        label="멤버 뮤트하기"
+                      />
+                    </Col>
+                  </Row>
+                </Form.Group>
               </div>
             ) : (
               <Container
