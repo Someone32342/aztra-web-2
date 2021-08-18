@@ -115,19 +115,20 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
 
                 {data?.map((one) => (
                   <Row key={one.id} className="pb-3">
-                    <Col xs={4} className="pr-0">
+                    <Col xs={12} md={6} className="pr-0">
                       <Form.Control
                         className="mb-1 shadow"
                         type="text"
                         placeholder={`https://aztra.xyz/invite/${one.id}`}
                       />
                     </Col>
-                    <Col xs="auto" className="pl-2">
+                    <Col xs="auto" className="pl-md-2">
                       <div className="d-flex">
                         <Button
                           ref={copyButtonRef}
+                          size="sm"
                           variant="aztra"
-                          className="ml-1 mr-2 d-flex align-items-center"
+                          className="mr-2 d-flex align-items-center"
                           onClick={() => {
                             navigator.clipboard
                               .writeText(`https://aztra.xyz/invite/${one.id}`)
@@ -187,14 +188,15 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                   </Modal.Header>
                   <Modal.Body className="p-4">
                     <Row className="pb-3">
-                      <Form.Label column xs="auto" className="pr-0">
-                        초대 링크:
+                      <Form.Label column xs={12} md="auto" className="pr-0">
+                        커스텀 초대 링크:
                       </Form.Label>
                       <Col className="pr-0">
                         <Form.Control
                           className="mb-1 shadow"
                           type="text"
-                          placeholder="https://aztra.xyz/invite/A2Fg15Gvx6"
+                          placeholder="https://aztra.xyz/invite/CustomInviteCode"
+                          readOnly
                         />
                         <small>
                           <Badge variant="aztra" className="ml-1">
@@ -207,7 +209,8 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                       <Col xs="auto" className="pl-2">
                         <Button
                           variant="aztra"
-                          className="d-flex align-items-center"
+                          disabled
+                          className="d-flex align-items-center py-auto"
                         >
                           <FileCopyOutlinedIcon className="mr-2" />
                           복사하기
@@ -265,8 +268,10 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                         <Form.Check
                           id="by-discord-oauth"
                           custom
+                          checked
+                          onChange={() => {}}
                           type="checkbox"
-                          label="디스코드 추가 인증 사용"
+                          label="디스코드 추가 인증 사용 (기본)"
                         />
                       </Col>
                     </Row>
