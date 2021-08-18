@@ -5,4 +5,4 @@ const Invite: NextPage = () => {
   return null;
 };
 
-export default Invite
+export default Invite;
