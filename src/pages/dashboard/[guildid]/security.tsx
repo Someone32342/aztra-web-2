@@ -10,6 +10,7 @@ import {
   Modal,
   Overlay,
   Tooltip,
+  Card,
 } from 'react-bootstrap';
 import Cookies from 'universal-cookie';
 import Layout from 'components/Layout';
@@ -115,12 +116,14 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
 
                 {data?.map((one) => (
                   <Row key={one.id} className="pb-3">
-                    <Col xs={12} md={6} className="pr-0">
-                      <Form.Control
-                        className="mb-1 shadow"
-                        type="text"
-                        placeholder={`https://aztra.xyz/invite/${one.id}`}
-                      />
+                    <Col xs={12} md={6} className="pr-0 w-100">
+                      <Card
+                        bg="dark"
+                        className="shadow w-100"
+                        style={{ height: 38 }}
+                      >
+                        <div className="mx-2 my-auto">{`${location.origin}/invite/${one.id}`}</div>
+                      </Card>
                     </Col>
                     <Col xs="auto" className="pl-md-2">
                       <div className="d-flex">
@@ -131,7 +134,7 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                           className="mr-2 d-flex align-items-center"
                           onClick={() => {
                             navigator.clipboard
-                              .writeText(`https://aztra.xyz/invite/${one.id}`)
+                              .writeText(`${location.origin}/invite/${one.id}`)
                               .then(() => {
                                 if (!copied) {
                                   setCopied(true);
@@ -161,6 +164,20 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                         <Button
                           variant="dark"
                           className="bg-transparent border-0 px-2"
+                          onClick={() => {
+                            axios
+                              .delete(
+                                `${api}/servers/${guildId}/security/invites/${one.id}`,
+                                {
+                                  headers: {
+                                    Authorization: `Bearer ${new Cookies().get(
+                                      'ACCESS_TOKEN'
+                                    )}`,
+                                  },
+                                }
+                              )
+                              .then(() => mutate());
+                          }}
                         >
                           <RemoveCircleOutlineIcon />
                         </Button>
@@ -298,16 +315,9 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                     <Button
                       variant="aztra"
                       onClick={() => {
-                        let current = new Date();
-                        current.setSeconds(current.getSeconds() + newValidity);
-
-                        let data: Omit<
-                          SecureInvite,
-                          'id' | 'guild' | 'currentuses'
-                        > = {
-                          expires_at:
-                            newValidity > 0 ? current.toISOString() : null,
-                          maxuses: newMaxUses,
+                        let data: Pick<SecureInvite, 'max_age' | 'max_uses'> = {
+                          max_age: newValidity,
+                          max_uses: newMaxUses,
                         };
 
                         axios

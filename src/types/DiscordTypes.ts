@@ -12,6 +12,14 @@ export interface PartialGuildExtend extends PartialGuild {
   bot_joined: boolean;
 }
 
+export interface PartialInviteGuild {
+  id: string;
+  name: string;
+  icon: string | null;
+  memberCount: number;
+  presenceCount: number;
+}
+
 export interface User {
   id: string;
   username: string;

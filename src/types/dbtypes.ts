@@ -129,7 +129,8 @@ export interface Transcript extends TranscriptMinimal {
 export interface SecureInvite {
   id: string;
   guild: string;
-  expires_at: string | null;
-  maxuses: number;
-  currentuses: number;
+  created_at: string;
+  max_age: number;
+  uses: number;
+  max_uses: number;
 }
