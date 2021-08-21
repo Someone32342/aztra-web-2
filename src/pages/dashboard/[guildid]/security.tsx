@@ -158,12 +158,6 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                         <Button
                           variant="dark"
                           className="bg-transparent border-0 px-2"
-                        >
-                          <EditIcon />
-                        </Button>
-                        <Button
-                          variant="dark"
-                          className="bg-transparent border-0 px-2"
                           onClick={() => {
                             axios
                               .delete(
