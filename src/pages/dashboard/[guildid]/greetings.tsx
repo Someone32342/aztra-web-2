@@ -58,11 +58,6 @@ const Greetings: NextPage<GreetingsRouterProps> = ({ guildId }) => {
   const [useJoin, setUseJoin] = useState(false);
   const [useLeave, setUseLeave] = useState(false);
 
-  const incomingTitle = useRef<HTMLTextAreaElement>(null);
-  const incomingDesc = useRef<HTMLTextAreaElement>(null);
-  const outgoingTitle = useRef<HTMLTextAreaElement>(null);
-  const outgoingDesc = useRef<HTMLTextAreaElement>(null);
-
   const [validIT, setValidIT] = useState<boolean | null>(null);
   const [validID, setValidID] = useState<boolean | null>(null);
   const [validOT, setValidOT] = useState<boolean | null>(null);
@@ -92,11 +87,20 @@ const Greetings: NextPage<GreetingsRouterProps> = ({ guildId }) => {
       onSuccess: (data) => {
         setUseJoin(!!(data.join_title_format || data.join_desc_format));
         setUseLeave(!!(data.leave_title_format || data.leave_desc_format));
+        setIncomingTitle(data.join_title_format ?? null);
+        setIncomingDesc(data.join_desc_format ?? null);
+        setOutgoingTitle(data.leave_title_format ?? null);
+        setOutgoingDesc(data.leave_desc_format ?? null);
       },
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
     }
   );
+
+  const [incomingTitle, setIncomingTitle] = useState<string | null>(null);
+  const [incomingDesc, setIncomingDesc] = useState<string | null>(null);
+  const [outgoingTitle, setOutgoingTitle] = useState<string | null>(null);
+  const [outgoingDesc, setOutgoingDesc] = useState<string | null>(null);
 
   const { data: channels } = useSWR<ChannelMinimal[], AxiosError>(
     new Cookies().get('ACCESS_TOKEN')
@@ -124,28 +128,37 @@ const Greetings: NextPage<GreetingsRouterProps> = ({ guildId }) => {
     }
   }, [data]);
 
-  const setValidate = (type?: handleFieldChangeTypes) => {
+  const setValidate = (
+    type?: handleFieldChangeTypes,
+    datas?: {
+      incomingTitle?: string | null;
+      incomingDesc?: string | null;
+      outgoingTitle?: string | null;
+      outgoingDesc?: string | null;
+    }
+  ) => {
+    const fIncomingTitle = datas?.incomingTitle ?? incomingTitle ?? '';
+    const fIncomingDesc = datas?.incomingDesc ?? incomingDesc ?? '';
+    const fOutgoingTitle = datas?.outgoingTitle ?? outgoingTitle ?? '';
+    const fOutgoingDesc = datas?.outgoingDesc ?? outgoingDesc ?? '';
+
     const All = [
-      0 < incomingTitle.current!.value.length &&
-      incomingTitle.current!.value.length <= 256
+      0 < fIncomingTitle.length && fIncomingTitle.length <= 256
         ? null
         : useJoin
         ? false
         : null,
-      0 < outgoingTitle.current!.value.length &&
-      outgoingTitle.current!.value.length <= 256
+      0 < fOutgoingTitle.length && fOutgoingTitle.length <= 256
         ? null
         : useLeave
         ? false
         : null,
-      0 < incomingDesc.current!.value.length &&
-      incomingDesc.current!.value.length <= 2048
+      0 < fIncomingDesc.length && fIncomingDesc.length <= 2048
         ? null
         : useJoin
         ? false
         : null,
-      0 < outgoingDesc.current!.value.length &&
-      outgoingDesc.current!.value.length <= 2048
+      0 < fOutgoingDesc.length && fOutgoingDesc.length <= 2048
         ? null
         : useLeave
         ? false
@@ -197,10 +210,10 @@ const Greetings: NextPage<GreetingsRouterProps> = ({ guildId }) => {
     let saveData: GreetingsType = {
       guild: guildId,
       channel: newChannel?.id || data?.channel!,
-      join_title_format: useJoin ? incomingTitle.current?.value : '',
-      join_desc_format: useJoin ? incomingDesc.current?.value : '',
-      leave_title_format: useLeave ? outgoingTitle.current?.value : '',
-      leave_desc_format: useLeave ? outgoingDesc.current?.value : '',
+      join_title_format: useJoin ? incomingTitle ?? '' : '',
+      join_desc_format: useJoin ? incomingDesc ?? '' : '',
+      leave_title_format: useLeave ? outgoingTitle ?? '' : '',
+      leave_desc_format: useLeave ? outgoingDesc ?? '' : '',
     };
 
     try {
@@ -224,20 +237,17 @@ const Greetings: NextPage<GreetingsRouterProps> = ({ guildId }) => {
   };
 
   const isChanged = () => {
+    console.log('a');
     if (!data || !channels) {
       return false;
     }
 
     return (
       (data.channel !== newChannel?.id && newChannel !== null) ||
-      ((data.join_title_format || '') !== incomingTitle.current?.value &&
-        useJoin) ||
-      ((data.join_desc_format || '') !== incomingDesc.current?.value &&
-        useJoin) ||
-      ((data.leave_title_format || '') !== outgoingTitle.current?.value &&
-        useLeave) ||
-      ((data.leave_desc_format || '') !== outgoingDesc.current?.value &&
-        useLeave) ||
+      ((data.join_title_format || '') !== (incomingTitle ?? '') && useJoin) ||
+      ((data.join_desc_format || '') !== (incomingDesc ?? '') && useJoin) ||
+      ((data.leave_title_format || '') !== (outgoingTitle ?? '') && useLeave) ||
+      ((data.leave_desc_format || '') !== (outgoingDesc ?? '') && useLeave) ||
       (!!data.join_title_format || !!data.join_desc_format) !== useJoin ||
       (!!data.leave_title_format || !!data.leave_desc_format) !== useLeave
     );
@@ -348,15 +358,17 @@ const Greetings: NextPage<GreetingsRouterProps> = ({ guildId }) => {
                         <Form.Group controlId="incomingTitle">
                           <Form.Label>메시지 제목</Form.Label>
                           <Form.Control
-                            ref={incomingTitle}
                             className="shadow"
                             isInvalid={validIT === false}
                             as={TextareaAutosize}
                             type="text"
                             placeholder="예) ${username}님, 안녕하세요!"
-                            defaultValue={data?.join_title_format || undefined}
-                            onChange={async (e) => {
-                              setValidate('incomingTitle');
+                            value={incomingTitle ?? undefined}
+                            onChange={(e) => {
+                              setValidate('incomingTitle', {
+                                incomingTitle: e.target.value,
+                              });
+                              setIncomingTitle(e.target.value);
                             }}
                           />
                           <Form.Control.Feedback type="invalid">
@@ -367,15 +379,17 @@ const Greetings: NextPage<GreetingsRouterProps> = ({ guildId }) => {
                         <Form.Group controlId="incomingDesc">
                           <Form.Label>메시지 내용</Form.Label>
                           <Form.Control
-                            ref={incomingDesc}
                             className="shadow"
                             isInvalid={validID === false}
                             as={TextareaAutosize}
                             type="text"
                             placeholder="예) ${guild}에 오신 것을 환영합니다."
-                            defaultValue={data?.join_desc_format || undefined}
-                            onChange={async (e) => {
-                              setValidate('incomingDesc');
+                            value={incomingDesc ?? undefined}
+                            onChange={(e) => {
+                              setValidate('incomingDesc', {
+                                incomingDesc: e.target.value,
+                              });
+                              setIncomingDesc(e.target.value);
                             }}
                           />
                           <Form.Control.Feedback type="invalid">
@@ -412,15 +426,17 @@ const Greetings: NextPage<GreetingsRouterProps> = ({ guildId }) => {
                         <Form.Group controlId="outgoingTitle">
                           <Form.Label>메시지 제목</Form.Label>
                           <Form.Control
-                            ref={outgoingTitle}
                             className="shadow"
                             isInvalid={validOT === false}
                             as={TextareaAutosize}
                             type="text"
                             placeholder="예) ${username}님, 안녕히가세요"
-                            defaultValue={data?.leave_title_format || undefined}
-                            onChange={async (e) => {
-                              setValidate('outgoingTitle');
+                            value={outgoingTitle ?? undefined}
+                            onChange={(e) => {
+                              setValidate('outgoingTitle', {
+                                outgoingTitle: e.target.value,
+                              });
+                              setOutgoingTitle(e.target.value);
                             }}
                           />
                           <Form.Control.Feedback type="invalid">
@@ -431,15 +447,17 @@ const Greetings: NextPage<GreetingsRouterProps> = ({ guildId }) => {
                         <Form.Group controlId="outgoingDesc">
                           <Form.Label>메시지 내용</Form.Label>
                           <Form.Control
-                            ref={outgoingDesc}
                             className="shadow"
                             isInvalid={validOD === false}
                             as={TextareaAutosize}
                             type="text"
                             placeholder="예) ${username}님이 나갔습니다."
-                            defaultValue={data?.leave_desc_format || undefined}
-                            onChange={async (e) => {
-                              setValidate('outgoingDesc');
+                            value={outgoingDesc ?? undefined}
+                            onChange={(e) => {
+                              setValidate('outgoingDesc', {
+                                outgoingDesc: e.target.value,
+                              });
+                              setOutgoingDesc(e.target.value);
                             }}
                           />
                           <Form.Control.Feedback type="invalid">
