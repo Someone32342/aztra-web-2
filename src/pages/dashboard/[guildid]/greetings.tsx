@@ -125,6 +125,10 @@ const Greetings: NextPage<GreetingsRouterProps> = ({ guildId }) => {
     if (data) {
       setUseJoin(!!(data.join_title_format || data.join_desc_format));
       setUseLeave(!!(data.leave_title_format || data.leave_desc_format));
+      setIncomingTitle(data.join_title_format ?? null);
+      setIncomingDesc(data.join_desc_format ?? null);
+      setOutgoingTitle(data.leave_title_format ?? null);
+      setOutgoingDesc(data.leave_desc_format ?? null);
     }
   }, [data]);
 
