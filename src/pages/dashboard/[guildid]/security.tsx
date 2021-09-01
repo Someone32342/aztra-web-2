@@ -126,7 +126,7 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                         className="shadow w-100"
                         style={{ height: 38 }}
                       >
-                        <div className="mx-2 my-auto">{`${location.origin}/invite/${one.id}`}</div>
+                        <div className="mx-2 my-auto text-truncate">{`${location.origin}/invite/${one.id}`}</div>
                       </Card>
                     </Col>
                     <Col xs="auto" className="pl-md-2">
@@ -180,6 +180,12 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                           <RemoveCircleOutlineIcon />
                         </Button>
                       </div>
+                    </Col>
+                    <Col xs={12}>
+                      <small>
+                        {one.max_uses !== 0 && `${one.max_uses} 중 `}
+                        {one.uses}회 사용됨
+                      </small>
                     </Col>
                   </Row>
                 ))}
