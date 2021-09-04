@@ -1,219 +1,222 @@
-@import "colors";
-@import "bootstrap/scss/functions";
-@import "bootstrap/scss/variables";
-@import "bootstrap/scss/mixins";
+@import 'colors';
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/mixins';
 
 @font-face {
-    font-family: "NanumBarunGothic";
-    font-style: normal;
-    font-weight: 400;
-    src: url("//cdn.jsdelivr.net/font-nanumlight/1.0/NanumBarunGothicWeb.eot");
-    src: url("//cdn.jsdelivr.net/font-nanumlight/1.0/NanumBarunGothicWeb.eot?#iefix") format("embedded-opentype"),
-        url("//cdn.jsdelivr.net/font-nanumlight/1.0/NanumBarunGothicWeb.woff") format("woff"),
-        url("//cdn.jsdelivr.net/font-nanumlight/1.0/NanumBarunGothicWeb.ttf") format("truetype");
+  font-family: 'NanumBarunGothic';
+  font-style: normal;
+  font-weight: 400;
+  src: url('//cdn.jsdelivr.net/font-nanumlight/1.0/NanumBarunGothicWeb.eot');
+  src: url('//cdn.jsdelivr.net/font-nanumlight/1.0/NanumBarunGothicWeb.eot?#iefix')
+      format('embedded-opentype'),
+    url('//cdn.jsdelivr.net/font-nanumlight/1.0/NanumBarunGothicWeb.woff')
+      format('woff'),
+    url('//cdn.jsdelivr.net/font-nanumlight/1.0/NanumBarunGothicWeb.ttf')
+      format('truetype');
 }
 
-@import url("https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@1.0/nanumsquare.css");
-@import url("https://fonts.googleapis.com/css2?family=Teko&display=swap");
+@import url('https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@1.0/nanumsquare.css');
+@import url('https://fonts.googleapis.com/css2?family=Teko&display=swap');
 
 /* Default Tags */
 
 h1 {
-    font-family: "NanumSquare";
-    font-weight: 800;
+  font-family: 'NanumSquare';
+  font-weight: 800;
 }
 
 h2 {
-    font-family: "NanumSquare";
-    font-weight: 600;
+  font-family: 'NanumSquare';
+  font-weight: 600;
 }
 
 h3 {
-    font-family: "NanumSquare";
-    font-weight: 600;
+  font-family: 'NanumSquare';
+  font-weight: 600;
 }
 
 h4,
 h5,
 h6 {
-    font-family: "NanumBarunGothic";
+  font-family: 'NanumBarunGothic';
 }
 
 a {
-    &:hover {
-        color: white;
-    }
+  &:hover {
     color: white;
+  }
+  color: white;
 }
 
 code {
-    color: lightgrey;
+  color: lightgrey;
 }
 
 html,
 body {
-    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans,
-        Helvetica Neue, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
 }
 
 body {
-    background-color: #25282e;
-    overflow-x: visible;
+  background-color: #25282e;
+  overflow-x: visible;
 }
 
 /* Globals */
 
 .no-drag {
-    -ms-user-select: none;
-    -moz-user-select: -moz-none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    user-select: none;
+  -ms-user-select: none;
+  -moz-user-select: -moz-none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  user-select: none;
 }
 
 .img-view-only {
-    border-radius: 10px;
-    pointer-events: none;
+  border-radius: 10px;
+  pointer-events: none;
 }
 
 .anchor {
-    display: block;
-    position: relative;
-    top: -150px;
-    visibility: hidden;
+  display: block;
+  position: relative;
+  top: -150px;
+  visibility: hidden;
 }
 
 .cursor-pointer {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .remove-after::after {
-    display: none !important;
+  display: none !important;
 }
 
 .remove-before::before {
-    display: none !important;
+  display: none !important;
 }
 
 button:focus {
-    outline: none;
+  outline: none;
 }
 
 /* Colors */
 .dropdown-menu {
-    box-shadow: 0 2px 8px 8px rgba(0, 0, 0, 0.1);
-    padding: 0.4rem 0;
-    .dropdown-item {
-        font-family: "NanumSquare";
-    }
-    .dropdown-header {
-        padding: 0.25rem 1.5rem !important;
-    }
+  box-shadow: 0 2px 8px 8px rgba(0, 0, 0, 0.1);
+  padding: 0.4rem 0;
+  .dropdown-item {
+    font-family: 'NanumSquare';
+  }
+  .dropdown-header {
+    padding: 0.25rem 1.5rem !important;
+  }
 }
 
 .dropdown-menu-dark {
-    .dropdown-menu {
-        background-color: #464c57 !important;
-    }
-    .dropdown-item {
-        color: white;
-    }
-    .dropdown-item:hover,
-    .dropdown-item:focus {
-        color: white;
-        text-decoration: none;
-        background-color: rgb(84, 86, 105);
-    }
-    .dropdown-header {
-        color: rgb(143, 143, 143) !important;
-    }
+  .dropdown-menu {
+    background-color: #464c57 !important;
+  }
+  .dropdown-item {
+    color: white;
+  }
+  .dropdown-item:hover,
+  .dropdown-item:focus {
+    color: white;
+    text-decoration: none;
+    background-color: rgb(84, 86, 105);
+  }
+  .dropdown-header {
+    color: rgb(143, 143, 143) !important;
+  }
 }
 
 .modal-dark {
-    .modal-content {
-        background-color: $dark;
-        color: white;
-        .modal-header,
-        .modal-footer {
-            border-color: scale-color($dark, $lightness: -30%);
-        }
+  .modal-content {
+    background-color: $dark;
+    color: white;
+    .modal-header,
+    .modal-footer {
+      border-color: scale-color($dark, $lightness: -30%);
     }
-    .close {
-        color: white;
-    }
+  }
+  .close {
+    color: white;
+  }
 }
 
 .table-dark {
-    background-color: #373b44 !important;
+  background-color: #373b44 !important;
 }
 
 /* Sidebar */
 .guide-sidebar {
-    padding: 0.75rem 1rem 0.75rem 1rem;
-    font-family: "NanumBarunGothic";
-    margin-top: 45px;
-    margin-bottom: auto;
-    background-color: ghostwhite;
-    border-radius: 10px 10px 10px 10px;
-    box-shadow: 0 0 5px -1px rgb(207, 207, 207);
-    a {
-        text-decoration: none;
-        display: block;
-        padding-top: 3px;
-        padding-bottom: 3px;
-        color: darkslategrey;
-    }
+  padding: 0.75rem 1rem 0.75rem 1rem;
+  font-family: 'NanumBarunGothic';
+  margin-top: 45px;
+  margin-bottom: auto;
+  background-color: ghostwhite;
+  border-radius: 10px 10px 10px 10px;
+  box-shadow: 0 0 5px -1px rgb(207, 207, 207);
+  a {
+    text-decoration: none;
+    display: block;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    color: darkslategrey;
+  }
 }
 
 .Twemoji {
-    width: 1rem !important;
-    height: 1rem !important;
+  width: 1rem !important;
+  height: 1rem !important;
 }
 
 .Twemoji-lg {
-    width: 1.5rem !important;
-    height: 1.5rem !important;
+  width: 1.5rem !important;
+  height: 1.5rem !important;
 }
 
 .nav-tabs-dark {
-    nav {
-        border-bottom-color: $dark !important;
-        a:not([class~="active"]) {
-            border: none !important;
-            background-color: transparent !important;
-        }
-        a[class~="active"] {
-            border: none !important;
-            background-color: $dark !important;
-            color: white !important;
-        }
+  nav {
+    border-bottom-color: $dark !important;
+    a:not([class~='active']) {
+      border: none !important;
+      background-color: transparent !important;
     }
+    a[class~='active'] {
+      border: none !important;
+      background-color: $dark !important;
+      color: white !important;
+    }
+  }
 }
 
 .pagination-dark .pagination {
-    .page-link {
-        border: none !important;
-        color: white !important;
-        background-color: $dark !important;
-    }
-    .page-item.active .page-link {
-        border: none !important;
-        color: white !important;
-        background-color: scale-color($dark, $lightness: 20%) !important;
-    }
+  .page-link {
+    border: none !important;
+    color: white !important;
+    background-color: $dark !important;
+  }
+  .page-item.active .page-link {
+    border: none !important;
+    color: white !important;
+    background-color: scale-color($dark, $lightness: 20%) !important;
+  }
 }
 
 .custom-control-input[disabled] ~ .custom-control-label,
 .custom-control-input:disabled ~ .custom-control-label {
-    color: #86898f;
+  color: #86898f;
 }
 
 .alert-dark {
-    color: white !important;
-    background-color: #5c5f64 !important;
-    border: none !important;
+  color: white !important;
+  background-color: #5c5f64 !important;
+  border: none !important;
 }
 
 .bg-only-dark {
-    background-color: $dark !important;
+  background-color: $dark !important;
 }

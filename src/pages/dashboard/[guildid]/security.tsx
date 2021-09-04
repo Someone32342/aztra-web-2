@@ -120,7 +120,7 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
 
                 {data?.map((one) => (
                   <Row key={one.id} className="pb-3">
-                    <Col xs={12} md={6} className="pr-0 w-100">
+                    <Col xs={12} md={8} className="pr-0 w-100">
                       <Card
                         bg="dark"
                         className="shadow w-100"
@@ -183,7 +183,7 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                     </Col>
                     <Col xs={12}>
                       <small>
-                        {one.max_uses !== 0 && `${one.max_uses} 중 `}
+                        {one.max_uses !== 0 && `${one.max_uses}회 중 `}
                         {one.uses}회 사용됨
                       </small>
                     </Col>

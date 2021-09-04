@@ -1,44 +1,44 @@
-@import "bootstrap/scss/functions";
-@import "bootstrap/scss/variables";
-@import "bootstrap/scss/mixins";
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/mixins';
 
 .NavContainer {
-    width: 100%;
-    @media (min-width: 2001px) {
-        width: 2000px;
-    }
+  width: 100%;
+  @media (min-width: 2001px) {
+    width: 2000px;
+  }
 }
 
 .Navlink {
-    color: whitesmoke !important;
-    font-size: 14.5px;
-    cursor: pointer;
+  color: whitesmoke !important;
+  font-size: 14.5px;
+  cursor: pointer;
 }
 
 .NavbarDark {
-    // background-color: #25282e !important; // 배경색과 일치
-    // background-color: #1d1f22 !important; // 딥 블랙
-    // background-color: #202225 !important; // 노멀 블랙
-    background-color: #363941 !important; // 라이트 블랙
+  // background-color: #25282e !important; // 배경색과 일치
+  // background-color: #1d1f22 !important; // 딥 블랙
+  // background-color: #202225 !important; // 노멀 블랙
+  background-color: #363941 !important; // 라이트 블랙
 }
 
 .NavbarToggle {
-    border: none;
-    padding: 0.1rem 0.12rem;
-    color: white !important;
+  border: none;
+  padding: 0.1rem 0.12rem;
+  color: white !important;
 }
 
 .NavbarMargin {
-    @include media-breakpoint-up(xs) {
-        padding-bottom: 53px;
-    }
-    @include media-breakpoint-up(md) {
-        padding-bottom: 56px;
-    }
+  @include media-breakpoint-up(xs) {
+    padding-bottom: 53px;
+  }
+  @include media-breakpoint-up(md) {
+    padding-bottom: 56px;
+  }
 }
 
 .NavDropdownWhiteTitle {
-    a {
-        color: whitesmoke !important;
-    }
+  a {
+    color: whitesmoke !important;
+  }
 }

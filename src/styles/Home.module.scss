@@ -1,7 +1,7 @@
-@import "colors";
-@import "bootstrap/scss/functions";
-@import "bootstrap/scss/variables";
-@import "bootstrap/scss/mixins";
+@import 'colors';
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/mixins';
 
 .MainIntro {
   height: 100vh;
@@ -59,7 +59,7 @@
 }
 
 .MainButton {
-  font-family: "NanumSquare";
+  font-family: 'NanumSquare';
   font-weight: 900 !important;
   min-width: 180px;
   margin-bottom: 30px;
@@ -83,7 +83,7 @@
 
   p {
     font-size: 13pt;
-    font-family: "NanumBarunGothic";
+    font-family: 'NanumBarunGothic';
     word-break: keep-all;
     overflow-wrap: keep-all;
   }
@@ -124,7 +124,7 @@
 
   .MainStatisticsTitle {
     word-break: keep-all;
-    font-family: "NanumSquare";
+    font-family: 'NanumSquare';
     font-size: 25px;
     @include media-breakpoint-up(md) {
       font-size: 30px;

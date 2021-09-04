@@ -65,7 +65,7 @@ const Greetings: NextPage<GreetingsRouterProps> = ({ guildId }) => {
   const [validChannel, setValidChannel] = useState<boolean | null>(null);
 
   const [channelSearch, setChannelSearch] = useState('');
-  const [newChannel, setNewChannel] = useState<ChannelMinimal | null>(null);
+  const [newChannel, setNewChannel] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState(false);
 
@@ -210,10 +210,11 @@ const Greetings: NextPage<GreetingsRouterProps> = ({ guildId }) => {
   };
 
   const save = async () => {
+    console.log(data?.channel, newChannel);
     setSaving(true);
     let saveData: GreetingsType = {
       guild: guildId,
-      channel: newChannel?.id || data?.channel!,
+      channel: newChannel ?? data?.channel!,
       join_title_format: useJoin ? incomingTitle ?? '' : '',
       join_desc_format: useJoin ? incomingDesc ?? '' : '',
       leave_title_format: useLeave ? outgoingTitle ?? '' : '',
@@ -241,13 +242,12 @@ const Greetings: NextPage<GreetingsRouterProps> = ({ guildId }) => {
   };
 
   const isChanged = () => {
-    console.log('a');
     if (!data || !channels) {
       return false;
     }
 
     return (
-      (data.channel !== newChannel?.id && newChannel !== null) ||
+      (data.channel !== newChannel && newChannel !== null) ||
       ((data.join_title_format || '') !== (incomingTitle ?? '') && useJoin) ||
       ((data.join_desc_format || '') !== (incomingDesc ?? '') && useJoin) ||
       ((data.leave_title_format || '') !== (outgoingTitle ?? '') && useLeave) ||
@@ -498,10 +498,13 @@ const Greetings: NextPage<GreetingsRouterProps> = ({ guildId }) => {
                                             className="mr-2 my-auto"
                                             size="sm"
                                           />
-                                          {newChannel?.name ||
+                                          {
                                             channels?.find(
-                                              (one) => one.id === data?.channel
-                                            )?.name}
+                                              (one) =>
+                                                one.id ===
+                                                (newChannel ?? data?.channel)
+                                            )?.name
+                                          }
                                         </Card.Header>
                                       </Card>
                                     </>
@@ -545,7 +548,7 @@ const Greetings: NextPage<GreetingsRouterProps> = ({ guildId }) => {
                                         <ChannelSelectCard
                                           key={one.id}
                                           selected={
-                                            newChannel === one ||
+                                            newChannel === one.id ||
                                             (!newChannel &&
                                               one.id === data?.channel)
                                           }
@@ -555,7 +558,7 @@ const Greetings: NextPage<GreetingsRouterProps> = ({ guildId }) => {
                                               (c) => c.id === one.parentId
                                             )?.name,
                                           }}
-                                          onClick={() => setNewChannel(one)}
+                                          onClick={() => setNewChannel(one.id)}
                                         />
                                       )
                                     )
