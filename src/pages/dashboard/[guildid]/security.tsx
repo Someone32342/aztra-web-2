@@ -478,7 +478,7 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                   </div>
                 </Row>
 
-                <Form.Group controlId="spamming-limit">
+                <Form.Group>
                   <Row className="pb-3">
                     <Col xs="auto" className="my-auto">
                       <Form.Check
@@ -491,12 +491,14 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                     <Col className="pl-0">
                       <div className="d-flex align-items-center">
                         <Form.Control
+                          id="spamming-limit-max-per-seconds"
                           className="mr-2"
                           defaultValue="60"
                           style={{ width: 60 }}
                         />
                         <span>초 동안 최대</span>
                         <Form.Control
+                          id="spamming-limit-max-count"
                           className="mx-2"
                           defaultValue="20"
                           style={{ width: 60 }}
@@ -521,7 +523,7 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                   </div>
                 </Row>
 
-                <Form.Group controlId="mention-limit">
+                <Form.Group>
                   <Row className="pb-3">
                     <Col xs="auto" className="my-auto">
                       <Form.Check
@@ -534,6 +536,7 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                     <Col className="pl-0">
                       <div className="d-flex align-items-center">
                         <Form.Control
+                          id="mention-limit-max-count"
                           className="mr-2"
                           defaultValue="10"
                           style={{ width: 60 }}
@@ -554,12 +557,14 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                     <Col className="pl-0">
                       <div className="d-flex align-items-center">
                         <Form.Control
+                          id="mention-limit-seconds"
                           className="mr-2"
                           defaultValue="60"
                           style={{ width: 60 }}
                         />
                         <span>초 동안 최대</span>
                         <Form.Control
+                          id="mention-limit-counts-per-seconds"
                           className="mx-2"
                           defaultValue="20"
                           style={{ width: 60 }}
