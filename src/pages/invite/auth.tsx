@@ -18,7 +18,7 @@ export default function InviteJoin() {
           maxAge: r.data.expires_in,
         });
         Router.push(
-          `/invite/${localStorage.getItem('fromInviteId')}/join`,
+          `/invite/${localStorage.getItem('fromInviteId')}#join`,
           undefined,
           {
             shallow: true,

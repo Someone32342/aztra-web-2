@@ -30,6 +30,7 @@ import { SecureInvite } from 'types/dbtypes';
 import urljoin from 'url-join';
 import axios, { AxiosError } from 'axios';
 import api from 'datas/api';
+import Link from 'next/link';
 
 interface SecurityRouterProps {
   guildId: string;
@@ -50,9 +51,11 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
   const [newValidity, setNewValidity] = useState(0);
   const [newMaxUses, setNewMaxUses] = useState(0);
   const [useBlockForeign, setUseBlockForeign] = useState(false);
-  const [blockedForeigns, setBlockedForeigns] = useState(new Set<string>());
+  const [blockedForeigns, setBlockedForeigns] = useState(new Set(['KR']));
   const [searchCountry, setSearchCountry] = useState('');
   const [copied, setCopied] = useState(false);
+  const [, setTime] = useState(0);
+  const [showHowItProtects, setShowHowItProtects] = useState(false);
   const copyButtonRef = useRef<HTMLButtonElement>(null);
 
   const { data, mutate } = useSWR<SecureInvite[], AxiosError>(
@@ -74,6 +77,9 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
       const lct = window.location;
       localStorage.setItem('loginFrom', lct.pathname + lct.search);
       window.location.assign('/login');
+    } else {
+      const interval = setInterval(() => setTime(Date.now()), 1000);
+      return () => clearInterval(interval);
     }
   }, []);
 
@@ -97,17 +103,59 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                   </div>
                 </Row>
 
-                <Row className="pb-3 align-items-center">
+                <Row className="pb-2 align-items-center">
                   <div>
                     <h4>멤버 초대 보안</h4>
                     <small>
-                      추가 인증이 적용된 초대 링크를 발급하여 악성 멤버가
-                      참여하는 것을 막습니다. 기존 디스코드 초대 링크에는 이
-                      기능이 적용되지 않으니 반드시 아래의 자체 초대 링크를
-                      사용하세요!
+                      추가 인증이 적용된 초대 링크를 발급하여 악성 멤버(매크로를
+                      통한 자동 참여, 셀프봇 등)가 참여하는 것을 막습니다.
+                      <br />
+                      <strong>
+                        기존 디스코드 초대 링크에는 이 기능이 적용되지 않으니
+                        반드시 아래의 자체 초대 링크를 사용하세요!
+                      </strong>
                     </small>
+                    <div>
+                      <a
+                        className="small cursor-pointer"
+                        style={{ color: 'deepskyblue' }}
+                        onClick={() => setShowHowItProtects(true)}
+                      >
+                        어떻게 악성 멤버의 참여를 막나요?
+                      </a>
+                    </div>
                   </div>
                 </Row>
+
+                <Modal
+                  className="modal-dark"
+                  show={showHowItProtects}
+                  centered
+                  size="lg"
+                  onHide={() => setShowHowItProtects(false)}
+                >
+                  <Modal.Header>
+                    <Modal.Title
+                      style={{
+                        fontFamily: 'NanumSquare',
+                        fontWeight: 900,
+                      }}
+                    >
+                      보안 초대 원리
+                    </Modal.Title>
+                  </Modal.Header>
+                  <Modal.Body className="p-4">
+                    <p>
+                      멤버가 서버에 참여할 때 reCAPTCHA v3 인증을 거쳐 웹
+                      사이트에서의 상호작용을 기반으로 자동으로 봇 유저 여부를
+                      판단합니다.
+                    </p>
+                    <p>
+                      정상적인 사용자일 경우 다른 복잡한 절차 필요없이 버튼 클릭
+                      한두 번이면 참여가 완료됩니다.
+                    </p>
+                  </Modal.Body>
+                </Modal>
 
                 <Row className="py-3">
                   <Col>
@@ -118,77 +166,99 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                   </Col>
                 </Row>
 
-                {data?.map((one) => (
-                  <Row key={one.id} className="pb-3">
-                    <Col xs={12} md={8} className="pr-0 w-100">
-                      <Card
-                        bg="dark"
-                        className="shadow w-100"
-                        style={{ height: 38 }}
-                      >
-                        <div className="mx-2 my-auto text-truncate">{`${location.origin}/invite/${one.id}`}</div>
-                      </Card>
-                    </Col>
-                    <Col xs="auto" className="pl-md-2">
-                      <div className="d-flex">
-                        <Button
-                          ref={copyButtonRef}
-                          size="sm"
-                          variant="aztra"
-                          className="mr-2 d-flex align-items-center"
-                          onClick={() => {
-                            navigator.clipboard
-                              .writeText(`${location.origin}/invite/${one.id}`)
-                              .then(() => {
-                                if (!copied) {
-                                  setCopied(true);
-                                  setTimeout(() => setCopied(false), 800);
-                                }
-                              });
-                          }}
-                        >
-                          <FileCopyOutlinedIcon className="mr-2" />
-                          복사하기
-                        </Button>
+                {data?.map((one) => {
+                  let date = new Date(one.created_at);
+                  date.setSeconds(date.getSeconds() + one.max_age);
 
-                        <Overlay target={copyButtonRef.current} show={copied}>
-                          {(props) => (
-                            <Tooltip id="wan-copied-tooltop" {...props}>
-                              복사됨!
-                            </Tooltip>
-                          )}
-                        </Overlay>
+                  let delta = date.getTime() - Date.now();
 
-                        <Button
-                          variant="dark"
-                          className="bg-transparent border-0 px-2"
-                          onClick={() => {
-                            axios
-                              .delete(
-                                `${api}/servers/${guildId}/security/invites/${one.id}`,
-                                {
-                                  headers: {
-                                    Authorization: `Bearer ${new Cookies().get(
-                                      'ACCESS_TOKEN'
-                                    )}`,
-                                  },
-                                }
-                              )
-                              .then(() => mutate());
-                          }}
+                  var days = Math.floor(delta / 1000 / (3600 * 24));
+                  var hours = Math.floor(((delta / 1000) % (3600 * 24)) / 3600);
+                  var minutes = Math.floor(((delta / 1000) % 3600) / 60);
+                  var seconds = Math.floor((delta / 1000) % 60);
+
+                  if (one.max_age !== 0 && delta <= 0) return null;
+
+                  return (
+                    <Row key={one.id} className="pb-3">
+                      <Col xs={12} md={8} xl={6} className="pr-0 w-100">
+                        <Card
+                          bg="dark"
+                          className="shadow w-100"
+                          style={{ height: 38 }}
                         >
-                          <RemoveCircleOutlineIcon />
-                        </Button>
-                      </div>
-                    </Col>
-                    <Col xs={12}>
-                      <small>
-                        {one.max_uses !== 0 && `${one.max_uses}회 중 `}
-                        {one.uses}회 사용됨
-                      </small>
-                    </Col>
-                  </Row>
-                ))}
+                          <div className="mx-2 my-auto text-truncate">{`${location.origin}/invite/${one.id}`}</div>
+                        </Card>
+                      </Col>
+                      <Col xs="auto" className="pl-md-2">
+                        <div className="d-flex">
+                          <Button
+                            ref={copyButtonRef}
+                            size="sm"
+                            variant="aztra"
+                            className="mr-2 d-flex align-items-center"
+                            onClick={() => {
+                              navigator.clipboard
+                                .writeText(
+                                  `${location.origin}/invite/${one.id}`
+                                )
+                                .then(() => {
+                                  if (!copied) {
+                                    setCopied(true);
+                                    setTimeout(() => setCopied(false), 800);
+                                  }
+                                });
+                            }}
+                          >
+                            <FileCopyOutlinedIcon className="mr-2" />
+                            복사하기
+                          </Button>
+
+                          <Overlay target={copyButtonRef.current} show={copied}>
+                            {(props) => (
+                              <Tooltip id="wan-copied-tooltop" {...props}>
+                                복사됨!
+                              </Tooltip>
+                            )}
+                          </Overlay>
+
+                          <Button
+                            variant="dark"
+                            className="bg-transparent border-0 px-2"
+                            onClick={() => {
+                              axios
+                                .delete(
+                                  `${api}/servers/${guildId}/security/invites/${one.id}`,
+                                  {
+                                    headers: {
+                                      Authorization: `Bearer ${new Cookies().get(
+                                        'ACCESS_TOKEN'
+                                      )}`,
+                                    },
+                                  }
+                                )
+                                .then(() => mutate());
+                            }}
+                          >
+                            <RemoveCircleOutlineIcon />
+                          </Button>
+                        </div>
+                      </Col>
+                      <Col xs={12}>
+                        <small>
+                          {one.max_uses !== 0 && `${one.max_uses}회 중 `}
+                          {one.uses}회 사용됨
+                          {one.max_age !== 0 &&
+                            `, 
+                            ${days !== 0 ? `${days}일` : ''}
+                            ${hours !== 0 ? `${hours}시간` : ''} 
+                            ${minutes !== 0 ? `${minutes}분` : ''} 
+                            ${seconds}초 남음`}
+                        </small>
+                      </Col>
+                    </Row>
+                  );
+                })}
 
                 <Modal
                   className="modal-dark"
@@ -223,8 +293,12 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                           <Badge variant="aztra" className="ml-1">
                             PRO
                           </Badge>{' '}
-                          Aztra Pro로 업그레이드하면 커스텀 링크를 사용할 수
-                          있습니다!
+                          <Link href="/premium" shallow>
+                            <a style={{ color: 'deepskyblue' }}>
+                              Aztra Pro로 업그레이드
+                            </a>
+                          </Link>
+                          하면 커스텀 링크를 사용할 수 있습니다! (출시 예정)
                         </small>
                       </Col>
                       <Col xs="auto" className="pl-2">
@@ -245,6 +319,7 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                       </Form.Label>
                       <Col xs={6}>
                         <Form.Control
+                          id="max-age"
                           as="select"
                           className="shadow"
                           onChange={(e) =>
@@ -268,6 +343,7 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                       </Form.Label>
                       <Col xs={6}>
                         <Form.Control
+                          id="max-uses"
                           as="select"
                           className="shadow"
                           onChange={(e) =>
@@ -297,115 +373,119 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                       </Col>
                     </Row>
 
-                    <Row>
+                    <Row className="pb-3">
                       <Col xs={12}>
                         <Form.Check
                           id="block-foreign-ip"
                           custom
+                          disabled
                           checked={useBlockForeign}
                           onChange={() => setUseBlockForeign(!useBlockForeign)}
                           type="checkbox"
-                          label="해외 IP 차단하기"
+                          label="해외 IP 차단하기 (개발중)"
                         />
 
-                        <div className="pl-3 pt-2">
-                          {/*
+                        {useBlockForeign && (
+                          <div className="pl-3 pt-2">
+                            {/*
                             <Form.Control as="select">
                               <option value={0}>예외 국가 선택...</option>
                               <Countries />
                             </Form.Control>
                           */}
 
-                          <Dropdown
-                            className="dropdown-menu-dark"
-                            onSelect={(e) => {
-                              blockedForeigns.add(e!);
-                              setBlockedForeigns(new Set(blockedForeigns));
-                            }}
-                            onToggle={(isOpen) => {
-                              isOpen && setSearchCountry('');
-                            }}
-                          >
-                            <Dropdown.Toggle
-                              id="select-country"
-                              variant="outline-light"
-                              size="sm"
-                              className="my-1 remove-after d-flex align-items-cente shadow-none"
-                            >
-                              예외 국가 추가
-                            </Dropdown.Toggle>
-                            <Dropdown.Menu
-                              className="bg-dark"
-                              style={{
-                                maxHeight: 300,
-                                minWidth: 240,
-                                overflowY: 'scroll',
+                            <Dropdown
+                              className="dropdown-menu-dark"
+                              onSelect={(e) => {
+                                blockedForeigns.add(e!);
+                                setBlockedForeigns(new Set(blockedForeigns));
+                              }}
+                              onToggle={(isOpen) => {
+                                isOpen && setSearchCountry('');
                               }}
                             >
-                              <Form.Control
-                                id="add-role-member-search"
-                                className="mb-2"
-                                type="text"
-                                placeholder="국가 검색..."
-                                autoComplete="off"
-                                value={searchCountry}
-                                onChange={(e) =>
-                                  setSearchCountry(e.target.value)
-                                }
-                              />
-                              {COUNTRIES.filter(
-                                (one) =>
-                                  one[0].startsWith(
-                                    searchCountry.normalize().toUpperCase()
-                                  ) || one[1].includes(searchCountry)
-                              ).map((one) => (
-                                <Dropdown.Item
-                                  className="my-1"
-                                  key={one[0]}
-                                  eventKey={one[0]}
-                                  active={false}
-                                >
-                                  {one[1]}
-                                </Dropdown.Item>
-                              ))}
-                            </Dropdown.Menu>
-                          </Dropdown>
+                              <Dropdown.Toggle
+                                id="select-country"
+                                variant="outline-light"
+                                size="sm"
+                                className="my-1 remove-after d-flex align-items-cente shadow-none"
+                              >
+                                예외 국가 추가
+                              </Dropdown.Toggle>
+                              <Dropdown.Menu
+                                className="bg-dark"
+                                style={{
+                                  maxHeight: 300,
+                                  minWidth: 240,
+                                  overflowY: 'scroll',
+                                }}
+                              >
+                                <Form.Control
+                                  id="add-role-member-search"
+                                  className="mb-2"
+                                  type="text"
+                                  placeholder="국가 검색..."
+                                  autoComplete="off"
+                                  value={searchCountry}
+                                  onChange={(e) =>
+                                    setSearchCountry(e.target.value)
+                                  }
+                                />
+                                {COUNTRIES.filter(
+                                  (one) =>
+                                    one[0].startsWith(
+                                      searchCountry.normalize().toUpperCase()
+                                    ) || one[1].includes(searchCountry)
+                                ).map((one) => (
+                                  <Dropdown.Item
+                                    className="my-1"
+                                    key={one[0]}
+                                    eventKey={one[0]}
+                                    active={false}
+                                  >
+                                    {one[1]}
+                                  </Dropdown.Item>
+                                ))}
+                              </Dropdown.Menu>
+                            </Dropdown>
 
-                          {!!blockedForeigns.size && (
-                            <div className="pt-2">
-                              {[...blockedForeigns].map((one) => (
-                                <Badge
-                                  key={one}
-                                  className="d-inline-flex align-items-center mr-2 mb-2"
-                                  variant="secondary"
-                                  style={{ fontSize: 15 }}
-                                >
-                                  {COUNTRIES.find((c) => c[0] === one)![1]}{' '}
-                                  <ClearIcon
-                                    className="ml-1 cursor-pointer"
-                                    onClick={() => {
-                                      blockedForeigns.delete(one);
-                                      setBlockedForeigns(
-                                        new Set(blockedForeigns)
-                                      );
-                                    }}
-                                    style={{ fontSize: 16 }}
-                                  />
-                                </Badge>
-                              ))}
-                            </div>
-                          )}
-                        </div>
+                            {!!blockedForeigns.size && (
+                              <div className="pt-2">
+                                {[...blockedForeigns].map((one) => (
+                                  <Badge
+                                    key={one}
+                                    className="d-inline-flex align-items-center mr-2 mb-2"
+                                    variant="secondary"
+                                    style={{ fontSize: 15 }}
+                                  >
+                                    {COUNTRIES.find((c) => c[0] === one)![1]}{' '}
+                                    <ClearIcon
+                                      className="ml-1 cursor-pointer"
+                                      onClick={() => {
+                                        blockedForeigns.delete(one);
+                                        setBlockedForeigns(
+                                          new Set(blockedForeigns)
+                                        );
+                                      }}
+                                      style={{ fontSize: 16 }}
+                                    />
+                                  </Badge>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </Col>
                     </Row>
 
-                    <Row className="pt-2 pb-3">
+                    <Row className="pb-3">
                       <Col xs={12}>
                         <Form.Check
                           id="block-vpn"
+                          disabled
                           custom
                           type="checkbox"
-                          label="VPN 차단하기"
+                          label="VPN 차단하기 (개발중)"
                         />
                       </Col>
                     </Row>
@@ -414,11 +494,12 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                       <Col xs={12}>
                         <Form.Check
                           id="by-naver-oauth"
+                          disabled
                           custom
                           type="checkbox"
                           label={
                             <>
-                              네이버 아이디로 인증
+                              네이버 아이디로 인증 (개발중)
                               <Badge variant="aztra" className="ml-2">
                                 PRO
                               </Badge>
@@ -464,173 +545,179 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                   </Modal.Footer>
                 </Modal>
 
-                <Row>
-                  <hr
-                    className="my-1 w-100"
-                    style={{ borderColor: '#4e5058', borderWidth: 2 }}
-                  />
-                </Row>
-
-                <Row className="py-3 align-items-center">
-                  <div>
-                    <h4>메시지 도배 방지</h4>
-                    <small>악성 유저의 메시지 도배를 막습니다.</small>
-                  </div>
-                </Row>
-
-                <Form.Group>
-                  <Row className="pb-3">
-                    <Col xs="auto" className="my-auto">
-                      <Form.Check
-                        id="limit-message-check"
-                        custom
-                        type="checkbox"
-                        label="일정 시간동안 메시지 개수 제한하기:"
+                {process.env.NODE_ENV === 'development' && (
+                  <>
+                    <Row>
+                      <hr
+                        className="my-1 w-100"
+                        style={{ borderColor: '#4e5058', borderWidth: 2 }}
                       />
-                    </Col>
-                    <Col className="pl-0">
-                      <div className="d-flex align-items-center">
-                        <Form.Control
-                          id="spamming-limit-max-per-seconds"
-                          className="mr-2"
-                          defaultValue="60"
-                          style={{ width: 60 }}
-                        />
-                        <span>초 동안 최대</span>
-                        <Form.Control
-                          id="spamming-limit-max-count"
-                          className="mx-2"
-                          defaultValue="20"
-                          style={{ width: 60 }}
-                        />
-                        <span>개</span>
+                    </Row>
+
+                    <Row className="py-3 align-items-center">
+                      <div>
+                        <h4>메시지 도배 방지</h4>
+                        <small>악성 유저의 메시지 도배를 막습니다.</small>
                       </div>
-                    </Col>
-                  </Row>
-                </Form.Group>
+                    </Row>
 
-                <Row>
-                  <hr
-                    className="my-1 w-100"
-                    style={{ borderColor: '#4e5058', borderWidth: 2 }}
-                  />
-                </Row>
+                    <Form.Group>
+                      <Row className="pb-3">
+                        <Col xs="auto" className="my-auto">
+                          <Form.Check
+                            id="limit-message-check"
+                            custom
+                            type="checkbox"
+                            label="일정 시간동안 메시지 개수 제한하기:"
+                          />
+                        </Col>
+                        <Col className="pl-0">
+                          <div className="d-flex align-items-center">
+                            <Form.Control
+                              id="spamming-limit-max-per-seconds"
+                              className="mr-2"
+                              defaultValue="60"
+                              style={{ width: 60 }}
+                            />
+                            <span>초 동안 최대</span>
+                            <Form.Control
+                              id="spamming-limit-max-count"
+                              className="mx-2"
+                              defaultValue="20"
+                              style={{ width: 60 }}
+                            />
+                            <span>개</span>
+                          </div>
+                        </Col>
+                      </Row>
+                    </Form.Group>
 
-                <Row className="py-3 align-items-center">
-                  <div>
-                    <h4>멘션 제한</h4>
-                    <small>악성 유저의 무분별한 멘션 도배를 막습니다.</small>
-                  </div>
-                </Row>
-
-                <Form.Group>
-                  <Row className="pb-3">
-                    <Col xs="auto" className="my-auto">
-                      <Form.Check
-                        id="max-by-one-message-check"
-                        custom
-                        type="checkbox"
-                        label="한 메시지당 멘션 최대:"
+                    <Row>
+                      <hr
+                        className="my-1 w-100"
+                        style={{ borderColor: '#4e5058', borderWidth: 2 }}
                       />
-                    </Col>
-                    <Col className="pl-0">
-                      <div className="d-flex align-items-center">
-                        <Form.Control
-                          id="mention-limit-max-count"
-                          className="mr-2"
-                          defaultValue="10"
-                          style={{ width: 60 }}
-                        />
-                        <span>개</span>
+                    </Row>
+
+                    <Row className="py-3 align-items-center">
+                      <div>
+                        <h4>멘션 제한</h4>
+                        <small>
+                          악성 유저의 무분별한 멘션 도배를 막습니다.
+                        </small>
                       </div>
-                    </Col>
-                  </Row>
-                  <Row className="pb-3">
-                    <Col xs="auto" className="my-auto">
-                      <Form.Check
-                        id="max-by-all-timein-message-check"
-                        custom
-                        type="checkbox"
-                        label="일정 시간동안 모든 메시지의 멘션 최대:"
-                      />
-                    </Col>
-                    <Col className="pl-0">
-                      <div className="d-flex align-items-center">
-                        <Form.Control
-                          id="mention-limit-seconds"
-                          className="mr-2"
-                          defaultValue="60"
-                          style={{ width: 60 }}
-                        />
-                        <span>초 동안 최대</span>
-                        <Form.Control
-                          id="mention-limit-counts-per-seconds"
-                          className="mx-2"
-                          defaultValue="20"
-                          style={{ width: 60 }}
-                        />
-                        <span>개</span>
-                      </div>
-                    </Col>
-                  </Row>
-                  <Row className="pt-2">
-                    <Col>
-                      <Form.Label className="font-weight-bold h5">
-                        위반 시:
-                      </Form.Label>
-                    </Col>
-                  </Row>
-                  <Row className="pl-4">
-                    <Col xs={12} className="pt-3">
-                      <Form.Check
-                        id="on-violate-add-role"
-                        custom
-                        type="checkbox"
-                        label="역할 추가하기"
-                      />
-                    </Col>
-                    <Col xs={12} className="pt-3">
-                      <Form.Check
-                        id="on-violate-remove-role"
-                        custom
-                        type="checkbox"
-                        label="역할 제거하기"
-                      />
-                    </Col>
-                    <Col xs={12} className="pt-3">
-                      <Form.Check
-                        id="on-violate-kick"
-                        custom
-                        type="checkbox"
-                        label="해당 멤버 추방하기"
-                      />
-                    </Col>
-                    <Col xs={12} className="pt-3">
-                      <Form.Check
-                        id="on-violate-ban"
-                        custom
-                        type="checkbox"
-                        label="해당 멤버 차단하기"
-                      />
-                    </Col>
-                    <Col xs={12} className="pt-3">
-                      <Form.Check
-                        id="on-violate-add-warn"
-                        custom
-                        type="checkbox"
-                        label="경고 부여하기"
-                      />
-                    </Col>
-                    <Col xs={12} className="pt-3">
-                      <Form.Check
-                        id="on-violate-mute"
-                        custom
-                        type="checkbox"
-                        label="멤버 뮤트하기"
-                      />
-                    </Col>
-                  </Row>
-                </Form.Group>
+                    </Row>
+
+                    <Form.Group>
+                      <Row className="pb-3">
+                        <Col xs="auto" className="my-auto">
+                          <Form.Check
+                            id="max-by-one-message-check"
+                            custom
+                            type="checkbox"
+                            label="한 메시지당 멘션 최대:"
+                          />
+                        </Col>
+                        <Col className="pl-0">
+                          <div className="d-flex align-items-center">
+                            <Form.Control
+                              id="mention-limit-max-count"
+                              className="mr-2"
+                              defaultValue="10"
+                              style={{ width: 60 }}
+                            />
+                            <span>개</span>
+                          </div>
+                        </Col>
+                      </Row>
+                      <Row className="pb-3">
+                        <Col xs="auto" className="my-auto">
+                          <Form.Check
+                            id="max-by-all-timein-message-check"
+                            custom
+                            type="checkbox"
+                            label="일정 시간동안 모든 메시지의 멘션 최대:"
+                          />
+                        </Col>
+                        <Col className="pl-0">
+                          <div className="d-flex align-items-center">
+                            <Form.Control
+                              id="mention-limit-seconds"
+                              className="mr-2"
+                              defaultValue="60"
+                              style={{ width: 60 }}
+                            />
+                            <span>초 동안 최대</span>
+                            <Form.Control
+                              id="mention-limit-counts-per-seconds"
+                              className="mx-2"
+                              defaultValue="20"
+                              style={{ width: 60 }}
+                            />
+                            <span>개</span>
+                          </div>
+                        </Col>
+                      </Row>
+                      <Row className="pt-2">
+                        <Col>
+                          <Form.Label className="font-weight-bold h5">
+                            위반 시:
+                          </Form.Label>
+                        </Col>
+                      </Row>
+                      <Row className="pl-4">
+                        <Col xs={12} className="pt-3">
+                          <Form.Check
+                            id="on-violate-add-role"
+                            custom
+                            type="checkbox"
+                            label="역할 추가하기"
+                          />
+                        </Col>
+                        <Col xs={12} className="pt-3">
+                          <Form.Check
+                            id="on-violate-remove-role"
+                            custom
+                            type="checkbox"
+                            label="역할 제거하기"
+                          />
+                        </Col>
+                        <Col xs={12} className="pt-3">
+                          <Form.Check
+                            id="on-violate-kick"
+                            custom
+                            type="checkbox"
+                            label="해당 멤버 추방하기"
+                          />
+                        </Col>
+                        <Col xs={12} className="pt-3">
+                          <Form.Check
+                            id="on-violate-ban"
+                            custom
+                            type="checkbox"
+                            label="해당 멤버 차단하기"
+                          />
+                        </Col>
+                        <Col xs={12} className="pt-3">
+                          <Form.Check
+                            id="on-violate-add-warn"
+                            custom
+                            type="checkbox"
+                            label="경고 부여하기"
+                          />
+                        </Col>
+                        <Col xs={12} className="pt-3">
+                          <Form.Check
+                            id="on-violate-mute"
+                            custom
+                            type="checkbox"
+                            label="멤버 뮤트하기"
+                          />
+                        </Col>
+                      </Row>
+                    </Form.Group>
+                  </>
+                )}
               </div>
             ) : (
               <Container

@@ -8,6 +8,8 @@ import { PartialInviteGuild } from 'types/DiscordTypes';
 import urljoin from 'url-join';
 import { LockOutlined as LockOutlinedIcon } from '@material-ui/icons';
 import oauth from 'datas/oauth';
+import { useEffect, useState } from 'react';
+import Cookies from 'universal-cookie';
 
 interface InviteProps {
   inviteId: string;
@@ -25,15 +27,71 @@ export const getServerSideProps: GetServerSideProps<InviteProps> = async (
 };
 
 const Invite: NextPage<InviteProps> = ({ inviteId }) => {
-  const { data, mutate, error } = useSWR<PartialInviteGuild | null, AxiosError>(
+  const [isJoinDone, setIsJoinDone] = useState(false);
+  const [isJoinMode, setIsJoinMode] = useState(false);
+  const [isMissingPerm, setIsMissingPerm] = useState(false);
+  const [isInviteNotExists, setIsInviteNotExists] = useState(false);
+  const [isExpired, setIsExpired] = useState(false);
+  const [isGuildNotExists, setIsGuildNotExists] = useState(false);
+
+  const { data, error } = useSWR<PartialInviteGuild, AxiosError>(
     urljoin(api, `/invites/${inviteId}`),
-    (url) => axios.get(url).then((r) => r.data)
+    (url) => axios.get(url).then((r) => r.data),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      onError: (e) => {
+        if (e.response?.data.message === 'INVITE_EXPIRED') {
+          setIsExpired(true);
+        } else if (e.response?.data.message === 'GUILD_NOT_FOUND') {
+          setIsGuildNotExists(true);
+        } else if (e.response?.data.message === 'INVITE_NOT_FOUND') {
+          setIsInviteNotExists(true);
+        }
+      },
+    }
   );
+
+  useSWR<PartialInviteGuild, AxiosError>(
+    isJoinMode ? urljoin(api, `/invites/${inviteId}/join`) : null,
+    (url) =>
+      axios
+        .post(url, undefined, {
+          headers: {
+            'Invite-Token': new Cookies().get('INVITE_TOKEN'),
+          },
+        })
+        .then((r) => {
+          setIsJoinDone([201, 204].includes(r.status));
+          return r.data;
+        })
+        .catch((_e) => {
+          let e: AxiosError = _e;
+          setIsMissingPerm(e.response?.status === 403);
+        }),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+    }
+  );
+
+  useEffect(() => {
+    setIsJoinMode(location.hash === '#join');
+    history.pushState(
+      '',
+      document.title,
+      window.location.pathname + window.location.search
+    );
+  }, []);
 
   return (
     <>
       <Head>
-        <title>{data?.name} 서버 참가하기</title>
+        <title>
+          {isJoinMode
+            ? `${data?.name ?? ''} 서버 참가 ${isJoinDone ? '완료' : '중'}`
+            : `${data?.name ?? ''} 서버 참가하기`}
+        </title>
       </Head>
       <div
         style={{
@@ -42,23 +100,29 @@ const Invite: NextPage<InviteProps> = ({ inviteId }) => {
           // backgroundImage: 'linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.25)), url("/assets/02931_amaz_1LzaQ5g3Qe.jpg")',
         }}
       >
-        {data !== undefined ? (
+        {data !== undefined || error ? (
           <Container fluid="sm" className="text-white h-100">
             <Row className="justify-content-center align-items-center h-100">
               <Col lg={6}>
                 <Card bg="dark" className="shadow">
                   <Card.Body className="text-center">
                     <div className="py-5">
-                      {data ? (
+                      {!isGuildNotExists && !isExpired && !isInviteNotExists ? (
                         <>
                           <img
-                            alt={data.name}
+                            alt={data?.name}
                             className="rounded-circle mb-3"
-                            src={`https://cdn.discordapp.com/icons/${data.id}/${data.icon}.png`}
+                            src={`https://cdn.discordapp.com/icons/${data?.id}/${data?.icon}.png`}
                             style={{ width: 100, height: 100 }}
                           />
-                          <div className="mb-1">서버에 초대됨:</div>
-                          <h2>{data.name}</h2>
+                          <div className="mb-1">
+                            {isJoinMode
+                              ? isJoinDone
+                                ? '서버 참여 완료!'
+                                : '서버에 참여하는 중:'
+                              : '서버에 초대됨:'}
+                          </div>
+                          <h2>{data?.name}</h2>
                           <div className="d-flex justify-content-center align-items-center">
                             {/*
                               <div
@@ -69,7 +133,7 @@ const Invite: NextPage<InviteProps> = ({ inviteId }) => {
                                 }}
                                 className="rounded-circle mx-2"
                               />
-                              {data.presenceCount} 온라인
+                              {data?.presenceCount} 온라인
                             */}
                             <div
                               style={{
@@ -79,15 +143,24 @@ const Invite: NextPage<InviteProps> = ({ inviteId }) => {
                               }}
                               className="rounded-circle mr-2"
                             />
-                            {data.memberCount} 멤버
+                            {data?.memberCount} 멤버
                           </div>
                         </>
                       ) : (
                         <>
-                          <h4 className="pb-3">존재하지 않는 서버입니다.</h4>
-                          <div>
-                            서버에서 봇이 추방되었거나 서버가 삭제되었을 수
-                            있습니다.
+                          <h4 className="pb-3">
+                            {isGuildNotExists
+                              ? '존재하지 않는 서버입니다.'
+                              : isInviteNotExists
+                              ? '올바르지 않은 초대 코드'
+                              : '초대가 만료되었습니다.'}
+                          </h4>
+                          <div className="pb-3">
+                            {isGuildNotExists
+                              ? '서버에서 봇이 추방되었거나 서버가 삭제되었을 수 있습니다.'
+                              : isInviteNotExists
+                              ? '존재하지 않는 초대 코드입니다. 정확하게 입력했는지 확인해주세요!'
+                              : '사용 횟수 또는 기간이 초과되어 만료된 초대입니다.'}
                           </div>
                         </>
                       )}
@@ -95,33 +168,69 @@ const Invite: NextPage<InviteProps> = ({ inviteId }) => {
 
                     <div>
                       <Button
-                        variant="aztra"
+                        variant={
+                          isMissingPerm
+                            ? 'danger'
+                            : isJoinDone
+                            ? 'success'
+                            : 'aztra'
+                        }
                         size="lg"
-                        disabled={!data}
+                        disabled={
+                          isGuildNotExists ||
+                          isExpired ||
+                          isInviteNotExists ||
+                          (isJoinMode && !isMissingPerm)
+                        }
                         className="w-100 mb-3"
                         onClick={() => {
+                          setIsMissingPerm(false);
+                          setIsJoinMode(false);
                           localStorage.setItem('fromInviteId', inviteId);
                           window.location.assign(oauth.guild_join_oauth2);
                         }}
                       >
-                        {data ? (
-                          <>
-                            <b>{data.name}</b> 서버 참가하기
-                          </>
+                        {!isGuildNotExists ? (
+                          isMissingPerm ? (
+                            '다시 시도하기'
+                          ) : isJoinMode ? (
+                            <>
+                              <b>{data?.name}</b>{' '}
+                              {isJoinDone
+                                ? '서버 참여 완료'
+                                : '서버 참여하는 중...'}
+                            </>
+                          ) : (
+                            '서버 참가하기'
+                          )
                         ) : (
                           '서버에 참여할 수 없습니다!'
                         )}
                       </Button>
-                      {data && (
-                        <a
-                          className="text-light cursor-pointer"
-                          onClick={() => {
-                            window.opener = window.self;
-                            window.close();
-                          }}
-                        >
-                          사양할게요
-                        </a>
+                      {!isGuildNotExists &&
+                        !isExpired &&
+                        !isInviteNotExists &&
+                        !isJoinMode && (
+                          <a
+                            className="text-light cursor-pointer"
+                            onClick={() => {
+                              window.opener = window.self;
+                              window.close();
+                            }}
+                          >
+                            사양할게요
+                          </a>
+                        )}
+                      {isMissingPerm && (
+                        <div>
+                          <div className="pb-1">
+                            오류! 봇에 권한이 없습니다.{' '}
+                          </div>
+                          <small>
+                            서버에 <b>초대 코드 만들기</b> 권한이 필요합니다.
+                            서버 관리자에게 문의하세요.
+                          </small>
+                        </div>
                       )}
                     </div>
                   </Card.Body>

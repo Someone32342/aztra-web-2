@@ -1,4 +1,4 @@
-export default {
+const LINKS = {
   teamsite: 'https://inft.kr',
   privacy: 'https://inft.kr/privacy',
   invite: {
@@ -16,4 +16,7 @@ export default {
       'https://discord.com/api/oauth2/authorize?client_id=763957434636304445&permissions=0&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fdashboard%2Fredirect&response_type=code&scope=identify%20bot',
     test: '',
   },
+  koreanbots: 'https://koreanbots.dev/bots/751339721782722570/vote',
 };
+
+export default LINKS;

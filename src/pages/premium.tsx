@@ -6,6 +6,7 @@ import { faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 import { Favorite as FavoriteIcon } from '@material-ui/icons';
 import { NextPage } from 'next';
 import Layout from 'components/Layout';
+import LINKS from 'datas/links';
 
 interface FeaturesListProps {
   feats: string[];
@@ -16,11 +17,7 @@ function FeaturesList(props: FeaturesListProps) {
     <>
       {props.feats.map((feat, i) => (
         <div key={i} className="d-flex align-items-center mb-2">
-          <FontAwesomeIcon
-            icon={faCheckCircle}
-            color="limegreen"
-            className="mr-2"
-          />
+          <FontAwesomeIcon icon={faCheckCircle} color="lime" className="mr-2" />
           <div>{feat}</div>
         </div>
       ))}
@@ -72,6 +69,7 @@ const Premium: NextPage = () => {
                       '자동 작업',
                       '서버 통계',
                       '티켓 기능',
+                      '서버 초대 보안',
                     ]}
                   />
                 </Card.Body>
@@ -113,21 +111,22 @@ const Premium: NextPage = () => {
                     <br />
                     Aztra에 하트를 눌러주세요!
                   </div>
-                  <FeaturesList
-                    feats={['서버 폭파 기능', '메시지 도배 기능']}
-                  />
+                  <FeaturesList feats={['혜택 준비 중입니다.']} />
                 </Card.Body>
                 <div className="text-center pb-2">
                   <Button
                     className="my-2"
                     variant="danger"
+                    disabled
                     style={{
                       minWidth: '60%',
                     }}
+                    href={LINKS.koreanbots}
+                    target="_blank"
                   >
                     <div className="d-flex justify-content-center align-items-center">
                       <FavoriteIcon className="mr-2" fontSize="small" />
-                      하트 누르기
+                      하트 누르고 혜택 받기
                     </div>
                   </Button>
                 </div>
@@ -148,17 +147,18 @@ const Premium: NextPage = () => {
                 </Card.Header>
                 <Card.Body className="pt-5 px-4">
                   <h3 className="pb-4 text-center">￦2,900/월</h3>
-                  <FeaturesList feats={['ㅁㄴㅇㄹ', 'asdf', '1234']} />
+                  <FeaturesList feats={['혜택 준비 중입니다.']} />
                 </Card.Body>
                 <div className="text-center pb-2">
                   <Button
                     className="my-2"
                     variant="aztra"
+                    disabled
                     style={{
                       minWidth: '60%',
                     }}
                   >
-                    구매
+                    구매하기
                   </Button>
                 </div>
               </Card>
