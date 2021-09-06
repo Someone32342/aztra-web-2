@@ -161,7 +161,7 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                   <Col>
                     <Button variant="aztra" onClick={() => setNewInvite(true)}>
                       <AddIcon className="mr-2" />
-                      초대 링크 추가
+                      보안 초대 링크 추가
                     </Button>
                   </Col>
                 </Row>
