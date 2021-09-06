@@ -111,8 +111,11 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                       통한 자동 참여, 셀프봇 등)가 참여하는 것을 막습니다.
                       <br />
                       <strong>
-                        기존 디스코드 초대 링크에는 이 기능이 적용되지 않으니
-                        반드시 아래의 자체 초대 링크를 사용하세요!
+                        <span className="text-warning">
+                          초대 링크 생성하기 권한이 필요합니다!
+                        </span>{' '}
+                        또한 기존 디스코드 초대 링크에는 이 기능이 적용되지
+                        않으니 반드시 아래의 자체 초대 링크를 사용하세요!
                       </strong>
                     </small>
                     <div>
