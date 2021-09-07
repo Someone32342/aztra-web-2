@@ -268,7 +268,7 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                   show={newInvite}
                   centered
                   size="lg"
-                  onLoad={() => {
+                  onShow={() => {
                     setNewValidity(0);
                     setNewMaxUses(0);
                     setUseBlockForeign(false);
