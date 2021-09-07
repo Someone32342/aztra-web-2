@@ -51,7 +51,7 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
   const [newValidity, setNewValidity] = useState(0);
   const [newMaxUses, setNewMaxUses] = useState(0);
   const [useBlockForeign, setUseBlockForeign] = useState(false);
-  const [blockedForeigns, setBlockedForeigns] = useState(new Set(['KR']));
+  const [excludedForeigns, setExcludedForeigns] = useState(new Set(['KR']));
   const [searchCountry, setSearchCountry] = useState('');
   const [copied, setCopied] = useState(false);
   const [, setTime] = useState(0);
@@ -268,6 +268,12 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                   show={newInvite}
                   centered
                   size="lg"
+                  onLoad={() => {
+                    setNewValidity(0);
+                    setNewMaxUses(0);
+                    setUseBlockForeign(false);
+                    setExcludedForeigns(new Set(['KR']));
+                  }}
                   onHide={() => setNewInvite(false)}
                 >
                   <Modal.Header>
@@ -400,8 +406,8 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                             <Dropdown
                               className="dropdown-menu-dark"
                               onSelect={(e) => {
-                                blockedForeigns.add(e!);
-                                setBlockedForeigns(new Set(blockedForeigns));
+                                excludedForeigns.add(e!);
+                                setExcludedForeigns(new Set(excludedForeigns));
                               }}
                               onToggle={(isOpen) => {
                                 isOpen && setSearchCountry('');
@@ -452,9 +458,9 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                               </Dropdown.Menu>
                             </Dropdown>
 
-                            {!!blockedForeigns.size && (
+                            {!!excludedForeigns.size && (
                               <div className="pt-2">
-                                {[...blockedForeigns].map((one) => (
+                                {[...excludedForeigns].map((one) => (
                                   <Badge
                                     key={one}
                                     className="d-inline-flex align-items-center mr-2 mb-2"
@@ -465,9 +471,9 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                                     <ClearIcon
                                       className="ml-1 cursor-pointer"
                                       onClick={() => {
-                                        blockedForeigns.delete(one);
-                                        setBlockedForeigns(
-                                          new Set(blockedForeigns)
+                                        excludedForeigns.delete(one);
+                                        setExcludedForeigns(
+                                          new Set(excludedForeigns)
                                         );
                                       }}
                                       style={{ fontSize: 16 }}
