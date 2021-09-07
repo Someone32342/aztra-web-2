@@ -109,12 +109,14 @@ const Invite: NextPage<InviteProps> = ({ inviteId }) => {
                     <div className="py-5">
                       {!isGuildNotExists && !isExpired && !isInviteNotExists ? (
                         <>
-                          <img
-                            alt={data?.name}
-                            className="rounded-circle mb-3"
-                            src={`https://cdn.discordapp.com/icons/${data?.id}/${data?.icon}.png`}
-                            style={{ width: 100, height: 100 }}
-                          />
+                          {data?.icon && (
+                            <img
+                              alt={data?.name}
+                              className="rounded-circle mb-3"
+                              src={`https://cdn.discordapp.com/icons/${data?.id}/${data?.icon}.png`}
+                              style={{ width: 100, height: 100 }}
+                            />
+                          )}
                           <div className="mb-1">
                             {isJoinMode
                               ? isJoinDone
