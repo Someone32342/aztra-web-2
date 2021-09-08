@@ -22,6 +22,7 @@ import {
   CreditCard as CreditCardIcon,
   Check as CheckIcon,
   Close as CloseIcon,
+  Security as SecurityIcon,
 } from '@material-ui/icons';
 import { ChannelMinimal, MemberMinimal } from 'types/DiscordTypes';
 import {
@@ -31,6 +32,7 @@ import {
   LoggingSet as LoggingSetType,
   TicketSet,
   LevelingSet,
+  SecureInvite,
 } from 'types/dbtypes';
 import urljoin from 'url-join';
 import api from 'datas/api';
@@ -184,6 +186,20 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
         .then((r) => r.data)
   );
 
+  const { data: security } = useSWR<SecureInvite[], AxiosError>(
+    new Cookies().get('ACCESS_TOKEN')
+      ? urljoin(api, `/servers/${guildId}/security/invites`)
+      : null,
+    (url) =>
+      axios
+        .get(url, {
+          headers: {
+            Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`,
+          },
+        })
+        .then((r) => r.data)
+  );
+
   useEffect(() => {
     if (!new Cookies().get('ACCESS_TOKEN')) {
       const lct = window.location;
@@ -212,7 +228,8 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
             levelingset !== undefined &&
             logging !== undefined &&
             autotasking !== undefined &&
-            ticketsets !== undefined ? (
+            ticketsets !== undefined &&
+            security !== undefined ? (
               <div
                 className="text-white"
                 style={{
@@ -568,6 +585,55 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
                                 htmlColor="red"
                               />
                               티켓을 사용하고 있지 않습니다.
+                            </>
+                          )}
+                        </Card.Text>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                  <Col
+                    className="mb-4 d-flex mh-100 w-100"
+                    xs={12}
+                    lg={6}
+                    xl={3}
+                  >
+                    <Card bg="dark" className="shadow mh-100 w-100">
+                      <Card.Body className="pt-3">
+                        <Card.Title className="font-weight-bold d-flex justify-content-between align-items-center">
+                          <div>
+                            <SecurityIcon className="mr-2" />
+                            보안
+                          </div>
+                          <Link
+                            passHref
+                            href={`/dashboard/${guild?.id}/security`}
+                            shallow
+                          >
+                            <Button variant="dark" size="sm">
+                              관리하기
+                            </Button>
+                          </Link>
+                        </Card.Title>
+                        <Card.Text>
+                          {security.length ? (
+                            <>
+                              <div>
+                                <CheckIcon
+                                  className="mr-1"
+                                  fontSize="small"
+                                  htmlColor="limegreen"
+                                />
+                                <b>{security.length}</b>개의 보안 초대 사용중
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              <CloseIcon
+                                className="mr-1"
+                                fontSize="small"
+                                htmlColor="red"
+                              />
+                              보안 초대를 사용하고 있지 않습니다.
                             </>
                           )}
                         </Card.Text>

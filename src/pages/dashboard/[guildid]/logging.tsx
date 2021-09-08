@@ -407,7 +407,7 @@ const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
                             <h4 className="pr-5">전송 채널</h4>
                           </Row>
                           <Row>
-                            <Col md={8}>
+                            <Col md={12} lg={9} xl={8}>
                               <Form.Group>
                                 <Container fluid>
                                   <Row className="mb-3 flex-column">

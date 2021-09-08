@@ -25,6 +25,7 @@ import {
   FileCopy as FileCopyIcon,
   OpenInNew as OpenInNewIcon,
   Delete as DeleteIcon,
+  Edit as EditIcon,
 } from '@material-ui/icons';
 import BackTo from 'components/BackTo';
 import { GetServerSideProps, NextPage } from 'next';
@@ -66,6 +67,7 @@ const WarnsListCard: React.FC<WarnsListCardProps> = ({
   checked,
 }) => {
   const [showInfo, setShowInfo] = useState(false);
+  const [showEdit, setShowEdit] = useState(false);
   const [showDel, setShowDel] = useState(false);
   const [copied, setCopied] = useState(false);
   const warnReasonRef = useRef<HTMLParagraphElement>(null);
@@ -100,6 +102,21 @@ const WarnsListCard: React.FC<WarnsListCardProps> = ({
           onClick={() => setShowDel(true)}
         >
           <RemoveCircleOutline />
+        </Button>
+      </OverlayTrigger>
+
+      <OverlayTrigger
+        placement="top"
+        overlay={
+          <Tooltip id="warn-list-row-remove-warn">경고 수정하기</Tooltip>
+        }
+      >
+        <Button
+          variant="dark"
+          className="d-flex px-1 remove-before"
+          onClick={() => setShowEdit(true)}
+        >
+          <EditIcon />
         </Button>
       </OverlayTrigger>
 
@@ -232,6 +249,46 @@ const WarnsListCard: React.FC<WarnsListCardProps> = ({
             확인
           </Button>
           <Button variant="dark" onClick={() => setShowDel(false)}>
+            닫기
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <Modal
+        className="modal-dark"
+        show={showEdit}
+        onHide={() => setShowEdit(false)}
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title
+            style={{
+              fontFamily: 'NanumSquare',
+              fontWeight: 900,
+            }}
+          >
+            경고 수정하기
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="py-4">
+          <Form.Group>
+            <Form.Label column xs="auto">
+              경고 사유
+            </Form.Label>
+            <Form.Control type="text" defaultValue={warn.reason} />
+          </Form.Group>
+        </Modal.Body>
+        <Modal.Footer className="justify-content-end">
+          <Button
+            variant="aztra"
+            onClick={async () => {
+              setShowEdit(false);
+              delWarn(warn.uuid);
+            }}
+          >
+            확인
+          </Button>
+          <Button variant="dark" onClick={() => setShowEdit(false)}>
             닫기
           </Button>
         </Modal.Footer>
