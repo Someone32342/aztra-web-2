@@ -273,12 +273,14 @@ const WarnsListCard: React.FC<WarnsListCardProps> = ({
           </Modal.Title>
         </Modal.Header>
         <Modal.Body className="py-4">
-          <Form.Group>
+          <Row>
             <Form.Label column xs="auto">
               경고 사유
             </Form.Label>
-            <Form.Control type="text" defaultValue={warn.reason} />
-          </Form.Group>
+            <Col>
+              <Form.Control type="text" defaultValue={warn.reason} />
+            </Col>
+          </Row>
         </Modal.Body>
         <Modal.Footer className="justify-content-end">
           <Button
