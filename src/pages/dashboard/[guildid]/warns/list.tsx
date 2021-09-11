@@ -36,6 +36,7 @@ import useSWR from 'swr';
 import urljoin from 'url-join';
 import Head from 'next/head';
 import MemberCell from 'components/MemberCell';
+import TextareaAutosize from 'react-textarea-autosize';
 
 export interface WarnsListRouteProps {
   guildId: string;
@@ -92,9 +93,7 @@ const WarnsListCard: React.FC<WarnsListCardProps> = ({
     <ButtonGroup>
       <OverlayTrigger
         placement="top"
-        overlay={
-          <Tooltip id="warn-list-row-remove-warn">이 경고 취소하기</Tooltip>
-        }
+        overlay={<Tooltip id="warn-list-row-remove-warn">경고 취소</Tooltip>}
       >
         <Button
           variant="dark"
@@ -107,9 +106,7 @@ const WarnsListCard: React.FC<WarnsListCardProps> = ({
 
       <OverlayTrigger
         placement="top"
-        overlay={
-          <Tooltip id="warn-list-row-remove-warn">경고 수정하기</Tooltip>
-        }
+        overlay={<Tooltip id="warn-list-row-remove-warn">경고 수정</Tooltip>}
       >
         <Button
           variant="dark"
@@ -122,9 +119,7 @@ const WarnsListCard: React.FC<WarnsListCardProps> = ({
 
       <OverlayTrigger
         placement="top"
-        overlay={
-          <Tooltip id="warn-list-row-remove-warn">경고 자세히 보기</Tooltip>
-        }
+        overlay={<Tooltip id="warn-list-row-remove-warn">자세히 보기</Tooltip>}
       >
         <Button
           variant="dark"
@@ -241,7 +236,7 @@ const WarnsListCard: React.FC<WarnsListCardProps> = ({
         <Modal.Footer className="justify-content-end">
           <Button
             variant="aztra"
-            onClick={async () => {
+            onClick={(e) => {
               setShowDel(false);
               delWarn(warn.uuid);
             }}
@@ -271,17 +266,28 @@ const WarnsListCard: React.FC<WarnsListCardProps> = ({
           </Modal.Title>
         </Modal.Header>
         <Modal.Body className="py-4">
-          <Form.Group>
+          <Row>
             <Form.Label column xs="auto">
               경고 사유
             </Form.Label>
-            <Form.Control type="text" defaultValue={warn.reason} />
-          </Form.Group>
+            <Col>
+              <Form.Control
+                as={TextareaAutosize}
+                onKeyDown={(e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+                  if (e.keyCode == 13 && !e.shiftKey) {
+                    e.preventDefault();
+                  }
+                }}
+                type="text"
+                defaultValue={warn.reason}
+              />
+            </Col>
+          </Row>
         </Modal.Body>
         <Modal.Footer className="justify-content-end">
           <Button
             variant="aztra"
-            onClick={async () => {
+            onClick={() => {
               setShowEdit(false);
               delWarn(warn.uuid);
             }}
