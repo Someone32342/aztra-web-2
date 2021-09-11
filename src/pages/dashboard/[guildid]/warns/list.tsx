@@ -104,18 +104,20 @@ const WarnsListCard: React.FC<WarnsListCardProps> = ({
         </Button>
       </OverlayTrigger>
 
-      <OverlayTrigger
-        placement="top"
-        overlay={<Tooltip id="warn-list-row-remove-warn">경고 수정</Tooltip>}
-      >
-        <Button
-          variant="dark"
-          className="d-flex px-1 remove-before"
-          onClick={() => setShowEdit(true)}
+      {process.env.NODE_ENV === 'development' && (
+        <OverlayTrigger
+          placement="top"
+          overlay={<Tooltip id="warn-list-row-remove-warn">경고 수정</Tooltip>}
         >
-          <EditIcon />
-        </Button>
-      </OverlayTrigger>
+          <Button
+            variant="dark"
+            className="d-flex px-1 remove-before"
+            onClick={() => setShowEdit(true)}
+          >
+            <EditIcon />
+          </Button>
+        </OverlayTrigger>
+      )}
 
       <OverlayTrigger
         placement="top"
@@ -541,7 +543,7 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
   };
 
   const filteredWarns = filterSortWarns(warnSearch) || warns;
-  const slicedMembers = filteredWarns?.slice(
+  const slicedWarns = filteredWarns?.slice(
     page * PER_PAGE,
     (page + 1) * PER_PAGE
   );
@@ -551,7 +553,7 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
       <Pagination>
         <Pagination.First onClick={() => setPage(0)} />
         {Array.from(
-          Array(Math.trunc((filteredWarns?.length ?? 0) / PER_PAGE) || 1).keys()
+          Array(Math.ceil((filteredWarns?.length ?? 0) / PER_PAGE) || 1).keys()
         )
           .filter((o) =>
             page - 3 < 0 ? o < 7 : o >= page - 3 && o <= page + 3
@@ -568,7 +570,7 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
         <Pagination.Last
           onClick={() =>
             setPage(
-              (Math.trunc((filteredWarns?.length ?? 0) / PER_PAGE) || 1) - 1
+              (Math.ceil((filteredWarns?.length ?? 0) / PER_PAGE) || 1) - 1
             )
           }
         />
@@ -900,7 +902,7 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
                               </tr>
                             </thead>
                             <tbody>
-                              {slicedMembers?.map((one) => (
+                              {slicedWarns?.map((one) => (
                                 <WarnsListCard
                                   key={one.uuid}
                                   target={

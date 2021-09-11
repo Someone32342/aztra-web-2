@@ -116,7 +116,7 @@ const Members: NextPage<MembersRouterProps> = ({ guildId }) => {
         <Pagination.First onClick={() => setPage(0)} />
         {Array.from(
           Array(
-            Math.trunc((filteredMembers?.length ?? 0) / PER_PAGE) || 1
+            Math.ceil((filteredMembers?.length ?? 0) / PER_PAGE) || 1
           ).keys()
         )
           .filter((o) =>
@@ -134,7 +134,7 @@ const Members: NextPage<MembersRouterProps> = ({ guildId }) => {
         <Pagination.Last
           onClick={() =>
             setPage(
-              (Math.trunc((filteredMembers?.length ?? 0) / PER_PAGE) || 1) - 1
+              (Math.ceil((filteredMembers?.length ?? 0) / PER_PAGE) || 1) - 1
             )
           }
         />
