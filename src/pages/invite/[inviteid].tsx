@@ -101,8 +101,22 @@ const Invite: NextPage<InviteProps> = ({ inviteId, data }) => {
             ? `${data?.name ?? ''} 서버 참가 ${isJoinDone ? '완료' : '중'}`
             : `${data?.name ?? ''} 서버 참가하기`}
         </title>
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:url" content={router.basePath} />
+        <meta property="twitter:domain" content="aztra.xyz"></meta>
+        <meta name="twitter:title" content={`${data?.name} 서버 참가히기`} />
+        <meta
+          name="twitter:description"
+          content={`${data?.memberCount} 멤버`}
+        />
+        <meta
+          name="twitter:image"
+          content={`https://cdn.discordapp.com/icons/${data?.id}/${data?.icon}.png`}
+        />
+
         <meta property="og:title" content={`${data?.name} 서버 참가히기`} />
         <meta property="og:site_name" content="Aztra 보안 초대 시스템" />
+        <meta property="og:url" content={router.basePath} />
         <meta property="og:description" content={`${data?.memberCount} 멤버`} />
         <meta property="og:type" content="article" />
         <meta
