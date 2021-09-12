@@ -103,7 +103,6 @@ const Invite: NextPage<InviteProps> = ({ inviteId, data }) => {
         </title>
         <meta property="og:title" content={`${data?.name} 서버 참가히기`} />
         <meta property="og:site_name" content="Aztra 보안 초대 시스템" />
-        <meta property="og:url" content={router.basePath} />
         <meta property="og:description" content={`${data?.memberCount} 멤버`} />
         <meta property="og:type" content="article" />
         <meta
