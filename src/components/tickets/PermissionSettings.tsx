@@ -408,10 +408,13 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({
                     {AddableRoles.filter((one) => {
                       if (!addSearch) return true;
                       let searchLowercase = addSearch.normalize().toLowerCase();
-                      return one.name
-                        .normalize()
-                        .toLowerCase()
-                        .includes(searchLowercase);
+                      return (
+                        one.id.startsWith(searchLowercase) ||
+                        one.name
+                          .normalize()
+                          .toLowerCase()
+                          .includes(searchLowercase)
+                      );
                     })
                       .sort((a, b) => b.position - a.position)
                       .map((r) => (
@@ -429,6 +432,7 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({
                       if (!addSearch) return true;
                       let searchLowercase = addSearch.normalize().toLowerCase();
                       return (
+                        one.user.id.startsWith(searchLowercase) ||
                         one.user.tag
                           ?.normalize()
                           .toLowerCase()

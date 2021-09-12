@@ -1,4 +1,4 @@
-import axios, { AxiosError, AxiosResponse } from 'axios';
+import axios, { AxiosError } from 'axios';
 import api from 'datas/api';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
@@ -10,7 +10,6 @@ import { LockOutlined as LockOutlinedIcon } from '@material-ui/icons';
 import oauth from 'datas/oauth';
 import { useEffect, useState } from 'react';
 import Cookies from 'universal-cookie';
-import { useRouter } from 'next/router';
 
 interface InviteProps {
   inviteId: string;
@@ -50,8 +49,6 @@ const Invite: NextPage<InviteProps> = ({ inviteId, data }) => {
   const [isInviteNotExists, setIsInviteNotExists] = useState(false);
   const [isExpired, setIsExpired] = useState(false);
   const [isGuildNotExists, setIsGuildNotExists] = useState(false);
-
-  const router = useRouter();
 
   useSWR<PartialInviteGuild, AxiosError>(
     isJoinMode ? urljoin(api, `/invites/${inviteId}/join`) : null,

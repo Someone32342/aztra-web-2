@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 
 import axios, { AxiosError } from 'axios';
 import api from 'datas/api';
-import { Warns as WarnsType } from 'types/dbtypes';
+import { Warns, Warns as WarnsType } from 'types/dbtypes';
 import {
   Row,
   Col,
@@ -18,6 +18,7 @@ import {
   Overlay,
   Collapse,
   Pagination,
+  Dropdown,
 } from 'react-bootstrap';
 import { MemberMinimal } from 'types/DiscordTypes';
 import {
@@ -26,9 +27,11 @@ import {
   OpenInNew as OpenInNewIcon,
   Delete as DeleteIcon,
   Edit as EditIcon,
+  Check as CheckIcon,
 } from '@material-ui/icons';
 import BackTo from 'components/BackTo';
 import { GetServerSideProps, NextPage } from 'next';
+import Image from 'next/image';
 import Cookies from 'universal-cookie';
 import Layout from 'components/Layout';
 import DashboardLayout from 'components/DashboardLayout';
@@ -52,7 +55,9 @@ interface WarnsListCardProps {
   target: MemberMinimal;
   warnby: MemberMinimal;
   warn: WarnsType;
+  members: MemberMinimal[];
   guildId: string;
+  onEdit?: (data: Warns) => void;
   onDelete?: Function;
   onCheckChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
   checked?: boolean;
@@ -62,7 +67,9 @@ const WarnsListCard: React.FC<WarnsListCardProps> = ({
   target,
   warnby,
   warn,
+  members,
   guildId,
+  onEdit,
   onDelete,
   onCheckChange,
   checked,
@@ -71,10 +78,38 @@ const WarnsListCard: React.FC<WarnsListCardProps> = ({
   const [showEdit, setShowEdit] = useState(false);
   const [showDel, setShowDel] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [editMember, setEditMember] = useState<string | null>(null);
   const [editReason, setEditReason] = useState<string | null>(null);
-  const [editCount, setEditCount] = useState<number | null>(null);
+  const [editCount, setEditCount] = useState<string | null>(null);
+  const [editMemberSearch, setEditMemberSearch] = useState('');
   const warnReasonRef = useRef<HTMLParagraphElement>(null);
   const copyButtonRef = useRef<HTMLButtonElement>(null);
+
+  const editWarn = (uuid: string) => {
+    axios
+      .patch(
+        `${api}/servers/${guildId}/warns/${uuid}`,
+        {
+          member: editMember ?? undefined,
+          reason: editReason ?? undefined,
+          count: editCount ? Number(editCount) : undefined,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`,
+          },
+        }
+      )
+      .then(() => {
+        if (onEdit)
+          onEdit({
+            ...warn,
+            member: editMember ?? warn.member,
+            reason: editReason ?? warn.reason,
+            count: Number(editCount ?? warn.count),
+          });
+      });
+  };
 
   const delWarn = (uuid: string) => {
     axios
@@ -256,6 +291,10 @@ const WarnsListCard: React.FC<WarnsListCardProps> = ({
       <Modal
         className="modal-dark"
         show={showEdit}
+        onShow={() => {
+          setEditReason(null);
+          setEditCount(null);
+        }}
         onHide={() => setShowEdit(false)}
         centered
       >
@@ -270,7 +309,95 @@ const WarnsListCard: React.FC<WarnsListCardProps> = ({
           </Modal.Title>
         </Modal.Header>
         <Modal.Body className="py-4">
-          <Row>
+          <Row className="pb-2">
+            <Form.Label column xs="auto" className="mr-0">
+              대상 멤버
+            </Form.Label>
+            <Col>
+              <Dropdown
+                className="dropdown-menu-dark"
+                onToggle={() => setEditMemberSearch('')}
+                onSelect={(e) => setEditMember(e)}
+              >
+                <Dropdown.Toggle
+                  id="add-role-member"
+                  size="sm"
+                  variant="dark"
+                  className="my-1 remove-after d-flex align-items-center"
+                >
+                  <MemberCell
+                    guildId={guildId}
+                    member={
+                      editMember
+                        ? members.find((m) => m.user.id === editMember)!
+                        : target
+                    }
+                    link={false}
+                  />
+                </Dropdown.Toggle>
+                <Dropdown.Menu
+                  className="bg-dark"
+                  style={{
+                    maxHeight: 300,
+                    minWidth: 240,
+                    overflowY: 'scroll',
+                  }}
+                >
+                  <Form.Control
+                    id="add-role-member-search"
+                    className="mb-2"
+                    type="text"
+                    placeholder="멤버 검색..."
+                    value={editMemberSearch}
+                    onChange={(e) => setEditMemberSearch(e.target.value)}
+                    autoComplete="off"
+                  />
+                  {members
+                    .filter((one) => {
+                      if (!editMemberSearch) return true;
+                      let searchLowercase = editMemberSearch
+                        .normalize()
+                        .toLowerCase();
+                      return (
+                        one.user.id.startsWith(searchLowercase) ||
+                        one.user.tag
+                          ?.normalize()
+                          .toLowerCase()
+                          .includes(searchLowercase) ||
+                        one.nickname
+                          ?.normalize()
+                          .toLowerCase()
+                          .includes(searchLowercase)
+                      );
+                    })
+                    .sort(
+                      (a, b) => Number(b.displayName) - Number(a.displayName)
+                    )
+                    .map((m) => (
+                      <Dropdown.Item
+                        className="my-1 px-3"
+                        key={m.user.id}
+                        eventKey={m.user.id}
+                        active={false}
+                      >
+                        <img
+                          className="rounded-circle mr-2"
+                          alt=""
+                          src={
+                            m.user.avatar
+                              ? `https://cdn.discordapp.com/avatars/${m.user.id}/${m.user.avatar}.jpeg?size=32`
+                              : m.user.defaultAvatarURL ?? ''
+                          }
+                          style={{ width: 32, height: 32 }}
+                        />
+                        {m.displayName}
+                      </Dropdown.Item>
+                    ))}
+                </Dropdown.Menu>
+              </Dropdown>
+            </Col>
+          </Row>
+          <Row className="pb-2">
             <Form.Label column xs="auto" className="mr-0">
               경고 사유
             </Form.Label>
@@ -283,8 +410,9 @@ const WarnsListCard: React.FC<WarnsListCardProps> = ({
                   }
                 }}
                 type="text"
+                value={editReason ?? warn.reason}
                 onChange={(e) => setEditReason(e.target.value)}
-                defaultValue={warn.reason}
+                placeholder="예) 욕설, 도배 등"
               />
             </Col>
           </Row>
@@ -292,15 +420,15 @@ const WarnsListCard: React.FC<WarnsListCardProps> = ({
             <Form.Label column xs="auto" className="mr-0">
               경고 횟수
             </Form.Label>
-            <Col>
+            <Col xs={4} sm={3}>
               <Form.Control
                 type="text"
-                value={editCount ?? warn.count}
+                value={editCount ?? warn.count.toString()}
                 onChange={(e) => {
-                  let value = Number(e.target.value);
-                  if (isNaN(value)) return;
-                  setEditCount(value);
+                  if (isNaN(Number(e.target.value))) return;
+                  setEditCount(e.target.value);
                 }}
+                placeholder="숫자 입력"
               />
             </Col>
           </Row>
@@ -308,12 +436,14 @@ const WarnsListCard: React.FC<WarnsListCardProps> = ({
         <Modal.Footer className="justify-content-end">
           <Button
             variant="aztra"
+            className="d-flex align-items-center"
             onClick={() => {
               setShowEdit(false);
-              delWarn(warn.uuid);
+              editWarn(warn.uuid);
             }}
           >
-            확인
+            <CheckIcon className="mr-2" />
+            수정하기
           </Button>
           <Button variant="dark" onClick={() => setShowEdit(false)}>
             닫기
@@ -935,12 +1065,27 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
                                     )!
                                   }
                                   warn={one}
+                                  members={members}
                                   guildId={guildId}
                                   onDelete={() => {
                                     const sel = new Set(finalSelectedSet);
                                     sel.delete(one.uuid);
                                     setSelectedWarns(sel);
-                                    warnsMutate();
+                                    warnsMutate(
+                                      warns.filter((o) => o.uuid !== one.uuid)
+                                    );
+                                  }}
+                                  onEdit={(data) => {
+                                    const sel = new Set(finalSelectedSet);
+                                    sel.delete(one.uuid);
+                                    setSelectedWarns(sel);
+
+                                    let _warns = [...warns];
+                                    let _index = _warns.findIndex(
+                                      (o) => o.uuid === one.uuid
+                                    );
+                                    _warns[_index] = data;
+                                    warnsMutate(_warns);
                                   }}
                                   checked={finalSelectedSet.has(one.uuid)}
                                   onCheckChange={() => {
