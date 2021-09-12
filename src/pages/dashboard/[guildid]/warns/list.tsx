@@ -71,6 +71,8 @@ const WarnsListCard: React.FC<WarnsListCardProps> = ({
   const [showEdit, setShowEdit] = useState(false);
   const [showDel, setShowDel] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [editReason, setEditReason] = useState<string | null>(null);
+  const [editCount, setEditCount] = useState<number | null>(null);
   const warnReasonRef = useRef<HTMLParagraphElement>(null);
   const copyButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -269,19 +271,36 @@ const WarnsListCard: React.FC<WarnsListCardProps> = ({
         </Modal.Header>
         <Modal.Body className="py-4">
           <Row>
-            <Form.Label column xs="auto">
+            <Form.Label column xs="auto" className="mr-0">
               경고 사유
             </Form.Label>
             <Col>
               <Form.Control
                 as={TextareaAutosize}
                 onKeyDown={(e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-                  if (e.keyCode == 13 && !e.shiftKey) {
+                  if (e.code == 'Enter' && !e.shiftKey) {
                     e.preventDefault();
                   }
                 }}
                 type="text"
+                onChange={(e) => setEditReason(e.target.value)}
                 defaultValue={warn.reason}
+              />
+            </Col>
+          </Row>
+          <Row>
+            <Form.Label column xs="auto" className="mr-0">
+              경고 횟수
+            </Form.Label>
+            <Col>
+              <Form.Control
+                type="text"
+                value={editCount ?? warn.count}
+                onChange={(e) => {
+                  let value = Number(e.target.value);
+                  if (isNaN(value)) return;
+                  setEditCount(value);
+                }}
               />
             </Col>
           </Row>
@@ -895,7 +914,7 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
                                   경고 부여자
                                 </th>
                                 <th
-                                  style={{ width: 100 }}
+                                  style={{ width: 125 }}
                                   className="d-none d-lg-table-cell"
                                 />
                                 <th className="d-lg-none" />

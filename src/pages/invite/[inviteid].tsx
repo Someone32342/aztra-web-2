@@ -1,4 +1,4 @@
-import axios, { AxiosError } from 'axios';
+import axios, { AxiosError, AxiosResponse } from 'axios';
 import api from 'datas/api';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
@@ -10,23 +10,40 @@ import { LockOutlined as LockOutlinedIcon } from '@material-ui/icons';
 import oauth from 'datas/oauth';
 import { useEffect, useState } from 'react';
 import Cookies from 'universal-cookie';
+import { useRouter } from 'next/router';
 
 interface InviteProps {
   inviteId: string;
+  data: (PartialInviteGuild & { message?: string }) | null;
 }
 
 export const getServerSideProps: GetServerSideProps<InviteProps> = async (
   context
 ) => {
   const { inviteid } = context.query;
-  return {
-    props: {
-      inviteId: inviteid as string,
-    },
-  };
+
+  try {
+    let r = await axios.get<PartialInviteGuild>(
+      urljoin(api, `/invites/${inviteid}`)
+    );
+    return {
+      props: {
+        inviteId: inviteid as string,
+        data: r.data,
+      },
+    };
+  } catch (_e) {
+    let e: AxiosError = _e;
+    return {
+      props: {
+        inviteId: inviteid as string,
+        data: e.response?.data ?? null,
+      },
+    };
+  }
 };
 
-const Invite: NextPage<InviteProps> = ({ inviteId }) => {
+const Invite: NextPage<InviteProps> = ({ inviteId, data }) => {
   const [isJoinDone, setIsJoinDone] = useState(false);
   const [isJoinMode, setIsJoinMode] = useState(false);
   const [isMissingPerm, setIsMissingPerm] = useState(false);
@@ -34,23 +51,7 @@ const Invite: NextPage<InviteProps> = ({ inviteId }) => {
   const [isExpired, setIsExpired] = useState(false);
   const [isGuildNotExists, setIsGuildNotExists] = useState(false);
 
-  const { data, error } = useSWR<PartialInviteGuild, AxiosError>(
-    urljoin(api, `/invites/${inviteId}`),
-    (url) => axios.get(url).then((r) => r.data),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      onError: (e) => {
-        if (e.response?.data.message === 'INVITE_EXPIRED') {
-          setIsExpired(true);
-        } else if (e.response?.data.message === 'GUILD_NOT_FOUND') {
-          setIsGuildNotExists(true);
-        } else if (e.response?.data.message === 'INVITE_NOT_FOUND') {
-          setIsInviteNotExists(true);
-        }
-      },
-    }
-  );
+  const router = useRouter();
 
   useSWR<PartialInviteGuild, AxiosError>(
     isJoinMode ? urljoin(api, `/invites/${inviteId}/join`) : null,
@@ -76,13 +77,21 @@ const Invite: NextPage<InviteProps> = ({ inviteId }) => {
   );
 
   useEffect(() => {
+    if (data?.message === 'INVITE_EXPIRED') {
+      setIsExpired(true);
+    } else if (data?.message === 'GUILD_NOT_FOUND') {
+      setIsGuildNotExists(true);
+    } else if (data?.message === 'INVITE_NOT_FOUND') {
+      setIsInviteNotExists(true);
+    }
+
     setIsJoinMode(location.hash === '#join');
     history.pushState(
       '',
       document.title,
       window.location.pathname + window.location.search
     );
-  }, []);
+  }, [data?.message]);
 
   return (
     <>
@@ -92,6 +101,15 @@ const Invite: NextPage<InviteProps> = ({ inviteId }) => {
             ? `${data?.name ?? ''} 서버 참가 ${isJoinDone ? '완료' : '중'}`
             : `${data?.name ?? ''} 서버 참가하기`}
         </title>
+        <meta property="og:title" content={`${data?.name} 서버 참가히기`} />
+        <meta property="og:site_name" content="Aztra 보안 초대 시스템" />
+        <meta property="og:url" content={router.basePath} />
+        <meta property="og:description" content={`${data?.memberCount} 멤버`} />
+        <meta property="og:type" content="article" />
+        <meta
+          property="og:image"
+          content={`https://cdn.discordapp.com/icons/${data?.id}/${data?.icon}.png`}
+        />
       </Head>
       <div
         style={{
@@ -100,7 +118,7 @@ const Invite: NextPage<InviteProps> = ({ inviteId }) => {
           // backgroundImage: 'linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.25)), url("/assets/02931_amaz_1LzaQ5g3Qe.jpg")',
         }}
       >
-        {data !== undefined || error ? (
+        {data !== undefined ? (
           <Container fluid="sm" className="text-white h-100">
             <Row className="justify-content-center align-items-center h-100">
               <Col lg={6}>

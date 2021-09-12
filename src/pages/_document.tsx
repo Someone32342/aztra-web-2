@@ -87,24 +87,6 @@ export default class Doc extends Document {
             href="https://fonts.googleapis.com/css?family=Roboto:300,400,500&display=swap"
           />
 
-          <meta name="twitter:card" content="summary" />
-          <meta name="twitter:url" content="https://aztra.xyz" />
-          <meta name="twitter:title" content="Aztra" />
-          <meta
-            name="twitter:description"
-            content="미래를 바꿀 디스코드 관리봇, Aztra"
-          />
-          <meta name="twitter:image" content="https://aztra.xyz/logo192.png" />
-          <meta property="og:type" content="website" />
-          <meta property="og:title" content="Aztra" />
-          <meta
-            property="og:description"
-            content="미래를 바꿀 디스코드 관리봇, Aztra"
-          />
-          <meta property="og:site_name" content="Aztra" />
-          <meta property="og:url" content="https://aztra.xyz" />
-          <meta property="og:image" content="https://aztra.xyz/logo192.png" />
-
           <GAScripts />
         </Head>
         <body>
