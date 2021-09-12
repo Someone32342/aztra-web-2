@@ -102,7 +102,10 @@ const Invite: NextPage<InviteProps> = ({ inviteId, data }) => {
             : `${data?.name ?? ''} 서버 참가하기`}
         </title>
         <meta name="twitter:card" content="summary" />
-        <meta name="twitter:url" content={router.basePath} />
+        <meta
+          name="twitter:url"
+          content={`https://aztra.xyz/invite/${inviteId}`}
+        />
         <meta property="twitter:domain" content="aztra.xyz"></meta>
         <meta name="twitter:title" content={`${data?.name} 서버 참가히기`} />
         <meta
