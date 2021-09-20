@@ -141,20 +141,18 @@ const WarnsListCard: React.FC<WarnsListCardProps> = ({
         </Button>
       </OverlayTrigger>
 
-      {process.env.NODE_ENV === 'development' && (
-        <OverlayTrigger
-          placement="top"
-          overlay={<Tooltip id="warn-list-row-remove-warn">경고 수정</Tooltip>}
+      <OverlayTrigger
+        placement="top"
+        overlay={<Tooltip id="warn-list-row-remove-warn">경고 수정</Tooltip>}
+      >
+        <Button
+          variant="dark"
+          className="d-flex px-1 remove-before"
+          onClick={() => setShowEdit(true)}
         >
-          <Button
-            variant="dark"
-            className="d-flex px-1 remove-before"
-            onClick={() => setShowEdit(true)}
-          >
-            <EditIcon />
-          </Button>
-        </OverlayTrigger>
-      )}
+          <EditIcon />
+        </Button>
+      </OverlayTrigger>
 
       <OverlayTrigger
         placement="top"
