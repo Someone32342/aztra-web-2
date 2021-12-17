@@ -52,7 +52,7 @@ const Sidebar: React.FC<SidebarProps> = ({ guildId, onSelect }) => {
               className="d-flex mb-1"
               active={location?.pathname === `/dashboard/${guildId}`}
             >
-              <div style={iconStyle} className="mr-3">
+              <div style={iconStyle} className="me-3">
                 <HomeIcon />
               </div>
               메인
@@ -67,7 +67,7 @@ const Sidebar: React.FC<SidebarProps> = ({ guildId, onSelect }) => {
                 `/dashboard/${guildId}/general`
               )}
             >
-              <div style={iconStyle} className="mr-3">
+              <div style={iconStyle} className="me-3">
                 <SettingsIcon />
               </div>
               일반 설정
@@ -86,7 +86,7 @@ const Sidebar: React.FC<SidebarProps> = ({ guildId, onSelect }) => {
                 `/dashboard/${guildId}/greetings`
               )}
             >
-              <div style={iconStyle} className="mr-3">
+              <div style={iconStyle} className="me-3">
                 <PersonAddIcon />
               </div>
               환영 메시지
@@ -101,7 +101,7 @@ const Sidebar: React.FC<SidebarProps> = ({ guildId, onSelect }) => {
                 `/dashboard/${guildId}/members`
               )}
             >
-              <div style={iconStyle} className="mr-3">
+              <div style={iconStyle} className="me-3">
                 <GroupIcon />
               </div>
               멤버 관리
@@ -116,7 +116,7 @@ const Sidebar: React.FC<SidebarProps> = ({ guildId, onSelect }) => {
                 `/dashboard/${guildId}/warns`
               )}
             >
-              <div style={iconStyle} className="mr-3">
+              <div style={iconStyle} className="me-3">
                 <ReportProblemRoundedIcon />
               </div>
               경고 관리
@@ -131,7 +131,7 @@ const Sidebar: React.FC<SidebarProps> = ({ guildId, onSelect }) => {
                 `/dashboard/${guildId}/leveling`
               )}
             >
-              <div style={iconStyle} className="mr-3">
+              <div style={iconStyle} className="me-3">
                 <DataUsageIcon />
               </div>
               레벨링 설정
@@ -146,7 +146,7 @@ const Sidebar: React.FC<SidebarProps> = ({ guildId, onSelect }) => {
                 `/dashboard/${guildId}/logging`
               )}
             >
-              <div style={iconStyle} className="mr-3">
+              <div style={iconStyle} className="me-3">
                 <HistoryIcon style={{ transform: 'scale(1.1)' }} />
               </div>
               로깅 설정
@@ -165,7 +165,7 @@ const Sidebar: React.FC<SidebarProps> = ({ guildId, onSelect }) => {
                 `/dashboard/${guildId}/autotasking`
               )}
             >
-              <div style={iconStyle} className="mr-3">
+              <div style={iconStyle} className="me-3">
                 <EventNoteIcon style={{ transform: 'scale(1.1)' }} />
               </div>
               <div>자동 작업</div>
@@ -184,7 +184,7 @@ const Sidebar: React.FC<SidebarProps> = ({ guildId, onSelect }) => {
                 `/dashboard/${guildId}/statistics`
               )}
             >
-              <div style={iconStyle} className="mr-3">
+              <div style={iconStyle} className="me-3">
                 <TrendingUpIcon style={{ transform: 'scale(1.1)' }} />
               </div>
               <div>통계</div>
@@ -199,7 +199,7 @@ const Sidebar: React.FC<SidebarProps> = ({ guildId, onSelect }) => {
                 `/dashboard/${guildId}/tickets`
               )}
             >
-              <div style={iconStyle} className="mr-3">
+              <div style={iconStyle} className="me-3">
                 <CreditCardIcon style={{ transform: 'scale(1.1)' }} />
               </div>
               <div>티켓 설정</div>
@@ -214,14 +214,14 @@ const Sidebar: React.FC<SidebarProps> = ({ guildId, onSelect }) => {
                 `/dashboard/${guildId}/security`
               )}
             >
-              <div style={iconStyle} className="mr-3">
+              <div style={iconStyle} className="me-3">
                 <SecurityIcon style={{ transform: 'scale(1.1)' }} />
               </div>
               <div>
                 보안 설정
                 <Badge
-                  variant="aztra"
-                  className="ml-2 my-auto"
+                  bg="aztra"
+                  className="ms-2 my-auto"
                   style={{ fontSize: 14 }}
                 >
                   베타
@@ -244,14 +244,14 @@ const Sidebar: React.FC<SidebarProps> = ({ guildId, onSelect }) => {
                     `/dashboard/${guildId}/billboards`
                   )}
                 >
-                  <div style={iconStyle} className="mr-3">
+                  <div style={iconStyle} className="me-3">
                     <ListIcon style={{ transform: 'scale(1.1)' }} />
                   </div>
                   <div>
                     전광판 채널
                     <Badge
-                      variant="danger"
-                      className="ml-2 my-auto"
+                      bg="danger"
+                      className="ms-2 my-auto"
                       style={{ fontSize: 14 }}
                     >
                       개발중

@@ -22,10 +22,16 @@
   li {
     padding-bottom: 0.25rem;
   }
+
   a {
+    text-decoration: none;
     font-size: 15px;
     color: whitesmoke;
     font-family: 'NanumBarunGothic';
+  }
+
+  a:hover {
+    text-decoration: underline;
   }
 }
 

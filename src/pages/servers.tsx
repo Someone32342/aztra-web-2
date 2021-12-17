@@ -69,7 +69,7 @@ export default function Servers() {
         className="shadow"
         style={{ margin: '8px 0', padding: '8px 0', border: 'none' }}
       >
-        <Card.Body className="p-0" style={{ fontSize: '12pt' }}>
+        <Card.Body className="p-0" style={{ fontSize: '12pt', color: 'white' }}>
           <Container>
             <Row>
               <Col>

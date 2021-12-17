@@ -102,7 +102,7 @@ export default class Navibar extends React.Component<{}, NavibarState> {
         >
           <Container fluid className={styles.NavContainer}>
             <Link href="/" passHref>
-              <Navbar.Brand className="d-flex align-items-center pr-1">
+              <Navbar.Brand className="d-flex align-items-center pe-1">
                 <Image
                   alt=""
                   src="/assets/images/aztra-withoutbg-white.png"
@@ -118,7 +118,7 @@ export default class Navibar extends React.Component<{}, NavibarState> {
               <MenuIcon style={{ fontSize: '20pt' }} />
             </Navbar.Toggle>
             <Navbar.Collapse id="navbar-nav">
-              <Nav className="mr-auto" onSelect={this.closeNavbar}>
+              <Nav className="me-auto" onSelect={this.closeNavbar}>
                 <Link href="/servers" shallow passHref>
                   <Nav.Link className={styles.Navlink}>대시보드</Nav.Link>
                 </Link>
@@ -130,7 +130,7 @@ export default class Navibar extends React.Component<{}, NavibarState> {
                     <div className="d-flex">
                       파트너 서버
                       <div
-                        className="ml-2 mt-1 rounded-circle"
+                        className="ms-2 mt-1 rounded-circle"
                         style={{
                           width: 5,
                           height: 5,
@@ -150,14 +150,14 @@ export default class Navibar extends React.Component<{}, NavibarState> {
                   )}
                 >
                   <NavDropdown.Item
-                    className="dropdown-item-dark pl-3"
+                    className="dropdown-item-dark ps-3"
                     href={links.support}
                     target="_blank"
                   >
                     <img
                       alt=""
                       src="/assets/images/discord-logo-white.png"
-                      className="mr-2"
+                      className="me-2"
                       style={{ width: 25, height: 25 }}
                     />
                     디스코드 서포트 서버
@@ -173,7 +173,7 @@ export default class Navibar extends React.Component<{}, NavibarState> {
                       title={
                         <>
                           <img
-                            className="rounded-circle overflow-hidden mr-2"
+                            className="rounded-circle overflow-hidden me-2"
                             alt={user.username}
                             src={
                               user.avatar

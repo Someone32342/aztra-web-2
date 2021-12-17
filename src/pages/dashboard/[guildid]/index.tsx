@@ -236,31 +236,33 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
                   fontFamily: 'NanumSquare',
                 }}
               >
-                <Row className="dashboard-section justify-content-center justify-content-lg-start align-items-center">
-                  <div
-                    className="mr-4"
-                    style={{
-                      height: 90,
-                      width: 90,
-                    }}
-                  >
-                    {guild.icon ? (
-                      <img
-                        alt=""
-                        className="rounded-circle"
-                        src={`https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png?size=512`}
-                        style={{
-                          height: 90,
-                          width: 90,
-                        }}
-                      />
-                    ) : (
-                      <h2 className="d-flex justify-content-center align-items-center w-100 h-100 display-3">
-                        {guild.name[0]}
-                      </h2>
-                    )}
+                <Row className="dashboard-section">
+                  <div className="d-flex justify-content-center justify-content-lg-start align-items-center">
+                    <div
+                      className="me-4"
+                      style={{
+                        height: 90,
+                        width: 90,
+                      }}
+                    >
+                      {guild.icon ? (
+                        <img
+                          alt=""
+                          className="rounded-circle"
+                          src={`https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png?size=512`}
+                          style={{
+                            height: 90,
+                            width: 90,
+                          }}
+                        />
+                      ) : (
+                        <h2 className="d-flex justify-content-center align-items-center w-100 h-100 display-3">
+                          {guild.name[0]}
+                        </h2>
+                      )}
+                    </div>
+                    <h1 className="text-truncate">{guild.name}</h1>
                   </div>
-                  <h1>{guild.name}</h1>
                 </Row>
 
                 <Row className="mt-5 mb-2">
@@ -269,13 +271,13 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
                 <Row>
                   <Col style={{ fontSize: 18 }}>
                     <div>
-                      <PeopleIcon className="mr-2" />
-                      <span className="pr-2">전체 멤버 수:</span>
+                      <PeopleIcon className="me-2" />
+                      <span className="pe-2">전체 멤버 수:</span>
                       <span>{numberWithCommas(members.length)}</span>
                     </div>
                     <div>
-                      <RouterIcon className="mr-2" />
-                      <span className="pr-2">전체 봇 수:</span>
+                      <RouterIcon className="me-2" />
+                      <span className="pe-2">전체 봇 수:</span>
                       <span>
                         {numberWithCommas(
                           members.filter((o) => o.user.bot).length
@@ -290,17 +292,12 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
                 </Row>
 
                 <Row>
-                  <Col
-                    className="mb-4 d-flex mh-100 w-100"
-                    xs={12}
-                    lg={6}
-                    xl={3}
-                  >
+                  <Col className="mb-4 d-flex mh-100" xs={12} lg={6} xl={3}>
                     <Card bg="dark" className="shadow mh-100 w-100">
                       <Card.Body className="pt-3">
-                        <Card.Title className="font-weight-bold d-flex justify-content-between align-items-center">
+                        <Card.Title className="fw-bold d-flex justify-content-between align-items-center">
                           <span>
-                            <PersonAddIcon className="mr-2" />
+                            <PersonAddIcon className="me-2" />
                             환영 메시지
                           </span>
                           <Link
@@ -320,7 +317,7 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
                             greetings.join_desc_format ? (
                               <>
                                 <CheckIcon
-                                  className="mr-1"
+                                  className="me-1"
                                   fontSize="small"
                                   htmlColor="limegreen"
                                 />
@@ -329,7 +326,7 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
                             ) : (
                               <>
                                 <CloseIcon
-                                  className="mr-1"
+                                  className="me-1"
                                   fontSize="small"
                                   htmlColor="red"
                                 />
@@ -343,7 +340,7 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
                             greetings.leave_desc_format ? (
                               <>
                                 <CheckIcon
-                                  className="mr-1"
+                                  className="me-1"
                                   fontSize="small"
                                   htmlColor="limegreen"
                                 />
@@ -352,7 +349,7 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
                             ) : (
                               <>
                                 <CloseIcon
-                                  className="mr-1"
+                                  className="me-1"
                                   fontSize="small"
                                   htmlColor="red"
                                 />
@@ -364,17 +361,12 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
                       </Card.Body>
                     </Card>
                   </Col>
-                  <Col
-                    className="mb-4 d-flex mh-100 w-100"
-                    xs={12}
-                    lg={6}
-                    xl={3}
-                  >
+                  <Col className="mb-4 d-flex mh-100" xs={12} lg={6} xl={3}>
                     <Card bg="dark" className="shadow mh-100 w-100">
                       <Card.Body className="pt-3">
-                        <Card.Title className="font-weight-bold d-flex justify-content-between align-items-center">
+                        <Card.Title className="fw-bold d-flex justify-content-between align-items-center">
                           <div>
-                            <DataUsageIcon className="mr-2" />
+                            <DataUsageIcon className="me-2" />
                             레벨링
                           </div>
                           <Link
@@ -392,7 +384,7 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
                             {levelingset ? (
                               <>
                                 <CheckIcon
-                                  className="mr-1"
+                                  className="me-1"
                                   fontSize="small"
                                   htmlColor="limegreen"
                                 />
@@ -401,7 +393,7 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
                             ) : (
                               <>
                                 <CloseIcon
-                                  className="mr-1"
+                                  className="me-1"
                                   fontSize="small"
                                   htmlColor="red"
                                 />
@@ -414,7 +406,7 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
                             levelingset.channel !== false ? (
                               <>
                                 <CheckIcon
-                                  className="mr-1"
+                                  className="me-1"
                                   fontSize="small"
                                   htmlColor="limegreen"
                                 />
@@ -423,7 +415,7 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
                             ) : (
                               <>
                                 <CloseIcon
-                                  className="mr-1"
+                                  className="me-1"
                                   fontSize="small"
                                   htmlColor="red"
                                 />
@@ -435,17 +427,12 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
                       </Card.Body>
                     </Card>
                   </Col>
-                  <Col
-                    className="mb-4 d-flex mh-100 w-100"
-                    xs={12}
-                    lg={6}
-                    xl={3}
-                  >
+                  <Col className="mb-4 d-flex mh-100" xs={12} lg={6} xl={3}>
                     <Card bg="dark" className="shadow mh-100 w-100">
                       <Card.Body className="pt-3">
-                        <Card.Title className="font-weight-bold d-flex justify-content-between align-items-center">
+                        <Card.Title className="fw-bold d-flex justify-content-between align-items-center">
                           <div>
-                            <HistoryIcon className="mr-2" />
+                            <HistoryIcon className="me-2" />
                             로깅
                           </div>
                           <Link
@@ -463,13 +450,13 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
                             <>
                               <div>
                                 <CheckIcon
-                                  className="mr-1"
+                                  className="me-1"
                                   fontSize="small"
                                   htmlColor="limegreen"
                                 />
                                 로깅을 사용 중입니다.
                               </div>
-                              <div className="pl-4">
+                              <div className="ps-4">
                                 <b>
                                   #
                                   {channels.find(
@@ -482,7 +469,7 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
                           ) : (
                             <>
                               <CloseIcon
-                                className="mr-1"
+                                className="me-1"
                                 fontSize="small"
                                 htmlColor="red"
                               />
@@ -493,17 +480,12 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
                       </Card.Body>
                     </Card>
                   </Col>
-                  <Col
-                    className="mb-4 d-flex mh-100 w-100"
-                    xs={12}
-                    lg={6}
-                    xl={3}
-                  >
+                  <Col className="mb-4 d-flex mh-100" xs={12} lg={6} xl={3}>
                     <Card bg="dark" className="shadow mh-100 w-100">
                       <Card.Body className="pt-3">
-                        <Card.Title className="font-weight-bold d-flex justify-content-between align-items-center">
+                        <Card.Title className="fw-bold d-flex justify-content-between align-items-center">
                           <div>
-                            <EventNoteIcon className="mr-2" />
+                            <EventNoteIcon className="me-2" />
                             자동 작업
                           </div>
                           <Link
@@ -521,7 +503,7 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
                             <>
                               <div>
                                 <CheckIcon
-                                  className="mr-1"
+                                  className="me-1"
                                   fontSize="small"
                                   htmlColor="limegreen"
                                 />
@@ -531,7 +513,7 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
                           ) : (
                             <>
                               <CloseIcon
-                                className="mr-1"
+                                className="me-1"
                                 fontSize="small"
                                 htmlColor="red"
                               />
@@ -542,17 +524,12 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
                       </Card.Body>
                     </Card>
                   </Col>
-                  <Col
-                    className="mb-4 d-flex mh-100 w-100"
-                    xs={12}
-                    lg={6}
-                    xl={3}
-                  >
+                  <Col className="mb-4 d-flex mh-100" xs={12} lg={6} xl={3}>
                     <Card bg="dark" className="shadow mh-100 w-100">
                       <Card.Body className="pt-3">
-                        <Card.Title className="font-weight-bold d-flex justify-content-between align-items-center">
+                        <Card.Title className="fw-bold d-flex justify-content-between align-items-center">
                           <div>
-                            <CreditCardIcon className="mr-2" />
+                            <CreditCardIcon className="me-2" />
                             티켓
                           </div>
                           <Link
@@ -570,7 +547,7 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
                             <>
                               <div>
                                 <CheckIcon
-                                  className="mr-1"
+                                  className="me-1"
                                   fontSize="small"
                                   htmlColor="limegreen"
                                 />
@@ -580,7 +557,7 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
                           ) : (
                             <>
                               <CloseIcon
-                                className="mr-1"
+                                className="me-1"
                                 fontSize="small"
                                 htmlColor="red"
                               />
@@ -591,17 +568,12 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
                       </Card.Body>
                     </Card>
                   </Col>
-                  <Col
-                    className="mb-4 d-flex mh-100 w-100"
-                    xs={12}
-                    lg={6}
-                    xl={3}
-                  >
+                  <Col className="mb-4 d-flex mh-100" xs={12} lg={6} xl={3}>
                     <Card bg="dark" className="shadow mh-100 w-100">
                       <Card.Body className="pt-3">
-                        <Card.Title className="font-weight-bold d-flex justify-content-between align-items-center">
+                        <Card.Title className="fw-bold d-flex justify-content-between align-items-center">
                           <div>
-                            <SecurityIcon className="mr-2" />
+                            <SecurityIcon className="me-2" />
                             보안
                           </div>
                           <Link
@@ -619,7 +591,7 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
                             <>
                               <div>
                                 <CheckIcon
-                                  className="mr-1"
+                                  className="me-1"
                                   fontSize="small"
                                   htmlColor="limegreen"
                                 />
@@ -629,7 +601,7 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
                           ) : (
                             <>
                               <CloseIcon
-                                className="mr-1"
+                                className="me-1"
                                 fontSize="small"
                                 htmlColor="red"
                               />
@@ -656,7 +628,7 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
                             className="shadow align-items-center d-flex"
                             size="sm"
                           >
-                            <MenuIcon className="mr-2" />
+                            <MenuIcon className="me-2" />
                             모두 보기
                           </Button>
                         </Link>
@@ -686,7 +658,7 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
                                 <Col xs={9} className="d-flex px-2">
                                   {target && (
                                     <div
-                                      className="mr-2 my-auto"
+                                      className="me-2 my-auto"
                                       style={{
                                         height: 35,
                                         width: 35,
@@ -767,7 +739,7 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
                             className="shadow align-items-center d-flex"
                             size="sm"
                           >
-                            <MenuIcon className="mr-2" />
+                            <MenuIcon className="me-2" />
                             모두 보기
                           </Button>
                         </Link>
@@ -793,7 +765,7 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
                             >
                               <Col xs={9} className="d-flex px-2">
                                 <div
-                                  className="mr-2 my-auto"
+                                  className="me-2 my-auto"
                                   style={{
                                     height: 35,
                                     width: 35,
@@ -884,23 +856,20 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
           <p>이곳에서 Aztra를 편리하게 설정하고 관리해보세요!</p>
           <ul>
             <li className="pb-3">
-              <div className="font-weight-bold">명령어가 궁금하신가요?</div>
+              <div className="fw-bold">명령어가 궁금하신가요?</div>
               <Link href="/docs" prefetch shallow>
-                <a
-                  className="font-weight-bold"
-                  style={{ color: 'deepskyblue' }}
-                >
+                <a className="fw-bold" style={{ color: 'deepskyblue' }}>
                   봇 가이드로 이동하기
                 </a>
               </Link>
             </li>
             <li className="pb-3">
-              <div className="font-weight-bold">공지 메시지를 받아보세요</div>
+              <div className="fw-bold">공지 메시지를 받아보세요</div>
               <b>{prefixes}공지채널</b> 명령으로 봇으로부터 공지 메시지를 받을
               채널을 선택할 수 있습니다.
             </li>
             <li className="pb-3">
-              <div className="font-weight-bold">
+              <div className="fw-bold">
                 도움이 필요하시면 서포트서버에 문의해주세요! 봇 소식과
                 공지사항도 받으실 수 있습니다.
               </div>
@@ -908,7 +877,7 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
                 href={links.support}
                 rel="noreferrer"
                 target="_blank"
-                className="font-weight-bold"
+                className="fw-bold"
                 style={{ color: 'deepskyblue' }}
               >
                 InfiniteTeam 서포트 서버 참여하기
@@ -920,7 +889,7 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
                 href="https://koreanbots.dev/bots/751339721782722570"
                 rel="noreferrer"
                 target="_blank"
-                className="font-weight-bold"
+                className="fw-bold"
                 style={{ color: 'deepskyblue' }}
               >
                 하트

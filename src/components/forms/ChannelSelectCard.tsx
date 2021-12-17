@@ -22,18 +22,18 @@ const ChannelSelectCard: React.FC<ChannelSelectCardProps> = ({
   return (
     <Card
       bg="dark"
-      className="mr-2"
+      className="me-2 px-0"
       onClick={onClick}
       style={{
         cursor: 'pointer',
         marginBottom: 5,
       }}
     >
-      <Card.Body className="d-flex justify-content-between py-1 my-0 pr-2">
+      <Card.Body className="d-flex justify-content-between py-1 my-0 pe-2">
         <div className="d-flex">
           <FontAwesomeIcon
             icon={faHashtag}
-            className="mr-2 my-auto"
+            className="me-2 my-auto"
             size="sm"
           />
           <div
@@ -44,7 +44,7 @@ const ChannelSelectCard: React.FC<ChannelSelectCardProps> = ({
             {channelData.channelName}
           </div>
           <div
-            className="ml-2 small"
+            className="ms-2 small"
             style={{
               color: 'gray',
             }}
@@ -55,8 +55,9 @@ const ChannelSelectCard: React.FC<ChannelSelectCardProps> = ({
         {selected && (
           <FontAwesomeIcon
             icon={faCheckCircle}
-            className="mr-2 my-auto text-success"
+            className="me-2 my-auto"
             size="lg"
+            color="#35B62C"
           />
         )}
       </Card.Body>

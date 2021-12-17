@@ -1,5 +1,5 @@
 import { Container, Button, Row, Col } from 'react-bootstrap';
-import { Link as ScrollLink } from 'react-scroll';
+import { scroller } from 'react-scroll';
 
 import styles from 'styles/Home.module.scss';
 import classNames from 'classnames/bind';
@@ -32,15 +32,17 @@ export default function Home() {
       </Head>
       <Layout>
         <Container fluid="sm">
-          <div className={cx('MainIntro', 'd-flex', 'align-items-center')}>
+          <div
+            className={cx(
+              'MainIntro',
+              'd-flex',
+              'align-items-center',
+              'ms-md-5'
+            )}
+          >
             <div>
               <h1
-                className={cx(
-                  'no-drag',
-                  'text-white',
-                  'text-center',
-                  'text-md-left'
-                )}
+                className="no-drag text-white text-center text-md-start"
                 style={{
                   fontSize: '27pt',
                   wordBreak: 'keep-all',
@@ -49,41 +51,28 @@ export default function Home() {
                 미래를 바꿀 디스코드 관리봇, Aztra
               </h1>
               <h2
-                className={cx(
-                  'no-drag',
-                  'text-white',
-                  'pt-2',
-                  'pb-5',
-                  'font-weight-lighter',
-                  'text-center',
-                  'text-md-left'
-                )}
+                className="no-drag text-white pt-2 pb-5 fw-lighter text-center text-md-start"
                 style={{
                   fontSize: '15pt',
                 }}
               >
                 다채롭고 깔끔한 디스코드 서버를 만들 수 있도록 도와드리겠습니다.
               </h2>
-              <div className="text-center text-md-left">
+              <div className="text-center text-md-start">
                 <Link href="/servers" passHref>
                   <Button
                     variant="aztra"
                     size="lg"
-                    className={cx('MainButton', 'shadow-lg', 'mr-md-3')}
+                    className={cx('MainButton', 'shadow-lg', 'me-md-3')}
                   >
                     초대하기
                   </Button>
                 </Link>
                 <Button
                   className={cx('MainButton', 'shadow-lg', 'mx-2')}
-                  as={ScrollLink}
-                  to="features-begin"
-                  spy={true}
-                  smooth={true}
-                  offset={50}
-                  duration={500}
                   variant="dark"
                   size="lg"
+                  onClick={() => scroller.scrollTo('features-begin', {})}
                 >
                   자세히 알아보기
                 </Button>
@@ -104,10 +93,10 @@ export default function Home() {
           >
             <Container className="h-100">
               <Row className="justify-content-center align-items-center h-100 py-5">
-                <Col className="text-center" sm={12} lg="auto">
+                <Col className="text-center" sm={12} lg={6}>
                   <div
                     className={cx(
-                      'font-weight-bold',
+                      'fw-bold',
                       'text-white',
                       'MainStatisticsTitle'
                     )}
@@ -115,7 +104,10 @@ export default function Home() {
                     계속해서 성장하는 Aztra를 살펴보세요
                   </div>
                 </Col>
-                <Col lg={{ offset: 1 }} className="text-center text-lg-left">
+                <Col
+                  lg={{ offset: 1, span: 5 }}
+                  className="text-center text-lg-start"
+                >
                   <div>
                     <div className="py-4">
                       <div className={cx('UsingServersTitle')}>
@@ -141,8 +133,8 @@ export default function Home() {
         </div>
         <div style={{ height: '40vh' }}>
           <Container className="h-100">
-            <Row className="h-100 justify-content-center align-items-center">
-              <div className="d-md-flex align-items-center">
+            <Row className="h-100 justify-content-center align-items-center px-5">
+              <div className="d-md-flex justify-content-center align-items-center">
                 <img
                   alt=""
                   className="d-none d-md-block"
@@ -153,13 +145,13 @@ export default function Home() {
                   className="text-white px-4"
                   style={{ fontFamily: 'NanumSquare', fontSize: 30 }}
                 >
-                  <div className="font-weight-bold">도움이 필요하신가요?</div>
+                  <div className="fw-bold">도움이 필요하신가요?</div>
                   <div style={{ fontSize: 16, color: 'darkgray' }}>
                     문의 처리, 봇 소식 등을 확인하실 수 있습니다.
                   </div>
                 </div>
                 <Button
-                  className="mx-4 my-3"
+                  className="mx-4 my-3 text-white"
                   variant="blurple"
                   size="lg"
                   style={{ fontFamily: 'NanumSquare', fontWeight: 'bold' }}
@@ -178,7 +170,7 @@ export default function Home() {
               background: 'linear-gradient(210deg, #A566FF, #8041D9)',
             }}
           >
-            <Container className="d-lg-flex align-items-center justify-content-between">
+            <Container className="d-lg-flex align-items-center justify-content-between px-5">
               <div className="d-flex justify-content-center">
                 <Image
                   className="shadow mx-auto"
@@ -204,7 +196,7 @@ export default function Home() {
               background: 'linear-gradient(210deg, #E0844F, #F15F5F)',
             }}
           >
-            <Container className="d-lg-flex align-items-center justify-content-between flex-row-reverse">
+            <Container className="d-lg-flex align-items-center justify-content-between flex-row-reverse px-5">
               <div className="d-flex justify-content-center">
                 <Image
                   className="text-lg-right"
@@ -241,7 +233,7 @@ export default function Home() {
                   height={281.25}
                 />
               </div>
-              <div className={cx('MainFeaturesItemContent', 'ml-lg-5')}>
+              <div className={cx('MainFeaturesItemContent', 'ms-lg-5')}>
                 <h1>다양한 기능을 제공합니다</h1>
                 <p>
                   봇 명령어만으로 봇을 세팅하고 관리하는 것은 한계가 있습니다.

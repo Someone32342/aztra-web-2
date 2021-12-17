@@ -65,12 +65,12 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       <Row>
         {/* 대시보드 사이드바 */}
         <Col xl={2} lg={3} md={3} className="Dashboardroute-sidebar">
-          <Container className="pl-0 pr-0 pb-1" id="sidebar-header">
+          <Container className="ps-1 pe-0 pb-1" id="sidebar-header">
             {/* 사이드바 헤더 */}
             <Row>
               <Col xs={isXSsize ? 10 : 12} md={12} ref={sidebarHeaderRef}>
                 <div
-                  className="d-flex pl-1 font-weight-bold align-items-center"
+                  className="d-flex ps-1 fw-bold align-items-center"
                   style={{
                     fontSize: '1.05rem',
                     fontFamily: 'NanumSquare',
@@ -92,7 +92,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
               </Col>
               <Col
                 xs={isXSsize ? 2 : 0}
-                className="text-center my-auto pl-1 d-md-none"
+                className="text-center my-auto ps-1 d-md-none"
               >
                 <Button
                   size="sm"

@@ -11,7 +11,7 @@ const cx = classNames.bind(styles);
 export default function Footer() {
   return (
     <footer className={styles.Footer}>
-      <Container fluid="sm" className="text-center text-md-left">
+      <Container fluid="sm" className="text-center text-md-start">
         <Row>
           <Col md={5} className="mt-md-0 mt-3">
             <h4 className="text-uppercase no-drag">

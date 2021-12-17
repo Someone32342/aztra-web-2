@@ -24,6 +24,8 @@ import ChannelSelectCard from 'components/forms/ChannelSelectCard';
 import { faBullhorn, faHashtag } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import filterChannels from 'utils/filterChannels';
+import ChangesNotSaved from 'components/ChangesNotSaved';
+import Router from 'next/router';
 
 interface GeneralRouterProps {
   guildId: string;
@@ -52,6 +54,10 @@ const General: NextPage<GeneralRouterProps> = ({ guildId }) => {
 
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState(false);
+
+  const [preload, setPreload] = useState(true);
+  const [changed, setChanged] = useState(false);
+
   const [guildPrefixValidate, setGuildPrefixValidate] = useState<
     boolean | null
   >(null);
@@ -114,18 +120,53 @@ const General: NextPage<GeneralRouterProps> = ({ guildId }) => {
     }
   };
 
+  const initData = (data: ServerData) => {
+    setGuildPrefix(data.prefix);
+    setNoticeChannel(data.noticeChannel);
+    setUseNoticeChannel(!!data.noticeChannel);
+  };
+
   useEffect(() => {
     if (!new Cookies().get('ACCESS_TOKEN')) {
       const lct = window.location;
       localStorage.setItem('loginFrom', lct.pathname + lct.search);
       window.location.assign('/login');
     }
+
+    setTimeout(() => setPreload(false), 1000);
+
     if (data) {
-      setGuildPrefix(data.prefix);
-      setNoticeChannel(data.noticeChannel);
-      setUseNoticeChannel(!!data.noticeChannel);
+      initData(data);
     }
   }, [data]);
+
+  useEffect(() => {
+    const message = '저장되지 않은 변경사항이 있습니다. 계속하시겠습니까?';
+
+    const routeChangeStart = (url: string) => {
+      if (Router.asPath !== url && changed && !confirm(message)) {
+        Router.events.emit('routeChangeError');
+        Router.replace(Router, Router.asPath);
+        throw 'Abort route change. Please ignore this error.';
+      }
+    };
+
+    const beforeunload = (e: BeforeUnloadEvent) => {
+      if (changed) {
+        e.preventDefault();
+        e.returnValue = message;
+        return message;
+      }
+    };
+
+    window.addEventListener('beforeunload', beforeunload);
+    Router.events.on('routeChangeStart', routeChangeStart);
+
+    return () => {
+      window.removeEventListener('beforeunload', beforeunload);
+      Router.events.off('routeChangeStart', routeChangeStart);
+    };
+  }, [changed]);
 
   const setValidate = (type?: handleFieldChangeTypes) => {
     const All = [
@@ -161,14 +202,16 @@ const General: NextPage<GeneralRouterProps> = ({ guildId }) => {
 
   const isChanged = () => {
     if (!data) {
+      setChanged(false);
       return false;
     }
 
-    return (
+    const rst =
       data.prefix !== guildPrefix ||
       data.noticeChannel !== noticeChannel ||
-      useNoticeChannel !== !!data.noticeChannel
-    );
+      useNoticeChannel !== !!data.noticeChannel;
+    setChanged(rst);
+    return rst;
   };
 
   const filteredChannels = filterChannels(channels ?? [], channelSearch, [
@@ -269,7 +312,7 @@ const General: NextPage<GeneralRouterProps> = ({ guildId }) => {
                             <Form.Check
                               type="switch"
                               label={
-                                <div className="pl-2 font-weight-bold">
+                                <div className="ps-2 font-weight-bold">
                                   Aztra 공지 메시지 받기
                                 </div>
                               }
@@ -297,8 +340,10 @@ const General: NextPage<GeneralRouterProps> = ({ guildId }) => {
                                         (noticeChannel ?? data.noticeChannel)
                                     ) ? (
                                       <>
-                                        <h5 className="pr-2">현재 선택됨: </h5>
-                                        <Card bg="secondary">
+                                        <h5 className="ps-0 pe-2">
+                                          현재 선택됨:{' '}
+                                        </h5>
+                                        <Card bg="secondary" className="px-0">
                                           <Card.Header
                                             className="py-1 px-3"
                                             style={{
@@ -314,13 +359,13 @@ const General: NextPage<GeneralRouterProps> = ({ guildId }) => {
                                             )?.type === 'GUILD_TEXT' ? (
                                               <FontAwesomeIcon
                                                 icon={faHashtag}
-                                                className="mr-2 my-auto"
+                                                className="me-2 my-auto"
                                                 size="sm"
                                               />
                                             ) : (
                                               <FontAwesomeIcon
                                                 icon={faBullhorn}
-                                                className="mr-2 my-auto"
+                                                className="me-2 my-auto"
                                                 size="sm"
                                               />
                                             )}
@@ -357,7 +402,7 @@ const General: NextPage<GeneralRouterProps> = ({ guildId }) => {
                                         setChannelSearch(e.target.value)
                                       }
                                     />
-                                    <Form.Text className="py-1">
+                                    <Form.Text className="ps-0 py-1">
                                       {filteredChannels.length}개 채널 찾음
                                     </Form.Text>
                                   </Row>
@@ -394,37 +439,19 @@ const General: NextPage<GeneralRouterProps> = ({ guildId }) => {
                         </>
                       )}
 
-                      <Row className="mt-5">
-                        <Button
-                          variant={saveError ? 'danger' : 'aztra'}
-                          disabled={saving || saveError || !isChanged()}
-                          onClick={handleSubmit}
-                          style={{
-                            minWidth: 140,
-                          }}
-                        >
-                          {saving ? (
-                            <>
-                              <Spinner
-                                as="span"
-                                animation="border"
-                                size="sm"
-                                role="status"
-                                aria-hidden="true"
-                              />
-                              <span className="pl-2">저장 중...</span>
-                            </>
-                          ) : (
-                            <span>
-                              {saveError
-                                ? '오류'
-                                : isChanged()
-                                ? '저장하기'
-                                : '저장됨'}
-                            </span>
-                          )}
-                        </Button>
-                      </Row>
+                      {!saveError && isChanged() ? (
+                        <ChangesNotSaved
+                          key="changesNotSaved1"
+                          onSave={handleSubmit}
+                          onReset={() => initData(data)}
+                          isSaving={saving}
+                          isSaveError={saveError}
+                        />
+                      ) : (
+                        <div style={{ opacity: preload ? 0 : 1 }}>
+                          <ChangesNotSaved key="changesNotSaved2" close />
+                        </div>
+                      )}
                     </Form>
                   </Col>
                 </Row>

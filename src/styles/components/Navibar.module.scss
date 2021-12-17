@@ -3,6 +3,7 @@
 @import 'bootstrap/scss/mixins';
 
 .NavContainer {
+  padding: 0 1.75rem;
   width: 100%;
   @media (min-width: 2001px) {
     width: 2000px;

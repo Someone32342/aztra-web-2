@@ -337,144 +337,158 @@ const Greetings: NextPage<GreetingsRouterProps> = ({ guildId }) => {
                 <Row>
                   <Col>
                     <Form noValidate>
-                      <Row className="pb-2 align-items-center">
-                        <h4>반기는 메시지</h4>
-                        <Button
-                          variant="dark"
-                          className="ml-auto d-flex align-items-center mb-2"
-                          size="sm"
-                          onClick={() => setShowFormattings(true)}
-                        >
-                          <CodeIcon className="mr-2" fontSize="small" />
-                          서식문자 목록
-                        </Button>
+                      <Row className="pb-2">
+                        <div className="d-flex align-items-center">
+                          <h4>반기는 메시지</h4>
+                          <Button
+                            variant="dark"
+                            className="ms-auto d-flex align-items-center mb-2"
+                            size="sm"
+                            onClick={() => setShowFormattings(true)}
+                          >
+                            <CodeIcon className="me-2" fontSize="small" />
+                            서식문자 목록
+                          </Button>
+                        </div>
                       </Row>
 
-                      <Form.Group controlId="incomingUse">
-                        <Form.Check
-                          type="switch"
-                          label="반기는 메시지 사용"
-                          checked={useJoin}
-                          onChange={() => setUseJoin(!useJoin)}
-                          aria-controls="incomingForm"
-                          aria-expanded={!!useJoin}
-                        />
-                      </Form.Group>
-
-                      <div className={!useJoin ? 'd-none' : undefined}>
-                        <Form.Group controlId="incomingTitle">
-                          <Form.Label>메시지 제목</Form.Label>
-                          <Form.Control
-                            className="shadow"
-                            isInvalid={validIT === false}
-                            as={TextareaAutosize}
-                            type="text"
-                            placeholder="예) ${username}님, 안녕하세요!"
-                            value={incomingTitle ?? undefined}
-                            onChange={(e) => {
-                              setValidate('incomingTitle', {
-                                incomingTitle: e.target.value,
-                              });
-                              setIncomingTitle(e.target.value);
-                            }}
+                      <div className="ps-3">
+                        <Form.Group controlId="incomingUse" className="mb-3">
+                          <Form.Check
+                            type="switch"
+                            label="반기는 메시지 사용"
+                            checked={useJoin}
+                            onChange={() => setUseJoin(!useJoin)}
+                            aria-controls="incomingForm"
+                            aria-expanded={!!useJoin}
                           />
-                          <Form.Control.Feedback type="invalid">
-                            빈칸일 수 없으며 최대 256자를 초과할 수 없습니다!
-                          </Form.Control.Feedback>
                         </Form.Group>
 
-                        <Form.Group controlId="incomingDesc">
-                          <Form.Label>메시지 내용</Form.Label>
-                          <Form.Control
-                            className="shadow"
-                            isInvalid={validID === false}
-                            as={TextareaAutosize}
-                            type="text"
-                            placeholder="예) ${guild}에 오신 것을 환영합니다."
-                            value={incomingDesc ?? undefined}
-                            onChange={(e) => {
-                              setValidate('incomingDesc', {
-                                incomingDesc: e.target.value,
-                              });
-                              setIncomingDesc(e.target.value);
-                            }}
-                          />
-                          <Form.Control.Feedback type="invalid">
-                            빈칸일 수 없으며 최대 2048자를 초과할 수 없습니다!
-                          </Form.Control.Feedback>
-                        </Form.Group>
-                      </div>
+                        <div className={!useJoin ? 'd-none' : undefined}>
+                          <Form.Group
+                            controlId="incomingTitle"
+                            className="mb-3"
+                          >
+                            <Form.Label>메시지 제목</Form.Label>
+                            <Form.Control
+                              className="shadow"
+                              isInvalid={validIT === false}
+                              as={TextareaAutosize}
+                              type="text"
+                              placeholder="예) ${username}님, 안녕하세요!"
+                              value={incomingTitle ?? undefined}
+                              onChange={(e) => {
+                                setValidate('incomingTitle', {
+                                  incomingTitle: e.target.value,
+                                });
+                                setIncomingTitle(e.target.value);
+                              }}
+                            />
+                            <Form.Control.Feedback type="invalid">
+                              빈칸일 수 없으며 최대 256자를 초과할 수 없습니다!
+                            </Form.Control.Feedback>
+                          </Form.Group>
 
-                      <Row className="pt-4 pb-2 align-items-center">
-                        <h4>나가는 메시지</h4>
-                        <Button
-                          variant="dark"
-                          className="ml-auto d-flex align-items-center mb-2"
-                          size="sm"
-                          onClick={() => setShowFormattings(true)}
-                        >
-                          <CodeIcon className="mr-2" fontSize="small" />
-                          서식문자 목록
-                        </Button>
-                      </Row>
-
-                      <Form.Group controlId="outgoingUse">
-                        <Form.Check
-                          type="switch"
-                          label="나가는 메시지 사용"
-                          checked={useLeave}
-                          onChange={() => setUseLeave(!useLeave)}
-                          aria-controls="outgoingForm"
-                          aria-expanded={!!useLeave}
-                        />
-                      </Form.Group>
-
-                      <div className={!useLeave ? 'd-none' : undefined}>
-                        <Form.Group controlId="outgoingTitle">
-                          <Form.Label>메시지 제목</Form.Label>
-                          <Form.Control
-                            className="shadow"
-                            isInvalid={validOT === false}
-                            as={TextareaAutosize}
-                            type="text"
-                            placeholder="예) ${username}님, 안녕히가세요"
-                            value={outgoingTitle ?? undefined}
-                            onChange={(e) => {
-                              setValidate('outgoingTitle', {
-                                outgoingTitle: e.target.value,
-                              });
-                              setOutgoingTitle(e.target.value);
-                            }}
-                          />
-                          <Form.Control.Feedback type="invalid">
-                            빈칸일 수 없으며 최대 256자를 초과할 수 없습니다!
-                          </Form.Control.Feedback>
-                        </Form.Group>
-
-                        <Form.Group controlId="outgoingDesc">
-                          <Form.Label>메시지 내용</Form.Label>
-                          <Form.Control
-                            className="shadow"
-                            isInvalid={validOD === false}
-                            as={TextareaAutosize}
-                            type="text"
-                            placeholder="예) ${username}님이 나갔습니다."
-                            value={outgoingDesc ?? undefined}
-                            onChange={(e) => {
-                              setValidate('outgoingDesc', {
-                                outgoingDesc: e.target.value,
-                              });
-                              setOutgoingDesc(e.target.value);
-                            }}
-                          />
-                          <Form.Control.Feedback type="invalid">
-                            빈칸일 수 없으며 최대 2048자를 초과할 수 없습니다!
-                          </Form.Control.Feedback>
-                        </Form.Group>
+                          <Form.Group controlId="incomingDesc">
+                            <Form.Label>메시지 내용</Form.Label>
+                            <Form.Control
+                              className="shadow"
+                              isInvalid={validID === false}
+                              as={TextareaAutosize}
+                              type="text"
+                              placeholder="예) ${guild}에 오신 것을 환영합니다."
+                              value={incomingDesc ?? undefined}
+                              onChange={(e) => {
+                                setValidate('incomingDesc', {
+                                  incomingDesc: e.target.value,
+                                });
+                                setIncomingDesc(e.target.value);
+                              }}
+                            />
+                            <Form.Control.Feedback type="invalid">
+                              빈칸일 수 없으며 최대 2048자를 초과할 수 없습니다!
+                            </Form.Control.Feedback>
+                          </Form.Group>
+                        </div>
                       </div>
 
                       <Row className="pt-4 pb-2">
-                        <h4 className="pr-5">전송 채널</h4>
+                        <div className="d-flex align-items-center">
+                          <h4>나가는 메시지</h4>
+                          <Button
+                            variant="dark"
+                            className="ms-auto d-flex align-items-center mb-2"
+                            size="sm"
+                            onClick={() => setShowFormattings(true)}
+                          >
+                            <CodeIcon className="me-2" fontSize="small" />
+                            서식문자 목록
+                          </Button>
+                        </div>
+                      </Row>
+
+                      <div className="ps-3">
+                        <Form.Group controlId="outgoingUse" className="mb-3">
+                          <Form.Check
+                            type="switch"
+                            label="나가는 메시지 사용"
+                            checked={useLeave}
+                            onChange={() => setUseLeave(!useLeave)}
+                            aria-controls="outgoingForm"
+                            aria-expanded={!!useLeave}
+                          />
+                        </Form.Group>
+
+                        <div className={!useLeave ? 'd-none' : undefined}>
+                          <Form.Group
+                            controlId="outgoingTitle"
+                            className="mb-3"
+                          >
+                            <Form.Label>메시지 제목</Form.Label>
+                            <Form.Control
+                              className="shadow"
+                              isInvalid={validOT === false}
+                              as={TextareaAutosize}
+                              type="text"
+                              placeholder="예) ${username}님, 안녕히가세요"
+                              value={outgoingTitle ?? undefined}
+                              onChange={(e) => {
+                                setValidate('outgoingTitle', {
+                                  outgoingTitle: e.target.value,
+                                });
+                                setOutgoingTitle(e.target.value);
+                              }}
+                            />
+                            <Form.Control.Feedback type="invalid">
+                              빈칸일 수 없으며 최대 256자를 초과할 수 없습니다!
+                            </Form.Control.Feedback>
+                          </Form.Group>
+
+                          <Form.Group controlId="outgoingDesc">
+                            <Form.Label>메시지 내용</Form.Label>
+                            <Form.Control
+                              className="shadow"
+                              isInvalid={validOD === false}
+                              as={TextareaAutosize}
+                              type="text"
+                              placeholder="예) ${username}님이 나갔습니다."
+                              value={outgoingDesc ?? undefined}
+                              onChange={(e) => {
+                                setValidate('outgoingDesc', {
+                                  outgoingDesc: e.target.value,
+                                });
+                                setOutgoingDesc(e.target.value);
+                              }}
+                            />
+                            <Form.Control.Feedback type="invalid">
+                              빈칸일 수 없으며 최대 2048자를 초과할 수 없습니다!
+                            </Form.Control.Feedback>
+                          </Form.Group>
+                        </div>
+                      </div>
+
+                      <Row className="pt-4 pb-2">
+                        <h4 className="pe-5">전송 채널</h4>
                       </Row>
                       <Row>
                         <Col md={8}>
@@ -487,8 +501,10 @@ const Greetings: NextPage<GreetingsRouterProps> = ({ guildId }) => {
                                     (one) => one.id === data?.channel
                                   ) ? (
                                     <>
-                                      <h5 className="pr-2">현재 선택됨: </h5>
-                                      <Card bg="secondary">
+                                      <h5 className="ps-0 pe-2">
+                                        현재 선택됨:{' '}
+                                      </h5>
+                                      <Card bg="secondary" className="px-0">
                                         <Card.Header
                                           className="py-1 px-3"
                                           style={{
@@ -498,7 +514,7 @@ const Greetings: NextPage<GreetingsRouterProps> = ({ guildId }) => {
                                         >
                                           <FontAwesomeIcon
                                             icon={faHashtag}
-                                            className="mr-2 my-auto"
+                                            className="me-2 my-auto"
                                             size="sm"
                                           />
                                           {
@@ -572,7 +588,7 @@ const Greetings: NextPage<GreetingsRouterProps> = ({ guildId }) => {
                           ) : (
                             <Alert variant="warning" className="d-flex">
                               <WarningIcon
-                                className="mr-2"
+                                className="me-2"
                                 htmlColor="orange"
                               />
                               채널을 선택하려면 먼저 반기는 메시지 또는 나가는
@@ -600,7 +616,7 @@ const Greetings: NextPage<GreetingsRouterProps> = ({ guildId }) => {
                                 role="status"
                                 aria-hidden="true"
                               />
-                              <span className="pl-2">저장 중...</span>
+                              <span className="ps-2">저장 중...</span>
                             </>
                           ) : (
                             <span>

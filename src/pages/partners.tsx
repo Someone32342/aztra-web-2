@@ -66,7 +66,7 @@ const Partners: NextPage = () => {
                 <Button
                   variant="aztra"
                   size="lg"
-                  className="font-weight-bold"
+                  className="fw-bold"
                   style={{
                     fontFamily: 'NanumSquare',
                     width: 220,
@@ -128,17 +128,20 @@ const Partners: NextPage = () => {
                   style={{ fontFamily: 'NanumSquare' }}
                 >
                   <Card
-                    className="shadow h-100"
+                    className="shadow h-100 p-1"
                     style={{
                       background: 'linear-gradient(210deg, #A566FF, #8041D9)',
                     }}
                   >
                     <Card.Body>
-                      <Card.Title className="d-flex align-items-center font-weight-bold">
-                        {React.createElement(o[2], { className: 'mr-2' })}
+                      <Card.Title
+                        className="d-flex align-items-center fw-bold mb-3"
+                        style={{ fontFamily: 'NanumSquare' }}
+                      >
+                        {React.createElement(o[2], { className: 'me-2' })}
                         {o[0]}
                         {o[3] && (
-                          <Badge variant="aztra" className="ml-2">
+                          <Badge bg="aztra" className="ms-2">
                             레벨{o[3]}↑
                           </Badge>
                         )}
@@ -162,12 +165,12 @@ const Partners: NextPage = () => {
                         </Col>
                         <Col className="px-0">
                           <Card.Body className="py-0">
-                            <Card.Title className="font-weight-bold text-center text-sm-left mb-1" style={{ fontFamily: 'NanumSquare', fontSize: 22 }}>
+                            <Card.Title className="fw-bold text-center text-sm-left mb-1" style={{ fontFamily: 'NanumSquare', fontSize: 22 }}>
                               {one.name}
                             </Card.Title>
                             <Card.Text>
                               <div className="d-flex align-items-center justify-content-center justify-content-sm-start">
-                                <div className="mr-2 rounded-circle" style={{ width: 10, height: 10, backgroundColor: 'lime' }} />
+                                <div className="me-2 rounded-circle" style={{ width: 10, height: 10, backgroundColor: 'lime' }} />
                                 <small>000 멤버 온라인, 000 멤버</small>
                               </div>
                             </Card.Text>
@@ -193,14 +196,14 @@ const Partners: NextPage = () => {
             className="text-white pt-4"
             style={{ padding: '0 12% 100px 12%' }}
           >
-            <Row className="justify-content-center my-5 pb-5">
+            <Row className="text-center my-5 pb-5">
               <h3 style={{ fontFamily: 'NanumSquare' }}>
                 파트너 서버 요건 및 유의 사항
               </h3>
             </Row>
             <Row className="mb-5 justify-content-center">
               <Col xs="auto">
-                <Card bg="dark" className="shadow">
+                <Card bg="dark" className="shadow p-1">
                   <Card.Body>
                     <Card.Title as="h4" className="text-center">
                       필수 조건
@@ -274,7 +277,7 @@ const Partners: NextPage = () => {
             </Row>
             <Row>
               <Col xs={12} lg={4} className="mb-4">
-                <Card bg="aztra-dark" className="shadow h-100">
+                <Card bg="aztra-dark" className="shadow h-100 p-1">
                   <Card.Body>
                     <Card.Title as="h4" className="pb-2">
                       파트너 레벨 1
@@ -301,7 +304,7 @@ const Partners: NextPage = () => {
                 </Card>
               </Col>
               <Col xs={12} lg={4} className="mb-4">
-                <Card bg="aztra-dark" className="shadow h-100">
+                <Card bg="aztra-dark" className="shadow h-100 p-1">
                   <Card.Body>
                     <Card.Title as="h4" className="pb-2">
                       파트너 레벨 2
@@ -330,7 +333,7 @@ const Partners: NextPage = () => {
                 </Card>
               </Col>
               <Col xs={12} lg={4} className="mb-4">
-                <Card bg="aztra-dark" className="shadow h-100">
+                <Card bg="aztra-dark" className="shadow h-100 p-1">
                   <Card.Body>
                     <Card.Title as="h4" className="pb-2">
                       파트너 레벨 3
