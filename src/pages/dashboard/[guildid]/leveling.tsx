@@ -35,15 +35,16 @@ interface LevelingRouterProps {
   guildId: string;
 }
 
-export const getServerSideProps: GetServerSideProps<LevelingRouterProps> =
-  async (context) => {
-    const { guildid } = context.query;
-    return {
-      props: {
-        guildId: guildid as string,
-      },
-    };
+export const getServerSideProps: GetServerSideProps<
+  LevelingRouterProps
+> = async (context) => {
+  const { guildid } = context.query;
+  return {
+    props: {
+      guildId: guildid as string,
+    },
   };
+};
 
 const Leveling: NextPage<LevelingRouterProps> = ({ guildId }) => {
   const [useLevelupMessage, setUseLevelupMessage] = useState(false);

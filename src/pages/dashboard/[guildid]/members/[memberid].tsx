@@ -54,16 +54,17 @@ interface MemberDashboardRouteProps {
   memberId: string;
 }
 
-export const getServerSideProps: GetServerSideProps<MemberDashboardRouteProps> =
-  async (context) => {
-    const { guildid, memberid } = context.query;
-    return {
-      props: {
-        guildId: guildid as string,
-        memberId: memberid as string,
-      },
-    };
+export const getServerSideProps: GetServerSideProps<
+  MemberDashboardRouteProps
+> = async (context) => {
+  const { guildid, memberid } = context.query;
+  return {
+    props: {
+      guildId: guildid as string,
+      memberId: memberid as string,
+    },
   };
+};
 
 const MemberDashboard: NextPage<MemberDashboardRouteProps> = ({
   guildId,

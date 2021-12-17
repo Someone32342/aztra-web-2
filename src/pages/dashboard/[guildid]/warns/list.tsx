@@ -176,7 +176,6 @@ const WarnsListCard: React.FC<WarnsListCardProps> = ({
           <Form.Check
             id={`warn-check-${warn.uuid}`}
             type="checkbox"
-            custom
             checked={checked}
             onChange={onCheckChange}
           />
@@ -204,7 +203,6 @@ const WarnsListCard: React.FC<WarnsListCardProps> = ({
           <Form.Check
             id={`warn-check-${warn.uuid}`}
             type="checkbox"
-            custom
             checked={checked}
             onChange={onCheckChange}
           />
@@ -539,15 +537,16 @@ const WarnsListCard: React.FC<WarnsListCardProps> = ({
   );
 };
 
-export const getServerSideProps: GetServerSideProps<WarnsListRouteProps> =
-  async (context) => {
-    const { guildid } = context.query;
-    return {
-      props: {
-        guildId: guildid as string,
-      },
-    };
+export const getServerSideProps: GetServerSideProps<
+  WarnsListRouteProps
+> = async (context) => {
+  const { guildid } = context.query;
+  return {
+    props: {
+      guildId: guildid as string,
+    },
   };
+};
 
 const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
   const [warnSearch, setWarnSearch] = useState('');
@@ -810,7 +809,6 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
                                   className="ml-4"
                                   type="radio"
                                   id="radio-search-by-reason"
-                                  custom
                                   label="경고 사유"
                                   checked={searchType === 'reason'}
                                   style={{ wordBreak: 'keep-all' }}
@@ -822,7 +820,6 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
                                   className="ml-4"
                                   type="radio"
                                   id="radio-search-by-target"
-                                  custom
                                   label="대상 멤버"
                                   checked={searchType === 'target'}
                                   style={{ wordBreak: 'keep-all' }}
@@ -834,7 +831,6 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
                                   className="ml-4"
                                   type="radio"
                                   id="radio-search-by-warnby"
-                                  custom
                                   label="경고 부여자"
                                   checked={searchType === 'warnby'}
                                   style={{ wordBreak: 'keep-all' }}
@@ -851,7 +847,6 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
                                   className="ml-4"
                                   type="radio"
                                   id="radio-sort-latest"
-                                  custom
                                   label="최신순"
                                   checked={sortType === 'latest'}
                                   style={{ wordBreak: 'keep-all' }}
@@ -863,7 +858,6 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
                                   className="ml-4"
                                   type="radio"
                                   id="radio-sort-oldest"
-                                  custom
                                   label="과거순"
                                   checked={sortType === 'oldest'}
                                   style={{ wordBreak: 'keep-all' }}
@@ -875,7 +869,6 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
                                   className="ml-4"
                                   type="radio"
                                   id="radio-sort-count"
-                                  custom
                                   label="경고수 많은순"
                                   checked={sortType === 'count'}
                                   style={{ wordBreak: 'keep-all' }}
@@ -887,7 +880,6 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
                                   className="ml-4"
                                   type="radio"
                                   id="radio-sort-count-least"
-                                  custom
                                   label="경고수 적은순"
                                   checked={sortType === 'count_least'}
                                   style={{ wordBreak: 'keep-all' }}
@@ -996,7 +988,6 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
                                 >
                                   <Form.Check
                                     id="warn-select-all"
-                                    custom
                                     type="checkbox"
                                     checked={
                                       !!warns.length &&

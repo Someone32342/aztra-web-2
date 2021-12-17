@@ -44,15 +44,16 @@ type handleFieldChangeTypes =
   | 'outgoingDesc'
   | 'channel';
 
-export const getServerSideProps: GetServerSideProps<GreetingsRouterProps> =
-  async (context) => {
-    const { guildid } = context.query;
-    return {
-      props: {
-        guildId: guildid as string,
-      },
-    };
+export const getServerSideProps: GetServerSideProps<
+  GreetingsRouterProps
+> = async (context) => {
+  const { guildid } = context.query;
+  return {
+    props: {
+      guildId: guildid as string,
+    },
   };
+};
 
 const Greetings: NextPage<GreetingsRouterProps> = ({ guildId }) => {
   const [useJoin, setUseJoin] = useState(false);

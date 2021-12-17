@@ -31,15 +31,16 @@ interface GeneralRouterProps {
 
 type handleFieldChangeTypes = 'channel';
 
-export const getServerSideProps: GetServerSideProps<GeneralRouterProps> =
-  async (context) => {
-    const { guildid } = context.query;
-    return {
-      props: {
-        guildId: guildid as string,
-      },
-    };
+export const getServerSideProps: GetServerSideProps<
+  GeneralRouterProps
+> = async (context) => {
+  const { guildid } = context.query;
+  return {
+    props: {
+      guildId: guildid as string,
+    },
   };
+};
 
 const General: NextPage<GeneralRouterProps> = ({ guildId }) => {
   const [guildPrefix, setGuildPrefix] = useState<string | null>(null);

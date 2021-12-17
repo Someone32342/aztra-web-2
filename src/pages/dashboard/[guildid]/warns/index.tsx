@@ -40,15 +40,16 @@ interface WarnsMainRouterProps {
   guildId: string;
 }
 
-export const getServerSideProps: GetServerSideProps<WarnsMainRouterProps> =
-  async (context) => {
-    const { guildid } = context.query;
-    return {
-      props: {
-        guildId: guildid as string,
-      },
-    };
+export const getServerSideProps: GetServerSideProps<
+  WarnsMainRouterProps
+> = async (context) => {
+  const { guildid } = context.query;
+  return {
+    props: {
+      guildId: guildid as string,
+    },
   };
+};
 
 const WarnsMain: NextPage<WarnsMainRouterProps> = ({ guildId }) => {
   const { data } = useSWR<WarnsType[], AxiosError>(

@@ -46,15 +46,16 @@ interface AutoTaskingRouterProps {
   guildId: string;
 }
 
-export const getServerSideProps: GetServerSideProps<AutoTaskingRouterProps> =
-  async (context) => {
-    const { guildid } = context.query;
-    return {
-      props: {
-        guildId: guildid as string,
-      },
-    };
+export const getServerSideProps: GetServerSideProps<
+  AutoTaskingRouterProps
+> = async (context) => {
+  const { guildid } = context.query;
+  return {
+    props: {
+      guildId: guildid as string,
+    },
   };
+};
 
 interface TaskListCardProps {
   onCheckChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
@@ -323,7 +324,6 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
               <Form.Check
                 id={`taskset-check-${taskset.uuid}`}
                 type="checkbox"
-                custom
                 checked={checked}
                 onChange={onCheckChange}
               />
@@ -350,7 +350,6 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
               <Form.Check
                 id={`taskset-check-${taskset.uuid}`}
                 type="checkbox"
-                custom
                 checked={checked}
                 onChange={onCheckChange}
               />
@@ -656,7 +655,6 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                               >
                                 <Form.Check
                                   id="task-select-all"
-                                  custom
                                   type="checkbox"
                                   checked={
                                     !!data?.length &&

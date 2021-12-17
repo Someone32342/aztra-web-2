@@ -32,15 +32,16 @@ interface AutoTaskingRouterProps {
   guildId: string;
 }
 
-export const getServerSideProps: GetServerSideProps<AutoTaskingRouterProps> =
-  async (context) => {
-    const { guildid } = context.query;
-    return {
-      props: {
-        guildId: guildid as string,
-      },
-    };
+export const getServerSideProps: GetServerSideProps<
+  AutoTaskingRouterProps
+> = async (context) => {
+  const { guildid } = context.query;
+  return {
+    props: {
+      guildId: guildid as string,
+    },
   };
+};
 
 interface BoardListCardProps {
   onCheckChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;

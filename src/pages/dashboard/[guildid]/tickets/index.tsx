@@ -43,15 +43,16 @@ interface TicketSetsRouterProps {
   guildId: string;
 }
 
-export const getServerSideProps: GetServerSideProps<TicketSetsRouterProps> =
-  async (context) => {
-    const { guildid } = context.query;
-    return {
-      props: {
-        guildId: guildid as string,
-      },
-    };
+export const getServerSideProps: GetServerSideProps<
+  TicketSetsRouterProps
+> = async (context) => {
+  const { guildid } = context.query;
+  return {
+    props: {
+      guildId: guildid as string,
+    },
   };
+};
 
 interface TicketsetListCardProps {
   onCheckChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;

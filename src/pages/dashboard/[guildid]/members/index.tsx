@@ -27,15 +27,16 @@ type MemberSearchType = 'nick-and-tag' | 'id';
 
 const PER_PAGE = 50;
 
-export const getServerSideProps: GetServerSideProps<MembersRouterProps> =
-  async (context) => {
-    const { guildid } = context.query;
-    return {
-      props: {
-        guildId: guildid as string,
-      },
-    };
+export const getServerSideProps: GetServerSideProps<
+  MembersRouterProps
+> = async (context) => {
+  const { guildid } = context.query;
+  return {
+    props: {
+      guildId: guildid as string,
+    },
   };
+};
 
 const Members: NextPage<MembersRouterProps> = ({ guildId }) => {
   const [memberSearch, setMemberSearch] = useState('');

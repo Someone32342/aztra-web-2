@@ -36,15 +36,16 @@ interface LoggingRouterProps {
   guildId: string;
 }
 
-export const getServerSideProps: GetServerSideProps<LoggingRouterProps> =
-  async (context) => {
-    const { guildid } = context.query;
-    return {
-      props: {
-        guildId: guildid as string,
-      },
-    };
+export const getServerSideProps: GetServerSideProps<
+  LoggingRouterProps
+> = async (context) => {
+  const { guildid } = context.query;
+  return {
+    props: {
+      guildId: guildid as string,
+    },
   };
+};
 
 const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
   const [useLogging, setUseLogging] = useState(false);

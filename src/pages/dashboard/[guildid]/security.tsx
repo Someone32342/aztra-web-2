@@ -36,15 +36,16 @@ interface SecurityRouterProps {
   guildId: string;
 }
 
-export const getServerSideProps: GetServerSideProps<SecurityRouterProps> =
-  async (context) => {
-    const { guildid } = context.query;
-    return {
-      props: {
-        guildId: guildid as string,
-      },
-    };
+export const getServerSideProps: GetServerSideProps<
+  SecurityRouterProps
+> = async (context) => {
+  const { guildid } = context.query;
+  return {
+    props: {
+      guildId: guildid as string,
+    },
   };
+};
 
 const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
   const [newInvite, setNewInvite] = useState(false);
