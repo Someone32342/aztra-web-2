@@ -140,6 +140,8 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({
     ? getEmojiDataFromNative(newData.emoji, 'twitter', emojiData as any)
     : null;
 
+  const filteredChannels = filterChannels(channels, channelSearch);
+
   return (
     <>
       <Row>
@@ -189,7 +191,7 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({
                   onChange={(e) => setChannelSearch(e.target.value)}
                 />
                 <Form.Text className="py-1">
-                  {channels?.length}개 채널 찾음
+                  {filteredChannels.length}개 채널 찾음
                 </Form.Text>
               </Row>
               <Row
@@ -201,7 +203,7 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({
                 }}
               >
                 {channels ? (
-                  filterChannels(channels, channelSearch).map((one) => (
+                  filteredChannels.map((one) => (
                     <ChannelSelectCard
                       key={one.id}
                       selected={newParams.channel === one.id}

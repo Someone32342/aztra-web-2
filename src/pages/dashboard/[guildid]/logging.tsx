@@ -204,6 +204,8 @@ const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
     }
   }, [data]);
 
+  const filteredChannels = filterChannels(channels ?? [], channelSearch);
+
   return (
     <>
       <Head>
@@ -461,7 +463,7 @@ const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
                                       }
                                     />
                                     <Form.Text className="py-1">
-                                      {channels?.length}개 채널 찾음
+                                      {filteredChannels.length}개 채널 찾음
                                     </Form.Text>
                                   </Row>
                                   <Row
@@ -473,10 +475,7 @@ const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
                                     }}
                                   >
                                     {channels ? (
-                                      filterChannels(
-                                        channels,
-                                        channelSearch
-                                      ).map((one) => (
+                                      filteredChannels.map((one) => (
                                         <ChannelSelectCard
                                           key={one.id}
                                           selected={

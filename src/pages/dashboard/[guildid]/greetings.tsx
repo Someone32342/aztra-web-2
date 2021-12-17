@@ -257,6 +257,8 @@ const Greetings: NextPage<GreetingsRouterProps> = ({ guildId }) => {
     );
   };
 
+  const filteredChannels = filterChannels(channels ?? [], channelSearch);
+
   return (
     <>
       <Head>
@@ -531,7 +533,7 @@ const Greetings: NextPage<GreetingsRouterProps> = ({ guildId }) => {
                                     }
                                   />
                                   <Form.Text className="py-1">
-                                    {channels?.length}개 채널 찾음
+                                    {filteredChannels.length}개 채널 찾음
                                   </Form.Text>
                                 </Row>
                                 <Row
@@ -543,25 +545,23 @@ const Greetings: NextPage<GreetingsRouterProps> = ({ guildId }) => {
                                   }}
                                 >
                                   {channels ? (
-                                    filterChannels(channels, channelSearch).map(
-                                      (one) => (
-                                        <ChannelSelectCard
-                                          key={one.id}
-                                          selected={
-                                            newChannel === one.id ||
-                                            (!newChannel &&
-                                              one.id === data?.channel)
-                                          }
-                                          channelData={{
-                                            channelName: one.name,
-                                            parentChannelName: channels?.find(
-                                              (c) => c.id === one.parentId
-                                            )?.name,
-                                          }}
-                                          onClick={() => setNewChannel(one.id)}
-                                        />
-                                      )
-                                    )
+                                    filteredChannels.map((one) => (
+                                      <ChannelSelectCard
+                                        key={one.id}
+                                        selected={
+                                          newChannel === one.id ||
+                                          (!newChannel &&
+                                            one.id === data?.channel)
+                                        }
+                                        channelData={{
+                                          channelName: one.name,
+                                          parentChannelName: channels?.find(
+                                            (c) => c.id === one.parentId
+                                          )?.name,
+                                        }}
+                                        onClick={() => setNewChannel(one.id)}
+                                      />
+                                    ))
                                   ) : (
                                     <h4>불러오는 중</h4>
                                   )}
