@@ -466,7 +466,11 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketsetId }) => {
                     {new Date(ticket.created_at).toLocaleString()}
                   </span>
                 </div>
-                <div className="mt-2">{!deletedMode && <Actions />}</div>
+                <div className="d-flex mt-2 align-items-center">
+                  {transcripts?.find((o) => o.ticketid === ticket.uuid) && (
+                    <Actions />
+                  )}
+                </div>
               </div>
             </td>
           </>
