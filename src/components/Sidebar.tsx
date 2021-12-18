@@ -221,7 +221,7 @@ const Sidebar: React.FC<SidebarProps> = ({ guildId, onSelect }) => {
                 보안 설정
                 <Badge
                   bg="aztra"
-                  className="ms-2 my-auto"
+                  className="ms-2 my-auto px-1 py-1"
                   style={{ fontSize: 14 }}
                 >
                   베타
@@ -251,7 +251,7 @@ const Sidebar: React.FC<SidebarProps> = ({ guildId, onSelect }) => {
                     전광판 채널
                     <Badge
                       bg="danger"
-                      className="ms-2 my-auto"
+                      className="ms-2 my-auto px-1 py-1"
                       style={{ fontSize: 14 }}
                     >
                       개발중

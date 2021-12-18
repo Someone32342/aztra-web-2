@@ -1,8 +1,10 @@
 @keyframes floatUp {
   0% {
-    bottom: -50px;
+    opacity: 0;
+    bottom: -25px;
   }
   40% {
+    opacity: 1;
     bottom: 40px;
   }
   75% {

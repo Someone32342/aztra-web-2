@@ -168,7 +168,7 @@ const Members: NextPage<MembersRouterProps> = ({ guildId }) => {
                           <Col>{PageBar}</Col>
                         </Row>
 
-                        <Row className="pb-2 justify-content-between">
+                        <Row className="pb-2 justify-content-between mx-1">
                           <Col
                             className="d-flex align-items-end mt-4 mt-xl-0 px-0"
                             xs={{
@@ -189,7 +189,7 @@ const Members: NextPage<MembersRouterProps> = ({ guildId }) => {
                           <Col
                             className="px-0"
                             xs={{
-                              span: 'auto',
+                              span: 12,
                               order: 'first',
                             }}
                             xl={{
@@ -202,8 +202,7 @@ const Members: NextPage<MembersRouterProps> = ({ guildId }) => {
                               <div className="d-lg-flex">
                                 <Form.Check
                                   id="member-search-by-name-and-nick"
-                                  custom
-                                  className="ml-4"
+                                  className="ms-3"
                                   type="radio"
                                   label="이름 및 닉네임"
                                   checked={memberSearchType === 'nick-and-tag'}
@@ -216,8 +215,7 @@ const Members: NextPage<MembersRouterProps> = ({ guildId }) => {
                                 />
                                 <Form.Check
                                   id="member-search-by-user-id"
-                                  custom
-                                  className="ml-4"
+                                  className="ms-3"
                                   type="radio"
                                   label="사용자 ID"
                                   checked={memberSearchType === 'id'}
@@ -231,7 +229,7 @@ const Members: NextPage<MembersRouterProps> = ({ guildId }) => {
                           </Col>
                         </Row>
 
-                        <Row className="mb-2">
+                        <Row className="mb-2 mx-1">
                           <input hidden={true} />
                           <Form.Control
                             type="text"
@@ -253,7 +251,7 @@ const Members: NextPage<MembersRouterProps> = ({ guildId }) => {
                           />
                         </Row>
 
-                        <Row className="flex-column mb-5">
+                        <Row className="flex-column mb-5 mx-1">
                           {slicedMembers?.map((one) => (
                             <MemberListCard
                               key={one.user.id}

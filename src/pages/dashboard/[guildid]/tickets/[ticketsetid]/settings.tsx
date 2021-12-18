@@ -176,7 +176,7 @@ const TicketSettings: NextPage<TicketListProps> = ({
                 <Row className="dashboard-section">
                   <div>
                     <BackTo
-                      className="pl-2 mb-4"
+                      className="ps-2 mb-4"
                       name="티켓 설정"
                       to={`/dashboard/${guildId}/tickets`}
                     />
@@ -189,7 +189,7 @@ const TicketSettings: NextPage<TicketListProps> = ({
                     <Card.Body className="py-2 d-flex align-items-center">
                       티켓:
                       <h5
-                        className="mb-0 pl-2"
+                        className="mb-0 ps-2"
                         style={{ fontFamily: 'NanumSquare' }}
                       >
                         {ticketSet?.name}
@@ -213,7 +213,7 @@ const TicketSettings: NextPage<TicketListProps> = ({
                         eventKey="general"
                         title={
                           <>
-                            <InfoOutlinedIcon className="mr-2" />
+                            <InfoOutlinedIcon className="me-2" />
                             일반 설정
                           </>
                         }
@@ -229,7 +229,7 @@ const TicketSettings: NextPage<TicketListProps> = ({
                         eventKey="permissions"
                         title={
                           <>
-                            <AssignmentIndIcon className="mr-2" />
+                            <AssignmentIndIcon className="me-2" />
                             권한 설정
                           </>
                         }
@@ -246,7 +246,7 @@ const TicketSettings: NextPage<TicketListProps> = ({
                         eventKey="message"
                         title={
                           <>
-                            <ChatIcon className="mr-2" />
+                            <ChatIcon className="me-2" />
                             메시지 설정
                           </>
                         }

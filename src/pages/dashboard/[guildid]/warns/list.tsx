@@ -134,7 +134,7 @@ const WarnsListCard: React.FC<WarnsListCardProps> = ({
       >
         <Button
           variant="dark"
-          className="d-flex px-1 remove-before"
+          className="d-flex px-1 remove-before bg-transparent border-0"
           onClick={() => setShowDel(true)}
         >
           <RemoveCircleOutline />
@@ -147,7 +147,7 @@ const WarnsListCard: React.FC<WarnsListCardProps> = ({
       >
         <Button
           variant="dark"
-          className="d-flex px-1 remove-before"
+          className="d-flex px-1 remove-before bg-transparent border-0"
           onClick={() => setShowEdit(true)}
         >
           <EditIcon />
@@ -160,7 +160,7 @@ const WarnsListCard: React.FC<WarnsListCardProps> = ({
       >
         <Button
           variant="dark"
-          className="d-flex px-1 remove-before"
+          className="d-flex px-1 remove-before bg-transparent border-0"
           onClick={() => setShowInfo(true)}
         >
           <OpenInNewIcon />
@@ -209,13 +209,13 @@ const WarnsListCard: React.FC<WarnsListCardProps> = ({
         </td>
         <td>
           <div className="pb-1 d-flex align-items-center">
-            <b className="pr-2" style={{ fontSize: 15 }}>
+            <b className="pe-2" style={{ fontSize: 15 }}>
               대상 멤버:
             </b>
             <MemberCell member={target!} guildId={guildId} />
           </div>
           <div className="pb-1">
-            <b className="pr-2" style={{ fontSize: 15 }}>
+            <b className="pe-2" style={{ fontSize: 15 }}>
               경고 횟수:
             </b>
             <span
@@ -226,7 +226,7 @@ const WarnsListCard: React.FC<WarnsListCardProps> = ({
             </span>
           </div>
           <div className="pb-1">
-            <b className="pr-2" style={{ fontSize: 15 }}>
+            <b className="pe-2" style={{ fontSize: 15 }}>
               경고 사유:
             </b>
             <span
@@ -237,7 +237,7 @@ const WarnsListCard: React.FC<WarnsListCardProps> = ({
             </span>
           </div>
           <div className="pb-1 d-flex align-items-center">
-            <b className="pr-2" style={{ fontSize: 15 }}>
+            <b className="pe-2" style={{ fontSize: 15 }}>
               경고 부여자:
             </b>
             <MemberCell member={warnby!} guildId={guildId} />
@@ -306,12 +306,12 @@ const WarnsListCard: React.FC<WarnsListCardProps> = ({
         </Modal.Header>
         <Modal.Body className="py-4">
           <Row className="pb-2">
-            <Form.Label column xs="auto" className="mr-0">
+            <Form.Label column xs="auto" className="me-0">
               대상 멤버
             </Form.Label>
             <Col>
               <Dropdown
-                className="dropdown-menu-dark"
+                className="dropdown-menu-dark d-inline-block"
                 onToggle={() => setEditMemberSearch('')}
                 onSelect={(e) => setEditMember(e)}
               >
@@ -377,7 +377,7 @@ const WarnsListCard: React.FC<WarnsListCardProps> = ({
                         active={false}
                       >
                         <img
-                          className="rounded-circle mr-2"
+                          className="rounded-circle me-2"
                           alt=""
                           src={
                             m.user.avatar
@@ -394,7 +394,7 @@ const WarnsListCard: React.FC<WarnsListCardProps> = ({
             </Col>
           </Row>
           <Row className="pb-2">
-            <Form.Label column xs="auto" className="mr-0">
+            <Form.Label column xs="auto" className="me-0">
               경고 사유
             </Form.Label>
             <Col>
@@ -413,7 +413,7 @@ const WarnsListCard: React.FC<WarnsListCardProps> = ({
             </Col>
           </Row>
           <Row>
-            <Form.Label column xs="auto" className="mr-0">
+            <Form.Label column xs="auto" className="me-0">
               경고 횟수
             </Form.Label>
             <Col xs={4} sm={3}>
@@ -438,7 +438,7 @@ const WarnsListCard: React.FC<WarnsListCardProps> = ({
               editWarn(warn.uuid);
             }}
           >
-            <CheckIcon className="mr-2" />
+            <CheckIcon className="me-2" />
             수정하기
           </Button>
           <Button variant="dark" onClick={() => setShowEdit(false)}>
@@ -514,7 +514,7 @@ const WarnsListCard: React.FC<WarnsListCardProps> = ({
               }}
             >
               <FileCopyIcon
-                className="mr-2"
+                className="me-2"
                 style={{ transform: 'scale(0.9)' }}
               />
               경고 사유 복사
@@ -754,7 +754,7 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
               <Row className="dashboard-section">
                 <div>
                   <BackTo
-                    className="pl-2 mb-4"
+                    className="ps-2 mb-4"
                     name="경고 관리"
                     to={`/dashboard/${guildId}/warns`}
                   />
@@ -764,7 +764,7 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
               <Row>
                 <Col>
                   {members && warns ? (
-                    <Form>
+                    <Form className="mx-3">
                       <Form.Group>
                         <Row>
                           <Col>{PageBar}</Col>
@@ -794,7 +794,7 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
                           <Col
                             className="px-0"
                             xs={{
-                              span: 'auto',
+                              span: 12,
                               order: 'first',
                             }}
                             xl={{
@@ -806,7 +806,7 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
                               <span>검색 조건:</span>
                               <div className="d-lg-flex">
                                 <Form.Check
-                                  className="ml-4"
+                                  className="ms-4"
                                   type="radio"
                                   id="radio-search-by-reason"
                                   label="경고 사유"
@@ -817,7 +817,7 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
                                   }
                                 />
                                 <Form.Check
-                                  className="ml-4"
+                                  className="ms-4"
                                   type="radio"
                                   id="radio-search-by-target"
                                   label="대상 멤버"
@@ -828,7 +828,7 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
                                   }
                                 />
                                 <Form.Check
-                                  className="ml-4"
+                                  className="ms-4"
                                   type="radio"
                                   id="radio-search-by-warnby"
                                   label="경고 부여자"
@@ -844,7 +844,7 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
                               <span>정렬 조건:</span>
                               <div className="d-lg-flex">
                                 <Form.Check
-                                  className="ml-4"
+                                  className="ms-4"
                                   type="radio"
                                   id="radio-sort-latest"
                                   label="최신순"
@@ -855,7 +855,7 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
                                   }
                                 />
                                 <Form.Check
-                                  className="ml-4"
+                                  className="ms-4"
                                   type="radio"
                                   id="radio-sort-oldest"
                                   label="과거순"
@@ -866,7 +866,7 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
                                   }
                                 />
                                 <Form.Check
-                                  className="ml-4"
+                                  className="ms-4"
                                   type="radio"
                                   id="radio-sort-count"
                                   label="경고수 많은순"
@@ -877,7 +877,7 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
                                   }
                                 />
                                 <Form.Check
-                                  className="ml-4"
+                                  className="ms-4"
                                   type="radio"
                                   id="radio-sort-count-least"
                                   label="경고수 적은순"
@@ -909,7 +909,7 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
                           <Collapse in={!!finalSelectedSet.size}>
                             <div>
                               <div className="pb-2">
-                                <span className="mr-3">
+                                <span className="me-3">
                                   선택한 것들을({finalSelectedSet.size}개):
                                 </span>
                                 <Button
@@ -976,6 +976,7 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
                           <Table
                             id="warn-list-table"
                             variant="dark"
+                            hover
                             style={{
                               tableLayout: 'fixed',
                             }}
@@ -1012,22 +1013,22 @@ const WarnsList: NextPage<WarnsListRouteProps> = ({ guildId }) => {
                                   />
                                 </th>
                                 <th
-                                  className="text-center text-lg-left d-none d-lg-table-cell"
+                                  className="text-center text-lg-start d-none d-lg-table-cell"
                                   style={{ width: '17%' }}
                                 >
                                   대상 멤버
                                 </th>
-                                <th className="text-center text-lg-left d-none d-lg-table-cell">
+                                <th className="text-center text-lg-start d-none d-lg-table-cell">
                                   경고 사유
                                 </th>
                                 <th
-                                  className="text-center text-lg-left d-none d-lg-table-cell"
+                                  className="text-center text-lg-start d-none d-lg-table-cell"
                                   style={{ width: '10%' }}
                                 >
                                   경고 횟수
                                 </th>
                                 <th
-                                  className="text-center text-lg-left d-none d-lg-table-cell"
+                                  className="text-center text-lg-start d-none d-lg-table-cell"
                                   style={{ width: '17%' }}
                                 >
                                   경고 부여자

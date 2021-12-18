@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { faHashtag } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import ChannelSelectCard from 'components/forms/ChannelSelectCard';
@@ -24,6 +24,8 @@ import emojiData from 'emoji-mart/data/all.json';
 import axios, { AxiosError } from 'axios';
 import api from 'datas/api';
 import Cookies from 'universal-cookie';
+import Router from 'next/router';
+import ChangesNotSaved from 'components/ChangesNotSaved';
 
 interface GeneralSettingsProps {
   channels: ChannelMinimal[];
@@ -59,16 +61,66 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({
     null
   );
 
+  const [preload, setPreload] = useState(true);
+  const [changed, setChanged] = useState(false);
+
+  const initData = () => {
+    setNewName(null);
+    setNewChannel(null);
+    setNewEmoji(null);
+    setNewOpenCategory(null);
+    setTicketNameValidate(null);
+  };
+
+  useEffect(() => {
+    setTimeout(() => setPreload(false), 1000);
+  }, []);
+
+  useEffect(() => {
+    const message = '저장되지 않은 변경사항이 있습니다. 계속하시겠습니까?';
+
+    const routeChangeStart = (url: string) => {
+      if (Router.asPath !== url && changed && !confirm(message)) {
+        Router.events.emit('routeChangeError');
+        Router.replace(Router, Router.asPath);
+        throw 'Abort route change. Please ignore this error.';
+      }
+    };
+
+    const beforeunload = (e: BeforeUnloadEvent) => {
+      if (changed) {
+        e.preventDefault();
+        e.returnValue = message;
+        return message;
+      }
+    };
+
+    window.addEventListener('beforeunload', beforeunload);
+    Router.events.on('routeChangeStart', routeChangeStart);
+
+    return () => {
+      window.removeEventListener('beforeunload', beforeunload);
+      Router.events.off('routeChangeStart', routeChangeStart);
+    };
+  }, [changed]);
+
   const ticketChannels = tickets.map((o) => o.channel);
 
-  const isChanged = () =>
-    (newName !== null && ticketSet.name !== newName) ||
-    (newChannel !== null && ticketSet.channel !== newChannel) ||
-    (newEmoji !== null && ticketSet.emoji !== newEmoji) ||
-    (newOpenCategory !== null &&
-      ticketSet.category_opened !== (newOpenCategory || null)) ||
-    (newClosedCategory !== null &&
-      ticketSet.category_closed !== (newClosedCategory || null));
+  const isChanged = () => {
+    const rst =
+      (newName !== null && ticketSet.name !== newName) ||
+      (newChannel !== null && ticketSet.channel !== newChannel) ||
+      (newEmoji !== null && ticketSet.emoji !== newEmoji) ||
+      (newOpenCategory !== null &&
+        ticketSet.category_opened !== (newOpenCategory || null)) ||
+      (newClosedCategory !== null &&
+        ticketSet.category_closed !== (newClosedCategory || null));
+
+    if (changed !== rst) {
+      setChanged(rst);
+    }
+    return rst;
+  };
 
   const filteredChannels = filterChannels(
     channels.filter((o) => !ticketChannels.includes(o.id)),
@@ -81,14 +133,50 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({
     emojiData as any
   );
 
+  const save = () => {
+    setSaving(true);
+
+    const patchData: Partial<Omit<TicketSet, 'guild' | 'uuid'>> = {
+      name: newName ?? undefined,
+      channel: newChannel ?? undefined,
+      emoji: newEmoji ?? undefined,
+      category_opened:
+        newOpenCategory === 0
+          ? null
+          : newOpenCategory === null
+          ? undefined
+          : newOpenCategory,
+      category_closed:
+        newClosedCategory === 0
+          ? null
+          : newClosedCategory === null
+          ? undefined
+          : newClosedCategory,
+    };
+
+    axios
+      .patch(
+        `${api}/servers/${ticketSet.guild}/ticketsets/${ticketSet.uuid}`,
+        patchData,
+        {
+          headers: {
+            Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`,
+          },
+        }
+      )
+      .then(() => mutate())
+      .catch(() => setSaveError(false))
+      .finally(() => setSaving(false));
+  };
+
   return (
     <Form as={Container} fluid className="mt-3">
       <Row className="pt-3 pb-2">
-        <h4 className="pr-5">기본 설정</h4>
+        <h4 className="pe-5">기본 설정</h4>
       </Row>
 
-      <Row>
-        <Form.Label column sm="auto" className="font-weight-bold">
+      <Row className="mb-3">
+        <Form.Label column sm="auto" className="fw-bold">
           티켓 이름
         </Form.Label>
         <Col>
@@ -114,7 +202,7 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({
         </Col>
       </Row>
       <Row>
-        <Form.Label column sm="auto" className="font-weight-bold">
+        <Form.Label column sm="auto" className="fw-bold">
           생성 이모지
         </Form.Label>
         <Col>
@@ -157,7 +245,7 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({
       </Row>
 
       <Row className="py-3">
-        <h4 className="pr-5">생성 메시지 채널</h4>
+        <h4 className="pe-5">생성 메시지 채널</h4>
       </Row>
       <Row>
         <Col md={8}>
@@ -168,10 +256,10 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({
                   (one) => one.id === (newChannel ?? ticketSet?.channel)
                 ) ? (
                   <>
-                    <h5 className="pr-2">현재 선택됨: </h5>
+                    <h5 className="pe-2 px-0">현재 선택됨: </h5>
                     <Card bg="secondary">
                       <Card.Header
-                        className="py-1 px-3"
+                        className="py-1 px-0"
                         style={{
                           fontFamily: 'NanumSquare',
                           fontSize: '13pt',
@@ -179,7 +267,7 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({
                       >
                         <FontAwesomeIcon
                           icon={faHashtag}
-                          className="mr-2 my-auto"
+                          className="me-2 my-auto"
                           size="sm"
                         />
                         {
@@ -192,7 +280,7 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({
                     </Card>
                   </>
                 ) : (
-                  <Form.Label as="h5">선택된 채널이 없습니다!</Form.Label>
+                  <h5 className="px-0">선택된 채널이 없습니다!</h5>
                 )}
               </Row>
               <Row className="pb-2">
@@ -202,7 +290,7 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({
                   placeholder="채널 검색"
                   onChange={(e) => setChannelSearch(e.target.value)}
                 />
-                <Form.Text className="py-1">
+                <Form.Text className="py-1 px-0">
                   {filteredChannels.length}개 채널 찾음
                 </Form.Text>
               </Row>
@@ -245,15 +333,14 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({
       </Row>
 
       <Row className="pt-3 pb-2">
-        <h4 className="pr-5">티켓 카테고리</h4>
+        <h4 className="pe-5">티켓 카테고리</h4>
       </Row>
       <Row className="pb-2">
-        <Form.Label column sm="auto" className="font-weight-bold">
+        <Form.Label column sm="auto" className="fw-bold">
           티켓이 열렸을 때
         </Form.Label>
         <Col xs={6}>
-          <Form.Control
-            as="select"
+          <Form.Select
             className="shadow-sm"
             style={{ fontSize: 15 }}
             value={newOpenCategory ?? ticketSet.category_opened ?? 0}
@@ -270,16 +357,15 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({
                   {o.name}
                 </option>
               ))}
-          </Form.Control>
+          </Form.Select>
         </Col>
       </Row>
       <Row className="pb-3">
-        <Form.Label column sm="auto" className="font-weight-bold">
+        <Form.Label column sm="auto" className="fw-bold">
           티켓이 닫혔을 때
         </Form.Label>
         <Col xs={6}>
-          <Form.Control
-            as="select"
+          <Form.Select
             className="shadow-sm"
             style={{ fontSize: 15 }}
             value={newClosedCategory ?? ticketSet.category_closed ?? 0}
@@ -296,7 +382,7 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({
                   {o.name}
                 </option>
               ))}
-          </Form.Control>
+          </Form.Select>
         </Col>
       </Row>
 
@@ -310,8 +396,9 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({
         티켓 생성 메시지를 실수로 삭제하셨거나 찾을 수 없나요? 다시 보낼 수
         있습니다!
       </Row>
-      <Row className="pb-3">
+      <Row className="pb-3 d-inline-flex">
         <Button
+          className="text-white"
           variant="blurple"
           size="sm"
           onClick={() => {
@@ -368,71 +455,19 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({
         </Col>
       </Row>
 
-      <Row className="mt-2">
-        <Button
-          variant={saveError ? 'danger' : 'aztra'}
-          disabled={
-            saving || saveError || !isChanged() || ticketNameValidate === false
-          }
-          onClick={() => {
-            setSaving(true);
-
-            const patchData: Partial<Omit<TicketSet, 'guild' | 'uuid'>> = {
-              name: newName ?? undefined,
-              channel: newChannel ?? undefined,
-              emoji: newEmoji ?? undefined,
-              category_opened:
-                newOpenCategory === 0
-                  ? null
-                  : newOpenCategory === null
-                  ? undefined
-                  : newOpenCategory,
-              category_closed:
-                newClosedCategory === 0
-                  ? null
-                  : newClosedCategory === null
-                  ? undefined
-                  : newClosedCategory,
-            };
-
-            axios
-              .patch(
-                `${api}/servers/${ticketSet.guild}/ticketsets/${ticketSet.uuid}`,
-                patchData,
-                {
-                  headers: {
-                    Authorization: `Bearer ${new Cookies().get(
-                      'ACCESS_TOKEN'
-                    )}`,
-                  },
-                }
-              )
-              .then(() => mutate())
-              .catch(() => setSaveError(false))
-              .finally(() => setSaving(false));
-          }}
-          style={{
-            minWidth: 140,
-          }}
-        >
-          {saving ? (
-            <>
-              <Spinner
-                as="span"
-                animation="border"
-                size="sm"
-                role="status"
-                aria-hidden="true"
-              />
-              <span className="pl-2">저장 중...</span>
-            </>
-          ) : (
-            <span>
-              {saveError ? '오류' : isChanged() ? '저장하기' : '저장됨'}
-            </span>
-          )}
-        </Button>
-      </Row>
+      {!saveError && isChanged() && ticketNameValidate !== false ? (
+        <ChangesNotSaved
+          key="changesNotSaved1"
+          onSave={save}
+          onReset={initData}
+          isSaving={saving}
+          isSaveError={saveError}
+        />
+      ) : (
+        <div style={{ opacity: preload ? 0 : 1 }}>
+          <ChangesNotSaved key="changesNotSaved2" close />
+        </div>
+      )}
     </Form>
   );
 };

@@ -399,7 +399,6 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketsetId }) => {
             <Form.Check
               id={`ticket-check-${ticket.uuid}`}
               type="checkbox"
-              custom
               checked={checked}
               onChange={onCheckChange}
             />
@@ -424,7 +423,7 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketsetId }) => {
             <td className="align-middle">
               {new Date(ticket.created_at).toLocaleString()}
             </td>
-            <td className="align-middle text-right">
+            <td className="align-middle text-end">
               <Actions />
             </td>
           </>
@@ -439,7 +438,7 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketsetId }) => {
                   {!deletedMode && (
                     <>
                       <b>채널:</b>{' '}
-                      <span className="ml-2">
+                      <span className="ms-2">
                         {channel ? (
                           `#${channel.name}`
                         ) : (
@@ -451,7 +450,7 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketsetId }) => {
                 </div>
                 <div className="d-flex">
                   <b>생성자:</b>{' '}
-                  <span className="ml-3">
+                  <span className="ms-3">
                     <MemberCell
                       member={
                         members?.find((o) => o.user.id === ticket.opener)!
@@ -462,7 +461,7 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketsetId }) => {
                 </div>
                 <div className="d-flex">
                   <b>생성 일자:</b>{' '}
-                  <span className="ml-3">
+                  <span className="ms-3">
                     {new Date(ticket.created_at).toLocaleString()}
                   </span>
                 </div>
@@ -494,7 +493,6 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketsetId }) => {
               <th className="align-middle text-center" style={{ width: 50 }}>
                 <Form.Check
                   id="tickets-select-all"
-                  custom
                   type="checkbox"
                   checked={
                     !!data?.length &&
@@ -602,7 +600,7 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketsetId }) => {
                 <Row className="dashboard-section">
                   <div>
                     <BackTo
-                      className="pl-2 mb-4"
+                      className="ps-2 mb-4"
                       name="티켓 설정"
                       to={`/dashboard/${guildId}/tickets`}
                     />
@@ -610,12 +608,12 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketsetId }) => {
                   </div>
                 </Row>
 
-                <Row className="flex-column">
-                  <Card bg="dark">
+                <Row className="flex-column px-3">
+                  <Card bg="dark" className="px-1">
                     <Card.Body className="py-2 d-flex align-items-center">
                       티켓:
                       <h5
-                        className="mb-0 pl-2"
+                        className="mb-0 ps-2"
                         style={{ fontFamily: 'NanumSquare' }}
                       >
                         {ticketsets?.find((o) => o.uuid === ticketsetId)?.name}
@@ -624,46 +622,48 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketsetId }) => {
                   </Card>
                 </Row>
 
-                <Row className="justify-content-end align-items-center mt-3">
-                  {activeTab === 'open' && (
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      className="d-flex align-items-center my-1"
-                      disabled={!finalSelectedSet.size}
-                      onClick={() => setShowSelectedClose('close')}
-                    >
-                      <LockIcon className="mr-1" />
-                      선택 티켓 닫기
-                    </Button>
-                  )}
-                  {activeTab === 'closed' && (
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      className="d-flex align-items-center my-1"
-                      disabled={!finalSelectedSet.size}
-                      onClick={() => setShowSelectedClose('reopen')}
-                    >
-                      <LockIcon className="mr-1" />
-                      선택 티켓 다시 열기
-                    </Button>
-                  )}
-                  {activeTab !== 'deleted' && (
-                    <Button
-                      variant="dark"
-                      size="sm"
-                      className="ml-3 d-flex align-items-center my-1"
-                      disabled={!finalSelectedSet.size}
-                      onClick={() => setShowSelectedClose('delete')}
-                    >
-                      <DeleteIcon className="mr-1" />
-                      선택 티켓 삭제
-                    </Button>
-                  )}
+                <Row className="mt-3 px-1">
+                  <div className="d-flex justify-content-end align-items-center">
+                    {activeTab === 'open' && (
+                      <Button
+                        variant="danger"
+                        size="sm"
+                        className="d-flex align-items-center my-1"
+                        disabled={!finalSelectedSet.size}
+                        onClick={() => setShowSelectedClose('close')}
+                      >
+                        <LockIcon className="me-1" />
+                        선택 티켓 닫기
+                      </Button>
+                    )}
+                    {activeTab === 'closed' && (
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        className="d-flex align-items-center my-1"
+                        disabled={!finalSelectedSet.size}
+                        onClick={() => setShowSelectedClose('reopen')}
+                      >
+                        <LockIcon className="me-1" />
+                        선택 티켓 다시 열기
+                      </Button>
+                    )}
+                    {activeTab !== 'deleted' && (
+                      <Button
+                        variant="dark"
+                        size="sm"
+                        className="ms-3 d-flex align-items-center my-1"
+                        disabled={!finalSelectedSet.size}
+                        onClick={() => setShowSelectedClose('delete')}
+                      >
+                        <DeleteIcon className="me-1" />
+                        선택 티켓 삭제
+                      </Button>
+                    )}
+                  </div>
                 </Row>
 
-                <Row className="flex-column mt-2 nav-tabs-dark">
+                <Row className="flex-column mt-2 nav-tabs-dark px-3 tab-content-no-padding">
                   <Tabs
                     activeKey={activeTab}
                     id="ticket-list-tabs"
@@ -677,7 +677,7 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketsetId }) => {
                       eventKey="open"
                       title={
                         <>
-                          <ErrorOutlineIcon className="mr-2" />
+                          <ErrorOutlineIcon className="me-2" />
                           열린 티켓
                         </>
                       }
@@ -688,7 +688,7 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketsetId }) => {
                       eventKey="closed"
                       title={
                         <>
-                          <CheckIcon className="mr-2" />
+                          <CheckIcon className="me-2" />
                           닫힌 티켓
                         </>
                       }
@@ -699,7 +699,7 @@ const TicketList: NextPage<TicketListProps> = ({ guildId, ticketsetId }) => {
                       eventKey="deleted"
                       title={
                         <>
-                          <CloseIcon className="mr-2" />
+                          <CloseIcon className="me-2" />
                           삭제된 티켓
                         </>
                       }

@@ -22,7 +22,7 @@ const FormatStrings: React.FC<Props> = ({ data, show, onHide }) => (
     <Modal.Body as={Row} className="py-4">
       {data.map(([c, d, e]) => (
         <Col key={c as string} xs={12} sm={6} className="py-2">
-          <div className="font-weight-bold">${`{${c}}`}</div>
+          <div className="fw-bold">${`{${c}}`}</div>
           <div>{d}</div>
           <div>예) {e}</div>
         </Col>

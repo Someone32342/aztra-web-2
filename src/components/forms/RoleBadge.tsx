@@ -25,7 +25,7 @@ const RoleBadge: React.FC<RoleBadgeProps> = ({
   return (
     <span className={`d-inline-block mw-100 ${className}`}>
       <div
-        className="d-flex pr-2 align-items-center"
+        className="d-flex pe-2 align-items-center"
         style={{
           border: `1px solid ${color}`,
           borderRadius: '50px',

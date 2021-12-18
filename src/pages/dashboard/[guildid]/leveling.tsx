@@ -28,6 +28,8 @@ import ChannelSelectCard from 'components/forms/ChannelSelectCard';
 import { ChannelMinimal } from 'types/DiscordTypes';
 import filterChannels from 'utils/filterChannels';
 import TextareaAutosize from 'react-textarea-autosize';
+import Router from 'next/router';
+import ChangesNotSaved from 'components/ChangesNotSaved';
 
 type handleFieldChangeTypes = 'channel' | 'format';
 
@@ -63,6 +65,17 @@ const Leveling: NextPage<LevelingRouterProps> = ({ guildId }) => {
   const [exceptAztraCommand, setExceptAztraCommand] = useState(false);
   const [exceptAttachments, setExceptAttachments] = useState(false);
 
+  const [preload, setPreload] = useState(true);
+  const [changed, setChanged] = useState(false);
+
+  const initData = (data: LevelingSet | null) => {
+    setUseLeveling(!!data);
+    setUseLevelupMessage(data?.channel !== false);
+    setUseSpecificChannel(typeof data?.channel === 'string');
+    setExceptAztraCommand(data?.except_command ?? false);
+    setExceptAttachments(data?.except_attachments ?? false);
+  };
+
   const { data, mutate } = useSWR<LevelingSet | null, AxiosError>(
     new Cookies().get('ACCESS_TOKEN')
       ? urljoin(api, `/servers/${guildId}/leveling`)
@@ -76,13 +89,7 @@ const Leveling: NextPage<LevelingRouterProps> = ({ guildId }) => {
         })
         .then((r) => r.data),
     {
-      onSuccess: (data) => {
-        setUseLeveling(!!data);
-        setUseLevelupMessage(data?.channel !== false);
-        setUseSpecificChannel(typeof data?.channel === 'string');
-        setExceptAztraCommand(data?.except_command ?? false);
-        setExceptAttachments(data?.except_attachments ?? false);
-      },
+      onSuccess: initData,
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
     }
@@ -193,14 +200,39 @@ const Leveling: NextPage<LevelingRouterProps> = ({ guildId }) => {
       localStorage.setItem('loginFrom', lct.pathname + lct.search);
       window.location.assign('/login');
     }
-    if (data !== undefined) {
-      setUseLeveling(!!data);
-      setUseLevelupMessage(data?.channel !== false);
-      setUseSpecificChannel(typeof data?.channel === 'string');
-      setExceptAztraCommand(data?.except_command ?? false);
-      setExceptAttachments(data?.except_attachments ?? false);
-    }
+
+    setTimeout(() => setPreload(false), 1000);
+
+    if (data) initData(data);
   }, [data]);
+
+  useEffect(() => {
+    const message = '저장되지 않은 변경사항이 있습니다. 계속하시겠습니까?';
+
+    const routeChangeStart = (url: string) => {
+      if (Router.asPath !== url && changed && !confirm(message)) {
+        Router.events.emit('routeChangeError');
+        Router.replace(Router, Router.asPath);
+        throw 'Abort route change. Please ignore this error.';
+      }
+    };
+
+    const beforeunload = (e: BeforeUnloadEvent) => {
+      if (changed) {
+        e.preventDefault();
+        e.returnValue = message;
+        return message;
+      }
+    };
+
+    window.addEventListener('beforeunload', beforeunload);
+    Router.events.on('routeChangeStart', routeChangeStart);
+
+    return () => {
+      window.removeEventListener('beforeunload', beforeunload);
+      Router.events.off('routeChangeStart', routeChangeStart);
+    };
+  }, [changed]);
 
   const handleSubmit = () => {
     if (checkValidate()) {
@@ -210,10 +242,11 @@ const Leveling: NextPage<LevelingRouterProps> = ({ guildId }) => {
 
   const isChanged = () => {
     if (data === undefined) {
+      setChanged(false);
       return false;
     }
 
-    return (
+    const rst =
       !!data !== useLeveling ||
       (useLeveling &&
         !!data &&
@@ -228,8 +261,10 @@ const Leveling: NextPage<LevelingRouterProps> = ({ guildId }) => {
             (useSpecificChannel !== !!data.channel ||
               (useSpecificChannel &&
                 newChannel &&
-                data.channel !== newChannel)))))
-    );
+                data.channel !== newChannel)))));
+
+    setChanged(!!rst);
+    return !!rst;
   };
 
   return (
@@ -260,7 +295,7 @@ const Leveling: NextPage<LevelingRouterProps> = ({ guildId }) => {
                             id="useLeveling"
                             type="switch"
                             label={
-                              <div className="pl-2">
+                              <div className="ps-2">
                                 메시지를 보낼 때마다 경험치 지급하기
                               </div>
                             }
@@ -292,11 +327,11 @@ const Leveling: NextPage<LevelingRouterProps> = ({ guildId }) => {
                               </Modal.Title>
                             </Modal.Header>
                             <Modal.Body className="py-4">
-                              <Table variant="dark">
+                              <Table variant="dark" responsive="xl">
                                 <thead>
                                   <tr>
                                     <th>코드</th>
-                                    <th>설명</th>
+                                    <th style={{ minWidth: 120 }}>설명</th>
                                     <th>예시</th>
                                   </tr>
                                 </thead>
@@ -336,19 +371,21 @@ const Leveling: NextPage<LevelingRouterProps> = ({ guildId }) => {
                           </Modal>
 
                           <Row className="pt-4 pb-2">
-                            <h4>레벨 메시지 설정</h4>
-                            <Button
-                              variant="dark"
-                              className="ml-auto d-flex align-items-center mb-2"
-                              size="sm"
-                              onClick={() => setShowFormattings(true)}
-                            >
-                              <CodeIcon className="mr-2" fontSize="small" />
-                              서식문자 목록
-                            </Button>
+                            <div className="d-flex align-items-center">
+                              <h4>레벨 메시지 설정</h4>
+                              <Button
+                                variant="dark"
+                                className="ms-auto d-flex align-items-center mb-2"
+                                size="sm"
+                                onClick={() => setShowFormattings(true)}
+                              >
+                                <CodeIcon className="me-2" fontSize="small" />
+                                서식문자 목록
+                              </Button>
+                            </div>
                           </Row>
 
-                          <Row>
+                          <Row className="ms-3">
                             <Form.Label column sm="auto">
                               레벨업 메시지 내용
                             </Form.Label>
@@ -397,16 +434,15 @@ const Leveling: NextPage<LevelingRouterProps> = ({ guildId }) => {
                             <h4>경험치 예외 설정</h4>
                           </Row>
 
-                          <Row>
+                          <Row className="ms-3 pb-2">
                             <Col>
                               <Form.Group controlId="expExceptSettings">
                                 <Form.Check
                                   id="exceptAztraCommand"
                                   className="mb-2"
                                   type="checkbox"
-                                  custom
                                   label={
-                                    <div className="pl-2">
+                                    <div className="ps-2">
                                       사용자가 입력한 Aztra 명령어 제외
                                     </div>
                                   }
@@ -420,9 +456,8 @@ const Leveling: NextPage<LevelingRouterProps> = ({ guildId }) => {
                                 <Form.Check
                                   id="exceptAttachments"
                                   type="checkbox"
-                                  custom
                                   label={
-                                    <div className="pl-2">
+                                    <div className="ps-2">
                                       사진, 영상, 파일만 있는 메시지 제외
                                     </div>
                                   }
@@ -437,17 +472,17 @@ const Leveling: NextPage<LevelingRouterProps> = ({ guildId }) => {
                             </Col>
                           </Row>
                           <hr
-                            className="mb-3"
+                            className="my-3"
                             style={{ borderColor: '#4e5058', borderWidth: 2 }}
                           />
 
-                          <Row className="pt-4">
+                          <Row className="py-3">
                             <Form.Group controlId="useLevelupMessage">
                               <Form.Check
                                 id="useLevelupMessage"
                                 type="switch"
                                 label={
-                                  <div className="pl-2">
+                                  <div className="ps-2">
                                     멤버의 레벨이 올랐을 때 메시지 보내기
                                   </div>
                                 }
@@ -464,7 +499,7 @@ const Leveling: NextPage<LevelingRouterProps> = ({ guildId }) => {
                       )}
 
                       {useLeveling && useLevelupMessage && (
-                        <Row className="pt-1">
+                        <Row className="pt-1 mx-3">
                           <Col>
                             <Form.Check
                               className="mb-2"
@@ -492,7 +527,7 @@ const Leveling: NextPage<LevelingRouterProps> = ({ guildId }) => {
                       {useLeveling && useLevelupMessage && useSpecificChannel && (
                         <>
                           <Row className="pt-5 pb-2">
-                            <h4 className="pr-5">전송 채널</h4>
+                            <h4 className="pe-5">전송 채널</h4>
                           </Row>
                           <Row>
                             <Col lg={8}>
@@ -504,10 +539,12 @@ const Leveling: NextPage<LevelingRouterProps> = ({ guildId }) => {
                                         one.id === (newChannel ?? data?.channel)
                                     ) ? (
                                       <>
-                                        <h5 className="pr-2">현재 선택됨: </h5>
+                                        <h5 className="pe-2 px-0">
+                                          현재 선택됨:{' '}
+                                        </h5>
                                         <Card bg="secondary">
                                           <Card.Header
-                                            className="py-1 px-3"
+                                            className="py-1 px-0"
                                             style={{
                                               fontFamily: 'NanumSquare',
                                               fontSize: '13pt',
@@ -515,7 +552,7 @@ const Leveling: NextPage<LevelingRouterProps> = ({ guildId }) => {
                                           >
                                             <FontAwesomeIcon
                                               icon={faHashtag}
-                                              className="mr-2 my-auto"
+                                              className="me-2 my-auto"
                                               size="sm"
                                             />
                                             {
@@ -533,7 +570,7 @@ const Leveling: NextPage<LevelingRouterProps> = ({ guildId }) => {
                                         as="h5"
                                         className={
                                           validChannel === false
-                                            ? 'text-danger font-weight-bold'
+                                            ? 'text-danger fw-bold'
                                             : ''
                                         }
                                       >
@@ -593,37 +630,19 @@ const Leveling: NextPage<LevelingRouterProps> = ({ guildId }) => {
                         </>
                       )}
 
-                      <Row className="mt-4">
-                        <Button
-                          variant={saveError ? 'danger' : 'aztra'}
-                          disabled={saving || saveError || !isChanged()}
-                          onClick={handleSubmit}
-                          style={{
-                            minWidth: 140,
-                          }}
-                        >
-                          {saving ? (
-                            <>
-                              <Spinner
-                                as="span"
-                                animation="border"
-                                size="sm"
-                                role="status"
-                                aria-hidden="true"
-                              />
-                              <span className="pl-2">저장 중...</span>
-                            </>
-                          ) : (
-                            <span>
-                              {saveError
-                                ? '오류'
-                                : isChanged()
-                                ? '저장하기'
-                                : '저장됨'}
-                            </span>
-                          )}
-                        </Button>
-                      </Row>
+                      {!saveError && isChanged() ? (
+                        <ChangesNotSaved
+                          key="changesNotSaved1"
+                          onSave={handleSubmit}
+                          onReset={() => initData(data)}
+                          isSaving={saving}
+                          isSaveError={saveError}
+                        />
+                      ) : (
+                        <div style={{ opacity: preload ? 0 : 1 }}>
+                          <ChangesNotSaved key="changesNotSaved2" close />
+                        </div>
+                      )}
                     </Form>
                   </Col>
                 </Row>

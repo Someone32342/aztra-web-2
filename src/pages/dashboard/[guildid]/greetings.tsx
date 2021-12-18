@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Button,
   Row,
@@ -32,6 +32,8 @@ import useSWR from 'swr';
 import urljoin from 'url-join';
 import Head from 'next/head';
 import filterChannels from 'utils/filterChannels';
+import ChangesNotSaved from 'components/ChangesNotSaved';
+import Router from 'next/router';
 
 interface GreetingsRouterProps {
   guildId: string;
@@ -72,6 +74,18 @@ const Greetings: NextPage<GreetingsRouterProps> = ({ guildId }) => {
 
   const [showFormattings, setShowFormattings] = useState(false);
 
+  const [preload, setPreload] = useState(true);
+  const [changed, setChanged] = useState(false);
+
+  const initData = (data: GreetingsType) => {
+    setUseJoin(!!(data.join_title_format || data.join_desc_format));
+    setUseLeave(!!(data.leave_title_format || data.leave_desc_format));
+    setIncomingTitle(data.join_title_format ?? null);
+    setIncomingDesc(data.join_desc_format ?? null);
+    setOutgoingTitle(data.leave_title_format ?? null);
+    setOutgoingDesc(data.leave_desc_format ?? null);
+  };
+
   const { data, mutate } = useSWR<GreetingsType, AxiosError>(
     new Cookies().get('ACCESS_TOKEN')
       ? urljoin(api, `/servers/${guildId}/greetings`)
@@ -85,14 +99,7 @@ const Greetings: NextPage<GreetingsRouterProps> = ({ guildId }) => {
         })
         .then((r) => r.data),
     {
-      onSuccess: (data) => {
-        setUseJoin(!!(data.join_title_format || data.join_desc_format));
-        setUseLeave(!!(data.leave_title_format || data.leave_desc_format));
-        setIncomingTitle(data.join_title_format ?? null);
-        setIncomingDesc(data.join_desc_format ?? null);
-        setOutgoingTitle(data.leave_title_format ?? null);
-        setOutgoingDesc(data.leave_desc_format ?? null);
-      },
+      onSuccess: initData,
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
     }
@@ -123,15 +130,39 @@ const Greetings: NextPage<GreetingsRouterProps> = ({ guildId }) => {
       localStorage.setItem('loginFrom', lct.pathname + lct.search);
       window.location.assign('/login');
     }
-    if (data) {
-      setUseJoin(!!(data.join_title_format || data.join_desc_format));
-      setUseLeave(!!(data.leave_title_format || data.leave_desc_format));
-      setIncomingTitle(data.join_title_format ?? null);
-      setIncomingDesc(data.join_desc_format ?? null);
-      setOutgoingTitle(data.leave_title_format ?? null);
-      setOutgoingDesc(data.leave_desc_format ?? null);
-    }
+
+    setTimeout(() => setPreload(false), 1000);
+
+    if (data) initData(data);
   }, [data]);
+
+  useEffect(() => {
+    const message = '저장되지 않은 변경사항이 있습니다. 계속하시겠습니까?';
+
+    const routeChangeStart = (url: string) => {
+      if (Router.asPath !== url && changed && !confirm(message)) {
+        Router.events.emit('routeChangeError');
+        Router.replace(Router, Router.asPath);
+        throw 'Abort route change. Please ignore this error.';
+      }
+    };
+
+    const beforeunload = (e: BeforeUnloadEvent) => {
+      if (changed) {
+        e.preventDefault();
+        e.returnValue = message;
+        return message;
+      }
+    };
+
+    window.addEventListener('beforeunload', beforeunload);
+    Router.events.on('routeChangeStart', routeChangeStart);
+
+    return () => {
+      window.removeEventListener('beforeunload', beforeunload);
+      Router.events.off('routeChangeStart', routeChangeStart);
+    };
+  }, [changed]);
 
   const setValidate = (
     type?: handleFieldChangeTypes,
@@ -244,18 +275,21 @@ const Greetings: NextPage<GreetingsRouterProps> = ({ guildId }) => {
 
   const isChanged = () => {
     if (!data || !channels) {
+      setChanged(false);
       return false;
     }
 
-    return (
+    const rst =
       (data.channel !== newChannel && newChannel !== null) ||
       ((data.join_title_format || '') !== (incomingTitle ?? '') && useJoin) ||
       ((data.join_desc_format || '') !== (incomingDesc ?? '') && useJoin) ||
       ((data.leave_title_format || '') !== (outgoingTitle ?? '') && useLeave) ||
       ((data.leave_desc_format || '') !== (outgoingDesc ?? '') && useLeave) ||
       (!!data.join_title_format || !!data.join_desc_format) !== useJoin ||
-      (!!data.leave_title_format || !!data.leave_desc_format) !== useLeave
-    );
+      (!!data.leave_title_format || !!data.leave_desc_format) !== useLeave;
+
+    setChanged(rst);
+    return rst;
   };
 
   const filteredChannels = filterChannels(channels ?? [], channelSearch);
@@ -298,11 +332,11 @@ const Greetings: NextPage<GreetingsRouterProps> = ({ guildId }) => {
                     </Modal.Title>
                   </Modal.Header>
                   <Modal.Body className="py-4">
-                    <Table variant="dark">
+                    <Table variant="dark" responsive="xl">
                       <thead>
                         <tr>
                           <th>코드</th>
-                          <th>설명</th>
+                          <th style={{ minWidth: 120 }}>설명</th>
                           <th>예시</th>
                         </tr>
                       </thead>
@@ -532,7 +566,7 @@ const Greetings: NextPage<GreetingsRouterProps> = ({ guildId }) => {
                                       as="h5"
                                       className={
                                         validChannel === false
-                                          ? 'text-danger font-weight-bold'
+                                          ? 'text-danger fw-bold'
                                           : ''
                                       }
                                     >
@@ -598,37 +632,19 @@ const Greetings: NextPage<GreetingsRouterProps> = ({ guildId }) => {
                         </Col>
                       </Row>
 
-                      <Row className="mt-4">
-                        <Button
-                          variant={saveError ? 'danger' : 'aztra'}
-                          disabled={saving || saveError || !isChanged()}
-                          onClick={handleSubmit}
-                          style={{
-                            minWidth: 140,
-                          }}
-                        >
-                          {saving ? (
-                            <>
-                              <Spinner
-                                as="span"
-                                animation="border"
-                                size="sm"
-                                role="status"
-                                aria-hidden="true"
-                              />
-                              <span className="ps-2">저장 중...</span>
-                            </>
-                          ) : (
-                            <span>
-                              {saveError
-                                ? '오류'
-                                : isChanged()
-                                ? '저장하기'
-                                : '저장됨'}
-                            </span>
-                          )}
-                        </Button>
-                      </Row>
+                      {!saveError && isChanged() ? (
+                        <ChangesNotSaved
+                          key="changesNotSaved1"
+                          onSave={handleSubmit}
+                          onReset={() => initData(data)}
+                          isSaving={saving}
+                          isSaveError={saveError}
+                        />
+                      ) : (
+                        <div style={{ opacity: preload ? 0 : 1 }}>
+                          <ChangesNotSaved key="changesNotSaved2" close />
+                        </div>
+                      )}
                     </Form>
                   </Col>
                 </Row>

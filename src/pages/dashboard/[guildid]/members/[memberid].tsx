@@ -213,7 +213,7 @@ const MemberDashboard: NextPage<MemberDashboardRouteProps> = ({
           <Col xs={9} className="d-flex">
             <FontAwesomeIcon
               icon={faExclamationTriangle}
-              className="mr-3 my-auto"
+              className="me-3 my-auto"
             />
             <div className="my-auto d-inline-block text-truncate">
               {one.reason}
@@ -290,7 +290,7 @@ const MemberDashboard: NextPage<MemberDashboardRouteProps> = ({
                 <Row className="dashboard-section">
                   <div>
                     <BackTo
-                      className="pl-2 mb-4"
+                      className="ps-2 mb-4"
                       name="멤버 목록"
                       to={`/dashboard/${guildId}/members`}
                     />
@@ -298,29 +298,30 @@ const MemberDashboard: NextPage<MemberDashboardRouteProps> = ({
                   </div>
                 </Row>
 
-                <Row className="justify-content-center justify-content-sm-start">
-                  <div className="position-relative">
-                    <div
-                      style={{
-                        width: 128,
-                        height: 128,
-                      }}
-                    >
-                      <img
-                        alt={member.user.username!}
-                        className="rounded-circle no-drag"
-                        src={
-                          member.user.avatar
-                            ? `https://cdn.discordapp.com/avatars/${member.user.id}/${member.user.avatar}`
-                            : member.user.defaultAvatarURL
-                        }
+                <Row>
+                  <div className="d-flex justify-content-center justify-content-sm-start">
+                    <div className="position-relative">
+                      <div
                         style={{
                           width: 128,
                           height: 128,
                         }}
-                      />
-                    </div>
-                    {/*
+                      >
+                        <img
+                          alt={member.user.username!}
+                          className="rounded-circle no-drag"
+                          src={
+                            member.user.avatar
+                              ? `https://cdn.discordapp.com/avatars/${member.user.id}/${member.user.avatar}`
+                              : member.user.defaultAvatarURL
+                          }
+                          style={{
+                            width: 128,
+                            height: 128,
+                          }}
+                        />
+                      </div>
+                      {/*
                         statusColor && (
                           <OverlayTrigger
                             placement="bottom"
@@ -344,41 +345,42 @@ const MemberDashboard: NextPage<MemberDashboardRouteProps> = ({
                           </OverlayTrigger>
                         )
                         */}
-                  </div>
-                  <div className="text-center text-sm-left mt-4 mt-sm-0 px-4">
-                    <div
-                      style={{
-                        fontSize: '24pt',
-                      }}
-                    >
-                      {member.displayName}
-                      {member.user.bot && (
-                        <Badge
-                          variant="blurple"
-                          className="ml-2 font-weight-bold mt-2 align-text-top"
-                          style={{
-                            fontSize: '11pt',
-                          }}
-                        >
-                          BOT
-                        </Badge>
-                      )}
                     </div>
-                    <div
-                      style={{
-                        fontSize: '17pt',
-                      }}
-                    >
-                      {member.user.username}
-                      <span
-                        className="ml-1 font-weight-bold"
+                    <div className="text-center text-sm-start mt-4 mt-sm-0 px-4">
+                      <div
                         style={{
-                          color: '#8f8f8f',
-                          fontSize: '13pt',
+                          fontSize: '24pt',
                         }}
                       >
-                        #{member.user.discriminator}
-                      </span>
+                        {member.displayName}
+                        {member.user.bot && (
+                          <Badge
+                            bg="blurple"
+                            className="ms-2 font-weight-bold mt-2 align-text-top"
+                            style={{
+                              fontSize: '11pt',
+                            }}
+                          >
+                            BOT
+                          </Badge>
+                        )}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: '17pt',
+                        }}
+                      >
+                        {member.user.username}
+                        <span
+                          className="ms-1 font-weight-bold"
+                          style={{
+                            color: '#8f8f8f',
+                            fontSize: '13pt',
+                          }}
+                        >
+                          #{member.user.discriminator}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </Row>
@@ -445,7 +447,7 @@ const MemberDashboard: NextPage<MemberDashboardRouteProps> = ({
                           </div>
                         </CircularProgressbarWithChildren>
                       </div>
-                      <div className="pl-md-5 mt-4 mt-md-0 d-flex align-items-center justify-content-center justify-content-md-left">
+                      <div className="ps-md-5 mt-4 mt-md-0 d-flex align-items-center justify-content-center justify-content-md-start">
                         <div
                           style={{
                             fontFamily: 'NanumSquare',
@@ -458,7 +460,7 @@ const MemberDashboard: NextPage<MemberDashboardRouteProps> = ({
                               fontSize: '20pt',
                             }}
                           >
-                            <FontAwesomeIcon icon={faStream} className="mr-3" />
+                            <FontAwesomeIcon icon={faStream} className="me-3" />
                             서버 {expRank || '--'}위
                           </div>
                           <div>
@@ -482,7 +484,7 @@ const MemberDashboard: NextPage<MemberDashboardRouteProps> = ({
                       }`}
                     >
                       <h4 className="mb-3">최근 활동</h4>
-                      <div className={`${isBot && 'ml-3'}`}>
+                      <div className={`${isBot && 'ms-3'}`}>
                         <Button variant="aztra" size="sm">
                           더보기
                         </Button>
@@ -491,7 +493,7 @@ const MemberDashboard: NextPage<MemberDashboardRouteProps> = ({
                     <Card bg="dark" className="mb-2 shadow-sm">
                       <Card.Body className="py-2 d-flex justify-content-between">
                         <div>
-                          <FontAwesomeIcon icon={faBug} className="mr-2" />
+                          <FontAwesomeIcon icon={faBug} className="me-2" />
                           버그나 오류를 발견하셨다면 개발팀에 알려주세요
                         </div>
                         <small
@@ -506,7 +508,7 @@ const MemberDashboard: NextPage<MemberDashboardRouteProps> = ({
                     <Card bg="dark" className="mb-2 shadow-sm">
                       <Card.Body className="py-2 d-flex justify-content-between">
                         <div>
-                          <FontAwesomeIcon icon={faUserEdit} className="mr-2" />
+                          <FontAwesomeIcon icon={faUserEdit} className="me-2" />
                           이 기능은 개발중입니다.
                         </div>
                         <small
@@ -521,7 +523,7 @@ const MemberDashboard: NextPage<MemberDashboardRouteProps> = ({
                     <Card bg="dark" className="mb-2 shadow-sm">
                       <Card.Body className="py-2 d-flex justify-content-between">
                         <div>
-                          <FontAwesomeIcon icon={faUserPlus} className="mr-2" />
+                          <FontAwesomeIcon icon={faUserPlus} className="me-2" />
                           {member.user.username} 이(가) 새로 들어왔습니다.
                         </div>
                         <small

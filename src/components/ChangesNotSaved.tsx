@@ -28,8 +28,9 @@ const ChangesNotSaved: React.FC<ChangeNotSavedProps> = ({
     <div
       className={cx('px-4', close ? 'floatDownCard' : 'floatCard')}
       style={{
+        maxWidth: 1200,
         position: 'fixed',
-        zIndex: 9999,
+        zIndex: 999,
         margin: '0 auto',
         left: sidebarWidth + (window.innerWidth < 576 ? 0 : 40),
         right: 0,
@@ -44,11 +45,10 @@ const ChangesNotSaved: React.FC<ChangeNotSavedProps> = ({
           maxWidth: 1200,
           width: '100%',
           boxShadow: '0 0 5px 6px rgba(0, 0, 0, 0.1)',
-          backgroundColor: 'rgba(127, 70, 202, 0.65)',
-          backdropFilter: 'blur(2px)',
+          backgroundColor: 'rgb(127, 70, 202)',
         }}
       >
-        <Card.Body className="py-2 my-0 d-flex px-2">
+        <Card.Body className="py-2 my-0 d-sm-flex px-2">
           <div
             className="my-auto ps-2"
             style={{
@@ -57,9 +57,9 @@ const ChangesNotSaved: React.FC<ChangeNotSavedProps> = ({
           >
             저장되지 않은 변경 사항이 있습니다!
           </div>
-          <div className="d-flex justify-content-end ms-auto">
+          <div className="d-flex mt-2 my-sm-1 justify-content-sm-end ms-auto">
             <Button
-              className="py-auto my-auto text-white me-1 bg-none"
+              className="py-auto my-auto text-white me-1 bg-none flex-shrink-0"
               size="sm"
               style={{
                 textDecoration: 'none',
@@ -71,7 +71,7 @@ const ChangesNotSaved: React.FC<ChangeNotSavedProps> = ({
               되돌리기
             </Button>
             <Button
-              className="py-auto my-auto"
+              className="py-auto my-auto flex-shrink-0"
               variant="white"
               size="sm"
               onClick={onSave}

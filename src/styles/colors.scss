@@ -10,5 +10,13 @@ $theme-colors: (
   'info': #0dcaf0,
   'warning': #ffc107,
   'danger': #dc3545,
-  'light': #fff
+  'light': #fff,
 );
+
+$table-variants: (
+  'dark': #373b44,
+  'table-dark': #343840,
+);
+
+$modal-fade-transform: scale(0.9);
+$form-select-indicator-color: #fff;

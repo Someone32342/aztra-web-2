@@ -144,25 +144,23 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({
 
   return (
     <>
-      <Row>
+      <Row className="mb-3">
         <Col>
-          <Form.Label className="pt-2 h5 font-weight-bold">
-            메시지 채널:
-          </Form.Label>
+          <h5 className="pt-2">메시지 채널:</h5>
           <Form.Text className="pb-3">
             대상이 되는 메시지가 있는 채널을 선택하세요
           </Form.Text>
           <Form.Group
-            className="p-2"
+            className="py-2"
             style={{ backgroundColor: '#424752', borderRadius: 10 }}
           >
-            <Container fluid>
+            <Container fluid className="px-3">
               <Row className="align-items-center mb-2">
                 {newParams.channel ? (
                   <>
                     <Card bg="secondary" className="w-100">
                       <Card.Header
-                        className="py-1 px-3"
+                        className="py-1 px-0"
                         style={{
                           fontFamily: 'NanumSquare',
                           fontSize: '13pt',
@@ -170,7 +168,7 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({
                       >
                         <FontAwesomeIcon
                           icon={faHashtag}
-                          className="mr-2 my-auto"
+                          className="me-2 my-auto"
                           size="sm"
                         />
                         {channels.find((o) => o.id === newParams.channel)?.name}
@@ -178,7 +176,7 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({
                     </Card>
                   </>
                 ) : (
-                  <Form.Label className="font-weight-bold pl-2 my-auto">
+                  <Form.Label className="fw-bold px-2 my-auto">
                     선택된 채널이 없습니다!
                   </Form.Label>
                 )}
@@ -190,7 +188,7 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({
                   placeholder="채널 검색"
                   onChange={(e) => setChannelSearch(e.target.value)}
                 />
-                <Form.Text className="py-1">
+                <Form.Text className="py-1 px-2">
                   {filteredChannels.length}개 채널 찾음
                 </Form.Text>
               </Row>
@@ -228,15 +226,13 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({
       </Row>
       <Row>
         <Col>
-          <Form.Label className="pt-3 h5 font-weight-bold">
-            메시지 아이디:
-          </Form.Label>
+          <h5 className="pt-3">메시지 아이디:</h5>
           <Form.Text className="pb-3">
             {inputMessageId ? (
               <>
                 대상이 되는 메시지 아이디를 입력하세요. 또는{' '}
                 <a
-                  className="cursor-pointer"
+                  className="cursor-pointer text-decoration-none"
                   style={{ color: 'DeepSkyBlue' }}
                   onClick={() => setInputMessageId(false)}
                 >
@@ -248,7 +244,7 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({
                 메시지 선택하기 버튼으로 빠르게 메시지를 선택할 수 있습니다.
                 또는{' '}
                 <a
-                  className="cursor-pointer"
+                  className="cursor-pointer text-decoration-none"
                   style={{ color: 'DeepSkyBlue' }}
                   onClick={() => setInputMessageId(true)}
                 >
@@ -259,9 +255,9 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({
           </Form.Text>
         </Col>
       </Row>
-      <Row>
+      <Row className="pt-2">
         {(inputMessageId || newParams.message) && (
-          <Col sm="auto" md={4} className="pr-sm-0">
+          <Col sm="auto" md={4} className="pe-sm-0">
             <Form.Control
               className="mb-2"
               as="input"
@@ -312,10 +308,9 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({
                 {selectMessageStatus !== 'done' && (
                   <div>
                     <h5>1. 메시지 답장 버튼 누르기</h5>
-                    <p className="pl-2">
-                      <span className="font-weight-bold h5">{guild?.name}</span>{' '}
-                      서버에서{' '}
-                      <span className="font-weight-bold h5">
+                    <p className="ps-2">
+                      <span className="h5">{guild?.name}</span> 서버에서{' '}
+                      <span className="h5">
                         #
                         {channels.find((o) => o.id === newParams.channel)?.name}
                       </span>{' '}
@@ -323,14 +318,14 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({
                       <b>답장</b>을 클릭합니다.
                     </p>
                     <h5>2. 명령어 입력</h5>
-                    <p className="pl-2">
+                    <p className="ps-2">
                       <span
-                        className="font-weight-bold text-monospace p-1"
+                        className="fw-bold text-monospace p-1"
                         style={{ backgroundColor: '#4e5052', borderRadius: 8 }}
                       >{`${prefixes}메시지설정 ${selectMessageToken}`}</span>{' '}
                       을 입력합니다.{' '}
                       <a
-                        className="cursor-pointer"
+                        className="cursor-pointer text-decoration-none"
                         style={{ color: 'DeepSkyBlue' }}
                         onClick={(e) => {
                           navigator.clipboard.writeText(
@@ -355,7 +350,7 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({
                   {selectMessageStatus === 'pending' && (
                     <div className="d-flex justify-content-center align-items-center">
                       <Spinner animation="grow" variant="aztra" />
-                      <span className="h5 ml-2 my-auto">명령어 대기 중</span>
+                      <span className="h5 ms-2 my-auto">명령어 대기 중</span>
                     </div>
                   )}
                   {selectMessageStatus === 'timeout' &&
@@ -382,7 +377,7 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({
                 >
                   {selectMessageStatus === 'done' ? (
                     <>
-                      <CheckIcon className="mr-2" />
+                      <CheckIcon className="me-2" />
                       완료하기
                     </>
                   ) : selectMessageStatus === 'error' ? (
@@ -398,9 +393,7 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({
       </Row>
       <Row className="pt-4">
         <Col>
-          <Form.Label className="pt-2 h5 font-weight-bold">
-            이모지와 역할 추가하기:
-          </Form.Label>
+          <h5 className="pt-2">이모지와 역할 추가하기:</h5>
           <Form.Text>
             이모지를 선택하고, 역할을 추가하세요. 아래의 추가버튼을 클릭하면
             이모지를 더 추가할 수 있습니다.
@@ -422,7 +415,7 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({
               setNewData({ add: [], remove: [] });
             }}
           >
-            <AddIcon className="mr-1" fontSize="small" />
+            <AddIcon className="me-1" fontSize="small" />
             이모지 더 추가
           </Button>
 
@@ -458,7 +451,7 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({
                   <td className="align-middle">
                     <div className="position-relative mb-3 d-flex align-items-center">
                       {newData?.emoji && (
-                        <span className="mr-3">
+                        <span className="me-3">
                           {emd ? (
                             <Emoji size={28} emoji={emd} set="twitter" />
                           ) : (
@@ -497,14 +490,14 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({
                       </Dropdown>
                     </div>
 
-                    <span className="pr-2">반응했을 때 추가할 역할:</span>
+                    <span className="pe-2">반응했을 때 추가할 역할:</span>
                     <div className="d-flex flex-wrap align-items-center mb-2">
                       {newData?.add?.map((one) => {
                         const role = roles.find((r) => r.id === one);
                         return (
                           <RoleBadge
                             key={one}
-                            className="pr-2 py-1"
+                            className="pe-2 py-1"
                             name={role?.name ?? ''}
                             color={
                               '#' +
@@ -554,14 +547,14 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({
                       </Dropdown>
                     </div>
 
-                    <span className="pr-2">반응 제거했을 때 제거할 역할:</span>
+                    <span className="pe-2">반응 제거했을 때 제거할 역할:</span>
                     <div className="d-flex flex-wrap align-items-center mb-2">
                       {newData?.remove?.map((o) => {
                         const role = roles.find((r) => r.id === o);
                         return (
                           <RoleBadge
                             key={o}
-                            className="pr-2 py-1"
+                            className="pe-2 py-1"
                             name={role?.name ?? ''}
                             color={
                               '#' +
@@ -627,7 +620,7 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({
                     <td className="align-middle w-100">
                       <div className="position-relative d-flex align-items-center my-2">
                         {o.emoji && (
-                          <span className="mr-3">
+                          <span className="me-3">
                             {em ? (
                               <Emoji size={28} emoji={em} set="twitter" />
                             ) : (
@@ -672,13 +665,13 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({
                       </div>
 
                       <div className="d-flex flex-wrap align-items-center position-relative my-1">
-                        <span className="pr-2">반응했을 때 추가할 역할:</span>
+                        <span className="pe-2">반응했을 때 추가할 역할:</span>
                         {o.add.map((one) => {
                           const role = roles.find((r) => r.id === one);
                           return (
                             <RoleBadge
                               key={one}
-                              className="pr-2 py-1"
+                              className="pe-2 py-1"
                               name={role?.name ?? ''}
                               color={
                                 '#' +
@@ -736,7 +729,7 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({
                       </div>
 
                       <div className="d-flex flex-wrap align-items-center position-relative my-1">
-                        <span className="pr-2">
+                        <span className="pe-2">
                           반응 제거했을 때 제거할 역할:
                         </span>
                         {o.remove.map((one) => {
@@ -744,7 +737,7 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({
                           return (
                             <RoleBadge
                               key={one}
-                              className="pr-2 py-1"
+                              className="pe-2 py-1"
                               name={role?.name ?? ''}
                               color={
                                 '#' +
@@ -815,7 +808,7 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({
                               );
                             }}
                           >
-                            <RemoveCircleOutline className="mr-2" />
+                            <RemoveCircleOutline className="me-2" />
                             삭제
                           </Button>
                         </ButtonGroup>
@@ -873,7 +866,7 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({
                       return (
                         <RoleBadge
                           key={one}
-                          className="pr-2 py-1"
+                          className="pe-2 py-1"
                           name={role?.name ?? ''}
                           color={
                             '#' +
@@ -930,7 +923,7 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({
                       return (
                         <RoleBadge
                           key={o}
-                          className="pr-2 py-1"
+                          className="pe-2 py-1"
                           name={role?.name ?? ''}
                           color={
                             '#' +
@@ -1045,7 +1038,7 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({
                           return (
                             <RoleBadge
                               key={one}
-                              className="pr-2 py-1"
+                              className="pe-2 py-1"
                               name={role?.name ?? ''}
                               color={
                                 '#' +
@@ -1109,7 +1102,7 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({
                           return (
                             <RoleBadge
                               key={one}
-                              className="pr-2 py-1"
+                              className="pe-2 py-1"
                               name={role?.name ?? ''}
                               color={
                                 '#' +
@@ -1209,7 +1202,7 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({
           />
           <div className="d-flex">
             <Button
-              className="pl-2 d-flex justify-content-center align-items-center"
+              className="ps-2 d-flex justify-content-center align-items-center"
               variant={saveError ? 'danger' : 'aztra'}
               disabled={
                 saving ||
@@ -1253,7 +1246,7 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({
                     size="sm"
                     role="status"
                   />
-                  <span className="pl-2">저장 중...</span>
+                  <span className="ps-2">저장 중...</span>
                 </>
               ) : (
                 <span>
@@ -1261,7 +1254,7 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({
                     '오류'
                   ) : (
                     <>
-                      <CheckIcon className="mr-1" />
+                      <CheckIcon className="me-1" />
                       {editMode ? '설정 수정하기' : '설정 완료하기'}
                     </>
                   )}
@@ -1271,10 +1264,10 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({
             {closeButton && (
               <Button
                 variant="danger"
-                className="ml-3 align-items-center d-flex"
+                className="ms-3 align-items-center d-flex"
                 onClick={() => onClose && onClose()}
               >
-                <CloseIcon className="mr-1" />
+                <CloseIcon className="me-1" />
                 취소하고 닫기
               </Button>
             )}

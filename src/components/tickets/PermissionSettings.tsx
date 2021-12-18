@@ -101,7 +101,7 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({
   const [addSearch, setAddSearch] = useState('');
 
   const permTitleCls =
-    'd-flex justify-content-between align-items-center pr-3 py-2';
+    'd-flex justify-content-between align-items-center pe-3 py-2';
 
   const AddableRoles = roles.filter(
     (r) =>
@@ -136,15 +136,14 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({
   return (
     <Form as={Container} fluid className="mt-3">
       <Row className="align-items-center mb-5 mb-md-2">
-        <Col className="px-0 pr-md-3">
+        <Col className="px-0 pe-md-3">
           <Card bg="transparent border-dark">
             <Card.Body className="px-3 py-0 d-md-flex align-items-center justify-content-between">
               <div className="d-md-flex">
                 <Form.Check
                   id="open-ticket-perm"
-                  className="ml-1 mr-3 my-2"
+                  className="ms-1 me-3 my-2"
                   type="radio"
-                  custom
                   label="열린 티켓 권한"
                   checked={permType === 'open'}
                   onChange={() => {
@@ -154,9 +153,8 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({
                 />
                 <Form.Check
                   id="closed-ticket-perm"
-                  className="ml-1 mr-3 my-2"
+                  className="ms-1 me-3 my-2"
                   type="radio"
-                  custom
                   label="닫힌 티켓 권한"
                   checked={permType === 'closed'}
                   onChange={() => {
@@ -172,7 +170,7 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({
           <Button
             variant={saveError ? 'danger' : 'aztra'}
             disabled={saving || saveError || !isChanged()}
-            className="mt-md-2 mb-2 mt-3 font-weight-bold w-100"
+            className="mt-md-2 mb-2 mt-3 fw-bold w-100"
             style={{
               minWidth: 160,
             }}
@@ -210,7 +208,7 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({
                   role="status"
                   aria-hidden="true"
                 />
-                <span className="pl-2">저장 중...</span>
+                <span className="ps-2">저장 중...</span>
               </>
             ) : (
               <span>
@@ -226,9 +224,9 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({
             <Col xs={12} xl={3}>
               <Nav variant="pills" className="flex-column">
                 <Nav.Link
-                  className={`my-1 justify-content-between d-flex align-items-center ${
+                  className={`my-1 justify-content-between d-flex align-items-center text-white ${
                     active.id === openerPerms.id && active.type === 'opener'
-                      ? 'bg-only-dark'
+                      ? 'bg-dark'
                       : ''
                   }`}
                   onClick={() =>
@@ -251,9 +249,9 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({
                     return (
                       <Nav.Link
                         key={`${o.type}-${o.id}`}
-                        className={`py-0 d-flex justify-content-between align-items-center ${
+                        className={`py-0 d-flex justify-content-between align-items-center text-white ${
                           active.id === o.id && active.type === o.type
-                            ? 'bg-only-dark'
+                            ? 'bg-dark'
                             : ''
                         }`}
                       >
@@ -302,9 +300,9 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({
                     return (
                       <Nav.Link
                         key={`${o.type}-${o.id}`}
-                        className={`py-0 d-flex justify-content-between align-items-center ${
+                        className={`py-0 d-flex justify-content-between align-items-center text-white ${
                           active.id === o.id && active.type === o.type
-                            ? 'bg-only-dark'
+                            ? 'bg-dark'
                             : ''
                         }`}
                       >
@@ -313,7 +311,7 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({
                           onClick={() => setActive({ id: o.id, type: o.type })}
                         >
                           <Image
-                            className="rounded-circle mr-2"
+                            className="rounded-circle me-2"
                             alt=""
                             src={
                               member?.user.avatar
@@ -346,7 +344,7 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({
                   })}
 
                 <Dropdown
-                  className="dropdown-menu-dark"
+                  className="dropdown-menu-dark bg-transparent"
                   onSelect={(e) => {
                     const [type, id] = e!.split(' ');
 
@@ -385,9 +383,9 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({
                     id="add-role-member"
                     size="sm"
                     variant="link"
-                    className="my-1 remove-after d-flex align-items-center border-0 shadow-none bg-transparent"
+                    className="remove-after d-flex align-items-center shadow-none bg-transparent text-white"
                   >
-                    <AddIcon className="mr-2" />새 역할/멤버 권한 추가
+                    <AddIcon className="me-2" />새 역할/멤버 권한 추가
                   </Dropdown.Toggle>
                   <Dropdown.Menu
                     className="bg-dark"
@@ -454,7 +452,7 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({
                           active={false}
                         >
                           <Image
-                            className="rounded-circle mr-2"
+                            className="rounded-circle me-2"
                             alt=""
                             src={
                               m.user.avatar
@@ -482,7 +480,6 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({
                       <Form.Check
                         id="mention-on-ticket-open"
                         type="checkbox"
-                        custom
                         label="티켓이 열릴 때 이 역할/멤버 멘션하기"
                         checked={
                           currentPermSets.find(
@@ -537,7 +534,7 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({
                           className={permTitleCls}
                           style={{ fontFamily: 'NanumSquare' }}
                         >
-                          <span className="mr-3">{name}</span>
+                          <span className="me-3">{name}</span>
                           <PermissionSwitch
                             state={ext_allow ? true : false}
                             nullable={false}
@@ -632,7 +629,7 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({
                         className={permTitleCls}
                         style={{ fontFamily: 'NanumSquare' }}
                       >
-                        <span className="mr-3">{name}</span>
+                        <span className="me-3">{name}</span>
                         <PermissionSwitch
                           state={allow ? true : deny ? false : null}
                           onChange={(state) => {
@@ -715,7 +712,7 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({
                   })}
                 </Row>
                 {active.type !== 'opener' && (
-                  <Row className="mt-4">
+                  <Row className="mt-4 d-inline-flex">
                     <Button
                       variant="outline-danger"
                       onClick={() => {

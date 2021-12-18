@@ -62,6 +62,12 @@ const General: NextPage<GeneralRouterProps> = ({ guildId }) => {
     boolean | null
   >(null);
 
+  const initData = (data: ServerData) => {
+    setGuildPrefix(data.prefix);
+    setNoticeChannel(data.noticeChannel);
+    setUseNoticeChannel(!!data.noticeChannel);
+  };
+
   const { data, mutate } = useSWR<ServerData, AxiosError>(
     new Cookies().get('ACCESS_TOKEN')
       ? urljoin(api, `/servers/${guildId}/serverdata`)
@@ -75,11 +81,7 @@ const General: NextPage<GeneralRouterProps> = ({ guildId }) => {
         })
         .then((r) => r.data),
     {
-      onSuccess: (data) => {
-        setGuildPrefix(data.prefix);
-        setNoticeChannel(data.noticeChannel);
-        setUseNoticeChannel(!!data.noticeChannel);
-      },
+      onSuccess: initData,
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
     }
@@ -120,12 +122,6 @@ const General: NextPage<GeneralRouterProps> = ({ guildId }) => {
     }
   };
 
-  const initData = (data: ServerData) => {
-    setGuildPrefix(data.prefix);
-    setNoticeChannel(data.noticeChannel);
-    setUseNoticeChannel(!!data.noticeChannel);
-  };
-
   useEffect(() => {
     if (!new Cookies().get('ACCESS_TOKEN')) {
       const lct = window.location;
@@ -135,9 +131,7 @@ const General: NextPage<GeneralRouterProps> = ({ guildId }) => {
 
     setTimeout(() => setPreload(false), 1000);
 
-    if (data) {
-      initData(data);
-    }
+    if (data) initData(data);
   }, [data]);
 
   useEffect(() => {
@@ -251,11 +245,7 @@ const General: NextPage<GeneralRouterProps> = ({ guildId }) => {
                       </Row>
 
                       <Row>
-                        <Form.Label
-                          column
-                          xs="auto"
-                          className="font-weight-bold"
-                        >
+                        <Form.Label column xs="auto" className="fw-bold">
                           봇 접두사:{' '}
                         </Form.Label>
                         <Col className="p-0" xs="auto" sm={3} lg={2} xl={1}>
@@ -312,7 +302,7 @@ const General: NextPage<GeneralRouterProps> = ({ guildId }) => {
                             <Form.Check
                               type="switch"
                               label={
-                                <div className="ps-2 font-weight-bold">
+                                <div className="ps-2 fw-bold">
                                   Aztra 공지 메시지 받기
                                 </div>
                               }
@@ -385,7 +375,7 @@ const General: NextPage<GeneralRouterProps> = ({ guildId }) => {
                                         as="h5"
                                         className={
                                           validChannel === false
-                                            ? 'text-danger font-weight-bold'
+                                            ? 'text-danger fw-bold'
                                             : ''
                                         }
                                       >

@@ -49,9 +49,7 @@ const JoinRole: React.FC<JoinRoleProps> = ({
     <>
       <Row>
         <Col>
-          <Form.Label className="pt-2 h5 font-weight-bold">
-            역할 추가하기:
-          </Form.Label>
+          <h5 className="pt-2">역할 추가하기:</h5>
           <Form.Text>
             멤버가 서버에 참여했을 때 자동으로 추가할 역할을 선택하세요.
           </Form.Text>
@@ -69,7 +67,7 @@ const JoinRole: React.FC<JoinRoleProps> = ({
                 return (
                   <RoleBadge
                     key={role.id}
-                    className="pr-2 py-1"
+                    className="pe-2 py-1"
                     name={role.name ?? ''}
                     color={'#' + (role.color ? role.color.toString(16) : 'fff')}
                     removeable
@@ -83,7 +81,7 @@ const JoinRole: React.FC<JoinRoleProps> = ({
                 );
               })}
               <Dropdown
-                className="dropdown-menu-dark"
+                className="dropdown-menu-dark bg-transparent"
                 onSelect={(key) => {
                   if (newData.add.includes(key!)) return;
                   setNewData({
@@ -121,7 +119,7 @@ const JoinRole: React.FC<JoinRoleProps> = ({
         <Col>
           <div className="d-flex">
             <Button
-              className="pl-2 d-flex justify-content-center align-items-center"
+              className="ps-2 d-flex justify-content-center align-items-center"
               variant={saveError ? 'danger' : 'aztra'}
               disabled={saving || saveError || !newData.add.length}
               onClick={(event) =>
@@ -139,7 +137,7 @@ const JoinRole: React.FC<JoinRoleProps> = ({
                     size="sm"
                     role="status"
                   />
-                  <span className="pl-2">저장 중...</span>
+                  <span className="ps-2">저장 중...</span>
                 </>
               ) : (
                 <span>
@@ -147,7 +145,7 @@ const JoinRole: React.FC<JoinRoleProps> = ({
                     '오류'
                   ) : (
                     <>
-                      <CheckIcon className="mr-1" />
+                      <CheckIcon className="me-1" />
                       {editMode ? '설정 수정하기' : '설정 완료하기'}
                     </>
                   )}
@@ -157,10 +155,10 @@ const JoinRole: React.FC<JoinRoleProps> = ({
             {closeButton && (
               <Button
                 variant="danger"
-                className="ml-3 align-items-center d-flex"
+                className="ms-3 align-items-center d-flex"
                 onClick={() => onClose && onClose()}
               >
-                <CloseIcon className="mr-1" />
+                <CloseIcon className="me-1" />
                 취소하고 닫기
               </Button>
             )}

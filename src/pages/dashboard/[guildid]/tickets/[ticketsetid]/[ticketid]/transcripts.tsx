@@ -189,7 +189,7 @@ const Transcripts: NextPage<TranscriptProps> = ({
                 <Row className="dashboard-section">
                   <div>
                     <BackTo
-                      className="pl-2 mb-4"
+                      className="ps-2 mb-4"
                       name="세부 티켓 목록"
                       to={`/dashboard/${guildId}/tickets/${ticketsetId}/list`}
                     />
@@ -198,11 +198,11 @@ const Transcripts: NextPage<TranscriptProps> = ({
                 </Row>
 
                 <Row className="flex-column">
-                  <Card bg="dark">
+                  <Card bg="dark" className="px-1">
                     <Card.Body className="py-2 d-flex align-items-center">
                       티켓:
                       <h5
-                        className="mb-0 pl-2"
+                        className="mb-0 ps-2"
                         style={{ fontFamily: 'NanumSquare' }}
                       >
                         {ticketset?.name} # {ticket.number}
@@ -211,12 +211,12 @@ const Transcripts: NextPage<TranscriptProps> = ({
                   </Card>
                 </Row>
 
-                {transcripts !== undefined ? (
+                {transcripts !== undefined && transcripts?.length ? (
                   <>
                     <Row className="mt-3">
                       <Col xs={12} lg={9} className="px-0">
                         <Button
-                          className="mr-2 mb-3 d-flex align-items-center"
+                          className="me-2 mb-3 d-flex align-items-center"
                           variant="aztra"
                           size="sm"
                           onClick={() => {
@@ -233,7 +233,7 @@ const Transcripts: NextPage<TranscriptProps> = ({
                             document.body.removeChild(link);
                           }}
                         >
-                          <SaveAltIcon className="mr-1" fontSize="small" />
+                          <SaveAltIcon className="me-1" fontSize="small" />
                           보고서 다운로드
                         </Button>
                         {transcript && (
@@ -278,7 +278,7 @@ const Transcripts: NextPage<TranscriptProps> = ({
                           }}
                         >
                           <Nav.Link
-                            className="bg-only-dark mb-2 d-flex align-items-center"
+                            className="bg-dark mb-2 d-flex align-items-center text-white"
                             disabled={ticket.status === 'deleted'}
                             onClick={() => {
                               setCreateNew('wating');
@@ -321,7 +321,7 @@ const Transcripts: NextPage<TranscriptProps> = ({
                                 });
                             }}
                           >
-                            <AddIcon className="mr-2" />
+                            <AddIcon className="me-2" />
                             새로 생성하기
                           </Nav.Link>
                           {transcripts
@@ -337,7 +337,7 @@ const Transcripts: NextPage<TranscriptProps> = ({
                                 className={`${
                                   one.uuid === selectedTranscript
                                     ? 'bg-blurple-new'
-                                    : ''
+                                    : 'text-white'
                                 }`}
                               >
                                 {new Date(one.created_at).toLocaleString()}

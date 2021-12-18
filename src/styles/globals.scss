@@ -134,20 +134,26 @@ button:focus {
 
 .modal-dark {
   .modal-content {
-    background-color: $dark;
+    background-color: scale-color($dark, $lightness: 10%);
     color: white;
     .modal-header,
     .modal-footer {
       border-color: scale-color($dark, $lightness: -30%);
     }
   }
-  .close {
-    color: white;
+  .btn-close {
+    color: white !important;
+    -webkit-filter: invert(100%);
+    filter: invert(100%);
+    box-shadow: none;
   }
 }
 
 .table-dark {
   background-color: #373b44 !important;
+  tbody {
+    border-top-width: 1px !important;
+  }
 }
 
 /* Sidebar */
@@ -179,16 +185,17 @@ button:focus {
 }
 
 .nav-tabs-dark {
-  nav {
-    border-bottom-color: $dark !important;
-    a:not([class~='active']) {
+  .nav {
+    border-bottom-color: #343a40 !important;
+    button {
       border: none !important;
+      color: white !important;
+    }
+    button:not([class~='active']) {
       background-color: transparent !important;
     }
-    a[class~='active'] {
-      border: none !important;
-      background-color: $dark !important;
-      color: white !important;
+    button[class~='active'] {
+      background-color: #343a40!important;
     }
   }
 }
@@ -223,4 +230,18 @@ button:focus {
 
 .form-text {
   color: white;
+}
+
+.background-none {
+  background-color: transparent !important;
+}
+
+.bg-transparent {
+  background-color: transparent !important;
+}
+
+.tab-content-no-padding {
+  .tab-content {
+    padding: 0 !important;
+  }
 }

@@ -100,7 +100,7 @@ const MessageSettings: React.FC<MessageSettingsProps> = ({
       </Row>
 
       <Row>
-        <Form.Label column sm="auto" className="font-weight-bold">
+        <Form.Label column sm="auto" className="fw-bold">
           열린 티켓 채널 이름
         </Form.Label>
         <Col>
@@ -129,7 +129,7 @@ const MessageSettings: React.FC<MessageSettingsProps> = ({
       </Row>
 
       <Row>
-        <Form.Label column sm="auto" className="font-weight-bold">
+        <Form.Label column sm="auto" className="fw-bold">
           닫힌 티켓 채널 이름
         </Form.Label>
         <Col>
@@ -191,7 +191,7 @@ const MessageSettings: React.FC<MessageSettingsProps> = ({
       </Row>
 
       <Row>
-        <Form.Label column sm="auto" className="font-weight-bold">
+        <Form.Label column sm="auto" className="fw-bold">
           티켓 생성 메시지
         </Form.Label>
         <Col>
@@ -221,7 +221,7 @@ const MessageSettings: React.FC<MessageSettingsProps> = ({
       </Row>
 
       <Row>
-        <Form.Label column sm="auto" className="font-weight-bold">
+        <Form.Label column sm="auto" className="fw-bold">
           티켓 초기 메시지
         </Form.Label>
         <Col>

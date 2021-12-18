@@ -147,7 +147,7 @@ const DocView: React.FC<DocViewProps> = ({ pageId, index }) => {
                   />
                   <div className="text-right">
                     <small>이전 페이지</small>
-                    <div className="font-weight-bold">{prevPage.title}</div>
+                    <div className="fw-bold">{prevPage.title}</div>
                   </div>
                 </Button>
               </Link>
@@ -157,7 +157,7 @@ const DocView: React.FC<DocViewProps> = ({ pageId, index }) => {
                 <Button className="d-flex px-3 ml-auto" variant="aztra">
                   <div className="text-left">
                     <small>다음 페이지</small>
-                    <div className="font-weight-bold">{nextPage.title}</div>
+                    <div className="fw-bold">{nextPage.title}</div>
                   </div>
                   <ArrowForwardIcon
                     className="my-auto ml-3 d-none d-sm-block"

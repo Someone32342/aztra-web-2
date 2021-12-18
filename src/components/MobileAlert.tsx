@@ -22,7 +22,7 @@ export default function MobileAlert() {
         icon={faExclamationTriangle}
         color="darkorange"
         size="lg"
-        className="my-auto mr-2"
+        className="my-auto me-2"
       />
       <div>
         이 페이지는 좁은 모바일 화면에서 확인하기 불편하기에 PC 버전에서

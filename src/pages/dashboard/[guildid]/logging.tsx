@@ -1,12 +1,14 @@
 import { faHashtag } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import axios, { AxiosError } from 'axios';
+import ChangesNotSaved from 'components/ChangesNotSaved';
 import DashboardLayout from 'components/DashboardLayout';
 import ChannelSelectCard from 'components/forms/ChannelSelectCard';
 import Layout from 'components/Layout';
 import api from 'datas/api';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
+import Router from 'next/router';
 import React, { useEffect, useState } from 'react';
 import {
   Button,
@@ -57,6 +59,14 @@ const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
   const [channelSearch, setChannelSearch] = useState('');
   const [newChannel, setNewChannel] = useState<ChannelMinimal | null>(null);
 
+  const [preload, setPreload] = useState(true);
+  const [changed, setChanged] = useState(false);
+
+  const initData = (data: LoggingSetType | null) => {
+    setUseLogging(!!Number(data?.flags));
+    setFlag(data?.flags ?? '0');
+  };
+
   const { data, mutate } = useSWR<LoggingSetType | null, AxiosError>(
     new Cookies().get('ACCESS_TOKEN')
       ? urljoin(api, `/servers/${guildId}/logging`)
@@ -70,10 +80,7 @@ const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
         })
         .then((r) => r.data),
     {
-      onSuccess: (data) => {
-        setUseLogging(!!Number(data?.flags));
-        setFlag(data?.flags ?? '0');
-      },
+      onSuccess: initData,
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
     }
@@ -92,6 +99,46 @@ const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
         })
         .then((r) => r.data)
   );
+
+  useEffect(() => {
+    if (!new Cookies().get('ACCESS_TOKEN')) {
+      const lct = window.location;
+      localStorage.setItem('loginFrom', lct.pathname + lct.search);
+      window.location.assign('/login');
+    }
+
+    setTimeout(() => setPreload(false), 1000);
+
+    if (data) initData(data);
+  }, [data]);
+
+  useEffect(() => {
+    const message = '저장되지 않은 변경사항이 있습니다. 계속하시겠습니까?';
+
+    const routeChangeStart = (url: string) => {
+      if (Router.asPath !== url && changed && !confirm(message)) {
+        Router.events.emit('routeChangeError');
+        Router.replace(Router, Router.asPath);
+        throw 'Abort route change. Please ignore this error.';
+      }
+    };
+
+    const beforeunload = (e: BeforeUnloadEvent) => {
+      if (changed) {
+        e.preventDefault();
+        e.returnValue = message;
+        return message;
+      }
+    };
+
+    window.addEventListener('beforeunload', beforeunload);
+    Router.events.on('routeChangeStart', routeChangeStart);
+
+    return () => {
+      window.removeEventListener('beforeunload', beforeunload);
+      Router.events.off('routeChangeStart', routeChangeStart);
+    };
+  }, [changed]);
 
   const setValidate = (type?: handleFieldChangeTypes) => {
     const All = [
@@ -153,14 +200,17 @@ const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
 
   const isChanged = () => {
     if (!data || !channels) {
+      setChanged(!!Number(data?.flags) != useLogging);
       return !!Number(data?.flags) != useLogging;
     }
 
-    return (
+    const rst =
       (data.channel !== newChannel?.id && newChannel !== null) ||
       data.flags !== flag ||
-      !!Number(data?.flags) != useLogging
-    );
+      !!Number(data?.flags) != useLogging;
+
+    setChanged(rst);
+    return rst;
   };
 
   const LoggingOptionCheckbox: React.FC<
@@ -174,7 +224,7 @@ const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
       custom
       type="checkbox"
       label={
-        <div className="pl-2" style={{ fontSize: '11pt' }}>
+        <div className="ps-2" style={{ fontSize: '11pt' }}>
           {props.label}
         </div>
       }
@@ -192,18 +242,6 @@ const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
       setFlag((fl | bigIntFlagBit).toString());
     }
   };
-
-  useEffect(() => {
-    if (!new Cookies().get('ACCESS_TOKEN')) {
-      const lct = window.location;
-      localStorage.setItem('loginFrom', lct.pathname + lct.search);
-      window.location.assign('/login');
-    }
-    if (data) {
-      setUseLogging(!!Number(data?.flags));
-      setFlag(data?.flags ?? '0');
-    }
-  }, [data]);
 
   const filteredChannels = filterChannels(channels ?? [], channelSearch);
 
@@ -233,9 +271,7 @@ const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
                         <Form.Check
                           type="switch"
                           label={
-                            <div className="pl-2 font-weight-bold">
-                              로깅 사용하기
-                            </div>
+                            <div className="ps-2 fw-bold">로깅 사용하기</div>
                           }
                           checked={useLogging}
                           onChange={() => setUseLogging(!useLogging)}
@@ -244,13 +280,13 @@ const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
                         />
                       </Form.Group>
                       {useLogging && (
-                        <>
+                        <div className="px-3">
                           <Row>
                             <Col>
                               <Button
                                 variant="dark"
                                 size="sm"
-                                className="mr-3"
+                                className="me-3"
                                 onClick={() =>
                                   setFlag(
                                     (
@@ -407,7 +443,7 @@ const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
                           </Row>
 
                           <Row className="pt-4 pb-2">
-                            <h4 className="pr-5">전송 채널</h4>
+                            <h4 className="pe-5">전송 채널</h4>
                           </Row>
                           <Row>
                             <Col md={12} lg={9} xl={8}>
@@ -419,10 +455,12 @@ const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
                                       (one) => one.id === data?.channel
                                     ) ? (
                                       <>
-                                        <h5 className="pr-2">현재 선택됨: </h5>
+                                        <h5 className="pe-2 px-0">
+                                          현재 선택됨:{' '}
+                                        </h5>
                                         <Card bg="secondary">
                                           <Card.Header
-                                            className="py-1 px-3"
+                                            className="py-1 px-0"
                                             style={{
                                               fontFamily: 'NanumSquare',
                                               fontSize: '13pt',
@@ -430,7 +468,7 @@ const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
                                           >
                                             <FontAwesomeIcon
                                               icon={faHashtag}
-                                              className="mr-2 my-auto"
+                                              className="me-2 my-auto"
                                               size="sm"
                                             />
                                             {newChannel?.name ||
@@ -442,16 +480,15 @@ const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
                                         </Card>
                                       </>
                                     ) : (
-                                      <Form.Label
-                                        as="h5"
+                                      <h5
                                         className={
                                           validChannel === false
-                                            ? 'text-danger font-weight-bold'
-                                            : ''
+                                            ? 'text-danger fw-bold px-0'
+                                            : 'px-0'
                                         }
                                       >
                                         선택된 채널이 없습니다!
-                                      </Form.Label>
+                                      </h5>
                                     )}
                                   </Row>
                                   <Row className="pb-2">
@@ -463,7 +500,7 @@ const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
                                         setChannelSearch(e.target.value)
                                       }
                                     />
-                                    <Form.Text className="py-1">
+                                    <Form.Text className="py-1 px-0">
                                       {filteredChannels.length}개 채널 찾음
                                     </Form.Text>
                                   </Row>
@@ -501,39 +538,22 @@ const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
                               </Form.Group>
                             </Col>
                           </Row>
-                        </>
+                        </div>
                       )}
-                      <Row className="mt-4">
-                        <Button
-                          variant={saveError ? 'danger' : 'aztra'}
-                          disabled={saving || saveError || !isChanged()}
-                          onClick={handleSubmit}
-                          style={{
-                            minWidth: 140,
-                          }}
-                        >
-                          {saving ? (
-                            <>
-                              <Spinner
-                                as="span"
-                                animation="border"
-                                size="sm"
-                                role="status"
-                                aria-hidden="true"
-                              />
-                              <span className="pl-2">저장 중...</span>
-                            </>
-                          ) : (
-                            <span>
-                              {saveError
-                                ? '오류'
-                                : isChanged()
-                                ? '저장하기'
-                                : '저장됨'}
-                            </span>
-                          )}
-                        </Button>
-                      </Row>
+
+                      {!saveError && isChanged() ? (
+                        <ChangesNotSaved
+                          key="changesNotSaved1"
+                          onSave={handleSubmit}
+                          onReset={() => initData(data)}
+                          isSaving={saving}
+                          isSaveError={saveError}
+                        />
+                      ) : (
+                        <div style={{ opacity: preload ? 0 : 1 }}>
+                          <ChangesNotSaved key="changesNotSaved2" close />
+                        </div>
+                      )}
                     </Form>
                   </Col>
                 </Row>

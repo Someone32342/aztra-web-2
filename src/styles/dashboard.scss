@@ -171,33 +171,39 @@
   }
 }
 
-.form-control {
+.form-control,
+.form-select {
   background-color: rgb(66, 69, 77);
   border: none;
   color: whitesmoke;
 }
 
-.form-control:focus {
+.form-control:focus,
+.form-select:focus {
   background-color: rgb(66, 69, 77);
   outline: none;
   box-shadow: none;
   color: whitesmoke;
 }
 
-.form-control::placeholder {
+.form-control::placeholder,
+.form-select::placeholder {
   color: rgb(160, 160, 172);
   opacity: 1;
 }
 
-.form-control:-ms-input-placeholder {
+.form-control:-ms-input-placeholder,
+.form-select:-ms-input-placeholder {
   color: rgb(160, 160, 172);
 }
 
-.form-control::-webkit-input-placeholder {
+.form-control::-webkit-input-placeholder,
+.form-select::-webkit-input-placeholder {
   color: rgb(160, 160, 172);
 }
 
-.form-control:disabled {
+.form-control:disabled,
+.form-select:disabled {
   display: none;
   background-color: rgb(51, 52, 59);
   border: none;
@@ -205,12 +211,14 @@
   color: rgb(121, 117, 134);
 }
 
-.form-control[readonly] {
+.form-control[readonly],
+.form-select[readonly] {
   background-color: rgb(51, 52, 59);
   color: rgb(121, 117, 134);
 }
 
-.form-control:disabled::placeholder {
+.form-control:disabled::placeholder,
+.form-select:disabled::placeholder {
   color: rgb(116, 113, 126);
 }
 

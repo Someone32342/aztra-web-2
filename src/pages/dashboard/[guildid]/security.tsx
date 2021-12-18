@@ -670,7 +670,7 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                       </Row>
                       <Row className="pt-2">
                         <Col>
-                          <Form.Label className="font-weight-bold h5">
+                          <Form.Label className="fw-bold h5">
                             위반 시:
                           </Form.Label>
                         </Col>

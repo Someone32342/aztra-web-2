@@ -32,8 +32,8 @@ const MemberCell: React.FC<MemberCellProps> = ({
           width: 30,
         }}
       />
-      <div className={wrap ? 'ml-lg-2' : 'ml-2'}>
-        <span className={`${wrap ? 'd-none d-lg-block' : ''} font-weight-bold`}>
+      <div className={wrap ? 'ms-lg-2' : 'ms-2'}>
+        <span className={`${wrap ? 'd-none d-lg-block' : ''} fw-bold`}>
           {member.displayName}
         </span>
       </div>
@@ -55,12 +55,18 @@ const MemberCell: React.FC<MemberCellProps> = ({
             href={`/dashboard/${guildId}/members/${member.user.id}`}
             shallow
           >
-            <a className="d-flex align-items-center" {...triggerHandler}>
+            <a
+              className="d-flex align-items-center text-decoration-none"
+              {...triggerHandler}
+            >
               {content(ref)}
             </a>
           </Link>
         ) : (
-          <div className="d-flex align-items-center" {...triggerHandler}>
+          <div
+            className="d-flex align-items-center text-decoration-none"
+            {...triggerHandler}
+          >
             {content(ref)}
           </div>
         )

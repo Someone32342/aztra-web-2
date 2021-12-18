@@ -52,6 +52,7 @@ import dayjsUTC from 'dayjs/plugin/utc';
 import 'dayjs/locale/ko';
 import { TaskSet } from 'types/autotask';
 import numberWithCommas from 'utils/numberWithCommas';
+import Router from 'next/router';
 dayjs.locale('ko');
 dayjs.extend(dayjsRelativeTime);
 dayjs.extend(dayjsUTC);
@@ -674,9 +675,16 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
                                           </Tooltip>
                                         }
                                       >
-                                        <Link
-                                          passHref
+                                        <a
                                           href={`/dashboard/${guildId}/members/${target.id}`}
+                                          onClick={(e) => {
+                                            e.preventDefault();
+                                            Router.push(
+                                              `/dashboard/${guildId}/members/${target.id}`,
+                                              undefined,
+                                              { shallow: true }
+                                            );
+                                          }}
                                         >
                                           <img
                                             src={
@@ -691,7 +699,7 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
                                               width: 35,
                                             }}
                                           />
-                                        </Link>
+                                        </a>
                                       </OverlayTrigger>
                                     </div>
                                   )}
@@ -763,27 +771,33 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
                               as={Row}
                               className="py-1 d-flex justify-content-between"
                             >
-                              <Col xs={9} className="d-flex px-2">
-                                <div
-                                  className="me-2 my-auto"
-                                  style={{
-                                    height: 35,
-                                    width: 35,
-                                  }}
+                              <Col xs={9} className="px-2">
+                                <OverlayTrigger
+                                  placement="top"
+                                  overlay={
+                                    <Tooltip id={`new-member-${one.user.id}`}>
+                                      {one.user.tag}
+                                    </Tooltip>
+                                  }
                                 >
-                                  <OverlayTrigger
-                                    placement="top"
-                                    overlay={
-                                      <Tooltip
-                                        id={`warn-member-${one.user.id}`}
-                                      >
-                                        {one.user.tag}
-                                      </Tooltip>
-                                    }
+                                  <a
+                                    className="d-inline-flex cursor-pointer text-decoration-none"
+                                    href={`/dashboard/${guildId}/members/${one.user.id}`}
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      Router.push(
+                                        `/dashboard/${guildId}/members/${one.user.id}`,
+                                        undefined,
+                                        { shallow: true }
+                                      );
+                                    }}
                                   >
-                                    <Link
-                                      passHref
-                                      href={`/dashboard/${guildId}/members/${one.user.id}`}
+                                    <div
+                                      className="me-2 my-auto"
+                                      style={{
+                                        height: 35,
+                                        width: 35,
+                                      }}
                                     >
                                       <img
                                         src={
@@ -798,12 +812,12 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
                                           width: 35,
                                         }}
                                       />
-                                    </Link>
-                                  </OverlayTrigger>
-                                </div>
-                                <div className="my-auto d-inline-block text-truncate">
-                                  {one.user.tag}
-                                </div>
+                                    </div>
+                                    <div className="my-auto d-inline-block text-truncate">
+                                      {one.user.tag}
+                                    </div>
+                                  </a>
+                                </OverlayTrigger>
                               </Col>
                               <Col
                                 xs={3}

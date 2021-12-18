@@ -241,18 +241,15 @@ const Growth: React.FC<GrowthProps> = ({ memberCounts, msgCounts }) => {
   };
 
   return (
-    <Container fluid>
+    <Container fluid className="px-0">
       <Row className="pb-4 justify-content-end">
         <Col>
           <Card bg="dark">
             <Card.Body className="py-2">
               <Form.Check
                 id="include-bot-checkbox"
-                custom
                 type="checkbox"
-                label={
-                  <span className="pl-2 font-weight-bold">봇 포함하기</span>
-                }
+                label={<span className="ps-2 fw-bold">봇 포함하기</span>}
                 checked={includeBot}
                 onChange={() => setIncludeBot(!includeBot)}
               />
@@ -270,11 +267,11 @@ const Growth: React.FC<GrowthProps> = ({ memberCounts, msgCounts }) => {
                   trigger="hover"
                   overlay={
                     <Popover id="auto-task-process-popover">
-                      <Popover.Title>일별 멤버수 통계</Popover.Title>
-                      <Popover.Content>
+                      <Popover.Header>일별 멤버수 통계</Popover.Header>
+                      <Popover.Body>
                         최근 30일간의 멤버수 변화를 보여줍니다. 매일 자정에
                         업데이트됩니다.
-                      </Popover.Content>
+                      </Popover.Body>
                     </Popover>
                   }
                   delay={{
@@ -282,11 +279,11 @@ const Growth: React.FC<GrowthProps> = ({ memberCounts, msgCounts }) => {
                     hide: 150,
                   }}
                 >
-                  <HelpIcon className="cursor-pointer ml-1" htmlColor="grey" />
+                  <HelpIcon className="cursor-pointer ms-1" htmlColor="grey" />
                 </OverlayTrigger>
               </div>
             </div>
-            <div className="ml-auto d-flex my-2 my-sm-auto">
+            <div className="ms-auto d-flex my-2 my-sm-auto">
               <Button
                 className="mx-1 my-1 d-flex align-items-center"
                 disabled={!memberCounts.length}
@@ -295,7 +292,7 @@ const Growth: React.FC<GrowthProps> = ({ memberCounts, msgCounts }) => {
                 size="sm"
                 onClick={() => chartDownload(memberCountChartRef)}
               >
-                <ImageIcon className="mr-2" />
+                <ImageIcon className="me-2" />
                 이미지 다운로드
               </Button>
               <Button
@@ -354,11 +351,11 @@ const Growth: React.FC<GrowthProps> = ({ memberCounts, msgCounts }) => {
                   trigger="hover"
                   overlay={
                     <Popover id="auto-task-process-popover">
-                      <Popover.Title>일별 메시지량 통계</Popover.Title>
-                      <Popover.Content>
+                      <Popover.Header>일별 메시지량 통계</Popover.Header>
+                      <Popover.Body>
                         최근 30일간의 하루 전체 메시지량을 보여줍니다. 매일
                         자정에 업데이트됩니다.
-                      </Popover.Content>
+                      </Popover.Body>
                     </Popover>
                   }
                   delay={{
@@ -366,11 +363,11 @@ const Growth: React.FC<GrowthProps> = ({ memberCounts, msgCounts }) => {
                     hide: 150,
                   }}
                 >
-                  <HelpIcon className="cursor-pointer ml-1" htmlColor="grey" />
+                  <HelpIcon className="cursor-pointer ms-1" htmlColor="grey" />
                 </OverlayTrigger>
               </div>
             </div>
-            <div className="ml-auto d-flex my-2 my-sm-auto">
+            <div className="ms-auto d-flex my-2 my-sm-auto">
               <Button
                 variant="info"
                 className="mx-1 my-1 d-flex align-items-center"
@@ -378,7 +375,7 @@ const Growth: React.FC<GrowthProps> = ({ memberCounts, msgCounts }) => {
                 size="sm"
                 onClick={() => chartDownload(msgCountChartRef)}
               >
-                <ImageIcon className="mr-2" />
+                <ImageIcon className="me-2" />
                 이미지 다운로드
               </Button>
               <Button
@@ -440,11 +437,11 @@ const Growth: React.FC<GrowthProps> = ({ memberCounts, msgCounts }) => {
                   trigger="hover"
                   overlay={
                     <Popover id="auto-task-process-popover">
-                      <Popover.Title>시간대별 메시지 수</Popover.Title>
-                      <Popover.Content>
+                      <Popover.Header>시간대별 메시지 수</Popover.Header>
+                      <Popover.Body>
                         1시간 간격으로 최근 메시지 수를 보여줍니다. 매시간
                         정각에 업데이트됩니다.
-                      </Popover.Content>
+                      </Popover.Body>
                     </Popover>
                   }
                   delay={{
@@ -452,11 +449,11 @@ const Growth: React.FC<GrowthProps> = ({ memberCounts, msgCounts }) => {
                     hide: 150,
                   }}
                 >
-                  <HelpIcon className="cursor-pointer ml-1" htmlColor="grey" />
+                  <HelpIcon className="cursor-pointer ms-1" htmlColor="grey" />
                 </OverlayTrigger>
               </div>
             </div>
-            <div className="ml-auto d-flex my-2 my-sm-auto">
+            <div className="ms-auto d-flex my-2 my-sm-auto">
               <Button
                 className="mx-1 my-1 d-flex align-items-center"
                 variant="info"
@@ -464,7 +461,7 @@ const Growth: React.FC<GrowthProps> = ({ memberCounts, msgCounts }) => {
                 size="sm"
                 onClick={() => chartDownload(msgCountTimelineChartRef)}
               >
-                <ImageIcon className="mr-2" />
+                <ImageIcon className="me-2" />
                 이미지 다운로드
               </Button>
               <Button

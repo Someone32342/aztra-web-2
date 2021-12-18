@@ -66,6 +66,7 @@ interface TaskListCardProps {
 const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
   const [addNew, setAddNew] = useState(false);
   const [edit, setEdit] = useState<string | null>(null);
+  const [showEdit, setShowEdit] = useState(false);
   const [taskType, setTaskType] = useState<string | number>(0);
 
   const [selectedTasks, setSelectedTasks] = useState<Set<string>>(new Set());
@@ -167,15 +168,15 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
         let channel = channels?.find((o) => o.id === taskparams.channel);
 
         eventContent = (
-          <div className="pl-3">
+          <div className="ps-3">
             <div>
-              <span className="font-weight-bold">- 채널: </span>
+              <span className="fw-bold">- 채널: </span>
               <span>
                 {channel ? `#${channel.name}` : <i>(존재하지 않는 채널)</i>}
               </span>
             </div>
             <div>
-              <span className="font-weight-bold">- 메시지 아이디: </span>
+              <span className="fw-bold">- 메시지 아이디: </span>
               <div>{taskparams.message}</div>
             </div>
           </div>
@@ -191,16 +192,13 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
 
           return (
             <div key={o.emoji}>
-              <div className="py-1 font-weight-bold d-flex align-items-center">
+              <div className="py-1 fw-bold d-flex align-items-center">
                 {emd ? <Emoji size={22} emoji={emd} set="twitter" /> : o.emoji}
-                <span className="pl-2"> 이모지에서:</span>
+                <span className="ps-2"> 이모지에서:</span>
               </div>
               {!!o.add.length && (
-                <div className="d-flex flex-wrap pb-1 pl-3">
-                  <span
-                    className="font-weight-bold pr-2"
-                    style={{ color: 'limegreen' }}
-                  >
+                <div className="d-flex flex-wrap pb-1 ps-3">
+                  <span className="fw-bold pe-2" style={{ color: 'limegreen' }}>
                     - 반응 추가시 역할 추가:
                   </span>
                   {o.add.map((r) => {
@@ -208,7 +206,7 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                     return (
                       <RoleBadge
                         key={r}
-                        className="mr-2"
+                        className="me-2"
                         name={role?.name ?? '(존재하지 않는 역할)'}
                         color={
                           '#' + (role?.color ? role?.color.toString(16) : 'fff')
@@ -219,11 +217,8 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                 </div>
               )}
               {!!o.remove.length && (
-                <div className="d-flex flex-wrap pb-1 pl-3">
-                  <span
-                    className="font-weight-bold pr-2"
-                    style={{ color: 'salmon' }}
-                  >
+                <div className="d-flex flex-wrap pb-1 ps-3">
+                  <span className="fw-bold pe-2" style={{ color: 'salmon' }}>
                     - 반응 제거시 역할 제거:
                   </span>
                   {o.remove.map((r) => {
@@ -231,7 +226,7 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                     return (
                       <RoleBadge
                         key={r}
-                        className="mr-2"
+                        className="me-2"
                         name={role?.name ?? '(존재하지 않는 역할)'}
                         color={
                           '#' + (role?.color ? role?.color.toString(16) : 'fff')
@@ -252,13 +247,13 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
         let joinRoleTaskData: JoinRoleData = taskset.data;
         taskContent = (
           <div className="py-1 d-flex align-items-center">
-            <b className="pr-2">멤버 참여시 역할 추가:</b>
+            <b className="pe-2">멤버 참여시 역할 추가:</b>
             {joinRoleTaskData.add.map((r) => {
               const role = roles?.find((one) => one.id === r);
               return (
                 <RoleBadge
                   key={r}
-                  className="mr-2"
+                  className="me-2"
                   name={role?.name ?? '(존재하지 않는 역할)'}
                   color={'#' + (role?.color ? role?.color.toString(16) : 'fff')}
                 />
@@ -279,7 +274,7 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
         >
           <Button
             variant="dark"
-            className="d-flex px-1 remove-before"
+            className="d-flex px-1 remove-before bg-transparent border-0"
             onClick={() => {
               axios
                 .delete(`${api}/servers/${guildId}/autotasking`, {
@@ -307,8 +302,11 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
         >
           <Button
             variant="dark"
-            className="d-flex px-1 remove-before"
-            onClick={() => setEdit(taskset.uuid)}
+            className="d-flex px-1 remove-before bg-transparent border-0"
+            onClick={() => {
+              setEdit(taskset.uuid);
+              setShowEdit(true);
+            }}
           >
             <EditIcon />
           </Button>
@@ -330,9 +328,7 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
             </td>
 
             <td className="align-middle">
-              <span className="d-inline-block mw-100 font-weight-bold">
-                {eventName}
-              </span>
+              <span className="d-inline-block mw-100 fw-bold">{eventName}</span>
               <div>{eventContent}</div>
             </td>
             <td className="align-middle">
@@ -355,9 +351,7 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
               />
             </td>
             <td>
-              <span className="d-inline-block mw-100 font-weight-bold">
-                {eventName}
-              </span>
+              <span className="d-inline-block mw-100 fw-bold">{eventName}</span>
 
               <div className="mb-4">{eventContent}</div>
 
@@ -405,6 +399,7 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
         mutate().then(() => {
           setEditSaving(false);
           setEdit(null);
+          setShowEdit(false);
         });
       })
       .catch(() => setEditError(true));
@@ -461,7 +456,7 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                             <Card bg="dark" className="m-0 shadow">
                               <Card.Header className="d-flex justify-content-between align-items-center">
                                 <span
-                                  className="font-weight-bold"
+                                  className="fw-bold"
                                   style={{
                                     fontFamily: 'NanumSquare',
                                     fontSize: 18,
@@ -483,16 +478,15 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                               </Card.Header>
                               <Card.Body>
                                 <Form>
-                                  <Form.Group className="d-flex">
+                                  <Form.Group className="d-flex mb-3">
                                     <Row className="align-items-center">
                                       <Form.Label column sm="auto">
                                         작업 유형 선택
                                       </Form.Label>
                                       <Col>
-                                        <Form.Control
+                                        <Form.Select
                                           className="shadow-sm"
                                           style={{ fontSize: 15 }}
-                                          as="select"
                                           value={taskType}
                                           onChange={(e) =>
                                             setTaskType(e.target.value)
@@ -505,7 +499,7 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                                           <option value="join_role">
                                             멤버가 참여했을 때 역할 추가
                                           </option>
-                                        </Form.Control>
+                                        </Form.Select>
                                       </Col>
                                     </Row>
                                   </Form.Group>
@@ -562,40 +556,42 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                         </Row>
                       )}
 
-                      <Row className="justify-content-end align-items-center pt-2">
-                        <div
-                          className="mr-4"
-                          style={{
-                            color: data.length >= 15 ? 'gold' : 'white',
-                          }}
-                        >
-                          <b>{data.length}/15</b> 개 사용됨
+                      <Row className="pt-2">
+                        <div className="d-flex justify-content-end align-items-center">
+                          <div
+                            className="me-4"
+                            style={{
+                              color: data.length >= 15 ? 'gold' : 'white',
+                            }}
+                          >
+                            <b>{data.length}/15</b> 개 사용됨
+                          </div>
+                          <Button
+                            variant="aztra"
+                            size="sm"
+                            className="d-flex align-items-center my-1"
+                            disabled={data.length >= 15}
+                            onClick={() => {
+                              setAddNew(true);
+                              animateScroll.scrollToTop({
+                                duration: 500,
+                              });
+                            }}
+                          >
+                            <AddIcon className="me-1" />
+                            새로 추가
+                          </Button>
+                          <Button
+                            variant="danger"
+                            size="sm"
+                            className="d-flex align-items-center ms-3 my-1"
+                            disabled={!finalSelectedSet.size}
+                            onClick={() => setShowSelectedDel(true)}
+                          >
+                            <DeleteIcon className="me-1" />
+                            선택 항목 삭제
+                          </Button>
                         </div>
-                        <Button
-                          variant="aztra"
-                          size="sm"
-                          className="d-flex align-items-center my-1"
-                          disabled={data.length >= 15}
-                          onClick={() => {
-                            setAddNew(true);
-                            animateScroll.scrollToTop({
-                              duration: 500,
-                            });
-                          }}
-                        >
-                          <AddIcon className="mr-1" />
-                          새로 추가
-                        </Button>
-                        <Button
-                          variant="danger"
-                          size="sm"
-                          className="d-flex align-items-center ml-3 my-1"
-                          disabled={!finalSelectedSet.size}
-                          onClick={() => setShowSelectedDel(true)}
-                        >
-                          <DeleteIcon className="mr-1" />
-                          선택 항목 삭제
-                        </Button>
                       </Row>
 
                       <Row>
@@ -646,6 +642,7 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                           style={{
                             tableLayout: 'fixed',
                           }}
+                          hover
                         >
                           <thead>
                             <tr>
@@ -679,12 +676,12 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                               </th>
                               <th className="d-lg-none" />
                               <th
-                                className="text-center text-lg-left d-none d-lg-table-cell"
+                                className="text-center text-lg-start d-none d-lg-table-cell"
                                 style={{ width: 250 }}
                               >
                                 작업 유형
                               </th>
-                              <th className="text-center text-lg-left d-none d-lg-table-cell">
+                              <th className="text-center text-lg-start d-none d-lg-table-cell">
                                 작업 내용
                               </th>
                               <th
@@ -715,7 +712,7 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                           </tbody>
                         </Table>
                       </Row>
-                      <Row className="justify-content-center">
+                      <Row className="text-center">
                         {!data.length && (
                           <div className="my-5" style={{ color: 'lightgray' }}>
                             설정된 자동작업이 없습니다!{' '}
@@ -725,6 +722,7 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                               onClick={() => {
                                 setAddNew(true);
                                 animateScroll.scrollToTop({
+                                  isDynamic: true,
                                   duration: 500,
                                 });
                               }}
@@ -737,11 +735,13 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                       </Row>
                       <Modal
                         className="modal-dark scrollbar-dark"
-                        show={!!edit}
-                        onHide={() => setEdit(null)}
+                        show={showEdit}
+                        onHide={() => {
+                          setShowEdit(false);
+                          setTimeout(() => setEdit(null), 500);
+                        }}
                         centered
                         size="lg"
-                        animation={false}
                       >
                         <Modal.Header closeButton>
                           <Modal.Title
@@ -776,7 +776,10 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                                 };
                                 patchTask(postData);
                               }}
-                              onClose={() => setEdit(null)}
+                              onClose={() => {
+                                setShowEdit(false);
+                                setTimeout(() => setEdit(null), 500);
+                              }}
                             />
                           )}
                           {editData?.type === 'join_role' && (
@@ -797,7 +800,10 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                                 };
                                 patchTask(postData);
                               }}
-                              onClose={() => setEdit(null)}
+                              onClose={() => {
+                                setShowEdit(false);
+                                setTimeout(() => setEdit(null), 500);
+                              }}
                             />
                           )}
                         </Modal.Body>

@@ -140,7 +140,7 @@ const TicketSets: NextPage<TicketSetsRouterProps> = ({ guildId }) => {
         >
           <Button
             variant="dark"
-            className="d-flex px-1 remove-before"
+            className="d-flex px-1 remove-before bg-transparent border-0"
             onClick={() =>
               Router.push(
                 `/dashboard/${guildId}/tickets/${ticketSet.uuid}/list`,
@@ -161,7 +161,7 @@ const TicketSets: NextPage<TicketSetsRouterProps> = ({ guildId }) => {
         >
           <Button
             variant="dark"
-            className="d-flex px-1 remove-before"
+            className="d-flex px-1 remove-before bg-transparent border-0"
             onClick={() =>
               Router.push(
                 `/dashboard/${guildId}/tickets/${ticketSet.uuid}/settings`,
@@ -191,7 +191,6 @@ const TicketSets: NextPage<TicketSetsRouterProps> = ({ guildId }) => {
                 <Form.Check
                   id={`taskset-check-${ticketSet.uuid}`}
                   type="checkbox"
-                  custom
                   checked={checked}
                   onChange={onCheckChange}
                 />
@@ -237,7 +236,6 @@ const TicketSets: NextPage<TicketSetsRouterProps> = ({ guildId }) => {
                 <Form.Check
                   id={`ticketset-check-${ticketSet.uuid}`}
                   type="checkbox"
-                  custom
                   checked={checked}
                   onChange={onCheckChange}
                 />
@@ -257,7 +255,7 @@ const TicketSets: NextPage<TicketSetsRouterProps> = ({ guildId }) => {
                   </div>
                   <div>
                     채널:{' '}
-                    <b className="ml-2">
+                    <b className="ms-2">
                       #
                       {channels?.find((o) => o.id === ticketSet.channel)
                         ?.name ?? <i>(존재하지 않는 채널)</i>}
@@ -265,7 +263,7 @@ const TicketSets: NextPage<TicketSetsRouterProps> = ({ guildId }) => {
                   </div>
                   <div>
                     생성 카테고리:{' '}
-                    <b className="ml-2">
+                    <b className="ms-2">
                       {ticketSet.category_opened
                         ? `#${
                             channels?.find(
@@ -399,38 +397,40 @@ const TicketSets: NextPage<TicketSetsRouterProps> = ({ guildId }) => {
                       )}
 
                       <Row className="justify-content-end align-items-center pt-2">
-                        <div
-                          className="mr-4"
-                          style={{
-                            color: data.length >= 15 ? 'gold' : 'white',
-                          }}
-                        >
-                          <b>{data.length}/15</b> 개 사용됨
+                        <div className="d-flex justify-content-end align-items-center">
+                          <div
+                            className="me-4"
+                            style={{
+                              color: data.length >= 15 ? 'gold' : 'white',
+                            }}
+                          >
+                            <b>{data.length}/15</b> 개 사용됨
+                          </div>
+                          <Button
+                            variant="aztra"
+                            size="sm"
+                            className="d-flex align-items-center my-1"
+                            onClick={() => {
+                              setAddNew(true);
+                              animateScroll.scrollToTop({
+                                duration: 500,
+                              });
+                            }}
+                          >
+                            <AddIcon className="me-1" />
+                            새로 등록
+                          </Button>
+                          <Button
+                            variant="danger"
+                            size="sm"
+                            className="d-flex align-items-center ms-3 my-1"
+                            disabled={!finalSelectedSet.size}
+                            onClick={() => setShowSelectedDel(true)}
+                          >
+                            <DeleteIcon className="me-1" />
+                            선택 항목 삭제
+                          </Button>
                         </div>
-                        <Button
-                          variant="aztra"
-                          size="sm"
-                          className="d-flex align-items-center my-1"
-                          onClick={() => {
-                            setAddNew(true);
-                            animateScroll.scrollToTop({
-                              duration: 500,
-                            });
-                          }}
-                        >
-                          <AddIcon className="mr-1" />
-                          새로 등록
-                        </Button>
-                        <Button
-                          variant="danger"
-                          size="sm"
-                          className="d-flex align-items-center ml-3 my-1"
-                          disabled={!finalSelectedSet.size}
-                          onClick={() => setShowSelectedDel(true)}
-                        >
-                          <DeleteIcon className="mr-1" />
-                          선택 항목 삭제
-                        </Button>
                       </Row>
 
                       <Row>
@@ -481,6 +481,7 @@ const TicketSets: NextPage<TicketSetsRouterProps> = ({ guildId }) => {
                           style={{
                             tableLayout: 'fixed',
                           }}
+                          hover
                         >
                           <thead>
                             <tr>
@@ -490,7 +491,6 @@ const TicketSets: NextPage<TicketSetsRouterProps> = ({ guildId }) => {
                               >
                                 <Form.Check
                                   id="ticketsets-select-all"
-                                  custom
                                   type="checkbox"
                                   checked={
                                     !!data?.length &&
@@ -516,24 +516,24 @@ const TicketSets: NextPage<TicketSetsRouterProps> = ({ guildId }) => {
                                 />
                               </th>
                               <th
-                                className="text-center text-md-left d-none d-md-table-cell"
+                                className="text-center text-md-start d-none d-md-table-cell"
                                 style={{ maxWidth: 400 }}
                               >
                                 이름
                               </th>
                               <th
-                                className="text-center text-md-left d-none d-md-table-cell"
+                                className="text-center text-md-start d-none d-md-table-cell"
                                 style={{ maxWidth: 150 }}
                               >
                                 이모지
                               </th>
                               <th
-                                className="text-center text-md-left d-none d-md-table-cell"
+                                className="text-center text-md-start d-none d-md-table-cell"
                                 style={{ maxWidth: 150 }}
                               >
                                 채널
                               </th>
-                              <th className="text-center text-md-left d-none d-md-table-cell">
+                              <th className="text-center text-md-start d-none d-md-table-cell">
                                 생성 카테고리
                               </th>
                               <th
@@ -565,7 +565,7 @@ const TicketSets: NextPage<TicketSetsRouterProps> = ({ guildId }) => {
                           </tbody>
                         </Table>
                       </Row>
-                      <Row className="justify-content-center">
+                      <Row className="text-center">
                         {!data.length && (
                           <div className="my-5" style={{ color: 'lightgray' }}>
                             설정된 티켓이 없습니다!{' '}

@@ -32,6 +32,7 @@ import DashboardLayout from 'components/DashboardLayout';
 import urljoin from 'url-join';
 import useSWR from 'swr';
 import Head from 'next/head';
+import Router from 'next/router';
 dayjs.locale('ko');
 dayjs.extend(dayjsRelativeTime);
 dayjs.extend(dayjsUTC);
@@ -118,7 +119,7 @@ const WarnsMain: NextPage<WarnsMainRouterProps> = ({ guildId }) => {
                 <Row className="dashboard-section">
                   <h3>경고 관리</h3>
                 </Row>
-                <Row>
+                <Row className="px-4">
                   <Col className="mb-5" xs={12} lg={6}>
                     <div className="d-flex justify-content-between">
                       <h4 className="mb-3">최근 경고 목록</h4>
@@ -132,7 +133,7 @@ const WarnsMain: NextPage<WarnsMainRouterProps> = ({ guildId }) => {
                             className="shadow align-items-center d-flex"
                             size="sm"
                           >
-                            <MenuIcon className="mr-2" />
+                            <MenuIcon className="me-2" />
                             모두 보기
                           </Button>
                         </Link>
@@ -162,7 +163,7 @@ const WarnsMain: NextPage<WarnsMainRouterProps> = ({ guildId }) => {
                                 <Col xs={9} className="d-flex px-2">
                                   {target && (
                                     <div
-                                      className="mr-2 my-auto"
+                                      className="me-2 my-auto"
                                       style={{
                                         height: 35,
                                         width: 35,
@@ -178,9 +179,16 @@ const WarnsMain: NextPage<WarnsMainRouterProps> = ({ guildId }) => {
                                           </Tooltip>
                                         }
                                       >
-                                        <Link
+                                        <a
                                           href={`/dashboard/${guildId}/members/${target.id}`}
-                                          passHref
+                                          onClick={(e) => {
+                                            e.preventDefault();
+                                            Router.push(
+                                              `/dashboard/${guildId}/members/${target.id}`,
+                                              undefined,
+                                              { shallow: true }
+                                            );
+                                          }}
                                         >
                                           <img
                                             src={
@@ -195,7 +203,7 @@ const WarnsMain: NextPage<WarnsMainRouterProps> = ({ guildId }) => {
                                               width: 35,
                                             }}
                                           />
-                                        </Link>
+                                        </a>
                                       </OverlayTrigger>
                                     </div>
                                   )}
@@ -238,8 +246,13 @@ const WarnsMain: NextPage<WarnsMainRouterProps> = ({ guildId }) => {
                     <div className="d-flex justify-content-between">
                       <h4 className="mb-3">멤버 경고 순위</h4>
                       <div>
-                        <Button variant="aztra" className="shadow" size="sm">
-                          더보기
+                        <Button
+                          variant="aztra"
+                          className="shadow"
+                          size="sm"
+                          disabled
+                        >
+                          더보기(개발 예정)
                         </Button>
                       </div>
                     </div>
@@ -260,7 +273,7 @@ const WarnsMain: NextPage<WarnsMainRouterProps> = ({ guildId }) => {
                               <Card.Body className="py-2">
                                 <FontAwesomeIcon
                                   icon={faTrophy}
-                                  className="mr-2"
+                                  className="me-2"
                                   color={
                                     rank === 1
                                       ? 'gold'
@@ -298,16 +311,16 @@ const WarnsMain: NextPage<WarnsMainRouterProps> = ({ guildId }) => {
                 <Row>
                   <Col>
                     <div className="d-flex">
-                      <h4 className="mb-3">자동 작업 수행</h4>
+                      <h4 className="mb-3 pe-3">자동 작업 수행</h4>
                       <div>
                         <OverlayTrigger
                           overlay={
                             <Popover id="auto-task-process-popover">
-                              <Popover.Title>자동 작업 수행</Popover.Title>
-                              <Popover.Content>
+                              <Popover.Header>자동 작업 수행</Popover.Header>
+                              <Popover.Body>
                                 일정 횟수 이상의 경고를 받거나 해제되었을 때
                                 자동으로 수행할 작업을 정할 수 있습니다.
-                              </Popover.Content>
+                              </Popover.Body>
                             </Popover>
                           }
                           delay={{
@@ -315,12 +328,14 @@ const WarnsMain: NextPage<WarnsMainRouterProps> = ({ guildId }) => {
                             hide: 150,
                           }}
                         >
-                          <FontAwesomeIcon
-                            className="cursor-pointer ml-3"
-                            icon={faQuestionCircle}
-                            size="lg"
-                            color="grey"
-                          />
+                          <span className="text-center">
+                            <FontAwesomeIcon
+                              className="cursor-pointer"
+                              icon={faQuestionCircle}
+                              size="lg"
+                              color="grey"
+                            />
+                          </span>
                         </OverlayTrigger>
                       </div>
                     </div>

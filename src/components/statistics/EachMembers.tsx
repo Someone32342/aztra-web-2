@@ -37,11 +37,11 @@ const EachMembers: React.FC<EachMembersProps> = ({ members }) => {
         as={Container}
         fluid
         bg="dark"
-        className="mb-2 shadow cursor-pointer"
+        className="mb-2 shadow cursor-pointer px-3"
         onClick={onClick}
       >
         <Card.Body className="d-flex py-1 px-0">
-          <div className="d-flex align-items-center mr-3">
+          <div className="d-flex align-items-center me-3">
             <Image
               className="my-auto rounded-circle"
               alt={member.user.tag!}
@@ -59,15 +59,13 @@ const EachMembers: React.FC<EachMembersProps> = ({ members }) => {
               <span className="text-break">{member.displayName}</span>
               <span>
                 {member.user.bot && (
-                  <Badge className="ml-2 my-auto" variant="blurple">
+                  <Badge className="ms-2 my-auto" bg="blurple">
                     BOT
                   </Badge>
                 )}
               </span>
             </div>
-            <div className="text-muted font-weight-bold">
-              @{member.user.tag}
-            </div>
+            <div className="text-muted fw-bold">@{member.user.tag}</div>
           </div>
         </Card.Body>
       </Card>
@@ -120,7 +118,7 @@ const EachMembers: React.FC<EachMembersProps> = ({ members }) => {
   );
 
   return (
-    <Container fluid>
+    <Container fluid className="px-0">
       <Row>
         <Col xs={12} lg={6} xl={4}>
           <div className="d-flex pb-2">
@@ -128,8 +126,7 @@ const EachMembers: React.FC<EachMembersProps> = ({ members }) => {
             <div className="d-lg-flex">
               <Form.Check
                 id="member-search-by-name-and-nick"
-                custom
-                className="ml-4"
+                className="ms-4"
                 type="radio"
                 label="이름 및 닉네임"
                 checked={memberSearchType === 'nick-and-tag'}
@@ -138,8 +135,7 @@ const EachMembers: React.FC<EachMembersProps> = ({ members }) => {
               />
               <Form.Check
                 id="member-search-by-user-id"
-                custom
-                className="ml-4"
+                className="ms-4"
                 type="radio"
                 label="사용자 ID"
                 checked={memberSearchType === 'id'}
@@ -215,13 +211,13 @@ const EachMembers: React.FC<EachMembersProps> = ({ members }) => {
                     width={60}
                     height={60}
                   />
-                  <div className="pl-3">
+                  <div className="ps-3">
                     <div style={{ fontSize: 28 }}>
                       {selectedMember.displayName}
                       {selectedMember.user.bot && (
                         <Badge
-                          variant="blurple"
-                          className="ml-2 font-weight-bold mt-2 align-text-top"
+                          bg="blurple"
+                          className="ms-2 fw-bold mt-2 align-text-top px-1"
                           style={{
                             fontSize: '11pt',
                           }}
@@ -231,7 +227,7 @@ const EachMembers: React.FC<EachMembersProps> = ({ members }) => {
                       )}
                     </div>
                     <div
-                      className="font-weight-bold"
+                      className="fw-bold"
                       style={{
                         color: '#8f8f8f',
                         fontSize: '13pt',
@@ -246,7 +242,7 @@ const EachMembers: React.FC<EachMembersProps> = ({ members }) => {
               <Row as="ul">
                 <Col>
                   <li>
-                    <div className="font-weight-bold">계정 생성 날짜</div>
+                    <div className="fw-bold">계정 생성 날짜</div>
                     {dayjs
                       .utc(selectedMember.user.createdAt)
                       .toDate()
@@ -261,7 +257,7 @@ const EachMembers: React.FC<EachMembersProps> = ({ members }) => {
                 </Col>
                 <Col>
                   <li>
-                    <div className="font-weight-bold">서버 참여 날짜</div>
+                    <div className="fw-bold">서버 참여 날짜</div>
                     {dayjs
                       .utc(selectedMember.joinedAt!)
                       .toDate()

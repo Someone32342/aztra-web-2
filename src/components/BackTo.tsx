@@ -22,8 +22,8 @@ export default function BackTo({ name, to, className }: BackToProps) {
           className?.split(' ')
         )}
       >
-        <FontAwesomeIcon icon={faChevronLeft} className="mr-2" />
-        <b className="pr-2">[{name}]</b>(으)로 돌아가기
+        <FontAwesomeIcon icon={faChevronLeft} className="me-2" />
+        <b className="pe-2">[{name}]</b>(으)로 돌아가기
       </div>
     </Link>
   );

@@ -51,7 +51,9 @@ const TicketForm: React.FC<EmojiRoleProps> = ({
 }) => {
   const [channelSearch, setChannelSearch] = useState('');
   const [selectedChannel, setSelectedChannel] = useState<string | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState<string | 0>(0);
+  const [selectedCategory, setSelectedCategory] = useState<string | 'null'>(
+    'null'
+  );
   const [selectedEmoji, setSelectedEmoji] = useState<string | null>(null);
   const [accessRoles, setAccessRoles] = useState<string[]>([]);
   const [ticketName, setTicketName] = useState('');
@@ -61,10 +63,12 @@ const TicketForm: React.FC<EmojiRoleProps> = ({
     null
   );
 
+  const filteredChannels = filterChannels(channels ?? [], channelSearch);
+
   return (
     <>
       <Row className="w-50">
-        <Form.Label column sm="auto" className="font-weight-bold">
+        <Form.Label column sm="auto" className="fw-bold">
           티켓 이름
         </Form.Label>
         <Col>
@@ -93,24 +97,22 @@ const TicketForm: React.FC<EmojiRoleProps> = ({
       <hr style={{ borderColor: '#4e5058', borderWidth: 2 }} />
       <Row className="pb-2">
         <Col>
-          <Form.Label className="h5 font-weight-bold">
-            티켓 생성 채널
-          </Form.Label>
+          <h5>티켓 생성 채널</h5>
           <Form.Text className="pb-3">
             이 채널에서 Aztra가 보낸 메시지에 사용자가 반응을 추가하면 티켓이
             열립니다.
           </Form.Text>
           <Form.Group
-            className="p-2"
+            className="p-2 mt-3"
             style={{ backgroundColor: '#424752', borderRadius: 10 }}
           >
-            <Container fluid>
+            <Container fluid className="px-2 pt-1">
               <Row className="align-items-center mb-2">
                 {selectedChannel ? (
                   <>
                     <Card bg="secondary" className="w-100">
                       <Card.Header
-                        className="py-1 px-3"
+                        className="py-1 px-0"
                         style={{
                           fontFamily: 'NanumSquare',
                           fontSize: '13pt',
@@ -118,7 +120,7 @@ const TicketForm: React.FC<EmojiRoleProps> = ({
                       >
                         <FontAwesomeIcon
                           icon={faHashtag}
-                          className="mr-2 my-auto"
+                          className="me-2 my-auto"
                           size="sm"
                         />
                         {channels.find((o) => o.id === selectedChannel)?.name}
@@ -126,9 +128,7 @@ const TicketForm: React.FC<EmojiRoleProps> = ({
                     </Card>
                   </>
                 ) : (
-                  <Form.Label className="font-weight-bold pl-2 my-auto">
-                    선택된 채널이 없습니다!
-                  </Form.Label>
+                  <h5 className="ps-2 my-auto">선택된 채널이 없습니다!</h5>
                 )}
               </Row>
               <Row className="pb-2">
@@ -138,8 +138,8 @@ const TicketForm: React.FC<EmojiRoleProps> = ({
                   placeholder="채널 검색"
                   onChange={(e) => setChannelSearch(e.target.value)}
                 />
-                <Form.Text className="py-1">
-                  {channels?.length}개 채널 찾음
+                <Form.Text className="py-1 px-2">
+                  {filteredChannels.length}개 채널 찾음
                 </Form.Text>
               </Row>
               <Row
@@ -150,7 +150,7 @@ const TicketForm: React.FC<EmojiRoleProps> = ({
                   display: 'block',
                 }}
               >
-                {filterChannels(channels, channelSearch).map((one) => (
+                {filteredChannels.map((one) => (
                   <ChannelSelectCard
                     key={one.id}
                     selected={selectedChannel === one.id}
@@ -172,9 +172,7 @@ const TicketForm: React.FC<EmojiRoleProps> = ({
       <Row className="pt-3 pb-4">
         <Col>
           <div className="d-flex align-items-center">
-            <Form.Label className="h5 font-weight-bold mr-3">
-              티켓 생성 이모지:
-            </Form.Label>
+            <h5 className="me-3 my-auto">티켓 생성 이모지:</h5>
             <Dropdown>
               <Dropdown.Toggle
                 id="ds"
@@ -222,23 +220,20 @@ const TicketForm: React.FC<EmojiRoleProps> = ({
       <hr style={{ borderColor: '#4e5058', borderWidth: 2 }} />
       <Row className="pb-4">
         <Col>
-          <Form.Label className="h5 font-weight-bold">
-            티켓 채널 카테고리
-          </Form.Label>
-          <Form.Text className="pb-3">
+          <h5>티켓 채널 카테고리</h5>
+          <Form.Text>
             티켓이 열리면 이 카테고리에 티켓 채널을 생성합니다. 선택하지 않으면
             상단에 생성됩니다.
           </Form.Text>
-          <Row>
+          <Row className="mt-3">
             <Col xs="auto">
-              <Form.Control
-                as="select"
+              <Form.Select
                 className="shadow-sm"
                 style={{ fontSize: 15 }}
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
               >
-                <option value={0}>(선택 안 함)</option>
+                <option value="null">(선택 안 함)</option>
                 {channels
                   .filter((o) => o.type === 'GUILD_CATEGORY')
                   .sort((a, b) => a.rawPosition! - b.rawPosition!)
@@ -247,7 +242,7 @@ const TicketForm: React.FC<EmojiRoleProps> = ({
                       {o.name}
                     </option>
                   ))}
-              </Form.Control>
+              </Form.Select>
             </Col>
           </Row>
         </Col>
@@ -255,17 +250,15 @@ const TicketForm: React.FC<EmojiRoleProps> = ({
       <hr style={{ borderColor: '#4e5058', borderWidth: 2 }} />
       <Row className="pb-4">
         <Col>
-          <Form.Label className="h5 font-weight-bold">
-            접근 가능한 역할
-          </Form.Label>
+          <h5>접근 가능한 역할</h5>
           <Form.Text>
             티켓이 생성되었을 때 접근할 수 있는 역할을 추가할 수 있습니다.
           </Form.Text>
-          <Form.Text className="pb-3 small" as="b">
+          <Form.Text className="small" as="b">
             이 역할들은 티켓에서 메시지를 읽고 보낼 수 있으며 티켓을 닫거나
             저장하는 등의 관리 권한이 주어집니다.
           </Form.Text>
-          <Row className="pb-3">
+          <Row className="my-3">
             <Col>
               <Card
                 bg="dark"
@@ -277,7 +270,7 @@ const TicketForm: React.FC<EmojiRoleProps> = ({
                     return (
                       <RoleBadge
                         key={one}
-                        className="pr-2 py-1"
+                        className="pe-2 py-1"
                         name={role?.name ?? ''}
                         color={
                           '#' + (role?.color ? role?.color.toString(16) : 'fff')
@@ -326,13 +319,12 @@ const TicketForm: React.FC<EmojiRoleProps> = ({
             <Col>
               <Form.Check
                 id="ticket-form-mention-checkbox"
-                custom
                 type="checkbox"
                 checked={mentionRoles}
                 disabled={!accessRoles.length}
                 onChange={() => setMentionRoles(!mentionRoles)}
                 label={
-                  <span className="pl-2">
+                  <span className="ps-2">
                     티켓이 열렸을 때 이 역할들을 멘션하기
                   </span>
                 }
@@ -350,7 +342,7 @@ const TicketForm: React.FC<EmojiRoleProps> = ({
           />
           <div className="d-flex">
             <Button
-              className="pl-2 d-flex justify-content-center align-items-center"
+              className="ps-2 d-flex justify-content-center align-items-center"
               variant={saveError ? 'danger' : 'aztra'}
               disabled={
                 saving ||
@@ -366,9 +358,10 @@ const TicketForm: React.FC<EmojiRoleProps> = ({
                     {
                       guild: guild!.id,
                       channel: selectedChannel!,
-                      category: selectedCategory
-                        ? selectedCategory.toString()
-                        : null,
+                      category:
+                        selectedCategory !== 'null'
+                          ? selectedCategory.toString()
+                          : null,
                       emoji: selectedEmoji!,
                       name: ticketName,
                       access_roles: accessRoles,
@@ -389,7 +382,7 @@ const TicketForm: React.FC<EmojiRoleProps> = ({
                     size="sm"
                     role="status"
                   />
-                  <span className="pl-2">저장 중...</span>
+                  <span className="ps-2">저장 중...</span>
                 </>
               ) : (
                 <span>
@@ -397,7 +390,7 @@ const TicketForm: React.FC<EmojiRoleProps> = ({
                     '오류'
                   ) : (
                     <>
-                      <CheckIcon className="mr-1" />
+                      <CheckIcon className="me-1" />
                       {editMode ? '설정 수정하기' : '설정 등록하기'}
                     </>
                   )}
@@ -407,10 +400,10 @@ const TicketForm: React.FC<EmojiRoleProps> = ({
             {closeButton && (
               <Button
                 variant="danger"
-                className="ml-3 align-items-center d-flex"
+                className="ms-3 align-items-center d-flex"
                 onClick={() => onClose && onClose()}
               >
-                <CloseIcon className="mr-1" />
+                <CloseIcon className="me-1" />
                 취소하고 닫기
               </Button>
             )}

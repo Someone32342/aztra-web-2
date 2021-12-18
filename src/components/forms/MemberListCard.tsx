@@ -51,7 +51,7 @@ const MemberListCard: React.FC<MemberListCardProps> = memo(
                 <span className="text-break">{member.displayName}</span>
                 <span>
                   {member.user.bot && (
-                    <Badge className="ml-2 my-auto" variant="blurple">
+                    <Badge className="ms-2 my-auto px-1" bg="blurple">
                       BOT
                     </Badge>
                   )}
@@ -66,7 +66,7 @@ const MemberListCard: React.FC<MemberListCardProps> = memo(
                 </span>
               </div>
               <div
-                className="text-muted font-weight-bold text-break"
+                className="text-muted fw-bold text-break"
                 style={{
                   fontSize: '11pt',
                 }}

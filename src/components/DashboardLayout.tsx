@@ -65,10 +65,10 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       <Row>
         {/* 대시보드 사이드바 */}
         <Col xl={2} lg={3} md={3} className="Dashboardroute-sidebar">
-          <Container className="ps-1 pe-0 pb-1" id="sidebar-header">
+          <Container fluid className="ps-1 pe-0 pb-1" id="sidebar-header">
             {/* 사이드바 헤더 */}
             <Row>
-              <Col xs={isXSsize ? 10 : 12} md={12} ref={sidebarHeaderRef}>
+              <Col xs="auto" md={12} ref={sidebarHeaderRef}>
                 <div
                   className="d-flex ps-1 fw-bold align-items-center"
                   style={{
@@ -87,14 +87,14 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                       }}
                     />
                   )}
-                  {guild?.name ?? '서버 정보를 불러오는 중...'}
+                  <div className="d-inline-block text-truncate">
+                    {guild?.name ?? '서버 정보를 불러오는 중...'}
+                  </div>
                 </div>
               </Col>
-              <Col
-                xs={isXSsize ? 2 : 0}
-                className="text-center my-auto ps-1 d-md-none"
-              >
+              <Col className="text-end my-auto d-md-none">
                 <Button
+                  className="mx-2"
                   size="sm"
                   variant="secondary"
                   aria-controls="sidebar-collapse"

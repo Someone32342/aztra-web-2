@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Badge, Container, Row, Spinner, Tab, Tabs } from 'react-bootstrap';
+import { Container, Row, Spinner, Tab, Tabs } from 'react-bootstrap';
 import {
   TrendingUp as TrendingUpIcon,
   Group as GroupIcon,
@@ -122,14 +122,14 @@ const Statistics: NextPage<StatisticsProps> = ({ guildId }) => {
                     </div>
                   </div>
                 </Row>
-                <Row className="flex-column nav-tabs-dark">
+                <Row className="flex-column nav-tabs-dark mx-0">
                   <Tabs defaultActiveKey="growth" id="statistic-tabs">
                     <Tab
                       eventKey="growth"
                       className="mt-4"
                       title={
                         <>
-                          <TrendingUpIcon className="mr-2" />
+                          <TrendingUpIcon className="me-2" />
                           서버 통계
                         </>
                       }
@@ -145,7 +145,7 @@ const Statistics: NextPage<StatisticsProps> = ({ guildId }) => {
                       disabled={process.env.NODE_ENV === 'production'}
                       title={
                         <>
-                          <GroupIcon className="mr-2" />
+                          <GroupIcon className="me-2" />
                           멤버별 통계(개발중)
                         </>
                       }
@@ -158,7 +158,7 @@ const Statistics: NextPage<StatisticsProps> = ({ guildId }) => {
                       disabled={process.env.NODE_ENV === 'production'}
                       title={
                         <>
-                          <FontAwesomeIcon icon={faTrophy} className="mr-2" />
+                          <FontAwesomeIcon icon={faTrophy} className="me-2" />
                           순위(개발중)
                         </>
                       }
