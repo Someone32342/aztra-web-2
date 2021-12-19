@@ -32,7 +32,7 @@ export const getServerSideProps: GetServerSideProps<InviteProps> = async (
       },
     };
   } catch (_e) {
-    let e: AxiosError = _e;
+    let e = _e as AxiosError;
     return {
       props: {
         inviteId: inviteid as string,
