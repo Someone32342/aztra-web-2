@@ -17,7 +17,7 @@ function FeaturesList(props: FeaturesListProps) {
     <>
       {props.feats.map((feat, i) => (
         <div key={i} className="d-flex align-items-center mb-2">
-          <FontAwesomeIcon icon={faCheckCircle} color="lime" className="mr-2" />
+          <FontAwesomeIcon icon={faCheckCircle} color="lime" className="me-2" />
           <div>{feat}</div>
         </div>
       ))}
@@ -30,7 +30,7 @@ const Premium: NextPage = () => {
     <Layout>
       <Container
         fluid="sm"
-        className="text-light"
+        className="text-light px-5"
         style={{
           paddingTop: 60,
           paddingBottom: 100,
@@ -47,7 +47,7 @@ const Premium: NextPage = () => {
         <Container>
           <Row>
             <Col sm={4} className="mb-4">
-              <Card bg="dark" className="h-100 shadow">
+              <Card bg="dark" className="h-100 shadow mx-2">
                 <Card.Header
                   className="text-center"
                   style={{
@@ -91,7 +91,7 @@ const Premium: NextPage = () => {
             <Col sm={4} className="mb-4">
               <Card
                 bg="dark"
-                className="h-100 shadow"
+                className="h-100 shadow mx-2"
                 onMouseOver={() => console.log('dsdsdsdss')}
               >
                 <Card.Header
@@ -125,7 +125,7 @@ const Premium: NextPage = () => {
                     target="_blank"
                   >
                     <div className="d-flex justify-content-center align-items-center">
-                      <FavoriteIcon className="mr-2" fontSize="small" />
+                      <FavoriteIcon className="me-2" fontSize="small" />
                       하트 누르고 혜택 받기
                     </div>
                   </Button>
@@ -134,7 +134,7 @@ const Premium: NextPage = () => {
             </Col>
 
             <Col sm={4} className="mb-4">
-              <Card bg="dark" className="h-100 shadow">
+              <Card bg="dark" className="h-100 shadow mx-2">
                 <Card.Header
                   className="text-center"
                   style={{
@@ -146,14 +146,13 @@ const Premium: NextPage = () => {
                   Aztra Pro 플랜
                 </Card.Header>
                 <Card.Body className="pt-5 px-4">
-                  <h3 className="pb-4 text-center">￦2,900/월</h3>
+                  <h3 className="pb-4 text-center">￦4,900/월</h3>
                   <FeaturesList feats={['혜택 준비 중입니다.']} />
                 </Card.Body>
                 <div className="text-center pb-2">
                   <Button
                     className="my-2"
                     variant="aztra"
-                    disabled
                     style={{
                       minWidth: '60%',
                     }}
