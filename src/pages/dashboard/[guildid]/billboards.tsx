@@ -93,7 +93,6 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
           <Form.Check
             id={`taskset-check-${billboard.uuid}`}
             type="checkbox"
-            custom
             checked={checked}
             onChange={onCheckChange}
           />
@@ -228,7 +227,6 @@ const AutoTasking: NextPage<AutoTaskingRouterProps> = ({ guildId }) => {
                               >
                                 <Form.Check
                                   id="warn-select-all"
-                                  custom
                                   type="checkbox"
                                 />
                               </th>
