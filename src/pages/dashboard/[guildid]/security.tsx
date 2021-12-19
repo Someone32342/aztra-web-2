@@ -121,7 +121,7 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                     </small>
                     <div>
                       <a
-                        className="small cursor-pointer"
+                        className="small cursor-pointer text-decoration-none"
                         style={{ color: 'deepskyblue' }}
                         onClick={() => setShowHowItProtects(true)}
                       >
@@ -138,7 +138,7 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                   size="lg"
                   onHide={() => setShowHowItProtects(false)}
                 >
-                  <Modal.Header>
+                  <Modal.Header closeButton>
                     <Modal.Title
                       style={{
                         fontFamily: 'NanumSquare',
@@ -159,12 +159,22 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                       한두 번이면 참여가 완료됩니다.
                     </p>
                   </Modal.Body>
+                  <Modal.Footer>
+                    <Button
+                      variant="secondary"
+                      className="d-flex align-items-center"
+                      onClick={() => setShowHowItProtects(false)}
+                    >
+                      <ClearIcon className="me-2" />
+                      닫기
+                    </Button>
+                  </Modal.Footer>
                 </Modal>
 
                 <Row className="py-3">
                   <Col>
                     <Button variant="aztra" onClick={() => setNewInvite(true)}>
-                      <AddIcon className="mr-2" />
+                      <AddIcon className="me-2" />
                       보안 초대 링크 추가
                     </Button>
                   </Col>
@@ -185,7 +195,7 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
 
                   return (
                     <Row key={one.id} className="pb-3">
-                      <Col xs={12} md={8} xl={6} className="pr-0 w-100">
+                      <Col xs={12} md={8} xl={6} xxl={5} className="pe-0">
                         <Card
                           bg="dark"
                           className="shadow w-100"
@@ -194,13 +204,13 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                           <div className="mx-2 my-auto text-truncate">{`${location.origin}/invite/${one.id}`}</div>
                         </Card>
                       </Col>
-                      <Col xs="auto" className="pl-md-2">
+                      <Col xs="auto" className="ps-md-2">
                         <div className="d-flex">
                           <Button
                             ref={copyButtonRef}
                             size="sm"
                             variant="aztra"
-                            className="mr-2 d-flex align-items-center"
+                            className="me-2 d-flex align-items-center"
                             onClick={() => {
                               navigator.clipboard
                                 .writeText(
@@ -214,7 +224,7 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                                 });
                             }}
                           >
-                            <FileCopyOutlinedIcon className="mr-2" />
+                            <FileCopyOutlinedIcon className="me-2" />
                             복사하기
                           </Button>
 
@@ -289,10 +299,10 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                   </Modal.Header>
                   <Modal.Body className="p-4">
                     <Row className="pb-3">
-                      <Form.Label column xs={12} md="auto" className="pr-0">
+                      <Form.Label column xs={12} md="auto" className="pe-0">
                         커스텀 초대 링크:
                       </Form.Label>
-                      <Col className="pr-0">
+                      <Col className="pe-0">
                         <Form.Control
                           className="mb-1 shadow"
                           type="text"
@@ -300,24 +310,24 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                           readOnly
                         />
                         <small>
-                          <Badge variant="aztra" className="ml-1">
+                          <Badge bg="aztra" className="ms-1">
                             PRO
                           </Badge>{' '}
                           <Link href="/premium" shallow>
-                            <a style={{ color: 'deepskyblue' }}>
+                            <a className="text-info text-decoration-none">
                               Aztra Pro로 업그레이드
                             </a>
                           </Link>
                           하면 커스텀 링크를 사용할 수 있습니다! (출시 예정)
                         </small>
                       </Col>
-                      <Col xs="auto" className="pl-2">
+                      <Col xs="auto" className="ps-2">
                         <Button
                           variant="aztra"
                           disabled
                           className="d-flex align-items-center py-auto"
                         >
-                          <FileCopyOutlinedIcon className="mr-2" />
+                          <FileCopyOutlinedIcon className="me-2" />
                           복사하기
                         </Button>
                       </Col>
@@ -328,22 +338,27 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                         잔여 유효 기간:
                       </Form.Label>
                       <Col xs={6}>
-                        <Form.Control
+                        <Form.Select
                           id="max-age"
-                          as="select"
                           className="shadow"
                           onChange={(e) =>
                             setNewValidity(Number(e.target.value))
                           }
                         >
-                          <option value={0}>만료 기간 없음</option>
-                          <option value={30 * 60}>30분</option>
-                          <option value={60 * 60}>1시간</option>
-                          <option value={6 * 60 * 60}>6시간</option>
-                          <option value={12 * 60 * 60}>12시간</option>
-                          <option value={24 * 60 * 60}>1일</option>
-                          <option value={7 * 24 * 60 * 60}>7일</option>
-                        </Form.Control>
+                          <option value="0">만료 기간 없음</option>
+                          <option value={(30 * 60).toString()}>30분</option>
+                          <option value={(60 * 60).toString()}>1시간</option>
+                          <option value={(6 * 60 * 60).toString()}>
+                            6시간
+                          </option>
+                          <option value={(12 * 60 * 60).toString()}>
+                            12시간
+                          </option>
+                          <option value={(24 * 60 * 60).toString()}>1일</option>
+                          <option value={(7 * 24 * 60 * 60).toString()}>
+                            7일
+                          </option>
+                        </Form.Select>
                       </Col>
                     </Row>
 
@@ -352,21 +367,22 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                         최대 사용 횟수:
                       </Form.Label>
                       <Col xs={6}>
-                        <Form.Control
+                        <Form.Select
                           id="max-uses"
-                          as="select"
                           className="shadow"
                           onChange={(e) =>
                             setNewMaxUses(Number(e.target.value))
                           }
                         >
-                          <option value={0}>제한 없음</option>
-                          {[1, 5, 10, 25, 50, 100].map((i) => (
+                          <option key="0" value="0">
+                            제한 없음
+                          </option>
+                          {['1', '5', '10', '25', '50', '100'].map((i) => (
                             <option key={i} value={i}>
                               {i}회
                             </option>
                           ))}
-                        </Form.Control>
+                        </Form.Select>
                       </Col>
                     </Row>
 
@@ -374,7 +390,6 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                       <Col xs={12}>
                         <Form.Check
                           id="by-discord-oauth"
-                          custom
                           checked
                           onChange={() => {}}
                           type="checkbox"
@@ -387,7 +402,6 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                       <Col xs={12}>
                         <Form.Check
                           id="block-foreign-ip"
-                          custom
                           disabled
                           checked={useBlockForeign}
                           onChange={() => setUseBlockForeign(!useBlockForeign)}
@@ -396,12 +410,12 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                         />
 
                         {useBlockForeign && (
-                          <div className="pl-3 pt-2">
+                          <div className="ps-3 pt-2">
                             {/*
-                            <Form.Control as="select">
+                            <Form.Select>
                               <option value={0}>예외 국가 선택...</option>
                               <Countries />
-                            </Form.Control>
+                            </Form.Select>
                           */}
 
                             <Dropdown
@@ -464,13 +478,13 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                                 {[...excludedForeigns].map((one) => (
                                   <Badge
                                     key={one}
-                                    className="d-inline-flex align-items-center mr-2 mb-2"
-                                    variant="secondary"
+                                    className="d-inline-flex align-items-center me-2 mb-2"
+                                    bg="secondary"
                                     style={{ fontSize: 15 }}
                                   >
                                     {COUNTRIES.find((c) => c[0] === one)![1]}{' '}
                                     <ClearIcon
-                                      className="ml-1 cursor-pointer"
+                                      className="ms-1 cursor-pointer"
                                       onClick={() => {
                                         excludedForeigns.delete(one);
                                         setExcludedForeigns(
@@ -493,7 +507,6 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                         <Form.Check
                           id="block-vpn"
                           disabled
-                          custom
                           type="checkbox"
                           label="VPN 차단하기 (개발중)"
                         />
@@ -505,12 +518,11 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                         <Form.Check
                           id="by-naver-oauth"
                           disabled
-                          custom
                           type="checkbox"
                           label={
                             <>
                               네이버 아이디로 인증 (개발중)
-                              <Badge variant="aztra" className="ml-2">
+                              <Badge bg="aztra" className="ms-2">
                                 PRO
                               </Badge>
                             </>
@@ -546,7 +558,7 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                           });
                       }}
                     >
-                      <CheckIcon className="mr-2" />
+                      <CheckIcon className="me-2" />
                       생성하기
                     </Button>
                     <Button variant="dark" onClick={() => setNewInvite(false)}>
@@ -576,16 +588,15 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                         <Col xs="auto" className="my-auto">
                           <Form.Check
                             id="limit-message-check"
-                            custom
                             type="checkbox"
                             label="일정 시간동안 메시지 개수 제한하기:"
                           />
                         </Col>
-                        <Col className="pl-0">
+                        <Col className="ps-0">
                           <div className="d-flex align-items-center">
                             <Form.Control
                               id="spamming-limit-max-per-seconds"
-                              className="mr-2"
+                              className="me-2"
                               defaultValue="60"
                               style={{ width: 60 }}
                             />
@@ -623,16 +634,15 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                         <Col xs="auto" className="my-auto">
                           <Form.Check
                             id="max-by-one-message-check"
-                            custom
                             type="checkbox"
                             label="한 메시지당 멘션 최대:"
                           />
                         </Col>
-                        <Col className="pl-0">
+                        <Col className="ps-0">
                           <div className="d-flex align-items-center">
                             <Form.Control
                               id="mention-limit-max-count"
-                              className="mr-2"
+                              className="me-2"
                               defaultValue="10"
                               style={{ width: 60 }}
                             />
@@ -644,16 +654,15 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                         <Col xs="auto" className="my-auto">
                           <Form.Check
                             id="max-by-all-timein-message-check"
-                            custom
                             type="checkbox"
                             label="일정 시간동안 모든 메시지의 멘션 최대:"
                           />
                         </Col>
-                        <Col className="pl-0">
+                        <Col className="ps-0">
                           <div className="d-flex align-items-center">
                             <Form.Control
                               id="mention-limit-seconds"
-                              className="mr-2"
+                              className="me-2"
                               defaultValue="60"
                               style={{ width: 60 }}
                             />
@@ -675,11 +684,10 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                           </Form.Label>
                         </Col>
                       </Row>
-                      <Row className="pl-4">
+                      <Row className="ps-4">
                         <Col xs={12} className="pt-3">
                           <Form.Check
                             id="on-violate-add-role"
-                            custom
                             type="checkbox"
                             label="역할 추가하기"
                           />
@@ -687,7 +695,6 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                         <Col xs={12} className="pt-3">
                           <Form.Check
                             id="on-violate-remove-role"
-                            custom
                             type="checkbox"
                             label="역할 제거하기"
                           />
@@ -695,7 +702,6 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                         <Col xs={12} className="pt-3">
                           <Form.Check
                             id="on-violate-kick"
-                            custom
                             type="checkbox"
                             label="해당 멤버 추방하기"
                           />
@@ -703,7 +709,6 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                         <Col xs={12} className="pt-3">
                           <Form.Check
                             id="on-violate-ban"
-                            custom
                             type="checkbox"
                             label="해당 멤버 차단하기"
                           />
@@ -711,7 +716,6 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                         <Col xs={12} className="pt-3">
                           <Form.Check
                             id="on-violate-add-warn"
-                            custom
                             type="checkbox"
                             label="경고 부여하기"
                           />
@@ -719,7 +723,6 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                         <Col xs={12} className="pt-3">
                           <Form.Check
                             id="on-violate-mute"
-                            custom
                             type="checkbox"
                             label="멤버 뮤트하기"
                           />

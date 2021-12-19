@@ -10,7 +10,6 @@ import {
   Card,
   Button,
   Dropdown,
-  Spinner,
   Modal,
 } from 'react-bootstrap';
 import { Ticket, TicketSet } from 'types/dbtypes';
@@ -32,6 +31,7 @@ interface GeneralSettingsProps {
   ticketSet: TicketSet;
   tickets: Ticket[];
   mutate: Function;
+  preload?: boolean;
 }
 
 const GeneralSettings: React.FC<GeneralSettingsProps> = ({
@@ -39,6 +39,7 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({
   ticketSet,
   tickets,
   mutate,
+  preload = false,
 }) => {
   const [saveError, setSaveError] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -61,7 +62,6 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({
     null
   );
 
-  const [preload, setPreload] = useState(true);
   const [changed, setChanged] = useState(false);
 
   const initData = () => {
@@ -71,10 +71,6 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({
     setNewOpenCategory(null);
     setTicketNameValidate(null);
   };
-
-  useEffect(() => {
-    setTimeout(() => setPreload(false), 1000);
-  }, []);
 
   useEffect(() => {
     const message = '저장되지 않은 변경사항이 있습니다. 계속하시겠습니까?';

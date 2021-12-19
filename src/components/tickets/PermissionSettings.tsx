@@ -7,7 +7,7 @@ import {
 } from '@material-ui/icons';
 import axios from 'axios';
 import api from 'datas/api';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Form,
   Container,
@@ -18,7 +18,6 @@ import {
   ButtonGroup,
   Button,
   Card,
-  Spinner,
 } from 'react-bootstrap';
 import { TicketPerms, TicketSet } from 'types/dbtypes';
 import {
@@ -28,7 +27,8 @@ import {
   Role,
 } from 'types/DiscordTypes';
 import Cookies from 'universal-cookie';
-import Image from 'next/image';
+import ChangesNotSaved from 'components/ChangesNotSaved';
+import Router from 'next/router';
 
 interface PermissionSettingsProps {
   ticketSet: TicketSet;
@@ -36,6 +36,7 @@ interface PermissionSettingsProps {
   roles: Role[];
   members: MemberMinimal[];
   mutate: Function;
+  preload?: boolean;
 }
 
 const PermissionSwitch: React.FC<{
@@ -80,6 +81,7 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({
   roles,
   members,
   mutate,
+  preload = false,
 }) => {
   const [saveError, setSaveError] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -100,6 +102,8 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({
 
   const [addSearch, setAddSearch] = useState('');
 
+  const [changed, setChanged] = useState(false);
+
   const permTitleCls =
     'd-flex justify-content-between align-items-center pe-3 py-2';
 
@@ -113,6 +117,40 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({
     (m) => !currentPermSets.find((o) => o.id === m.user.id)
   );
 
+  const initData = () => {
+    setOpenPermSets(ticketSet.perms_open);
+    setClosedPermSets(ticketSet.perms_closed);
+    setActive({ type: 'opener' });
+  };
+
+  useEffect(() => {
+    const message = '저장되지 않은 변경사항이 있습니다. 계속하시겠습니까?';
+
+    const routeChangeStart = (url: string) => {
+      if (Router.asPath !== url && changed && !confirm(message)) {
+        Router.events.emit('routeChangeError');
+        Router.replace(Router, Router.asPath);
+        throw 'Abort route change. Please ignore this error.';
+      }
+    };
+
+    const beforeunload = (e: BeforeUnloadEvent) => {
+      if (changed) {
+        e.preventDefault();
+        e.returnValue = message;
+        return message;
+      }
+    };
+
+    window.addEventListener('beforeunload', beforeunload);
+    Router.events.on('routeChangeStart', routeChangeStart);
+
+    return () => {
+      window.removeEventListener('beforeunload', beforeunload);
+      Router.events.off('routeChangeStart', routeChangeStart);
+    };
+  }, [changed]);
+
   const isChanged = () => {
     const check = (o: TicketPerms, r: TicketPerms) =>
       o.id === r.id &&
@@ -121,7 +159,8 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({
       o.deny === r.deny &&
       o.mention === r.mention &&
       o.ext_allow === r.ext_allow;
-    return (
+
+    const rst =
       ticketSet.perms_open.length !== openPermSets.length ||
       !ticketSet.perms_open.every((o) =>
         openPermSets.some((r) => check(o, r))
@@ -129,8 +168,35 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({
       ticketSet.perms_closed.length !== closedPermSets.length ||
       !ticketSet.perms_closed.every((o) =>
         closedPermSets.some((r) => check(o, r))
+      );
+
+    if (changed !== rst) {
+      setChanged(rst);
+    }
+    return rst;
+  };
+
+  const save = () => {
+    setSaving(true);
+
+    const patchData: Partial<Omit<TicketSet, 'guild' | 'uuid'>> = {
+      perms_open: openPermSets,
+      perms_closed: closedPermSets,
+    };
+
+    axios
+      .patch(
+        `${api}/servers/${ticketSet.guild}/ticketsets/${ticketSet.uuid}`,
+        patchData,
+        {
+          headers: {
+            Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`,
+          },
+        }
       )
-    );
+      .then(() => mutate())
+      .catch(() => setSaveError(false))
+      .finally(() => setSaving(false));
   };
 
   return (
@@ -165,57 +231,6 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({
               </div>
             </Card.Body>
           </Card>
-        </Col>
-        <Col xs={12} md="auto" className="px-0 d-flex">
-          <Button
-            variant={saveError ? 'danger' : 'aztra'}
-            disabled={saving || saveError || !isChanged()}
-            className="mt-md-2 mb-2 mt-3 fw-bold w-100"
-            style={{
-              minWidth: 160,
-            }}
-            onClick={() => {
-              setSaving(true);
-
-              const patchData: Partial<Omit<TicketSet, 'guild' | 'uuid'>> = {
-                perms_open: openPermSets,
-                perms_closed: closedPermSets,
-              };
-
-              axios
-                .patch(
-                  `${api}/servers/${ticketSet.guild}/ticketsets/${ticketSet.uuid}`,
-                  patchData,
-                  {
-                    headers: {
-                      Authorization: `Bearer ${new Cookies().get(
-                        'ACCESS_TOKEN'
-                      )}`,
-                    },
-                  }
-                )
-                .then(() => mutate())
-                .catch(() => setSaveError(false))
-                .finally(() => setSaving(false));
-            }}
-          >
-            {saving ? (
-              <>
-                <Spinner
-                  as="span"
-                  animation="border"
-                  size="sm"
-                  role="status"
-                  aria-hidden="true"
-                />
-                <span className="ps-2">저장 중...</span>
-              </>
-            ) : (
-              <span>
-                {saveError ? '오류' : isChanged() ? '저장하기' : '저장됨'}
-              </span>
-            )}
-          </Button>
         </Col>
       </Row>
       <Row>
@@ -310,7 +325,7 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({
                           className="py-2 w-100 d-flex align-items-center"
                           onClick={() => setActive({ id: o.id, type: o.type })}
                         >
-                          <Image
+                          <img
                             className="rounded-circle me-2"
                             alt=""
                             src={
@@ -318,8 +333,7 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({
                                 ? `https://cdn.discordapp.com/avatars/${member?.user.id}/${member?.user.avatar}.jpeg?size=32`
                                 : member?.user.defaultAvatarURL ?? ''
                             }
-                            width={28}
-                            height={28}
+                            style={{ width: 28, height: 28 }}
                           />
                           {member?.user.tag}
                         </span>
@@ -451,7 +465,7 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({
                           eventKey={`member ${m.user.id}`}
                           active={false}
                         >
-                          <Image
+                          <img
                             className="rounded-circle me-2"
                             alt=""
                             src={
@@ -459,8 +473,7 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({
                                 ? `https://cdn.discordapp.com/avatars/${m.user.id}/${m.user.avatar}.jpeg?size=32`
                                 : m.user.defaultAvatarURL ?? ''
                             }
-                            width={32}
-                            height={32}
+                            style={{ width: 28, height: 28 }}
                           />
                           {m.displayName}
                         </Dropdown.Item>
@@ -733,6 +746,20 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({
           </Row>
         </Container>
       </Row>
+
+      {!saveError && isChanged() ? (
+        <ChangesNotSaved
+          key="changesNotSaved1"
+          onSave={save}
+          onReset={initData}
+          isSaving={saving}
+          isSaveError={saveError}
+        />
+      ) : (
+        <div style={{ opacity: preload ? 0 : 1 }}>
+          <ChangesNotSaved key="changesNotSaved2" close />
+        </div>
+      )}
     </Form>
   );
 };

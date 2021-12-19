@@ -20,7 +20,7 @@ const DocsCard: React.FC<DocsCardProps> = ({
 }) => {
   return (
     <Card
-      className={`shadow-sm cursor-pointer text-dark text-decoration-none ${className}`}
+      className={`shadow-sm cursor-pointer text-dark text-decoration-none ${className} p-1`}
       style={{
         border: 'none',
       }}
@@ -28,16 +28,16 @@ const DocsCard: React.FC<DocsCardProps> = ({
       <Card.Body className="d-flex">
         <img
           alt=""
-          className="rounded-circle mr-3"
+          className="rounded-circle me-3"
           src={icon}
           style={{ width: 35, height: 35 }}
         />
         <div>
-          <Card.Title className="font-weight-bold">{title}</Card.Title>
+          <Card.Title className="fw-bold">{title}</Card.Title>
           <Card.Text style={{ fontSize: 15 }}>{description}</Card.Text>
         </div>
         <div
-          className="my-auto ml-auto pl-2"
+          className="my-auto ms-auto ps-2"
           style={{ transform: 'scale(1.5)' }}
         >
           <ArrowForwardIcon />
@@ -108,7 +108,7 @@ const DocsMain: React.FC = () => {
               )}
             </Row>
 
-            <Row className="justify-content-center" style={{ marginTop: 120 }}>
+            <Row className="text-center" style={{ marginTop: 120 }}>
               <small>가독성 향상을 위해 화이트 모드가 적용됩니다.</small>
             </Row>
           </Container>

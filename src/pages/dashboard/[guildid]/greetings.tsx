@@ -125,13 +125,17 @@ const Greetings: NextPage<GreetingsRouterProps> = ({ guildId }) => {
   );
 
   useEffect(() => {
+    if (data && channels) {
+      setTimeout(() => setPreload(false), 1000);
+    }
+  }, [data, channels]);
+
+  useEffect(() => {
     if (!new Cookies().get('ACCESS_TOKEN')) {
       const lct = window.location;
       localStorage.setItem('loginFrom', lct.pathname + lct.search);
       window.location.assign('/login');
     }
-
-    setTimeout(() => setPreload(false), 1000);
 
     if (data) initData(data);
   }, [data]);

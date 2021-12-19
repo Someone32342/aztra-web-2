@@ -58,7 +58,7 @@ const DocView: React.FC<DocViewProps> = ({ pageId, index }) => {
                 }}
               />
               <div
-                className="ml-3 text-dark"
+                className="ms-3 text-dark"
                 style={{
                   fontFamily: 'NanumSquare',
                   fontSize: '13.5pt',
@@ -69,7 +69,7 @@ const DocView: React.FC<DocViewProps> = ({ pageId, index }) => {
                 {index.name}
               </div>
               <Button
-                className="ml-auto d-md-none"
+                className="ms-auto d-md-none"
                 size="sm"
                 variant="secondary"
                 onClick={() => setSidebarHide(!sidebarHide)}
@@ -127,22 +127,25 @@ const DocView: React.FC<DocViewProps> = ({ pageId, index }) => {
               className={`markdown  ${
                 theme === 'dark' ? 'markdown-dark' : 'markdown-light'
               }`}
-              source={
-                index.pages.find((o) => o.id === pageId)?.content ||
-                '# 404: 페이지를 찾을 수 없습니다!'
-              }
-              renderers={{
-                heading: heading,
+              components={{
+                h1: ({ children }) => heading({ level: 1, children }),
+                h2: ({ children }) => heading({ level: 2, children }),
+                h3: ({ children }) => heading({ level: 3, children }),
+                h4: ({ children }) => heading({ level: 4, children }),
+                h5: ({ children }) => heading({ level: 5, children }),
+                h6: ({ children }) => heading({ level: 6, children }),
               }}
-              escapeHtml={false}
-            />
+            >
+              {index.pages.find((o) => o.id === pageId)?.content ??
+                '# 404: 페이지를 찾을 수 없습니다!'}
+            </ReactMarkdown>
           </Twemoji>
           <div className="d-flex mt-5 px-1">
             {prevPage && (
               <Link href={`/docs/${index.id}/${prevPage.id}`} passHref>
-                <Button className="d-flex px-3 mr-auto" variant="outline-aztra">
+                <Button className="d-flex px-3 me-auto" variant="outline-aztra">
                   <ArrowBackIcon
-                    className="my-auto mr-3 d-none d-sm-block"
+                    className="my-auto me-3 d-none d-sm-block"
                     style={{ transform: 'scale(1.2)' }}
                   />
                   <div className="text-right">
@@ -154,13 +157,13 @@ const DocView: React.FC<DocViewProps> = ({ pageId, index }) => {
             )}
             {nextPage && (
               <Link href={`/docs/${index.id}/${nextPage.id}`} passHref>
-                <Button className="d-flex px-3 ml-auto" variant="aztra">
+                <Button className="d-flex px-3 ms-auto" variant="aztra">
                   <div className="text-left">
                     <small>다음 페이지</small>
                     <div className="fw-bold">{nextPage.title}</div>
                   </div>
                   <ArrowForwardIcon
-                    className="my-auto ml-3 d-none d-sm-block"
+                    className="my-auto ms-3 d-none d-sm-block"
                     style={{ transform: 'scale(1.2)' }}
                   />
                 </Button>

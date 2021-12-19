@@ -128,11 +128,14 @@ const General: NextPage<GeneralRouterProps> = ({ guildId }) => {
       localStorage.setItem('loginFrom', lct.pathname + lct.search);
       window.location.assign('/login');
     }
-
-    setTimeout(() => setPreload(false), 1000);
-
     if (data) initData(data);
   }, [data]);
+
+  useEffect(() => {
+    if (data && channels) {
+      setTimeout(() => setPreload(false), 1000);
+    }
+  }, [data, channels]);
 
   useEffect(() => {
     const message = '저장되지 않은 변경사항이 있습니다. 계속하시겠습니까?';

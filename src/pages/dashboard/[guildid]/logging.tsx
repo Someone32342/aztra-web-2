@@ -101,13 +101,17 @@ const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
   );
 
   useEffect(() => {
+    if (data !== undefined && channels) {
+      setTimeout(() => setPreload(false), 1000);
+    }
+  }, [data, channels]);
+
+  useEffect(() => {
     if (!new Cookies().get('ACCESS_TOKEN')) {
       const lct = window.location;
       localStorage.setItem('loginFrom', lct.pathname + lct.search);
       window.location.assign('/login');
     }
-
-    setTimeout(() => setPreload(false), 1000);
 
     if (data) initData(data);
   }, [data]);
@@ -253,7 +257,7 @@ const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
       <Layout>
         <DashboardLayout guildId={guildId}>
           {() =>
-            data !== undefined ? (
+            data !== undefined && channels ? (
               <div>
                 <Row className="dashboard-section">
                   <div>

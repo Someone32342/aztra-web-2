@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Form, Container, Row, Col, Button, Spinner } from 'react-bootstrap';
+import React, { useEffect, useState } from 'react';
+import { Form, Row, Col, Button } from 'react-bootstrap';
 import { TicketSet } from 'types/dbtypes';
 import { Code as CodeIcon } from '@material-ui/icons';
 import TextareaAutosize from 'react-textarea-autosize';
@@ -8,15 +8,19 @@ import api from 'datas/api';
 import Cookies from 'universal-cookie';
 import { Emoji } from 'emoji-mart';
 import FormatStrings from 'components/FormatStrings';
+import ChangesNotSaved from 'components/ChangesNotSaved';
+import Router from 'next/router';
 
 interface MessageSettingsProps {
   ticketSet: TicketSet;
   mutate: Function;
+  preload?: boolean;
 }
 
 const MessageSettings: React.FC<MessageSettingsProps> = ({
   ticketSet,
   mutate,
+  preload = false,
 }) => {
   const [saveError, setSaveError] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -49,30 +53,103 @@ const MessageSettings: React.FC<MessageSettingsProps> = ({
     'set' | 'ticket' | false
   >(false);
 
-  const isChanged = () =>
-    ((newOpenChannelName !== null &&
-      ticketSet.channel_name_open !== newOpenChannelName) ||
-      (newClosedChannelName !== null &&
-        ticketSet.channel_name_closed !== newClosedChannelName) ||
-      (newCreateMessage !== null &&
-        ticketSet.create_message !== newCreateMessage) ||
-      (newInitialMessage !== null &&
-        ticketSet.initial_message !== newInitialMessage)) &&
-    ![
-      openChannelNameValidate,
-      closedChannelNameValidate,
-      createMessageValidate,
-      initialMessageValidate,
-    ].includes(false);
+  const [changed, setChanged] = useState(false);
+
+  const initData = () => {
+    setNewOpenChannelName(null);
+    setNewClosedChannelName(null);
+    setNewCreateMessage(null);
+    setNewInitialMessage(null);
+    setOpenChannelNameValidate(null);
+    setClosedChannelNameValidate(null);
+    setCreateMessageValidate(null);
+    setInitialMessageValidate(null);
+  };
+
+  useEffect(() => {
+    const message = '저장되지 않은 변경사항이 있습니다. 계속하시겠습니까?';
+
+    const routeChangeStart = (url: string) => {
+      if (Router.asPath !== url && changed && !confirm(message)) {
+        Router.events.emit('routeChangeError');
+        Router.replace(Router, Router.asPath);
+        throw 'Abort route change. Please ignore this error.';
+      }
+    };
+
+    const beforeunload = (e: BeforeUnloadEvent) => {
+      if (changed) {
+        e.preventDefault();
+        e.returnValue = message;
+        return message;
+      }
+    };
+
+    window.addEventListener('beforeunload', beforeunload);
+    Router.events.on('routeChangeStart', routeChangeStart);
+
+    return () => {
+      window.removeEventListener('beforeunload', beforeunload);
+      Router.events.off('routeChangeStart', routeChangeStart);
+    };
+  }, [changed]);
+
+  const isChanged = () => {
+    const rst =
+      ((newOpenChannelName !== null &&
+        ticketSet.channel_name_open !== newOpenChannelName) ||
+        (newClosedChannelName !== null &&
+          ticketSet.channel_name_closed !== newClosedChannelName) ||
+        (newCreateMessage !== null &&
+          ticketSet.create_message !== newCreateMessage) ||
+        (newInitialMessage !== null &&
+          ticketSet.initial_message !== newInitialMessage)) &&
+      ![
+        openChannelNameValidate,
+        closedChannelNameValidate,
+        createMessageValidate,
+        initialMessageValidate,
+      ].includes(false);
+
+    if (changed !== rst) {
+      setChanged(rst);
+    }
+    return rst;
+  };
+
+  const save = () => {
+    setSaving(true);
+
+    const patchData: Partial<Omit<TicketSet, 'guild' | 'uuid'>> = {
+      create_message: newCreateMessage ?? undefined,
+      initial_message: newInitialMessage ?? undefined,
+      channel_name_open: newOpenChannelName ?? undefined,
+      channel_name_closed: newClosedChannelName ?? undefined,
+    };
+
+    axios
+      .patch(
+        `${api}/servers/${ticketSet.guild}/ticketsets/${ticketSet.uuid}`,
+        patchData,
+        {
+          headers: {
+            Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`,
+          },
+        }
+      )
+      .then(() => mutate())
+      .catch(() => setSaveError(false))
+      .finally(() => setSaving(false));
+  };
 
   return (
-    <Form as={Container} fluid className="mt-3">
-      <Row className="pt-3 pb-2">
-        <div className="d-flex align-items-center pb-2 w-100">
+    <Form className="mt-3">
+      <Row className="pt-3 pb-2 px-0">
+        <div className="d-flex justify-content-between align-items-center pb-2 w-100">
           <h4 className="pr-5 mb-0">티켓 채널 이름 설정</h4>
           <Button
             variant="dark"
-            className="ml-auto d-flex align-items-center"
+            className="d-flex align-items-center"
             size="sm"
             onClick={() => setShowFormattings('set')}
           >
@@ -99,7 +176,7 @@ const MessageSettings: React.FC<MessageSettingsProps> = ({
         />
       </Row>
 
-      <Row>
+      <Row className="mb-3 px-3">
         <Form.Label column sm="auto" className="fw-bold">
           열린 티켓 채널 이름
         </Form.Label>
@@ -128,7 +205,7 @@ const MessageSettings: React.FC<MessageSettingsProps> = ({
         </Col>
       </Row>
 
-      <Row>
+      <Row className="px-3">
         <Form.Label column sm="auto" className="fw-bold">
           닫힌 티켓 채널 이름
         </Form.Label>
@@ -158,11 +235,11 @@ const MessageSettings: React.FC<MessageSettingsProps> = ({
       </Row>
 
       <Row className="py-2 mt-3">
-        <div className="d-flex align-items-center pb-2 w-100">
+        <div className="d-flex align-items-center justify-content-between pb-2 w-100">
           <h4 className="pr-5 mb-0">메시지 설정</h4>
           <Button
             variant="dark"
-            className="ml-auto d-flex align-items-center"
+            className="d-flex align-items-center"
             size="sm"
             onClick={() => setShowFormattings('ticket')}
           >
@@ -190,7 +267,7 @@ const MessageSettings: React.FC<MessageSettingsProps> = ({
         />
       </Row>
 
-      <Row>
+      <Row className="mb-3 px-3">
         <Form.Label column sm="auto" className="fw-bold">
           티켓 생성 메시지
         </Form.Label>
@@ -220,7 +297,7 @@ const MessageSettings: React.FC<MessageSettingsProps> = ({
         </Col>
       </Row>
 
-      <Row>
+      <Row className="px-3">
         <Form.Label column sm="auto" className="fw-bold">
           티켓 초기 메시지
         </Form.Label>
@@ -250,63 +327,19 @@ const MessageSettings: React.FC<MessageSettingsProps> = ({
         </Col>
       </Row>
 
-      <Row className="mt-4">
-        <Button
-          variant={saveError ? 'danger' : 'aztra'}
-          disabled={
-            saving ||
-            saveError ||
-            !isChanged() ||
-            createMessageValidate === false
-          }
-          onClick={() => {
-            setSaving(true);
-
-            const patchData: Partial<Omit<TicketSet, 'guild' | 'uuid'>> = {
-              create_message: newCreateMessage ?? undefined,
-              initial_message: newInitialMessage ?? undefined,
-              channel_name_open: newOpenChannelName ?? undefined,
-              channel_name_closed: newClosedChannelName ?? undefined,
-            };
-
-            axios
-              .patch(
-                `${api}/servers/${ticketSet.guild}/ticketsets/${ticketSet.uuid}`,
-                patchData,
-                {
-                  headers: {
-                    Authorization: `Bearer ${new Cookies().get(
-                      'ACCESS_TOKEN'
-                    )}`,
-                  },
-                }
-              )
-              .then(() => mutate())
-              .catch(() => setSaveError(false))
-              .finally(() => setSaving(false));
-          }}
-          style={{
-            minWidth: 140,
-          }}
-        >
-          {saving ? (
-            <>
-              <Spinner
-                as="span"
-                animation="border"
-                size="sm"
-                role="status"
-                aria-hidden="true"
-              />
-              <span className="pl-2">저장 중...</span>
-            </>
-          ) : (
-            <span>
-              {saveError ? '오류' : isChanged() ? '저장하기' : '저장됨'}
-            </span>
-          )}
-        </Button>
-      </Row>
+      {!saveError && isChanged() && createMessageValidate !== false ? (
+        <ChangesNotSaved
+          key="changesNotSaved1"
+          onSave={save}
+          onReset={initData}
+          isSaving={saving}
+          isSaveError={saveError}
+        />
+      ) : (
+        <div style={{ opacity: preload ? 0 : 1 }}>
+          <ChangesNotSaved key="changesNotSaved2" close />
+        </div>
+      )}
     </Form>
   );
 };

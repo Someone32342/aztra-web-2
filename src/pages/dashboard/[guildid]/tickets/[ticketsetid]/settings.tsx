@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 
 import axios, { AxiosError } from 'axios';
 import api from 'datas/api';
@@ -67,6 +67,10 @@ const TicketSettings: NextPage<TicketListProps> = ({
   ticketsetId,
 }) => {
   const [activeTab, setActiveTab] = useState<TabsType>('general');
+  const [preload, setPreload] = useState(true);
+  const [preloadTimeout, setPreloadTimeout] = useState<NodeJS.Timeout | null>(
+    null
+  );
 
   const { data, mutate } = useSWR<TicketSet[], AxiosError>(
     new Cookies().get('ACCESS_TOKEN')
@@ -161,6 +165,13 @@ const TicketSettings: NextPage<TicketListProps> = ({
     }
   }, []);
 
+  useEffect(() => {
+    if (data && members && channels && tickets && roles) {
+      console.log('asdf');
+      setPreloadTimeout(setTimeout(() => setPreload(false), 1000));
+    }
+  }, [data, members, channels, tickets, roles]);
+
   const ticketSet = data?.find((o) => o.uuid === ticketsetId && !o.deleted);
 
   return (
@@ -184,8 +195,8 @@ const TicketSettings: NextPage<TicketListProps> = ({
                   </div>
                 </Row>
 
-                <Row className="flex-column">
-                  <Card bg="dark">
+                <Row className="flex-column px-3">
+                  <Card bg="dark" className="px-1">
                     <Card.Body className="py-2 d-flex align-items-center">
                       티켓:
                       <h5
@@ -198,15 +209,22 @@ const TicketSettings: NextPage<TicketListProps> = ({
                   </Card>
                 </Row>
 
-                <Row className="flex-column mt-3 nav-tabs-dark">
+                <Row className="flex-column mt-3 nav-tabs-dark px-3">
                   {ticketSet ? (
                     <Tabs
                       activeKey={activeTab}
                       id="ticket-list-tabs"
                       transition={false}
                       onSelect={(e) => {
+                        setPreload(true);
                         location.hash = e ?? 'general';
                         setActiveTab(e as TabsType);
+                        if (preloadTimeout) {
+                          clearTimeout(preloadTimeout);
+                        }
+                        setPreloadTimeout(
+                          setTimeout(() => setPreload(false), 1000)
+                        );
                       }}
                     >
                       <Tab
@@ -223,6 +241,7 @@ const TicketSettings: NextPage<TicketListProps> = ({
                           ticketSet={ticketSet}
                           tickets={tickets!}
                           mutate={mutate}
+                          preload={preload}
                         />
                       </Tab>
                       <Tab
@@ -240,6 +259,7 @@ const TicketSettings: NextPage<TicketListProps> = ({
                           members={members}
                           guild={guild}
                           mutate={mutate}
+                          preload={preload}
                         />
                       </Tab>
                       <Tab
@@ -254,6 +274,7 @@ const TicketSettings: NextPage<TicketListProps> = ({
                         <MessageSettings
                           ticketSet={ticketSet}
                           mutate={mutate}
+                          preload={preload}
                         />
                       </Tab>
                     </Tabs>
