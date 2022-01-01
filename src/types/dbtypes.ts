@@ -113,6 +113,8 @@ export interface Ticket {
   opener: string;
   number: number;
   status: 'open' | 'closed' | 'deleted';
+  initial_message: string;
+  closed_message: string | null;
   created_at: string;
 }
 

@@ -872,15 +872,30 @@ const Main: NextPage<MainRouterProps> = ({ guildId }) => {
             <li className="pb-3">
               <div className="fw-bold">명령어가 궁금하신가요?</div>
               <Link href="/docs" prefetch shallow>
-                <a className="fw-bold" style={{ color: 'deepskyblue' }}>
+                <a
+                  className="fw-bold"
+                  target="_blank"
+                  style={{ color: 'deepskyblue' }}
+                >
                   봇 가이드로 이동하기
                 </a>
               </Link>
             </li>
             <li className="pb-3">
               <div className="fw-bold">공지 메시지를 받아보세요</div>
-              <b>{prefixes}공지채널</b> 명령으로 봇으로부터 공지 메시지를 받을
-              채널을 선택할 수 있습니다.
+              <Link href={`/dashboard/${guildId}/general`} prefetch shallow>
+                <a
+                  className="fw-bold"
+                  target="_blank"
+                  style={{ color: 'deepskyblue' }}
+                >
+                  공지 채널 설정하기
+                </a>
+              </Link>
+              <div className="small mt-2">
+                <b>또는 {prefixes}공지채널</b> 명령으로 봇으로부터 공지 메시지를
+                받을 채널을 선택할 수 있습니다.
+              </div>
             </li>
             <li className="pb-3">
               <div className="fw-bold">
