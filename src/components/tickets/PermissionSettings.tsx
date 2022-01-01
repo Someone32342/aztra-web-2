@@ -602,8 +602,15 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({
                     [Permissions.MANAGE_WEBHOOKS, '웹후크 관리하기'],
                     [Permissions.CREATE_INSTANT_INVITE, '초대 코드 만들기'],
                     [Permissions.SEND_MESSAGES, '메시지 보내기'],
-                    [Permissions.USE_PUBLIC_THREADS, '공개 스레드 사용'],
-                    [Permissions.USE_PRIVATE_THREADS, '비공개 스레드 사용'],
+                    [
+                      Permissions.SEND_MESSAGES_IN_THREADS,
+                      '스레드에서 메시지 보내기',
+                    ],
+                    [Permissions.CREATE_PUBLIC_THREADS, '공개 스레드 만들기'],
+                    [
+                      Permissions.CREATE_PRIVATE_THREADS,
+                      '비공개 스레드 만들기',
+                    ],
                     [Permissions.EMBED_LINKS, '링크 첨부'],
                     [Permissions.ATTACH_FILES, '파일 첨부'],
                     [Permissions.ADD_REACTIONS, '반응 추가하기'],
@@ -620,7 +627,10 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({
                       Permissions.SEND_TTS_MESSAGES,
                       '텍스트 음성 변환 메시지 전송',
                     ],
-                    [Permissions.USE_SLASH_COMMANDS, '빗금 명령어 사용'],
+                    [
+                      Permissions.USE_APPLICATION_COMMANDS,
+                      '애플리케이션 명령어 사용',
+                    ],
                   ].map(([n, name]) => {
                     const num = n as number;
 
