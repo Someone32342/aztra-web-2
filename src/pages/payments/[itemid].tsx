@@ -44,7 +44,7 @@ const PaymentPage: NextPage = () => {
       <Layout>
         <Container
           fluid="sm"
-          style={{ minHeight: '80vh', padding: '70px 80px' }}
+          style={{ minHeight: '80vh', padding: '70px 20px' }}
         >
           <Form noValidate>
             <Row>
@@ -52,7 +52,7 @@ const PaymentPage: NextPage = () => {
             </Row>
             <hr />
             <Row>
-              <Col xs={12} lg={8}>
+              <Col xs={12} lg={8} className="mb-3 mb-lg-0">
                 <Card
                   bg="dark"
                   className="shadow-sm px-1"
@@ -190,7 +190,7 @@ const PaymentPage: NextPage = () => {
                       disabled={!paymentMethod}
                       onClick={() => {
                         tossPayments.requestPayment(paymentMethod, {
-                          amount: 15000,
+                          amount: 4900,
                           orderId: 'yy8oFARUK-AtW6tr63D_O',
                           orderName: 'Aztra Premium Pro 플랜 (1개월)',
                           customerName: 'ArpaAP#1234',

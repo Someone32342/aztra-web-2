@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Card, Col, Container, Row } from 'react-bootstrap';
+import { Badge, Button, Card, Col, Container, Row } from 'react-bootstrap';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheckCircle } from '@fortawesome/free-solid-svg-icons';
@@ -89,11 +89,7 @@ const Premium: NextPage = () => {
             </Col>
 
             <Col sm={4} className="mb-4">
-              <Card
-                bg="dark"
-                className="h-100 shadow mx-2"
-                onMouseOver={() => console.log('dsdsdsdss')}
-              >
+              <Card bg="dark" className="h-100 shadow mx-2">
                 <Card.Header
                   className="text-center"
                   style={{
@@ -102,32 +98,21 @@ const Premium: NextPage = () => {
                     fontSize: '14pt',
                   }}
                 >
-                  Aztra Free+ 플랜
+                  Aztra Pro Monthly 플랜
                 </Card.Header>
                 <Card.Body className="pt-5 px-4">
-                  <h3 className="pb-4 text-center">무료</h3>
-                  <div className="text-center mb-4">
-                    Koreanbots 봇 리스트에서
-                    <br />
-                    Aztra에 하트를 눌러주세요!
-                  </div>
+                  <h3 className="pb-4 text-center">￦4,900/월</h3>
                   <FeaturesList feats={['혜택 준비 중입니다.']} />
                 </Card.Body>
                 <div className="text-center pb-2">
                   <Button
                     className="my-2"
-                    variant="danger"
-                    disabled
+                    variant="aztra"
                     style={{
                       minWidth: '60%',
                     }}
-                    href={LINKS.koreanbots}
-                    target="_blank"
                   >
-                    <div className="d-flex justify-content-center align-items-center">
-                      <FavoriteIcon className="me-2" fontSize="small" />
-                      하트 누르고 혜택 받기
-                    </div>
+                    구매하기
                   </Button>
                 </div>
               </Card>
@@ -143,10 +128,15 @@ const Premium: NextPage = () => {
                     fontSize: '14pt',
                   }}
                 >
-                  Aztra Pro 플랜
+                  Aztra Pro Yearly 플랜
                 </Card.Header>
                 <Card.Body className="pt-5 px-4">
-                  <h3 className="pb-4 text-center">￦4,900/월</h3>
+                  <h3 className="pb-2 text-center">￦49,980/년</h3>
+                  <span className="d-flex w-100">
+                    <Badge bg="aztra" className="h5 mx-auto">
+                      <b>-15%</b> 할인
+                    </Badge>
+                  </span>
                   <FeaturesList feats={['혜택 준비 중입니다.']} />
                 </Card.Body>
                 <div className="text-center pb-2">
