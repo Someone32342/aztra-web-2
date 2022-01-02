@@ -163,6 +163,26 @@ export default class Navibar extends React.Component<{}, NavibarState> {
                     디스코드 서포트 서버
                   </NavDropdown.Item>
                 </NavDropdown>
+                {process.env.NODE_ENV === 'development' && (
+                  <NavDropdown
+                    title="개발자 옵션"
+                    id="navdropdown-support"
+                    className={cx(
+                      'dropdown-menu-dark',
+                      'Navlink',
+                      'NavDropdownWhiteTitle'
+                    )}
+                  >
+                    <Link href="/premium" passHref>
+                      <NavDropdown.Item
+                        className="dropdown-item-dark ps-3"
+                        href="/premium"
+                      >
+                        Aztra Premium
+                      </NavDropdown.Item>
+                    </Link>
+                  </NavDropdown>
+                )}
               </Nav>
               <Nav>
                 {user ? (

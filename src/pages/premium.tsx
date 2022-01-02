@@ -7,6 +7,7 @@ import { Favorite as FavoriteIcon } from '@material-ui/icons';
 import { NextPage } from 'next';
 import Layout from 'components/Layout';
 import LINKS from 'datas/links';
+import Link from 'next/link';
 
 interface FeaturesListProps {
   feats: string[];
@@ -102,18 +103,23 @@ const Premium: NextPage = () => {
                 </Card.Header>
                 <Card.Body className="pt-5 px-4">
                   <h3 className="pb-4 text-center">￦4,900/월</h3>
-                  <FeaturesList feats={['혜택 준비 중입니다.']} />
+                  <FeaturesList
+                    feats={['혜택 준비 중입니다. 아직 구매할 수 없습니다.']}
+                  />
                 </Card.Body>
                 <div className="text-center pb-2">
-                  <Button
-                    className="my-2"
-                    variant="aztra"
-                    style={{
-                      minWidth: '60%',
-                    }}
-                  >
-                    구매하기
-                  </Button>
+                  <Link href="/payments/aztra-pro-monthly" passHref>
+                    <Button
+                      className="my-2"
+                      variant="aztra"
+                      style={{
+                        minWidth: '60%',
+                      }}
+                      disabled={process.env.NODE_ENV === 'production'}
+                    >
+                      구매하기
+                    </Button>
+                  </Link>
                 </div>
               </Card>
             </Col>
@@ -132,23 +138,28 @@ const Premium: NextPage = () => {
                 </Card.Header>
                 <Card.Body className="pt-5 px-4">
                   <h3 className="pb-2 text-center">￦49,980/년</h3>
-                  <span className="d-flex w-100">
+                  <span className="d-flex w-100 mb-3">
                     <Badge bg="aztra" className="h5 mx-auto">
                       <b>-15%</b> 할인
                     </Badge>
                   </span>
-                  <FeaturesList feats={['혜택 준비 중입니다.']} />
+                  <FeaturesList
+                    feats={['혜택 준비 중입니다. 아직 구매할 수 없습니다.']}
+                  />
                 </Card.Body>
                 <div className="text-center pb-2">
-                  <Button
-                    className="my-2"
-                    variant="aztra"
-                    style={{
-                      minWidth: '60%',
-                    }}
-                  >
-                    구매하기
-                  </Button>
+                  <Link href="/payments/aztra-pro-yearly" passHref>
+                    <Button
+                      className="my-2"
+                      variant="aztra"
+                      style={{
+                        minWidth: '60%',
+                      }}
+                      disabled={process.env.NODE_ENV === 'production'}
+                    >
+                      구매하기
+                    </Button>
+                  </Link>
                 </div>
               </Card>
             </Col>

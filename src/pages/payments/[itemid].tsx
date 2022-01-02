@@ -14,16 +14,31 @@ import {
   Row,
 } from 'react-bootstrap';
 import numberWithCommas from 'utils/numberWithCommas';
+import { CreditCard as CreditCardIcon } from '@material-ui/icons';
 
 const clientKey = 'test_ck_4vZnjEJeQVxO9z7g9NM3PmOoBN0k';
 
 const paymentMethods = {
-  카드: '신용카드/체크카드',
-  토스결제: '토스로 결제하기',
+  카드: (
+    <div className="d-flex align-items-center">
+      <CreditCardIcon className="me-2" />
+      <span>신용카드/체크카드</span>
+    </div>
+  ),
+  토스결제: (
+    <div className="d-flex align-items-center">
+      <img
+        className="me-2"
+        src="/assets/images/symbol-toss-blue.png"
+        alt=""
+        style={{ width: 24, height: 24 }}
+      />
+      <span>토스로 결제하기</span>
+    </div>
+  ),
   가상계좌: '무통장 입금',
   계좌이체: '계좌이체',
   휴대폰: '휴대폰 결제',
-  문화상품권: '컬처랜드 문화상품권',
 };
 
 const PaymentPage: NextPage = () => {
@@ -70,9 +85,9 @@ const PaymentPage: NextPage = () => {
                     <div className="d-flex justify-content-between align-items-center">
                       <div>
                         <h5 style={{ fontFamily: 'NanumSquare', fontSize: 18 }}>
-                          Aztra Premium Pro 플랜 (1개월)
+                          Aztra Pro Monthly 플랜
                         </h5>
-                        <h6 style={{ fontSize: 15 }}>4,900원</h6>
+                        <h6 style={{ fontSize: 15 }}>4,900원/월</h6>
                       </div>
                       <div className="me-1 d-flex align-items-center">
                         <InputGroup>
@@ -88,21 +103,26 @@ const PaymentPage: NextPage = () => {
                             style={{ width: 50 }}
                             value={amount}
                             onChange={(e) => {
-                              if (e.target.value.length > 3) return;
+                              if (e.target.value.length > 2) {
+                                setAmount(Number(e.target.value.slice(1, 3)));
+                                return;
+                              }
                               setAmount(
-                                Math.min(Number(e.target.value) || 1, 999)
+                                Math.min(Number(e.target.value) || 1, 99)
                               );
                             }}
                           />
                           <Button
                             variant="outline-secondary"
                             className="text-white"
-                            onClick={() => setAmount(Math.min(amount + 1, 999))}
+                            onClick={() => setAmount(Math.min(amount + 1, 99))}
                           >
                             +
                           </Button>
                         </InputGroup>
-                        <span className="ms-2">개</span>
+                        <span className="ms-2" style={{ whiteSpace: 'nowrap' }}>
+                          개 서버
+                        </span>
                       </div>
                     </div>
                     <hr />
@@ -114,7 +134,8 @@ const PaymentPage: NextPage = () => {
                         총 결제 금액:{' '}
                         <span className="fw-bold">
                           {numberWithCommas(4900 * amount)} 원
-                        </span>
+                        </span>{' '}
+                        <small>/월</small>
                       </h5>
                       <small>
                         부가세{' '}
@@ -122,7 +143,7 @@ const PaymentPage: NextPage = () => {
                           {numberWithCommas(
                             Math.floor((4900 * amount * 10) / 110)
                           )}
-                          원
+                          원/월
                         </b>{' '}
                         포함
                       </small>
