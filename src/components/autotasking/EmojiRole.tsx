@@ -325,7 +325,7 @@ const EmojiRole: React.FC<EmojiRoleProps> = ({
                       >{`${prefixes}메시지설정 ${selectMessageToken}`}</span>{' '}
                       을 입력합니다.{' '}
                       <a
-                        className="cursor-pointer text-decoration-none"
+                        className="cursor-pointer"
                         style={{ color: 'DeepSkyBlue' }}
                         onClick={(e) => {
                           navigator.clipboard.writeText(
