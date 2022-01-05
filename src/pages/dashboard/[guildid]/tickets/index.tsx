@@ -217,13 +217,15 @@ const TicketSets: NextPage<TicketSetsRouterProps> = ({ guildId }) => {
               </td>
               <td className="align-middle">
                 <span className="d-inline-block text-truncate mw-100 align-middle cursor-pointer font-weight-bold">
-                  {ticketSet.category_opened
-                    ? `#${
-                        channels?.find(
-                          (o) => o.id === ticketSet.category_opened
-                        )?.name ?? <i>(존재하지 않는 채널)</i>
-                      }`
-                    : '(선택 안 함)'}
+                  {ticketSet.category_opened ? (
+                    <>
+                      #
+                      {channels?.find((o) => o.id === ticketSet.category_opened)
+                        ?.name ?? <i>(존재하지 않는 채널)</i>}
+                    </>
+                  ) : (
+                    '(선택 안 함)'
+                  )}
                 </span>
               </td>
               <td className="align-middle text-center">
