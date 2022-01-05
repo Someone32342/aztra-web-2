@@ -76,10 +76,10 @@ export interface TicketSetPOST {
 export interface TicketPerms {
   type: 'role' | 'member' | 'opener';
   id?: string;
-  allow: number;
-  deny: number;
+  allow: string;
+  deny: string;
   mention?: boolean;
-  ext_allow?: number;
+  ext_allow?: string;
 }
 
 export interface TicketSet {

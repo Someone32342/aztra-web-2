@@ -88,8 +88,38 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({
 
   const [permType, setPermType] = useState<'open' | 'closed'>('open');
 
-  const [openPermSets, setOpenPermSets] = useState(ticketSet.perms_open);
-  const [closedPermSets, setClosedPermSets] = useState(ticketSet.perms_closed);
+  const [openPermSets, setOpenPermSets] = useState<TicketPerms[]>(
+    ticketSet.perms_open.map((p) => {
+      let data = {
+        ...p,
+        allow: p.allow.toString(),
+        deny: p.deny.toString(),
+        ext_allow: p.ext_allow ? p.ext_allow.toString() : undefined,
+      };
+
+      Object.keys(data).forEach((key) => {
+        if ((data as any)[key] === undefined) delete (data as any)[key];
+      });
+
+      return data;
+    })
+  );
+  const [closedPermSets, setClosedPermSets] = useState<TicketPerms[]>(
+    ticketSet.perms_closed.map((p) => {
+      let data = {
+        ...p,
+        allow: p.allow.toString(),
+        deny: p.deny.toString(),
+        ext_allow: p.ext_allow ? p.ext_allow.toString() : undefined,
+      };
+
+      Object.keys(data).forEach((key) => {
+        if ((data as any)[key] === undefined) delete (data as any)[key];
+      });
+
+      return data;
+    })
+  );
   const [currentPermSets, setCurrentPermSets] =
     permType === 'open'
       ? [openPermSets, setOpenPermSets]
@@ -369,8 +399,8 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({
                       setCurrentPermSets(
                         currentPermSets.concat({
                           id: role.id,
-                          allow: 0,
-                          deny: 0,
+                          allow: '0',
+                          deny: '0',
                           type: 'role',
                           mention: false,
                         })
@@ -382,8 +412,8 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({
                       setCurrentPermSets(
                         currentPermSets.concat({
                           id: member.user.id,
-                          allow: 0,
-                          deny: 0,
+                          allow: '0',
+                          deny: '0',
                           type: 'member',
                           mention: false,
                         })
@@ -523,25 +553,23 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({
                 <Row style={{ fontSize: 18 }}>
                   {permType === 'open' &&
                     [
-                      [0x1, '티켓 닫기'],
-                      [0x2, '티켓 다시 열기'],
-                      [0x4, '티켓 삭제하기'],
-                      [0x8, '대화 내역 생성하기'],
+                      [0x1n, '티켓 닫기'],
+                      [0x2n, '티켓 다시 열기'],
+                      [0x4n, '티켓 삭제하기'],
+                      [0x8n, '대화 내역 생성하기'],
                     ].map(([n, name]) => {
-                      const num = n as number;
+                      const num = n as bigint;
 
                       const activePerms = currentPermSets.find(
                         (o) => o.id === active.id && o.type === active.type
                       );
                       if (!activePerms) return null;
 
-                      const ext_allow = Number(
-                        BigInt(activePerms.ext_allow ?? 0) & BigInt(num)
-                      );
-
+                      const ext_allow =
+                        BigInt(activePerms.ext_allow ?? 0) & BigInt(num);
                       return (
                         <Col
-                          key={n}
+                          key={n.toString()}
                           xs={12}
                           lg={6}
                           className={permTitleCls}
@@ -563,10 +591,10 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({
                                     otherPerms.concat([
                                       {
                                         ...activePerms,
-                                        ext_allow: Number(
+                                        ext_allow: (
                                           BigInt(activePerms.ext_allow ?? 0) |
-                                            BigInt(num)
-                                        ),
+                                          BigInt(num)
+                                        ).toString(),
                                       },
                                     ])
                                   );
@@ -576,10 +604,10 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({
                                     otherPerms.concat([
                                       {
                                         ...activePerms,
-                                        ext_allow: Number(
+                                        ext_allow: (
                                           BigInt(activePerms.ext_allow ?? 0) -
-                                            BigInt(num)
-                                        ),
+                                          BigInt(num)
+                                        ).toString(),
                                       },
                                     ])
                                   );
@@ -632,21 +660,19 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({
                       '애플리케이션 명령어 사용',
                     ],
                   ].map(([n, name]) => {
-                    const num = n as number;
+                    const num = n as bigint;
 
                     const activePerms = currentPermSets.find(
                       (o) => o.id === active.id && o.type === active.type
                     );
                     if (!activePerms) return null;
 
-                    const allow = Number(
-                      BigInt(activePerms.allow) & BigInt(num)
-                    );
-                    const deny = Number(BigInt(activePerms.deny) & BigInt(num));
+                    const allow = BigInt(activePerms.allow) & BigInt(num);
+                    const deny = BigInt(activePerms.deny) & BigInt(num);
 
                     return (
                       <Col
-                        key={n}
+                        key={n.toString()}
                         xs={12}
                         lg={6}
                         className={permTitleCls}
@@ -667,15 +693,15 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({
                                   otherPerms.concat([
                                     {
                                       ...activePerms,
-                                      allow: Number(
+                                      allow: (
                                         BigInt(activePerms.allow) | BigInt(num)
-                                      ),
+                                      ).toString(),
                                       ...(deny
                                         ? {
-                                            deny: Number(
+                                            deny: (
                                               BigInt(activePerms.deny) -
-                                                BigInt(num)
-                                            ),
+                                              BigInt(num)
+                                            ).toString(),
                                           }
                                         : {}),
                                     },
@@ -687,15 +713,15 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({
                                   otherPerms.concat([
                                     {
                                       ...activePerms,
-                                      deny: Number(
+                                      deny: (
                                         BigInt(activePerms.deny) | BigInt(num)
-                                      ),
+                                      ).toString(),
                                       ...(allow
                                         ? {
-                                            allow: Number(
+                                            allow: (
                                               BigInt(activePerms.allow) -
-                                                BigInt(num)
-                                            ),
+                                              BigInt(num)
+                                            ).toString(),
                                           }
                                         : {}),
                                     },
@@ -708,10 +734,10 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({
                                     otherPerms.concat([
                                       {
                                         ...activePerms,
-                                        allow: Number(
+                                        allow: (
                                           BigInt(activePerms.allow) -
-                                            BigInt(num)
-                                        ),
+                                          BigInt(num)
+                                        ).toString(),
                                       },
                                     ])
                                   );
@@ -720,9 +746,9 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({
                                     otherPerms.concat([
                                       {
                                         ...activePerms,
-                                        deny: Number(
+                                        deny: (
                                           BigInt(activePerms.deny) - BigInt(num)
-                                        ),
+                                        ).toString(),
                                       },
                                     ])
                                   );
