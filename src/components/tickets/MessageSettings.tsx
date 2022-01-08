@@ -143,7 +143,7 @@ const MessageSettings: React.FC<MessageSettingsProps> = ({
   };
 
   return (
-    <Form className="mt-3">
+    <Form className="mt-3 px-0">
       <Row className="pt-3 pb-2 px-0">
         <div className="d-flex justify-content-between align-items-center pb-2 w-100">
           <h4 className="pr-5 mb-0">티켓 채널 이름 설정</h4>

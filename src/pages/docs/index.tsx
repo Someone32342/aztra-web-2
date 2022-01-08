@@ -66,7 +66,7 @@ const DocsMain: React.FC = () => {
               style={{ padding: '40px 0' }}
             >
               <Col>
-                <div className="text-center">
+                <div className="text-center text-black">
                   <h2>Aztra 봇 가이드</h2>
                   <div style={{ wordBreak: 'keep-all' }}>
                     Aztra를 더 똑똑하게 사용하는 방법들을 살펴보세요.
@@ -108,7 +108,7 @@ const DocsMain: React.FC = () => {
               )}
             </Row>
 
-            <Row className="text-center" style={{ marginTop: 120 }}>
+            <Row className="text-center text-black" style={{ marginTop: 120 }}>
               <small>가독성 향상을 위해 화이트 모드가 적용됩니다.</small>
             </Row>
           </Container>

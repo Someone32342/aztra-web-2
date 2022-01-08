@@ -166,7 +166,7 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({
   };
 
   return (
-    <Form as={Container} fluid className="mt-3">
+    <Form as={Container} fluid className="mt-3 px-0">
       <Row className="pt-3 pb-2">
         <h4 className="pe-5">기본 설정</h4>
       </Row>

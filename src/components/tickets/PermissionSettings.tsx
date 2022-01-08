@@ -230,7 +230,7 @@ const PermissionSettings: React.FC<PermissionSettingsProps> = ({
   };
 
   return (
-    <Form as={Container} fluid className="mt-3">
+    <Form as={Container} fluid className="mt-3 px-0">
       <Row className="align-items-center mb-5 mb-md-2">
         <Col className="px-0 pe-md-3">
           <Card bg="transparent border-dark">

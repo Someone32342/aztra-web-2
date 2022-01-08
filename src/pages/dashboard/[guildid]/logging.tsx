@@ -29,7 +29,7 @@ import filterChannels from 'utils/filterChannels';
 
 interface LoggingOptionCheckboxProps extends FormCheckProps {
   label?: string;
-  flag: number;
+  flag: bigint;
 }
 
 type handleFieldChangeTypes = 'channel';
@@ -51,7 +51,7 @@ export const getServerSideProps: GetServerSideProps<
 
 const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
   const [useLogging, setUseLogging] = useState(false);
-  const [flag, setFlag] = useState<string | null>(null);
+  const [flag, setFlag] = useState<bigint | null>(null);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState(false);
 
@@ -63,8 +63,8 @@ const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
   const [changed, setChanged] = useState(false);
 
   const initData = (data: LoggingSetType | null) => {
-    setUseLogging(!!Number(data?.flags));
-    setFlag(data?.flags ?? '0');
+    setUseLogging(!!BigInt(data?.flags ?? 0));
+    setFlag(BigInt(data?.flags ?? 0));
   };
 
   const { data, mutate } = useSWR<LoggingSetType | null, AxiosError>(
@@ -170,10 +170,10 @@ const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
     setSaving(true);
 
     try {
-      if (useLogging && flag !== '0') {
+      if (useLogging && flag !== 0n) {
         let saveData: LoggingSetType = {
           channel: newChannel?.id || data?.channel!,
-          flags: flag ?? '0',
+          flags: (flag ?? 0).toString(),
         };
         await axios.post(`${api}/servers/${guildId}/logging`, saveData, {
           headers: {
@@ -204,14 +204,14 @@ const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
 
   const isChanged = () => {
     if (!data || !channels) {
-      setChanged(!!Number(data?.flags) != useLogging);
-      return !!Number(data?.flags) != useLogging;
+      setChanged(!!BigInt(data?.flags ?? 0) != useLogging);
+      return !!BigInt(data?.flags ?? 0) != useLogging;
     }
 
     const rst =
       (data.channel !== newChannel?.id && newChannel !== null) ||
-      data.flags !== flag ||
-      !!Number(data?.flags) != useLogging;
+      BigInt(data.flags) !== flag ||
+      !!BigInt(data.flags) != useLogging;
 
     setChanged(rst);
     return rst;
@@ -232,18 +232,17 @@ const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
           {props.label}
         </div>
       }
-      checked={!!(Number(flag) & props.flag)}
+      checked={!!(BigInt(flag ?? 0) & props.flag)}
       onChange={() => toggleFlag(props.flag)}
     />
   );
 
-  const toggleFlag = (flagBit: number) => {
-    let fl = BigInt(flag!);
-    let bigIntFlagBit = BigInt(flagBit);
-    if (fl & bigIntFlagBit) {
-      setFlag((fl - bigIntFlagBit).toString());
+  const toggleFlag = (flagBit: bigint) => {
+    let fl = BigInt(flag ?? 0);
+    if (fl & flagBit) {
+      setFlag(fl - flagBit);
     } else {
-      setFlag((fl | bigIntFlagBit).toString());
+      setFlag(fl | flagBit);
     }
   };
 
@@ -293,10 +292,10 @@ const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
                                 className="me-3"
                                 onClick={() =>
                                   setFlag(
-                                    (
-                                      (1 << (0x20000).toString(2).length) -
-                                      1
-                                    ).toString()
+                                    BigInt(
+                                      1n <<
+                                        BigInt(0x200000000n.toString(2).length)
+                                    ) - 1n
                                   )
                                 }
                               >
@@ -305,7 +304,7 @@ const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
                               <Button
                                 variant="dark"
                                 size="sm"
-                                onClick={() => setFlag('0')}
+                                onClick={() => setFlag(0n)}
                               >
                                 모두 선택 해제
                               </Button>
@@ -319,25 +318,25 @@ const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
                                   id="logging-message-deleted"
                                   className="pb-1"
                                   label="메시지가 삭제되었을 때"
-                                  flag={0x1}
+                                  flag={0x1n}
                                 />
                                 <LoggingOptionCheckbox
                                   id="logging-message-edited"
                                   className="pb-1"
                                   label="메시지가 수정되었을 때"
-                                  flag={0x2}
+                                  flag={0x2n}
                                 />
                                 <LoggingOptionCheckbox
                                   id="logging-message-pinned"
                                   className="pb-1"
                                   label="메시지가 고정되었을 때"
-                                  flag={0x4}
+                                  flag={0x4n}
                                 />
                                 <LoggingOptionCheckbox
                                   id="logging-message-unpinned"
                                   className="pb-1"
                                   label="메시지가 고정 해제되었을 때"
-                                  flag={0x8}
+                                  flag={0x8n}
                                 />
                               </Form.Group>
                               <Form.Group>
@@ -345,13 +344,13 @@ const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
                                   id="logging-reaction-removed"
                                   className="pb-1"
                                   label="반응이 제거되었을 때"
-                                  flag={0x10}
+                                  flag={0x10n}
                                 />
                                 <LoggingOptionCheckbox
                                   id="logging-reaction-cleared"
                                   className="pb-1"
                                   label="모든 반응이 제거되었을 때"
-                                  flag={0x20}
+                                  flag={0x20n}
                                 />
                               </Form.Group>
                             </Col>
@@ -362,19 +361,19 @@ const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
                                   id="logging-guild-channel-created"
                                   className="pb-1"
                                   label="채널이 생성되었을 때"
-                                  flag={0x40}
+                                  flag={0x40n}
                                 />
                                 <LoggingOptionCheckbox
                                   id="logging-guild-channel-deleted"
                                   className="pb-1"
                                   label="채널이 삭제되었을 때"
-                                  flag={0x80}
+                                  flag={0x80n}
                                 />
                                 <LoggingOptionCheckbox
                                   id="logging-guild-channel-edited"
                                   className="pb-1"
                                   label="채널이 수정되었을 때"
-                                  flag={0x100}
+                                  flag={0x100n}
                                 />
                               </Form.Group>
                             </Col>
@@ -385,19 +384,19 @@ const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
                                   id="logging-member-joined"
                                   className="pb-1"
                                   label="멤버가 참여했을 때"
-                                  flag={0x200}
+                                  flag={0x200n}
                                 />
                                 <LoggingOptionCheckbox
                                   id="logging-member-left"
                                   className="pb-1"
                                   label="멤버가 나갔을 때"
-                                  flag={0x400}
+                                  flag={0x400n}
                                 />
                                 <LoggingOptionCheckbox
                                   id="logging-member-edited"
                                   className="pb-1"
                                   label="멤버가 수정되었을 때"
-                                  flag={0x800}
+                                  flag={0x800n}
                                 />
                               </Form.Group>
                               <Form.Group>
@@ -405,13 +404,13 @@ const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
                                   id="logging-member-banned"
                                   className="pb-1"
                                   label="멤버가 차단되었을 때"
-                                  flag={0x1000}
+                                  flag={0x1000n}
                                 />
                                 <LoggingOptionCheckbox
                                   id="logging-member-unbanned"
                                   className="pb-1"
                                   label="멤버의 차단이 해제되었을 때"
-                                  flag={0x2000}
+                                  flag={0x2000n}
                                 />
                               </Form.Group>
                             </Col>
@@ -422,25 +421,135 @@ const Logging: NextPage<LoggingRouterProps> = ({ guildId }) => {
                                   id="logging-guild-updated"
                                   className="pb-1"
                                   label="서버 설정이 변경되었을 때"
-                                  flag={0x4000}
+                                  flag={0x4000n}
                                 />
                                 <LoggingOptionCheckbox
                                   id="logging-guild-role-created"
                                   className="pb-1"
                                   label="역할이 생성되었을 때"
-                                  flag={0x8000}
+                                  flag={0x8000n}
                                 />
                                 <LoggingOptionCheckbox
                                   id="logging-guild-role-deleted"
                                   className="pb-1"
                                   label="역할이 삭제되었을 때"
-                                  flag={0x10000}
+                                  flag={0x10000n}
                                 />
                                 <LoggingOptionCheckbox
                                   id="logging-guild-role-edited"
                                   className="pb-1"
                                   label="역할이 수정되었을 때"
-                                  flag={0x20000}
+                                  flag={0x20000n}
+                                />
+                              </Form.Group>
+                            </Col>
+                            <Col xs={12} sm={6} xl={3} className="pb-4">
+                              <h4 className="pb-2">스레드 로깅</h4>
+                              <Form.Group>
+                                <LoggingOptionCheckbox
+                                  id="logging-thread-joined"
+                                  className="pb-1"
+                                  label="스레드가 생성되었을 때"
+                                  flag={0x40000n}
+                                />
+                                <LoggingOptionCheckbox
+                                  id="logging-thread-deleted"
+                                  className="pb-1"
+                                  label="스레드가 삭제되었을 때"
+                                  flag={0x100000n}
+                                />
+                                <LoggingOptionCheckbox
+                                  id="logging-thread-updated"
+                                  className="pb-1"
+                                  label="스레드가 수정되었을 때"
+                                  flag={0x200000n}
+                                />
+                                <LoggingOptionCheckbox
+                                  id="logging-thread-member-joined"
+                                  className="pb-1"
+                                  label="스레드에 멤버가 참여했을 때"
+                                  flag={0x400000n}
+                                />
+                                <LoggingOptionCheckbox
+                                  id="logging-thread-member-removed"
+                                  className="pb-1"
+                                  label="스레드에서 멤버가 나갔을 때"
+                                  flag={0x800000n}
+                                />
+                              </Form.Group>
+                            </Col>
+                            <Col xs={12} sm={6} xl={3} className="pb-4">
+                              <h4 className="pb-2">음성 채널 로깅</h4>
+                              <Form.Group>
+                                <LoggingOptionCheckbox
+                                  id="logging-voice-member-joined"
+                                  className="pb-1"
+                                  label="음성 채널에 참여했을 때"
+                                  flag={0x1000000n}
+                                />
+                                <LoggingOptionCheckbox
+                                  id="logging-voice-member-leaved"
+                                  className="pb-1"
+                                  label="음성 채널에서 나갔을 때"
+                                  flag={0x2000000n}
+                                />
+                              </Form.Group>
+                            </Col>
+                            <Col xs={12} sm={6} xl={3} className="pb-4">
+                              <h4 className="pb-2">무대 채널 로깅</h4>
+                              <Form.Group>
+                                <LoggingOptionCheckbox
+                                  id="logging-stage-instance-created"
+                                  className="pb-1"
+                                  label="스테이지가 시작되었을 때"
+                                  flag={0x4000000n}
+                                />
+                                <LoggingOptionCheckbox
+                                  id="logging-stage-instance-deleted"
+                                  className="pb-1"
+                                  label="스테이지가 종료되었을 때"
+                                  flag={0x8000000n}
+                                />
+                                <LoggingOptionCheckbox
+                                  id="logging-stage-instance-updated"
+                                  className="pb-1"
+                                  label="스테이지가 수정되었을 때"
+                                  flag={0x10000000n}
+                                />
+                              </Form.Group>
+                            </Col>
+                            <Col xs={12} sm={6} xl={3} className="pb-4">
+                              <h4 className="pb-2">이벤트 로깅</h4>
+                              <Form.Group>
+                                <LoggingOptionCheckbox
+                                  id="logging-scheduled-event-created"
+                                  className="pb-1"
+                                  label="이벤트가 생성되었을 때"
+                                  flag={0x20000000n}
+                                />
+                                <LoggingOptionCheckbox
+                                  id="logging-scheduled-event-deleted"
+                                  className="pb-1"
+                                  label="이벤트가 삭제되었을 때"
+                                  flag={0x40000000n}
+                                />
+                                <LoggingOptionCheckbox
+                                  id="logging-scheduled-event-updated"
+                                  className="pb-1"
+                                  label="이벤트가 수정되었을 때"
+                                  flag={0x80000000n}
+                                />
+                                <LoggingOptionCheckbox
+                                  id="logging-scheduled-event-user-added"
+                                  className="pb-1"
+                                  label="이벤트에 멤버가 참여했을 때"
+                                  flag={0x100000000n}
+                                />
+                                <LoggingOptionCheckbox
+                                  id="logging-scheduled-event-user-removed"
+                                  className="pb-1"
+                                  label="이벤트에서 멤버가 나갔을 때"
+                                  flag={0x200000000n}
                                 />
                               </Form.Group>
                             </Col>
