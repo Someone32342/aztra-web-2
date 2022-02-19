@@ -1,2 +1,2 @@
-const GA_ID = 'G-KQ72ERL108';
+const GA_ID = 'G-VD61MJHJFS';
 export default GA_ID;
