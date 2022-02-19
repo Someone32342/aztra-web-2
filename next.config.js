@@ -4,7 +4,8 @@ module.exports = withPWA({
   swcMinify: true,
   pwa: {
     disable: process.env.NODE_ENV === 'development',
-    mode: process.env.NODE_ENV === 'production' ? 'production' : undefined,
+    dest: 'public',
+    mode: 'production',
     register: true,
     sw: '/sw.js',
   },
