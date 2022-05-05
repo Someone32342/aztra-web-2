@@ -3,6 +3,8 @@
 @import 'bootstrap/scss/variables';
 @import 'bootstrap/scss/mixins';
 
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard-dynamic-subset.css');
+
 @font-face {
   font-family: 'NanumBarunGothic';
   font-style: normal;
@@ -55,10 +57,12 @@ code {
 
 html,
 body {
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo',
+    Pretendard, Roboto, 'Noto Sans KR', 'Segoe UI', 'Malgun Gothic',
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
 }
 
+html,
 body {
   background-color: #25282e;
   overflow-x: visible;
@@ -196,7 +200,7 @@ button:focus {
       background-color: transparent !important;
     }
     button[class~='active'] {
-      background-color: #343a40!important;
+      background-color: #343a40 !important;
     }
   }
 }
