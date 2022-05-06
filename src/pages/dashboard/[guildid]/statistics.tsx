@@ -77,6 +77,7 @@ const Statistics: NextPage<StatisticsProps> = ({ guildId }) => {
     }
   );
 
+  /*
   const { data: members } = useSWR<MemberMinimal[], AxiosError>(
     new Cookies().get('ACCESS_TOKEN')
       ? urljoin(api, `/discord/guilds/${guildId}/members`)
@@ -93,6 +94,7 @@ const Statistics: NextPage<StatisticsProps> = ({ guildId }) => {
       refreshInterval: 5000,
     }
   );
+  */
 
   useEffect(() => {
     if (!new Cookies().get('ACCESS_TOKEN')) {
@@ -110,7 +112,7 @@ const Statistics: NextPage<StatisticsProps> = ({ guildId }) => {
       <Layout>
         <DashboardLayout guildId={guildId}>
           {() =>
-            memberCounts && msgCounts && members ? (
+            memberCounts && msgCounts ? (
               <>
                 <Row className="dashboard-section">
                   <div>
@@ -150,7 +152,7 @@ const Statistics: NextPage<StatisticsProps> = ({ guildId }) => {
                         </>
                       }
                     >
-                      <EachMembers members={members} />
+                      {/* <EachMembers members={members} /> */}
                     </Tab>
                     <Tab
                       eventKey="ranking"
