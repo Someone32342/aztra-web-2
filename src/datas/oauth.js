@@ -20,6 +20,9 @@ const oauth = {
   guild_join_oauth2: `https://discord.com/api/oauth2/authorize?client_id=${client_id}&redirect_uri=${encodeURIComponent(
     guild_join_redirect_uri
   )}&response_type=code&scope=identify%20guilds.join`,
+  guild_join_oauth2_with_email: `https://discord.com/api/oauth2/authorize?client_id=${client_id}&redirect_uri=${encodeURIComponent(
+    guild_join_redirect_uri
+  )}&response_type=code&scope=identify%20guilds.join%20email`,
   api_endpoint: 'https://discord.com/api/v8',
 };
 

@@ -51,6 +51,7 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
   const [newInvite, setNewInvite] = useState(false);
   const [newValidity, setNewValidity] = useState(0);
   const [newMaxUses, setNewMaxUses] = useState(0);
+  const [useEmailVerification, setUseEmailVerification] = useState(false);
   const [useBlockForeign, setUseBlockForeign] = useState(false);
   const [excludedForeigns, setExcludedForeigns] = useState(new Set(['KR']));
   const [searchCountry, setSearchCountry] = useState('');
@@ -362,7 +363,7 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                       </Col>
                     </Row>
 
-                    <Row className="pb-3">
+                    <Row className="pb-4">
                       <Form.Label column xs="auto">
                         최대 사용 횟수:
                       </Form.Label>
@@ -386,8 +387,8 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                       </Col>
                     </Row>
 
-                    <Row className="pt-2 pb-3">
-                      <Col xs={12}>
+                    <Row className="pt-2">
+                      <Col xs={12} lg={6} className="pb-4 px-2">
                         <Form.Check
                           id="by-discord-oauth"
                           checked
@@ -395,14 +396,75 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                           type="checkbox"
                           label="디스코드 추가 인증 사용 (기본)"
                         />
-                      </Col>
-                    </Row>
 
-                    <Row className="pb-3">
-                      <Col xs={12}>
+                        <div style={{ padding: '0 1.5rem' }}>
+                          <Form.Text style={{ color: 'lightgray' }}>
+                            Discord 인증 페이지를 한번 더 거쳐 자동 참여 등을
+                            방지합니다.
+                          </Form.Text>
+                        </div>
+                      </Col>
+
+                      <Col xs={12} lg={6} className="pb-4 px-2">
+                        <Form.Check
+                          id="email-verification"
+                          checked={useEmailVerification}
+                          onChange={() =>
+                            setUseEmailVerification(!useEmailVerification)
+                          }
+                          type="checkbox"
+                          label={
+                            <>
+                              이메일 인증 사용하기
+                              <Badge bg="light" className="ms-2 text-black">
+                                권장
+                              </Badge>
+                            </>
+                          }
+                        />
+                        <div style={{ padding: '0 1.5rem' }}>
+                          <Form.Text style={{ color: 'lightgray' }}>
+                            이메일로 인증 번호를 전송하여 도용된 계정에 의한
+                            참여를 방지합니다.
+                          </Form.Text>
+                        </div>
+                      </Col>
+
+                      <Col xs={12} lg={6} className="pb-4 px-2">
+                        <Form.Check
+                          id="block-vpn"
+                          disabled={process.env.NODE_ENV === 'production'}
+                          type="checkbox"
+                          label="VPN 차단하기 (개발중)"
+                        />
+
+                        <div style={{ padding: '0 1.5rem' }}>
+                          <Form.Text style={{ color: 'lightgray' }}>
+                            VPN 사용을 감지하여 IP 차단 회피를 방지합니다.
+                          </Form.Text>
+                        </div>
+                      </Col>
+
+                      <Col xs={12} lg={6} className="pb-4 px-2">
+                        <Form.Check
+                          id="by-naver-oauth"
+                          disabled={process.env.NODE_ENV === 'production'}
+                          type="checkbox"
+                          label={
+                            <>
+                              네이버 아이디로 인증 (개발중)
+                              <Badge bg="aztra" className="ms-2">
+                                PRO
+                              </Badge>
+                            </>
+                          }
+                        />
+                      </Col>
+
+                      <Col xs={12} lg={6} className="pb-4 px-2">
                         <Form.Check
                           id="block-foreign-ip"
-                          disabled
+                          disabled={process.env.NODE_ENV === 'production'}
                           checked={useBlockForeign}
                           onChange={() => setUseBlockForeign(!useBlockForeign)}
                           type="checkbox"
@@ -499,35 +561,12 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                             )}
                           </div>
                         )}
-                      </Col>
-                    </Row>
 
-                    <Row className="pb-3">
-                      <Col xs={12}>
-                        <Form.Check
-                          id="block-vpn"
-                          disabled
-                          type="checkbox"
-                          label="VPN 차단하기 (개발중)"
-                        />
-                      </Col>
-                    </Row>
-
-                    <Row className="pb-3">
-                      <Col xs={12}>
-                        <Form.Check
-                          id="by-naver-oauth"
-                          disabled
-                          type="checkbox"
-                          label={
-                            <>
-                              네이버 아이디로 인증 (개발중)
-                              <Badge bg="aztra" className="ms-2">
-                                PRO
-                              </Badge>
-                            </>
-                          }
-                        />
+                        <div style={{ padding: '0 1.5rem' }}>
+                          <Form.Text style={{ color: 'lightgray' }}>
+                            해외에서 참여를 시도하는 사용자를 차단합니다.
+                          </Form.Text>
+                        </div>
                       </Col>
                     </Row>
                   </Modal.Body>
@@ -535,9 +574,13 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                     <Button
                       variant="aztra"
                       onClick={() => {
-                        let data: Pick<SecureInvite, 'max_age' | 'max_uses'> = {
+                        let data: Pick<
+                          SecureInvite,
+                          'max_age' | 'max_uses' | 'use_email_verification'
+                        > = {
                           max_age: newValidity,
                           max_uses: newMaxUses,
+                          use_email_verification: useEmailVerification,
                         };
 
                         axios

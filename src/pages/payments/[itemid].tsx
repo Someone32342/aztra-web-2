@@ -137,16 +137,7 @@ const PaymentPage: NextPage = () => {
                         </span>{' '}
                         <small>/월</small>
                       </h5>
-                      <small>
-                        부가세{' '}
-                        <b>
-                          {numberWithCommas(
-                            Math.floor((4900 * amount * 10) / 110)
-                          )}
-                          원/월
-                        </b>{' '}
-                        포함
-                      </small>
+                      <small>부가세(VAT) 포함</small>
                     </div>
                   </Card.Body>
                 </Card>

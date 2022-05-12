@@ -18,6 +18,7 @@ export interface PartialInviteGuild {
   icon: string | null;
   memberCount: number;
   presenceCount: number;
+  isRequiredEmailVerification: boolean;
 }
 
 export interface User {

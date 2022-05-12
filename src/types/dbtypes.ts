@@ -135,4 +135,5 @@ export interface SecureInvite {
   max_age: number;
   uses: number;
   max_uses: number;
+  use_email_verification: boolean;
 }

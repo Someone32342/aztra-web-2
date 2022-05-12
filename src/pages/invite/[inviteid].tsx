@@ -2,14 +2,28 @@ import axios, { AxiosError } from 'axios';
 import api from 'datas/api';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
-import { Button, Card, Col, Container, Row } from 'react-bootstrap';
+import {
+  Button,
+  Card,
+  Col,
+  Container,
+  FormControl,
+  Modal,
+  Row,
+  Spinner,
+} from 'react-bootstrap';
 import useSWR from 'swr';
-import { PartialInviteGuild } from 'types/DiscordTypes';
+import { PartialInviteGuild, User } from 'types/DiscordTypes';
 import urljoin from 'url-join';
-import { LockOutlined as LockOutlinedIcon } from '@material-ui/icons';
+import {
+  LockOutlined as LockOutlinedIcon,
+  Email as EmailIcon,
+  Check as CheckIcon,
+} from '@material-ui/icons';
 import oauth from 'datas/oauth';
 import { useEffect, useState } from 'react';
 import Cookies from 'universal-cookie';
+import oauth2 from 'datas/oauth';
 
 interface InviteProps {
   inviteId: string;
@@ -49,9 +63,31 @@ const Invite: NextPage<InviteProps> = ({ inviteId, data }) => {
   const [isInviteNotExists, setIsInviteNotExists] = useState(false);
   const [isExpired, setIsExpired] = useState(false);
   const [isGuildNotExists, setIsGuildNotExists] = useState(false);
+  const [emailVerificationOpen, setEmailVerificationOpen] = useState(false);
+  const [emailVerificationStep, setEmailVerificationStep] = useState(0);
+  const [codeNums, setCodeNums] = useState(Array(6).fill(''));
+  const [isInvaildCode, setIsInvaildCode] = useState(false);
 
-  useSWR<PartialInviteGuild, AxiosError>(
-    isJoinMode ? urljoin(api, `/invites/${inviteId}/join`) : null,
+  const { data: user } = useSWR<User, AxiosError>(
+    urljoin(oauth2.api_endpoint, '/users/@me'),
+    (url) =>
+      axios
+        .get(url, {
+          headers: {
+            Authorization: `Bearer ${new Cookies().get('INVITE_TOKEN')}`,
+          },
+        })
+        .then((r) => r.data),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+    }
+  );
+
+  const { mutate } = useSWR<PartialInviteGuild, AxiosError>(
+    isJoinMode && !data?.isRequiredEmailVerification
+      ? urljoin(api, `/invites/${inviteId}/join`)
+      : null,
     (url) =>
       axios
         .post(url, undefined, {
@@ -59,17 +95,18 @@ const Invite: NextPage<InviteProps> = ({ inviteId, data }) => {
             'Invite-Token': new Cookies().get('INVITE_TOKEN'),
           },
         })
-        .then((r) => {
-          setIsJoinDone([201, 204].includes(r.status));
-          return r.data;
-        })
-        .catch((_e) => {
-          let e: AxiosError = _e;
-          setIsMissingPerm(e.response?.status === 403);
-        }),
+        .then((r) => r.data),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
+      onSuccess: (data) => {
+        setIsJoinMode(true);
+        setIsJoinDone(true);
+      },
+      onError: (_e) => {
+        let e: AxiosError = _e;
+        setIsMissingPerm(e.response?.status === 403);
+      },
     }
   );
 
@@ -82,13 +119,28 @@ const Invite: NextPage<InviteProps> = ({ inviteId, data }) => {
       setIsInviteNotExists(true);
     }
 
-    setIsJoinMode(location.hash === '#join');
+    console.log(location.hash === '#join');
+    if (!isJoinMode && location.hash === '#join') {
+      setIsJoinMode(true);
+    }
+    if (data?.isRequiredEmailVerification && isJoinMode && !isJoinDone) {
+      setIsJoinMode(false);
+      setEmailVerificationStep(0);
+      setIsInvaildCode(false);
+      setEmailVerificationOpen(true);
+    }
+
     history.pushState(
       '',
       document.title,
       window.location.pathname + window.location.search
     );
-  }, [data?.message]);
+  }, [
+    data?.isRequiredEmailVerification,
+    data?.message,
+    isJoinDone,
+    isJoinMode,
+  ]);
 
   return (
     <>
@@ -177,7 +229,7 @@ const Invite: NextPage<InviteProps> = ({ inviteId, data }) => {
                                 height: 12,
                                 backgroundColor: 'gray',
                               }}
-                              className="rounded-circle mr-2"
+                              className="rounded-circle me-2"
                             />
                             {data?.memberCount} 멤버
                           </div>
@@ -223,7 +275,11 @@ const Invite: NextPage<InviteProps> = ({ inviteId, data }) => {
                           setIsMissingPerm(false);
                           setIsJoinMode(false);
                           localStorage.setItem('fromInviteId', inviteId);
-                          window.location.assign(oauth.guild_join_oauth2);
+                          window.location.assign(
+                            data?.isRequiredEmailVerification
+                              ? oauth.guild_join_oauth2_with_email
+                              : oauth.guild_join_oauth2
+                          );
                         }}
                       >
                         {!isGuildNotExists ? (
@@ -248,11 +304,12 @@ const Invite: NextPage<InviteProps> = ({ inviteId, data }) => {
                         !isInviteNotExists &&
                         !isJoinMode && (
                           <a
-                            className="text-light cursor-pointer"
+                            className="cursor-pointer"
                             onClick={() => {
                               window.opener = window.self;
                               window.close();
                             }}
+                            style={{ color: 'lightgray' }}
                           >
                             사양할게요
                           </a>
@@ -273,12 +330,194 @@ const Invite: NextPage<InviteProps> = ({ inviteId, data }) => {
                 </Card>
                 <div className="mt-2 text-right" style={{ color: 'darkgray' }}>
                   <small className="d-inline-flex align-items-center">
-                    <LockOutlinedIcon className="mr-1" fontSize="small" />
+                    <LockOutlinedIcon className="me-1" fontSize="small" />
                     Aztra 보안 초대 시스템
                   </small>
                 </div>
               </Col>
             </Row>
+
+            <Modal className="modal-dark" show={emailVerificationOpen} centered>
+              <Modal.Header>
+                <Modal.Title className="d-flex align-items-center">
+                  <EmailIcon className="me-2" />
+                  <b>이메일 인증하기</b>
+                </Modal.Title>
+              </Modal.Header>
+              <Modal.Body className="text-center mt-3">
+                {emailVerificationStep === 0 && (
+                  <div className="pb-3">
+                    <b style={{ fontSize: 20 }}>
+                      이 서버에 참여하려면 이메일 인증이 필요합니다!
+                    </b>
+                    <div className="mt-3 mb-4">
+                      이메일 인증을 완료하시면 서버에 참여할 수 있습니다.
+                    </div>
+                    <hr />
+                    <div className="mt-4" style={{ wordBreak: 'keep-all' }}>
+                      계속하면 <b>{user?.email}</b> 메일로{' '}
+                      <b>6자리 인증 코드</b>가 전송됩니다. 이 코드를
+                      입력해주세요.
+                    </div>
+                  </div>
+                )}
+                {emailVerificationStep === 1 && (
+                  <div className="pb-3 d-flex justify-content-center align-items-center">
+                    <Spinner
+                      animation="border"
+                      variant="aztra"
+                      className="me-3"
+                    />
+                    <b style={{ fontSize: 20 }}>인증 메일을 전송하는 중...</b>
+                  </div>
+                )}
+
+                {emailVerificationStep === 2 && (
+                  <div className="pb-3">
+                    <div
+                      className="mb-2"
+                      style={{ fontSize: 20, wordBreak: 'keep-all' }}
+                    >
+                      <b>{user?.email}</b> 메일로 전송된 <br />
+                      인증 코드를 입력해주세요.
+                    </div>
+
+                    {isInvaildCode && (
+                      <div className="mt-2 text-danger">
+                        인증 코드가 올바르지 않거나 만료되었습니다.
+                      </div>
+                    )}
+
+                    {/*
+                      <a
+                      style={{
+                        color: 'deepskyblue',
+                        textDecoration: 'underline',
+                      }}
+                    >
+                      다시 보내기
+                    </a>
+                       */}
+
+                    <div className="d-flex gap-3 justify-content-center">
+                      {Array.from(Array(6).keys()).map((i) => (
+                        <FormControl
+                          autoComplete="off"
+                          onKeyDown={(e) => {
+                            if (i === 0) return;
+                            if (codeNums[i].length > 0) return;
+
+                            if (e.key === 'Backspace') {
+                              const newNums = [...codeNums];
+                              newNums[i - 1] = '';
+                              setCodeNums(newNums);
+
+                              document.getElementById(`code-${i - 1}`)?.focus();
+                            }
+                          }}
+                          id={`code-${i}`}
+                          key={i}
+                          value={codeNums[i]}
+                          onChange={(e) => {
+                            if (e.target.value.length > 1) return;
+                            if (isNaN(Number(e.target.value))) return;
+
+                            const newNums = [...codeNums];
+                            newNums[i] = e.target.value;
+                            setCodeNums(newNums);
+
+                            if (e.target.value.length !== 0) {
+                              document.getElementById(`code-${i + 1}`)?.focus();
+                            }
+                          }}
+                          className="shadow mt-4 text-center"
+                          type="text"
+                          style={{
+                            fontSize: 26,
+                            width: '3.5rem',
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </Modal.Body>
+              <Modal.Footer className="d-flex justify-content-center gap-3">
+                <Button
+                  className="px-4"
+                  variant="aztra"
+                  hidden={emailVerificationStep !== 0}
+                  onClick={() => {
+                    setCodeNums(Array(6).fill(''));
+                    setEmailVerificationStep(1);
+
+                    axios
+                      .post(
+                        urljoin(
+                          api,
+                          `/invites/${inviteId}/email-verification/send`
+                        ),
+                        undefined,
+                        {
+                          headers: {
+                            'Invite-Token': new Cookies().get('INVITE_TOKEN'),
+                          },
+                        }
+                      )
+                      .then(() => setEmailVerificationStep(2));
+                  }}
+                >
+                  계속하기
+                </Button>
+                <Button
+                  className="px-4"
+                  variant="aztra"
+                  hidden={emailVerificationStep !== 2}
+                  disabled={codeNums.some((num) => !num.length)}
+                  onClick={() => {
+                    setIsInvaildCode(false);
+                    axios
+                      .post(
+                        urljoin(
+                          api,
+                          `/invites/${inviteId}/email-verification/verify`
+                        ),
+                        {
+                          code: codeNums.join(''),
+                        },
+                        {
+                          headers: {
+                            'Invite-Token': new Cookies().get('INVITE_TOKEN'),
+                          },
+                        }
+                      )
+                      .then(() => {
+                        setEmailVerificationOpen(false);
+                        mutate().then(() => {
+                          setIsJoinDone(true);
+                          setIsJoinMode(true);
+                        });
+                      })
+                      .catch((_e) => {
+                        let e: AxiosError = _e;
+                        if (e.response?.status === 403) {
+                          setIsInvaildCode(true);
+                        }
+                      });
+                  }}
+                >
+                  <CheckIcon className="me-2" />
+                  완료
+                </Button>
+                <Button
+                  className="px-2"
+                  variant="dark"
+                  onClick={() => setEmailVerificationOpen(false)}
+                >
+                  취소하고 닫기
+                </Button>
+              </Modal.Footer>
+            </Modal>
           </Container>
         ) : null}
       </div>

@@ -36,7 +36,7 @@ export default function InviteJoin() {
       className="d-flex align-items-center justify-content-center"
     >
       <Spinner animation="grow" variant="aztra" />
-      <h3 className="text-white my-auto ml-4">로그인하고 있습니다...</h3>
+      <h3 className="text-white my-auto ms-4">로그인하고 있습니다...</h3>
     </Container>
   );
 }
