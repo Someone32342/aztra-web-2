@@ -66,7 +66,8 @@ const Invite: NextPage<InviteProps> = ({ inviteId, data }) => {
   const [emailVerificationOpen, setEmailVerificationOpen] = useState(false);
   const [emailVerificationStep, setEmailVerificationStep] = useState(0);
   const [codeNums, setCodeNums] = useState(Array(6).fill(''));
-  const [isInvaildCode, setIsInvaildCode] = useState(false);
+  const [isInvalidCode, setIsInvalidCode] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
 
   const { data: user } = useSWR<User, AxiosError>(
     urljoin(oauth2.api_endpoint, '/users/@me'),
@@ -126,7 +127,7 @@ const Invite: NextPage<InviteProps> = ({ inviteId, data }) => {
     if (data?.isRequiredEmailVerification && isJoinMode && !isJoinDone) {
       setIsJoinMode(false);
       setEmailVerificationStep(0);
-      setIsInvaildCode(false);
+      setIsInvalidCode(false);
       setEmailVerificationOpen(true);
     }
 
@@ -382,7 +383,7 @@ const Invite: NextPage<InviteProps> = ({ inviteId, data }) => {
                       인증 코드를 입력해주세요.
                     </div>
 
-                    {isInvaildCode && (
+                    {isInvalidCode && (
                       <div className="mt-2 text-danger">
                         인증 코드가 올바르지 않거나 만료되었습니다.
                       </div>
@@ -448,6 +449,7 @@ const Invite: NextPage<InviteProps> = ({ inviteId, data }) => {
                   variant="aztra"
                   hidden={emailVerificationStep !== 0}
                   onClick={() => {
+                    setIsVerifying(false);
                     setCodeNums(Array(6).fill(''));
                     setEmailVerificationStep(1);
 
@@ -467,15 +469,19 @@ const Invite: NextPage<InviteProps> = ({ inviteId, data }) => {
                       .then(() => setEmailVerificationStep(2));
                   }}
                 >
-                  계속하기
+                  메일 전송하기
                 </Button>
                 <Button
                   className="px-4"
                   variant="aztra"
                   hidden={emailVerificationStep !== 2}
-                  disabled={codeNums.some((num) => !num.length)}
+                  disabled={isVerifying || codeNums.some((num) => !num.length)}
                   onClick={() => {
-                    setIsInvaildCode(false);
+                    if (isVerifying) return;
+
+                    setIsVerifying(true);
+
+                    setIsInvalidCode(false);
                     axios
                       .post(
                         urljoin(
@@ -501,8 +507,11 @@ const Invite: NextPage<InviteProps> = ({ inviteId, data }) => {
                       .catch((_e) => {
                         let e: AxiosError = _e;
                         if (e.response?.status === 403) {
-                          setIsInvaildCode(true);
+                          setIsInvalidCode(true);
                         }
+                      })
+                      .finally(() => {
+                        setIsVerifying(false);
                       });
                   }}
                 >

@@ -417,15 +417,15 @@ const Security: NextPage<SecurityRouterProps> = ({ guildId }) => {
                             <>
                               이메일 인증 사용하기
                               <Badge bg="light" className="ms-2 text-black">
-                                권장
+                                베타
                               </Badge>
                             </>
                           }
                         />
                         <div style={{ padding: '0 1.5rem' }}>
                           <Form.Text style={{ color: 'lightgray' }}>
-                            이메일로 인증 번호를 전송하여 도용된 계정에 의한
-                            참여를 방지합니다.
+                            이메일로 인증 번호를 전송하여 도용된 계정(토큰봇)에
+                            의한 참여를 방지합니다.
                           </Form.Text>
                         </div>
                       </Col>
