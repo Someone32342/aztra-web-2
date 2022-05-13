@@ -18,7 +18,7 @@ const TicketGuide: React.FC<Props> = ({ pageId }) => {
     <>
       <Head>
         <title>
-          {src.pages.find((o) => o.id === pageId)?.title} - 티켓 가이드
+          {src.pages.find((o) => o.id === pageId)?.title} - 티켓 설정 가이드
         </title>
       </Head>
       <Layout>

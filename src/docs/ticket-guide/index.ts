@@ -4,7 +4,7 @@ import AddTicket from './add-ticket.md';
 
 const index: GuideGroupType = {
   id: 'ticket-guide',
-  name: '티켓 가이드',
+  name: '티켓 설정 가이드',
   homePageName: 'add-ticket',
   icon: '/assets/docs/aztra-command-guide/icon.png',
   pages: [
