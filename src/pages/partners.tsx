@@ -22,7 +22,7 @@ import {
   Forum as ForumIcon,
   Share as ShareIcon,
   BusinessCenter as BusinessCenterIcon,
-} from '@material-ui/icons';
+} from '@mui/icons-material';
 import Head from 'next/head';
 
 const Partners: NextPage = () => {

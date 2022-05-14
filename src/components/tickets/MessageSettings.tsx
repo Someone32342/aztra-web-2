@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Form, Row, Col, Button } from 'react-bootstrap';
 import { TicketSet } from 'types/dbtypes';
-import { Code as CodeIcon } from '@material-ui/icons';
+import { Code as CodeIcon } from '@mui/icons-material';
 import TextareaAutosize from 'react-textarea-autosize';
 import axios from 'axios';
 import api from 'datas/api';

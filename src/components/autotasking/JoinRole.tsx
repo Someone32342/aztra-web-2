@@ -8,7 +8,7 @@ import {
   Spinner,
   Card,
 } from 'react-bootstrap';
-import { Check as CheckIcon, Close as CloseIcon } from '@material-ui/icons';
+import { Check as CheckIcon, Close as CloseIcon } from '@mui/icons-material';
 
 import { JoinRoleData } from 'types/autotask/action_data';
 import { PartialGuild, Role } from 'types/DiscordTypes';

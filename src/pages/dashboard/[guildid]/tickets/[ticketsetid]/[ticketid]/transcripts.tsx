@@ -29,7 +29,7 @@ import 'dayjs/locale/ko';
 import useSWR from 'swr';
 import urljoin from 'url-join';
 import Head from 'next/head';
-import { SaveAlt as SaveAltIcon, Add as AddIcon } from '@material-ui/icons';
+import { SaveAlt as SaveAltIcon, Add as AddIcon } from '@mui/icons-material';
 dayjs.locale('ko');
 dayjs.extend(dayjsRelativeTime);
 dayjs.extend(dayjsUTC);

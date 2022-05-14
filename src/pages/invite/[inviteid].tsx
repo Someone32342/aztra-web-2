@@ -19,7 +19,7 @@ import {
   LockOutlined as LockOutlinedIcon,
   Email as EmailIcon,
   Check as CheckIcon,
-} from '@material-ui/icons';
+} from '@mui/icons-material';
 import oauth from 'datas/oauth';
 import { useEffect, useState } from 'react';
 import Cookies from 'universal-cookie';

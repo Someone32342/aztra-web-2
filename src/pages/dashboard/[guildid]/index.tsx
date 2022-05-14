@@ -23,7 +23,7 @@ import {
   Check as CheckIcon,
   Close as CloseIcon,
   Security as SecurityIcon,
-} from '@material-ui/icons';
+} from '@mui/icons-material';
 import { ChannelMinimal, MemberMinimal } from 'types/DiscordTypes';
 import {
   Warns as WarnsType,

@@ -4,7 +4,7 @@ import {
   Check as CheckIcon,
   Lock as LockIcon,
   RemoveCircleOutline as RemoveCircleOutlineIcon,
-} from '@material-ui/icons';
+} from '@mui/icons-material';
 import axios from 'axios';
 import api from 'datas/api';
 import React, { useEffect, useState } from 'react';

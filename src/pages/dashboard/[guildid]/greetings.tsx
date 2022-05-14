@@ -15,7 +15,7 @@ import TextareaAutosize from 'react-textarea-autosize';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHashtag } from '@fortawesome/free-solid-svg-icons';
-import { Code as CodeIcon, Warning as WarningIcon } from '@material-ui/icons';
+import { Code as CodeIcon, Warning as WarningIcon } from '@mui/icons-material';
 
 import axios, { AxiosError } from 'axios';
 

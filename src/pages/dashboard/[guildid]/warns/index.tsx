@@ -17,7 +17,7 @@ import { faTrophy } from '@fortawesome/free-solid-svg-icons';
 import { faQuestionCircle } from '@fortawesome/free-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import { Menu as MenuIcon } from '@material-ui/icons';
+import { Menu as MenuIcon } from '@mui/icons-material';
 
 import dayjs from 'dayjs';
 import dayjsRelativeTime from 'dayjs/plugin/relativeTime';

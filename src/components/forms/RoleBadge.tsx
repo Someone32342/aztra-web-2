@@ -1,7 +1,7 @@
 import React from 'react';
 import styles from 'styles/components/forms/RoleBadge.module.scss';
 import classNames from 'classnames/bind';
-import { Add } from '@material-ui/icons';
+import { Add } from '@mui/icons-material';
 
 const cx = classNames.bind(styles);
 

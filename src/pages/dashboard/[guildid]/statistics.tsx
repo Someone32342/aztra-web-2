@@ -3,7 +3,7 @@ import { Container, Row, Spinner, Tab, Tabs } from 'react-bootstrap';
 import {
   TrendingUp as TrendingUpIcon,
   Group as GroupIcon,
-} from '@material-ui/icons';
+} from '@mui/icons-material';
 import { faTrophy } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 

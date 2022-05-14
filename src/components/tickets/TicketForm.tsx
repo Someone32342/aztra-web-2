@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Close as CloseIcon, Check as CheckIcon } from '@material-ui/icons';
+import { Close as CloseIcon, Check as CheckIcon } from '@mui/icons-material';
 import { faHashtag } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {

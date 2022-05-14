@@ -13,7 +13,8 @@ import {
   CreditCard as CreditCardIcon,
   Settings as SettingsIcon,
   Security as SecurityIcon,
-} from '@material-ui/icons';
+  Schema as SchemaIcon,
+} from '@mui/icons-material';
 import Link from 'next/link';
 
 interface SidebarProps {
@@ -172,6 +173,27 @@ const Sidebar: React.FC<SidebarProps> = ({ guildId, onSelect }) => {
             </Nav.Link>
           </Link>
         </Nav.Item>
+        {process.env.NODE_ENV === 'development' && (
+          <Nav.Item>
+            <Link
+              href={`/dashboard/${guildId}/workflow`}
+              shallow={true}
+              passHref
+            >
+              <Nav.Link
+                className="d-flex mb-1"
+                active={location?.pathname.startsWith(
+                  `/dashboard/${guildId}/workflow`
+                )}
+              >
+                <div style={iconStyle} className="me-3">
+                  <EventNoteIcon style={{ transform: 'scale(1.1)' }} />
+                </div>
+                <div>워크플로우</div>
+              </Nav.Link>
+            </Link>
+          </Nav.Item>
+        )}
         <Nav.Item>
           <Link
             href={`/dashboard/${guildId}/statistics`}

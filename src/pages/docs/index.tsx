@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, Col, Container, Row } from 'react-bootstrap';
-import { ArrowForward as ArrowForwardIcon } from '@material-ui/icons';
+import { ArrowForward as ArrowForwardIcon } from '@mui/icons-material';
 import Link from 'next/link';
 import Layout from 'components/Layout';
 import Head from 'next/head';

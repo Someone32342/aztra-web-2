@@ -14,7 +14,7 @@ import {
   Row,
 } from 'react-bootstrap';
 import numberWithCommas from 'utils/numberWithCommas';
-import { CreditCard as CreditCardIcon } from '@material-ui/icons';
+import { CreditCard as CreditCardIcon } from '@mui/icons-material';
 
 const clientKey = 'test_ck_4vZnjEJeQVxO9z7g9NM3PmOoBN0k';
 

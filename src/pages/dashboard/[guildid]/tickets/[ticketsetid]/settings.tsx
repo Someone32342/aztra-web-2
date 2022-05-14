@@ -17,7 +17,7 @@ import {
   InfoOutlined as InfoOutlinedIcon,
   AssignmentInd as AssignmentIndIcon,
   Chat as ChatIcon,
-} from '@material-ui/icons';
+} from '@mui/icons-material';
 
 import BackTo from 'components/BackTo';
 

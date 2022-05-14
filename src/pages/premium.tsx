@@ -3,7 +3,7 @@ import { Badge, Button, Card, Col, Container, Row } from 'react-bootstrap';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheckCircle } from '@fortawesome/free-solid-svg-icons';
-import { Favorite as FavoriteIcon } from '@material-ui/icons';
+import { Favorite as FavoriteIcon } from '@mui/icons-material';
 import { NextPage } from 'next';
 import Layout from 'components/Layout';
 import LINKS from 'datas/links';

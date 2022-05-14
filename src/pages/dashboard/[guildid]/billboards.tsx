@@ -14,7 +14,7 @@ import {
   Add as AddIcon,
   Delete as DeleteIcon,
   Close as CloseIcon,
-} from '@material-ui/icons';
+} from '@mui/icons-material';
 import api from 'datas/api';
 
 import { GetServerSideProps, NextPage } from 'next';

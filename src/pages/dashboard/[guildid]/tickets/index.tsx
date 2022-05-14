@@ -21,7 +21,7 @@ import {
   Settings as SettingsIcon,
   FormatListBulleted as ListIcon,
   Edit as EditIcon,
-} from '@material-ui/icons';
+} from '@mui/icons-material';
 import api from 'datas/api';
 
 import { GetServerSideProps, NextPage } from 'next';

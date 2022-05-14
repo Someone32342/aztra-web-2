@@ -7,7 +7,7 @@ import { GuideGroupType } from 'types/GuideIndexTypes';
 import {
   ArrowForward as ArrowForwardIcon,
   ArrowBack as ArrowBackIcon,
-} from '@material-ui/icons';
+} from '@mui/icons-material';
 import Link from 'next/link';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';

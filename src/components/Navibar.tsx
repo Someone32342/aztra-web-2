@@ -10,7 +10,7 @@ import classNames from 'classnames/bind';
 import styles from 'styles/components/Navibar.module.scss';
 import links from 'datas/links';
 
-import MenuIcon from '@material-ui/icons/Menu';
+import MenuIcon from '@mui/icons-material/Menu';
 
 import Cookies from 'universal-cookie';
 import Router from 'next/router';

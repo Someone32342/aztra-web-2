@@ -24,7 +24,7 @@ import {
   Clear as ClearIcon,
   RemoveCircleOutline as RemoveCircleOutlineIcon,
   FileCopyOutlined as FileCopyOutlinedIcon,
-} from '@material-ui/icons';
+} from '@mui/icons-material';
 import useSWR from 'swr';
 import { SecureInvite } from 'types/dbtypes';
 import urljoin from 'url-join';

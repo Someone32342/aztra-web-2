@@ -28,7 +28,7 @@ import {
   Delete as DeleteIcon,
   Edit as EditIcon,
   Check as CheckIcon,
-} from '@material-ui/icons';
+} from '@mui/icons-material';
 import BackTo from 'components/BackTo';
 import { GetServerSideProps, NextPage } from 'next';
 import Image from 'next/image';

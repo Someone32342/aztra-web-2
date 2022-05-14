@@ -23,7 +23,7 @@ import urljoin from 'url-join';
 import Head from 'next/head';
 import { faHashtag } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Code as CodeIcon } from '@material-ui/icons';
+import { Code as CodeIcon } from '@mui/icons-material';
 import ChannelSelectCard from 'components/forms/ChannelSelectCard';
 import { ChannelMinimal } from 'types/DiscordTypes';
 import filterChannels from 'utils/filterChannels';

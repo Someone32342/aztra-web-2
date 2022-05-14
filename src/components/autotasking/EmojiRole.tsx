@@ -19,7 +19,7 @@ import {
   RemoveCircleOutline,
   Check as CheckIcon,
   Close as CloseIcon,
-} from '@material-ui/icons';
+} from '@mui/icons-material';
 import RoleBadge, { AddRole } from 'components/forms/RoleBadge';
 import EmojiPickerI18n from 'defs/EmojiPickerI18n';
 import { Emoji, Picker, getEmojiDataFromNative } from 'emoji-mart';

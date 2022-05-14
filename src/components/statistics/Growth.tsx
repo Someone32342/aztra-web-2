@@ -15,7 +15,7 @@ import {
   Assessment as AssessmentIcon,
   Image as ImageIcon,
   Help as HelpIcon,
-} from '@material-ui/icons';
+} from '@mui/icons-material';
 import { MemberCount, MsgCount } from 'types/dbtypes';
 
 interface GrowthProps {

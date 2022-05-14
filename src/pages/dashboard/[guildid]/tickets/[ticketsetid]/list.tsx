@@ -26,7 +26,7 @@ import {
   Delete as DeleteIcon,
   Close as CloseIcon,
   Description as DescriptionIcon,
-} from '@material-ui/icons';
+} from '@mui/icons-material';
 import BackTo from 'components/BackTo';
 import { Ticket, TicketSet, TranscriptMinimal } from 'types/dbtypes';
 import { GetServerSideProps, NextPage } from 'next';

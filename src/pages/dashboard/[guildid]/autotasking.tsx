@@ -20,7 +20,7 @@ import {
   RemoveCircleOutline,
   Edit as EditIcon,
   Close as CloseIcon,
-} from '@material-ui/icons';
+} from '@mui/icons-material';
 import Twemoji from 'react-twemoji';
 import api from 'datas/api';
 import { animateScroll } from 'react-scroll';

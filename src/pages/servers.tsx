@@ -13,7 +13,7 @@ import axios, { AxiosError } from 'axios';
 import urljoin from 'url-join';
 import api from 'datas/api';
 import { PartialGuildExtend } from 'types/DiscordTypes';
-import { ArrowForward as ArrowForwardIcon } from '@material-ui/icons';
+import { ArrowForward as ArrowForwardIcon } from '@mui/icons-material';
 import Layout from 'components/Layout';
 
 import Cookies from 'universal-cookie';
