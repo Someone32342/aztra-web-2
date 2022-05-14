@@ -10,11 +10,12 @@ export default function InviteJoin() {
     axios
       .get(`${api}/oauth2/invite_token`, {
         params: {
+          invite: localStorage.getItem('fromInviteId'),
           code: new URLSearchParams(window.location.search).get('code'),
         },
       })
       .then((r) => {
-        new Cookies().set('INVITE_TOKEN', r.data.access_token, {
+        new Cookies().set('INVITE_TOKEN', r.data.inviteToken, {
           maxAge: r.data.expires_in,
         });
         Router.push(

@@ -10,6 +10,7 @@ import {
 } from '@material-ui/icons';
 import Link from 'next/link';
 import rehypeRaw from 'rehype-raw';
+import remarkGfm from 'remark-gfm';
 
 interface DocViewProps {
   pageId: string;
@@ -128,7 +129,7 @@ const DocView: React.FC<DocViewProps> = ({ pageId, index }) => {
               className={`markdown  ${
                 theme === 'dark' ? 'markdown-dark' : 'markdown-light'
               }`}
-              rehypePlugins={[rehypeRaw]}
+              rehypePlugins={[rehypeRaw, remarkGfm]}
               components={{
                 h1: ({ children }) => heading({ level: 1, children }),
                 h2: ({ children }) => heading({ level: 2, children }),

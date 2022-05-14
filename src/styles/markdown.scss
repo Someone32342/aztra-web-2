@@ -36,6 +36,14 @@ $font-family-default: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
   hr {
     border-color: rgba(0, 0, 0, 0.1);
   }
+  a {
+    color: royalblue;
+    transition-duration: 250ms;
+    transition-property: color;
+  }
+  a:hover {
+    color: rgb(25, 163, 255);
+  }
 }
 
 .markdown {
@@ -51,6 +59,10 @@ $font-family-default: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
   h6 {
     font-family: 'NanumBarunGothic';
     font-weight: bold;
+  }
+
+  div {
+    font-family: 'NanumBarunGothic';
   }
 
   code {

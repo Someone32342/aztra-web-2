@@ -69,13 +69,25 @@ const Invite: NextPage<InviteProps> = ({ inviteId, data }) => {
   const [isInvalidCode, setIsInvalidCode] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
 
+  const parseJwt = (token: string) => {
+    if (!token) {
+      return;
+    }
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace('-', '+').replace('_', '/');
+    return JSON.parse(window.atob(base64));
+  };
+
   const { data: user } = useSWR<User, AxiosError>(
     urljoin(oauth2.api_endpoint, '/users/@me'),
     (url) =>
       axios
         .get(url, {
           headers: {
-            Authorization: `Bearer ${new Cookies().get('INVITE_TOKEN')}`,
+            Authorization: `Bearer ${
+              parseJwt(new Cookies().get('INVITE_TOKEN') ?? '').authData
+                .access_token
+            }`,
           },
         })
         .then((r) => r.data),
