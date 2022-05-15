@@ -1,7 +1,8 @@
 .deleteButton {
   position: absolute;
-  bottom: 18px;
-  right: 18px;
+  bottom: 0;
+  right: 0;
+  top: 0;
 
   &:hover {
     background-color: red;

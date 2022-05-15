@@ -13,7 +13,7 @@ import {
   CreditCard as CreditCardIcon,
   Settings as SettingsIcon,
   Security as SecurityIcon,
-  Schema as SchemaIcon,
+  LayersOutlined as LayersIcon,
 } from '@mui/icons-material';
 import Link from 'next/link';
 
@@ -176,20 +176,29 @@ const Sidebar: React.FC<SidebarProps> = ({ guildId, onSelect }) => {
         {process.env.NODE_ENV === 'development' && (
           <Nav.Item>
             <Link
-              href={`/dashboard/${guildId}/workflow`}
+              href={`/dashboard/${guildId}/workflows`}
               shallow={true}
               passHref
             >
               <Nav.Link
                 className="d-flex mb-1"
                 active={location?.pathname.startsWith(
-                  `/dashboard/${guildId}/workflow`
+                  `/dashboard/${guildId}/workflows`
                 )}
               >
                 <div style={iconStyle} className="me-3">
-                  <EventNoteIcon style={{ transform: 'scale(1.1)' }} />
+                  <LayersIcon style={{ transform: 'scale(1.1)' }} />
                 </div>
-                <div>워크플로우</div>
+                <div>
+                  워크플로우
+                  <Badge
+                    bg="danger"
+                    className="ms-2 my-auto px-1 py-1"
+                    style={{ fontSize: 14 }}
+                  >
+                    개발중
+                  </Badge>
+                </div>
               </Nav.Link>
             </Link>
           </Nav.Item>

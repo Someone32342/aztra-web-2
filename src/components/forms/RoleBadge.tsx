@@ -11,6 +11,8 @@ interface RoleBadgeProps
   name: string;
   removeable?: boolean;
   onRemove?: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
+  width?: number;
+  height?: number;
 }
 
 const RoleBadge: React.FC<RoleBadgeProps> = ({
@@ -21,6 +23,8 @@ const RoleBadge: React.FC<RoleBadgeProps> = ({
   fontFamily,
   removeable,
   onRemove,
+  width,
+  height,
 }) => {
   return (
     <span className={`d-inline-block mw-100 ${className}`}>
@@ -42,8 +46,8 @@ const RoleBadge: React.FC<RoleBadgeProps> = ({
           )}
           onClick={removeable ? onRemove : undefined}
           style={{
-            width: 16,
-            height: 16,
+            width: width ?? 16,
+            height: height ?? 16,
             margin: 5,
             flexShrink: 0,
             backgroundColor: color,
@@ -64,6 +68,7 @@ const RoleBadge: React.FC<RoleBadgeProps> = ({
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
             overflow: 'hidden',
+            fontSize,
           }}
         >
           {name}
@@ -76,10 +81,12 @@ const RoleBadge: React.FC<RoleBadgeProps> = ({
 interface AddRoleProps {
   className?: string;
   onClick?: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
+  width?: number;
+  height?: number;
 }
 
 export const AddRole = React.forwardRef<any, AddRoleProps>(
-  ({ className, onClick }, ref) => {
+  ({ className, onClick, width, height }, ref) => {
     return (
       <span
         className={`d-inline-block cursor-pointer ${className}`}
@@ -96,7 +103,7 @@ export const AddRole = React.forwardRef<any, AddRoleProps>(
               'align-items-center',
               'justify-content-center'
             )}
-            style={{ width: 16, height: 16, margin: 5 }}
+            style={{ width: width ?? 16, height: height ?? 16, margin: 5 }}
           >
             <Add fontSize="small" htmlColor="gray" />
           </div>
