@@ -1,10 +1,4 @@
-import React, {
-  createElement,
-  ReactElement,
-  useCallback,
-  useEffect,
-  useRef,
-} from 'react';
+import React, { createElement, ReactElement, useEffect, useRef } from 'react';
 import type { Identifier, XYCoord } from 'dnd-core';
 import {
   Row,
@@ -45,9 +39,10 @@ import { PartialGuildExtend, Role } from 'types/DiscordTypes';
 import axios, { AxiosError } from 'axios';
 import api from 'datas/api';
 import urljoin from 'url-join';
-import { DndProvider, useDrag, useDrop } from 'react-dnd';
+import { DndProvider, DropTargetMonitor, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { debounce } from 'debounce';
+import { scroller } from 'react-scroll';
 
 const cx = classNames.bind(styles);
 
@@ -149,13 +144,17 @@ const WorkflowsEdit: NextPage<WorkflowsEditRouterProps> = ({ guildId }) => {
           handlerId: monitor.getHandlerId(),
         };
       },
-      hover(item: Work, monitor) {
+      hover: debounce((item: Work, monitor: DropTargetMonitor<Work, void>) => {
         if (!ref.current) {
           return;
         }
 
         const dragIndex = item.index;
         const hoverIndex = work.index;
+
+        if (!works[dragIndex] || !works[hoverIndex]) {
+          setWorks([...works, item]);
+        }
 
         // Don't replace items with themselves
         if (dragIndex === hoverIndex) {
@@ -164,6 +163,10 @@ const WorkflowsEdit: NextPage<WorkflowsEditRouterProps> = ({ guildId }) => {
 
         // Determine rectangle on screen
         const hoverBoundingRect = ref.current?.getBoundingClientRect();
+
+        if (!hoverBoundingRect) {
+          return;
+        }
 
         // Get vertical middle
         const hoverMiddleY =
@@ -198,7 +201,7 @@ const WorkflowsEdit: NextPage<WorkflowsEditRouterProps> = ({ guildId }) => {
         // but it's good here for the sake of performance
         // to avoid expensive index searches.
         item.index = hoverIndex;
-      },
+      }, 20),
     });
 
     const [{ isDragging }, drag] = useDrag({
@@ -283,7 +286,12 @@ const WorkflowsEdit: NextPage<WorkflowsEditRouterProps> = ({ guildId }) => {
         canDrop: monitor.canDrop(),
       }),
       drop: (item: Work) => {
-        setWorks(works.filter((w) => w.uid !== item.uid));
+        setWorks(
+          works
+            .filter((w) => w.uid !== item.uid)
+            .map((w, index) => ({ ...w, index }))
+        );
+
         let audio = new Audio('/assets/sounds/delete.mp3');
         audio.volume = 0.7;
         audio.play();
@@ -418,6 +426,7 @@ const WorkflowsEdit: NextPage<WorkflowsEditRouterProps> = ({ guildId }) => {
           }}
         >
           <Card
+            id={`workblock-${work.uid}`}
             className="shadow"
             style={{
               backgroundColor: 'rgb(40, 43, 49)',
@@ -491,35 +500,179 @@ const WorkflowsEdit: NextPage<WorkflowsEditRouterProps> = ({ guildId }) => {
                 <>
                   <RemoveCicleOutlineOutlinedIcon className="me-2" />
                   <div>
-                    <div className="mb-2">역할 제거하기</div>
+                    <div className="mb-2 text-start">역할 제거하기</div>
                     <small
-                      className="px-2 py-1"
+                      className="bg-dark px-2 py-1 me-2"
                       style={{
                         borderRadius: 40,
-                        backgroundColor: 'deeppink',
                         opacity: 0.9,
                       }}
                     >
-                      역할: <span style={{ color: 'pink' }}>유저</span>
+                      역할:
                     </small>
+                    <span className="d-inline-flex align-items-center gap-1">
+                      <RoleBadge
+                        color="deeppink"
+                        name="유저"
+                        width={11}
+                        height={11}
+                        fontSize={13}
+                      />
+                      <Dropdown
+                        className="dropdown-menu-dark"
+                        style={{
+                          backgroundColor: 'transparent',
+                        }}
+                        onSelect={(key) => {}}
+                      >
+                        <Dropdown.Toggle
+                          className="remove-after py-1"
+                          as={AddRole}
+                          id={`add-role-select-toggle=${work.uid}`}
+                          width={11}
+                          height={11}
+                        />
+                        <Dropdown.Menu
+                          style={{
+                            maxHeight: 300,
+                            overflowY: 'scroll',
+                          }}
+                        >
+                          {roles
+                            ?.filter((r) => r.id !== guild?.id && !r.managed)
+                            .sort((a, b) => b.position - a.position)
+                            .map((r) => (
+                              <Dropdown.Item
+                                key={r.id}
+                                eventKey={r.id}
+                                style={{
+                                  color: '#' + r.color.toString(16),
+                                }}
+                              >
+                                {r.name}
+                              </Dropdown.Item>
+                            ))}
+                        </Dropdown.Menu>
+                      </Dropdown>
+                    </span>
                   </div>
                 </>
               )}
               {work.workId === 'warn-add' && (
                 <>
                   <WarningAmberOutlinedIcon className="me-2" />
-                  <div>
+                  <div className="text-start">
                     <div className="mb-2">경고 추가하기</div>
-                    <small>역할: </small>
                     <small
-                      className="px-2 py-1"
+                      className="bg-dark px-2 py-1 me-2"
                       style={{
                         borderRadius: 40,
-                        backgroundColor: 'deeppink',
                         opacity: 0.9,
                       }}
                     >
-                      역할: <span style={{ color: 'pink' }}>유저</span>
+                      횟수: 1회
+                    </small>
+                  </div>
+                </>
+              )}
+              {work.workId === 'warn-remove' && (
+                <>
+                  <WarningAmberOutlinedIcon className="me-2" />
+                  <div className="text-start">
+                    <div className="mb-2">경고 제거하기</div>
+                    <small
+                      className="bg-dark px-2 py-1 me-2"
+                      style={{
+                        borderRadius: 40,
+                        opacity: 0.9,
+                      }}
+                    >
+                      횟수: 1회
+                    </small>
+                  </div>
+                </>
+              )}
+              {work.workId === 'mute' && (
+                <>
+                  <CancelScheduleSendOutlinedIcon className="me-2" />
+                  <div className="text-start">
+                    <div className="mb-2">멤버 뮤트하기</div>
+                    <small
+                      className="bg-dark px-2 py-1 me-2"
+                      style={{
+                        borderRadius: 40,
+                        opacity: 0.9,
+                      }}
+                    >
+                      동안: 3잁
+                    </small>
+                  </div>
+                </>
+              )}
+              {work.workId === 'give-exp' && (
+                <>
+                  <LabelOutlinedIcon className="me-2" />
+                  <div className="text-start">
+                    <div className="mb-2">경험치 지급하기</div>
+                    <small
+                      className="bg-dark px-2 py-1 me-2"
+                      style={{
+                        borderRadius: 40,
+                        opacity: 0.9,
+                      }}
+                    >
+                      경험치: 200
+                    </small>
+                  </div>
+                </>
+              )}
+              {work.workId === 'collect-exp' && (
+                <>
+                  <LabelOffOutlinedIcon className="me-2" />
+                  <div className="text-start">
+                    <div className="mb-2">경험치 차감하기</div>
+                    <small
+                      className="bg-dark px-2 py-1 me-2"
+                      style={{
+                        borderRadius: 40,
+                        opacity: 0.9,
+                      }}
+                    >
+                      경험치: 200
+                    </small>
+                  </div>
+                </>
+              )}
+              {work.workId === 'kick' && (
+                <>
+                  <PersonRemoveOutlinedIcon className="me-2" />
+                  <div className="text-start">
+                    <div className="mb-2">멤버 추방하기</div>
+                    <small
+                      className="bg-dark px-2 py-1 me-2"
+                      style={{
+                        borderRadius: 40,
+                        opacity: 0.9,
+                      }}
+                    >
+                      사유: 테스트
+                    </small>
+                  </div>
+                </>
+              )}
+              {work.workId === 'ban' && (
+                <>
+                  <BlockOutlinedIcon className="me-2" />
+                  <div className="text-start">
+                    <div className="mb-2">멤버 차단하기</div>
+                    <small
+                      className="bg-dark px-2 py-1 me-2"
+                      style={{
+                        borderRadius: 40,
+                        opacity: 0.9,
+                      }}
+                    >
+                      사유: 테스트
                     </small>
                   </div>
                 </>
