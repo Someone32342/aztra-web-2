@@ -22,6 +22,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [winWidth, setWinWidth] = useState<number | null>(null);
 
+  const [ignoreError, setIgnoreError] = useState(false);
+
   const sidebarHeaderRef = useRef<HTMLDivElement>(null);
 
   const { data, error, isValidating } = useSWR<
@@ -53,8 +55,13 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     };
     updateWindowState();
     window.addEventListener('resize', updateWindowState);
+
+    if (localStorage.getItem('ignore-dashboard-404') === 'true') {
+      setIgnoreError(true);
+    }
+
     return () => window.removeEventListener('resize', updateWindowState);
-  });
+  }, []);
 
   const closeSidebar = () => setSidebarOpen(false);
 
@@ -151,7 +158,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       </Row>
       <Modal
         className="modal-dark"
-        show={!isValidating && !guild}
+        show={!isValidating && !guild && !ignoreError}
         centered
         onHide={() => {}}
       >

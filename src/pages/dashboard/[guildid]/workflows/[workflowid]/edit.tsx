@@ -54,7 +54,7 @@ const cx = classNames.bind(styles);
 interface Work {
   index: number;
   uid: string;
-  work: string;
+  workId: string;
 }
 
 interface WorkflowsEditRouterProps {
@@ -106,98 +106,8 @@ const HorizontalConnection: React.FC = () => {
   );
 };
 
-const WorkBlock: React.FC<{
-  children: ReactElement | null;
-  work: Work;
-  moveCard: (dragIndex: number, hoverIndex: number, newWork?: Work) => void;
-  style?: React.CSSProperties;
-}> = ({ children, work, moveCard, style = {} }) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const [{ handlerId }, drop] = useDrop<
-    Work,
-    void,
-    { handlerId: Identifier | null }
-  >({
-    accept: 'block',
-    collect(monitor) {
-      return {
-        handlerId: monitor.getHandlerId(),
-      };
-    },
-    hover(item: Work, monitor) {
-      if (!ref.current) {
-        return;
-      }
-
-      const dragIndex = item.index;
-      const hoverIndex = work.index;
-
-      // Don't replace items with themselves
-      if (dragIndex === hoverIndex) {
-        return;
-      }
-
-      // Determine rectangle on screen
-      const hoverBoundingRect = ref.current?.getBoundingClientRect();
-
-      // Get vertical middle
-      const hoverMiddleY =
-        (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
-
-      // Determine mouse position
-      const clientOffset = monitor.getClientOffset();
-
-      // Get pixels to the top
-      const hoverClientY = (clientOffset as XYCoord).y - hoverBoundingRect.top;
-
-      // Only perform the move when the mouse has crossed half of the items height
-      // When dragging downwards, only move when the cursor is below 50%
-      // When dragging upwards, only move when the cursor is above 50%
-
-      // Dragging downwards
-      if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) {
-        return;
-      }
-
-      // Dragging upwards
-      if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) {
-        return;
-      }
-
-      // Time to actually perform the action
-      moveCard(dragIndex, hoverIndex, item);
-
-      // Note: we're mutating the monitor item here!
-      // Generally it's better to avoid mutations,
-      // but it's good here for the sake of performance
-      // to avoid expensive index searches.
-      item.index = hoverIndex;
-    },
-  });
-
-  const [{ isDragging }, drag] = useDrag({
-    type: 'block',
-    item: () => {
-      return work;
-    },
-    collect: (monitor: any) => ({
-      isDragging: monitor.isDragging(),
-    }),
-  });
-
-  const opacity = isDragging ? 0 : 1;
-  drag(drop(ref));
-
-  return (
-    <div ref={ref} style={{ ...style, opacity }} data-handler-id={handlerId}>
-      {children}
-    </div>
-  );
-};
-
 const WorkflowsEdit: NextPage<WorkflowsEditRouterProps> = ({ guildId }) => {
   const [works, setWorks] = React.useState<Work[]>([]);
-  const [isHoverDelete, setIsHoverDelete] = React.useState(false);
 
   const { data: roles } = useSWR<Role[], AxiosError>(
     new Cookies().get('ACCESS_TOKEN')
@@ -221,6 +131,96 @@ const WorkflowsEdit: NextPage<WorkflowsEditRouterProps> = ({ guildId }) => {
     }
   }, []);
 
+  const WorkBlock: React.FC<{
+    children: ReactElement | null;
+    work: Work;
+    moveCard: (dragIndex: number, hoverIndex: number, newWork?: Work) => void;
+    style?: React.CSSProperties;
+  }> = ({ children, work, moveCard, style = {} }) => {
+    const ref = useRef<HTMLDivElement>(null);
+    const [{ handlerId }, drop] = useDrop<
+      Work,
+      void,
+      { handlerId: Identifier | null }
+    >({
+      accept: 'block',
+      collect(monitor) {
+        return {
+          handlerId: monitor.getHandlerId(),
+        };
+      },
+      hover(item: Work, monitor) {
+        if (!ref.current) {
+          return;
+        }
+
+        const dragIndex = item.index;
+        const hoverIndex = work.index;
+
+        // Don't replace items with themselves
+        if (dragIndex === hoverIndex) {
+          return;
+        }
+
+        // Determine rectangle on screen
+        const hoverBoundingRect = ref.current?.getBoundingClientRect();
+
+        // Get vertical middle
+        const hoverMiddleY =
+          (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
+
+        // Determine mouse position
+        const clientOffset = monitor.getClientOffset();
+
+        // Get pixels to the top
+        const hoverClientY =
+          (clientOffset as XYCoord).y - hoverBoundingRect.top;
+
+        // Only perform the move when the mouse has crossed half of the items height
+        // When dragging downwards, only move when the cursor is below 50%
+        // When dragging upwards, only move when the cursor is above 50%
+
+        // Dragging downwards
+        if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) {
+          return;
+        }
+
+        // Dragging upwards
+        if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) {
+          return;
+        }
+
+        // Time to actually perform the action
+        moveCard(dragIndex, hoverIndex, item);
+
+        // Note: we're mutating the monitor item here!
+        // Generally it's better to avoid mutations,
+        // but it's good here for the sake of performance
+        // to avoid expensive index searches.
+        item.index = hoverIndex;
+      },
+    });
+
+    const [{ isDragging }, drag] = useDrag({
+      type: 'block',
+      item: () => {
+        return work;
+      },
+      collect: (monitor: any) => ({
+        isDragging: monitor.isDragging(),
+      }),
+    });
+
+    const opacity = isDragging ? 0 : 1;
+    drag(drop(ref));
+
+    return (
+      <div ref={ref} style={{ ...style, opacity }} data-handler-id={handlerId}>
+        {children}
+      </div>
+    );
+  };
+
   const WorkCard: React.FC<{
     workId: string;
     icon: OverridableComponent<SvgIconTypeMap<{}, 'svg'>> & {
@@ -233,7 +233,7 @@ const WorkflowsEdit: NextPage<WorkflowsEditRouterProps> = ({ guildId }) => {
       item: () => {
         const item = {
           uid: Math.floor(Math.random() * Date.now()).toString(),
-          work: workId,
+          workId,
           index: works.length,
         };
 
@@ -268,6 +268,60 @@ const WorkflowsEdit: NextPage<WorkflowsEditRouterProps> = ({ guildId }) => {
           {name}
         </Card.Body>
       </Card>
+    );
+  };
+
+  const DeleteBar: React.FC = () => {
+    const [{ isOver, canDrop }, drop] = useDrop<
+      Work,
+      void,
+      { isOver: boolean; canDrop: boolean }
+    >({
+      accept: 'block',
+      collect: (monitor) => ({
+        isOver: monitor.isOver(),
+        canDrop: monitor.canDrop(),
+      }),
+      drop: (item: Work) => {
+        setWorks(works.filter((w) => w.uid !== item.uid));
+        let audio = new Audio('/assets/sounds/delete.mp3');
+        audio.volume = 0.7;
+        audio.play();
+      },
+    });
+
+    return (
+      <div
+        ref={drop}
+        className={cx(
+          'deleteButton',
+          'p-2',
+          'd-flex',
+          'justify-content-center',
+          'align-items-end'
+        )}
+        style={{
+          backgroundColor:
+            canDrop && isOver ? 'rgba(255, 37, 23, 0.2)' : 'transparent',
+          width: 58,
+          height: '100%',
+        }}
+      >
+        <OverlayTrigger
+          overlay={
+            <Tooltip id="tooltip-delete" style={{ wordBreak: 'keep-all' }}>
+              블록을 삭제하려면 이곳으로 드래그하세요.
+            </Tooltip>
+          }
+          placement="top"
+        >
+          <DeleteIcon
+            className="mb-3"
+            fontSize="large"
+            htmlColor={canDrop && isOver ? 'red' : ''}
+          />
+        </OverlayTrigger>
+      </div>
     );
   };
 
@@ -325,49 +379,24 @@ const WorkflowsEdit: NextPage<WorkflowsEditRouterProps> = ({ guildId }) => {
         {works
           .sort((a, b) => a.index - b.index)
           .filter((w) => w.index !== -1)
-          .map((one, index) => renderCard(guild, one))}
+          .map((one, index) => (
+            <DragableWorkBlock key={one.uid} guild={guild} work={one} />
+          ))}
         <div style={{ height: 100 }} />
-        <div
-          className={cx(
-            'deleteButton',
-            'p-2',
-            'd-flex',
-            'justify-content-center',
-            'align-items-end'
-          )}
-          style={{
-            backgroundColor: isHoverDelete
-              ? 'rgba(255, 37, 23, 0.2)'
-              : 'transparent',
-            width: 58,
-            height: '100%',
-          }}
-        >
-          <OverlayTrigger
-            overlay={
-              <Tooltip id="tooltip-delete" style={{ wordBreak: 'keep-all' }}>
-                블록을 삭제하려면 이곳으로 드래그하세요.
-              </Tooltip>
-            }
-            placement="top"
-          >
-            <DeleteIcon
-              className="mb-3"
-              fontSize="large"
-              htmlColor={isHoverDelete ? 'red' : ''}
-            />
-          </OverlayTrigger>
-        </div>
+        <DeleteBar />
       </Col>
     );
   };
 
-  const renderCard = (guild: PartialGuildExtend, one: Work) => {
+  const DragableWorkBlock: React.FC<{
+    guild: PartialGuildExtend;
+    work: Work;
+  }> = ({ guild, work }) => {
     return (
       <>
         <WorkBlock
           key={Math.floor(Math.random() * Date.now()).toString()}
-          work={one}
+          work={work}
           moveCard={debounce(
             (dragIndex: number, hoverIndex: number, newWork?: Work) => {
               console.log(dragIndex, hoverIndex, newWork?.index);
@@ -378,7 +407,7 @@ const WorkflowsEdit: NextPage<WorkflowsEditRouterProps> = ({ guildId }) => {
               newWorks[hoverIndex].index = dragIndex;
 
               newWorks.splice(hoverIndex, 1);
-              newWorks.splice(dragIndex, 0, one);
+              newWorks.splice(dragIndex, 0, work);
               setWorks(newWorks);
             },
             50
@@ -396,7 +425,7 @@ const WorkflowsEdit: NextPage<WorkflowsEditRouterProps> = ({ guildId }) => {
             }}
           >
             <Card.Body className="d-flex py-3" style={{ minHeight: 50 }}>
-              {one.work === 'role-add' && (
+              {work.workId === 'role-add' && (
                 <>
                   <AddCicleOutlineOutlinedIcon className="me-2" />
                   <div>
@@ -428,7 +457,7 @@ const WorkflowsEdit: NextPage<WorkflowsEditRouterProps> = ({ guildId }) => {
                         <Dropdown.Toggle
                           className="remove-after py-1"
                           as={AddRole}
-                          id={`add-role-select-toggle=${one.uid}`}
+                          id={`add-role-select-toggle=${work.uid}`}
                           width={11}
                           height={11}
                         />
@@ -458,7 +487,7 @@ const WorkflowsEdit: NextPage<WorkflowsEditRouterProps> = ({ guildId }) => {
                   </div>
                 </>
               )}
-              {one.work === 'role-remove' && (
+              {work.workId === 'role-remove' && (
                 <>
                   <RemoveCicleOutlineOutlinedIcon className="me-2" />
                   <div>
@@ -476,7 +505,7 @@ const WorkflowsEdit: NextPage<WorkflowsEditRouterProps> = ({ guildId }) => {
                   </div>
                 </>
               )}
-              {one.work === 'warn-add' && (
+              {work.workId === 'warn-add' && (
                 <>
                   <WarningAmberOutlinedIcon className="me-2" />
                   <div>
@@ -513,7 +542,7 @@ const WorkflowsEdit: NextPage<WorkflowsEditRouterProps> = ({ guildId }) => {
       <Layout>
         <DashboardLayout guildId={guildId}>
           {(guild) =>
-            guild && roles !== undefined ? (
+            true ? (
               <DndProvider backend={HTML5Backend}>
                 <div>
                   <Row className="mb-3">
@@ -543,7 +572,7 @@ const WorkflowsEdit: NextPage<WorkflowsEditRouterProps> = ({ guildId }) => {
                       overflow: 'visible',
                     }}
                   >
-                    <Board guild={guild} />
+                    <Board guild={guild!} />
                     <Col xs={12} lg={4} className="px-3 pe-0">
                       <div
                         className="d-flex flex-column gap-2"
