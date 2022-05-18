@@ -1,10 +1,14 @@
 .deleteButton {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  top: 0;
+  transition-duration: 200ms;
+  transition-property: all;
 
   &:hover {
     background-color: red;
+  }
+}
+
+.Workblock {
+  &:focus {
+    background-color: rgb(69, 69, 75);
   }
 }

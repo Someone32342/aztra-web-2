@@ -1,4 +1,10 @@
-import React, { createElement, ReactElement, useEffect, useRef } from 'react';
+import React, {
+  createElement,
+  ReactElement,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import type { Identifier, XYCoord } from 'dnd-core';
 import {
   Row,
@@ -42,7 +48,6 @@ import urljoin from 'url-join';
 import { DndProvider, DropTargetMonitor, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { debounce } from 'debounce';
-import { scroller } from 'react-scroll';
 
 const cx = classNames.bind(styles);
 
@@ -103,6 +108,7 @@ const HorizontalConnection: React.FC = () => {
 
 const WorkflowsEdit: NextPage<WorkflowsEditRouterProps> = ({ guildId }) => {
   const [works, setWorks] = React.useState<Work[]>([]);
+  const [selected, setSelected] = useState<string | null>(null);
 
   const { data: roles } = useSWR<Role[], AxiosError>(
     new Cookies().get('ACCESS_TOKEN')
@@ -164,9 +170,7 @@ const WorkflowsEdit: NextPage<WorkflowsEditRouterProps> = ({ guildId }) => {
         // Determine rectangle on screen
         const hoverBoundingRect = ref.current?.getBoundingClientRect();
 
-        if (!hoverBoundingRect) {
-          return;
-        }
+        if (!hoverBoundingRect) return;
 
         // Get vertical middle
         const hoverMiddleY =
@@ -174,6 +178,8 @@ const WorkflowsEdit: NextPage<WorkflowsEditRouterProps> = ({ guildId }) => {
 
         // Determine mouse position
         const clientOffset = monitor.getClientOffset();
+
+        if (!clientOffset) return;
 
         // Get pixels to the top
         const hoverClientY =
@@ -201,7 +207,7 @@ const WorkflowsEdit: NextPage<WorkflowsEditRouterProps> = ({ guildId }) => {
         // but it's good here for the sake of performance
         // to avoid expensive index searches.
         item.index = hoverIndex;
-      }, 20),
+      }, 50),
     });
 
     const [{ isDragging }, drag] = useDrag({
@@ -218,7 +224,12 @@ const WorkflowsEdit: NextPage<WorkflowsEditRouterProps> = ({ guildId }) => {
     drag(drop(ref));
 
     return (
-      <div ref={ref} style={{ ...style, opacity }} data-handler-id={handlerId}>
+      <div
+        id={`workblock-${work.uid}`}
+        ref={ref}
+        style={{ ...style, opacity }}
+        data-handler-id={handlerId}
+      >
         {children}
       </div>
     );
@@ -286,6 +297,8 @@ const WorkflowsEdit: NextPage<WorkflowsEditRouterProps> = ({ guildId }) => {
         canDrop: monitor.canDrop(),
       }),
       drop: (item: Work) => {
+        setSelected(null);
+
         setWorks(
           works
             .filter((w) => w.uid !== item.uid)
@@ -306,11 +319,12 @@ const WorkflowsEdit: NextPage<WorkflowsEditRouterProps> = ({ guildId }) => {
           'p-2',
           'd-flex',
           'justify-content-center',
-          'align-items-end'
+          'align-items-start',
+          'h-100'
         )}
         style={{
           backgroundColor:
-            canDrop && isOver ? 'rgba(255, 37, 23, 0.2)' : 'transparent',
+            canDrop && isOver ? 'rgba(255, 37, 23, 0.2)' : 'rgba(0, 0, 0, 0.1)',
           width: 58,
           height: '100%',
         }}
@@ -324,9 +338,13 @@ const WorkflowsEdit: NextPage<WorkflowsEditRouterProps> = ({ guildId }) => {
           placement="top"
         >
           <DeleteIcon
-            className="mb-3"
+            className="mt-2"
             fontSize="large"
             htmlColor={canDrop && isOver ? 'red' : ''}
+            style={{
+              transitionDuration: '200ms',
+              transitionProperty: 'all',
+            }}
           />
         </OverlayTrigger>
       </div>
@@ -334,6 +352,8 @@ const WorkflowsEdit: NextPage<WorkflowsEditRouterProps> = ({ guildId }) => {
   };
 
   const Board: React.FC<{ guild: PartialGuildExtend }> = ({ guild }) => {
+    const boardRef = useRef<HTMLDivElement>(null);
+
     const [{ handlerId }, drop] = useDrop<
       Work,
       void,
@@ -341,14 +361,14 @@ const WorkflowsEdit: NextPage<WorkflowsEditRouterProps> = ({ guildId }) => {
     >({
       accept: 'block',
       drop: (item: Work, monitor) => {
+        let audio = new Audio('/assets/sounds/drop.mp3');
+        audio.volume = 0.7;
+        audio.play();
+
         const newWorks = works.filter((w) => w.uid !== item.uid);
 
         newWorks.push(item);
         setWorks(newWorks);
-
-        let audio = new Audio('/assets/sounds/drop.mp3');
-        audio.volume = 0.7;
-        audio.play();
       },
       collect(monitor) {
         return {
@@ -357,41 +377,59 @@ const WorkflowsEdit: NextPage<WorkflowsEditRouterProps> = ({ guildId }) => {
       },
     });
 
+    useEffect(() => {
+      const handleClick = (e: MouseEvent) => {
+        if (boardRef.current && boardRef.current === e.target) {
+          setSelected(null);
+        }
+      };
+
+      window.addEventListener('mousedown', handleClick);
+
+      return () => window.removeEventListener('mousedown', handleClick);
+    });
+
     return (
       <Col
         ref={drop}
         xs={12}
         lg={8}
-        className="rounded d-flex flex-column align-items-center py-5 position-relative"
         style={{
           minHeight: '20%',
           backgroundColor: 'rgb(30, 32, 36)',
         }}
       >
-        <Card
-          className="shadow w-50"
-          style={{ backgroundColor: 'rgb(40, 43, 49)' }}
+        <div
+          ref={boardRef}
+          className="rounded d-flex flex-column align-items-center py-5 position-relative"
         >
-          <Card.Body className="d-flex py-3" style={{ minHeight: 50 }}>
-            <PersonAddIcon className="me-2" />
-            <div>
-              <div className="mb-2 text-start">멤버가 참여했을 때</div>
-              <small className="bg-dark px-2 py-1" style={{ borderRadius: 40 }}>
-                제외: 봇
-              </small>
-            </div>
-          </Card.Body>
-        </Card>
-        <HorizontalConnection />
+          <Card
+            className="shadow w-50"
+            style={{ backgroundColor: 'rgb(40, 43, 49)' }}
+          >
+            <Card.Body className="d-flex py-3" style={{ minHeight: 50 }}>
+              <PersonAddIcon className="me-2" />
+              <div>
+                <div className="mb-2 text-start">멤버가 참여했을 때</div>
+                <small
+                  className="bg-dark px-2 py-1"
+                  style={{ borderRadius: 40 }}
+                >
+                  제외: 봇
+                </small>
+              </div>
+            </Card.Body>
+          </Card>
+          <HorizontalConnection />
 
-        {works
-          .sort((a, b) => a.index - b.index)
-          .filter((w) => w.index !== -1)
-          .map((one, index) => (
-            <DragableWorkBlock key={one.uid} guild={guild} work={one} />
-          ))}
-        <div style={{ height: 100 }} />
-        <DeleteBar />
+          {works
+            .sort((a, b) => a.index - b.index)
+            .filter((w) => w.index !== -1)
+            .map((one) => (
+              <DragableWorkBlock key={one.uid} guild={guild} work={one} />
+            ))}
+          <div style={{ height: 100 }} />
+        </div>
       </Col>
     );
   };
@@ -407,9 +445,9 @@ const WorkflowsEdit: NextPage<WorkflowsEditRouterProps> = ({ guildId }) => {
           work={work}
           moveCard={debounce(
             (dragIndex: number, hoverIndex: number, newWork?: Work) => {
-              console.log(dragIndex, hoverIndex, newWork?.index);
-
               const newWorks = [...works];
+
+              if (!newWorks[dragIndex] || !newWorks[hoverIndex]) return;
 
               newWorks[dragIndex].index = hoverIndex;
               newWorks[hoverIndex].index = dragIndex;
@@ -427,10 +465,18 @@ const WorkflowsEdit: NextPage<WorkflowsEditRouterProps> = ({ guildId }) => {
         >
           <Card
             id={`workblock-${work.uid}`}
-            className="shadow"
+            className={cx('Workblock', 'shadow')}
             style={{
               backgroundColor: 'rgb(40, 43, 49)',
               cursor: 'move',
+              outline:
+                selected === work.uid
+                  ? '2px solid rgba(127, 70, 202, 0.9)' // rgba(80, 83, 91, 0.7)
+                  : undefined,
+            }}
+            tabIndex={-1}
+            onMouseDown={(e) => {
+              setSelected(work.uid);
             }}
           >
             <Card.Body className="d-flex py-3" style={{ minHeight: 50 }}>
@@ -726,69 +772,77 @@ const WorkflowsEdit: NextPage<WorkflowsEditRouterProps> = ({ guildId }) => {
                     }}
                   >
                     <Board guild={guild!} />
-                    <Col xs={12} lg={4} className="px-3 pe-0">
-                      <div
-                        className="d-flex flex-column gap-2"
-                        style={{
-                          position: 'sticky',
-                          top: 75,
-                        }}
-                      >
-                        <div className="d-flex align-items-center">
-                          <small
-                            className="flex-shrink-0 fw-bold"
-                            style={{ color: 'whitesmoke' }}
-                          >
-                            작업 팔레트
-                          </small>
-                          <hr className="w-100 ms-2 my-0" />
+                    <Col
+                      xs={12}
+                      lg={4}
+                      className="px-0"
+                      style={{
+                        position: 'sticky',
+                        top: 56,
+                        height: 'calc(100vh - 56px)',
+                      }}
+                    >
+                      <div className="d-flex w-100 h-100">
+                        <div className="d-flex pe-3">
+                          <DeleteBar />
                         </div>
-                        <WorkCard
-                          workId="role-add"
-                          icon={AddCicleOutlineOutlinedIcon}
-                          name="역할 추가하기"
-                        />
-                        <WorkCard
-                          workId="role-remove"
-                          icon={RemoveCicleOutlineOutlinedIcon}
-                          name="역할 제거하기"
-                        />
-                        <WorkCard
-                          workId="warn-add"
-                          icon={WarningAmberOutlinedIcon}
-                          name="경고 추가하기"
-                        />
-                        <WorkCard
-                          workId="warn-remove"
-                          icon={WarningAmberOutlinedIcon}
-                          name="경고 제거하기"
-                        />
-                        <WorkCard
-                          workId="mute"
-                          icon={CancelScheduleSendOutlinedIcon}
-                          name="멤버 뮤트하기"
-                        />
-                        <WorkCard
-                          workId="give-exp"
-                          icon={LabelOutlinedIcon}
-                          name="경험치 지급하기"
-                        />
-                        <WorkCard
-                          workId="collect-exp"
-                          icon={LabelOffOutlinedIcon}
-                          name="경험치 차감하기"
-                        />
-                        <WorkCard
-                          workId="kick"
-                          icon={PersonRemoveOutlinedIcon}
-                          name="멤버 추방하기"
-                        />
-                        <WorkCard
-                          workId="ban"
-                          icon={BlockOutlinedIcon}
-                          name="멤버 차단하기"
-                        />
-                        <div className="h-100" />
+                        <div className="d-flex flex-column gap-2 w-100 mt-2">
+                          <div className="d-flex align-items-center">
+                            <small
+                              className="flex-shrink-0 fw-bold"
+                              style={{ color: 'whitesmoke' }}
+                            >
+                              작업 팔레트
+                            </small>
+                            <hr className="w-100 ms-2 my-0" />
+                          </div>
+                          <WorkCard
+                            workId="role-add"
+                            icon={AddCicleOutlineOutlinedIcon}
+                            name="역할 추가하기"
+                          />
+                          <WorkCard
+                            workId="role-remove"
+                            icon={RemoveCicleOutlineOutlinedIcon}
+                            name="역할 제거하기"
+                          />
+                          <WorkCard
+                            workId="warn-add"
+                            icon={WarningAmberOutlinedIcon}
+                            name="경고 추가하기"
+                          />
+                          <WorkCard
+                            workId="warn-remove"
+                            icon={WarningAmberOutlinedIcon}
+                            name="경고 제거하기"
+                          />
+                          <WorkCard
+                            workId="mute"
+                            icon={CancelScheduleSendOutlinedIcon}
+                            name="멤버 뮤트하기"
+                          />
+                          <WorkCard
+                            workId="give-exp"
+                            icon={LabelOutlinedIcon}
+                            name="경험치 지급하기"
+                          />
+                          <WorkCard
+                            workId="collect-exp"
+                            icon={LabelOffOutlinedIcon}
+                            name="경험치 차감하기"
+                          />
+                          <WorkCard
+                            workId="kick"
+                            icon={PersonRemoveOutlinedIcon}
+                            name="멤버 추방하기"
+                          />
+                          <WorkCard
+                            workId="ban"
+                            icon={BlockOutlinedIcon}
+                            name="멤버 차단하기"
+                          />
+                          <div className="h-100" />
+                        </div>
                       </div>
                     </Col>
                   </Row>
