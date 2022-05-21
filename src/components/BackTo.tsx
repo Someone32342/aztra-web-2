@@ -22,7 +22,11 @@ export default function BackTo({ name, to, className }: BackToProps) {
           className?.split(' ')
         )}
       >
-        <FontAwesomeIcon icon={faChevronLeft} className="me-2" />
+        <FontAwesomeIcon
+          icon={faChevronLeft}
+          className="me-2"
+          style={{ height: 16 }}
+        />
         <b className="pe-2">[{name}]</b>(으)로 돌아가기
       </div>
     </Link>

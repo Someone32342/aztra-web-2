@@ -33,6 +33,7 @@ import {
   LabelOutlined as LabelOutlinedIcon,
   LabelOffOutlined as LabelOffOutlinedIcon,
   PersonRemoveOutlined as PersonRemoveOutlinedIcon,
+  ForwardToInboxOutlined as ForwardToInboxOutlinedIcon,
 } from '@mui/icons-material';
 import styles from 'styles/pages/workflows.module.scss';
 import classNames from 'classnames/bind';
@@ -48,6 +49,7 @@ import urljoin from 'url-join';
 import { DndProvider, DropTargetMonitor, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { debounce } from 'debounce';
+import { cloneDeep } from 'lodash';
 
 const cx = classNames.bind(styles);
 
@@ -55,6 +57,7 @@ interface Work {
   index: number;
   uid: string;
   workId: string;
+  data: any;
 }
 
 interface WorkflowsEditRouterProps {
@@ -245,11 +248,27 @@ const WorkflowsEdit: NextPage<WorkflowsEditRouterProps> = ({ guildId }) => {
     const [{ isDragging }, drag] = useDrag(() => ({
       type: 'block',
       item: () => {
-        const item = {
+        let item = {
           uid: Math.floor(Math.random() * Date.now()).toString(),
           workId,
           index: works.length,
+          data: {},
         };
+
+        switch (workId) {
+          case 'role-add':
+          case 'role-remove':
+            item.data = {
+              roles: [],
+            };
+            break;
+
+          case 'send-message':
+            item.data = {
+              content: '',
+            };
+            break;
+        }
 
         return item;
       },
@@ -272,7 +291,7 @@ const WorkflowsEdit: NextPage<WorkflowsEditRouterProps> = ({ guildId }) => {
       <Card
         ref={drag}
         data-testid={`palette-${workId}`}
-        id={`palette-${workId}`}
+        id={`palette-${workId}-work`}
         bg="dark"
         className="shadow-sm"
         style={{ cursor: 'move', opacity }}
@@ -384,9 +403,29 @@ const WorkflowsEdit: NextPage<WorkflowsEditRouterProps> = ({ guildId }) => {
         }
       };
 
-      window.addEventListener('mousedown', handleClick);
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (['Backspace', 'Delete'].includes(e.key)) {
+          setWorks(
+            works
+              .filter((w) => w.uid !== selected)
+              .map((w, index) => ({ ...w, index }))
+          );
 
-      return () => window.removeEventListener('mousedown', handleClick);
+          setSelected(null);
+
+          let audio = new Audio('/assets/sounds/delete.mp3');
+          audio.volume = 0.7;
+          audio.play();
+        }
+      };
+
+      window.addEventListener('mousedown', handleClick);
+      window.addEventListener('keydown', handleKeyDown);
+
+      return () => {
+        window.removeEventListener('mousedown', handleClick);
+        window.removeEventListener('keydown', handleKeyDown);
+      };
     });
 
     return (
@@ -480,34 +519,78 @@ const WorkflowsEdit: NextPage<WorkflowsEditRouterProps> = ({ guildId }) => {
             }}
           >
             <Card.Body className="d-flex py-3" style={{ minHeight: 50 }}>
-              {work.workId === 'role-add' && (
+              {(work.workId === 'role-add' ||
+                work.workId === 'role-remove') && (
                 <>
-                  <AddCicleOutlineOutlinedIcon className="me-2" />
-                  <div>
-                    <div className="mb-2 text-start">역할 추가하기</div>
-                    <small
-                      className="bg-dark px-2 py-1 me-2"
-                      style={{
-                        borderRadius: 40,
-                        opacity: 0.9,
-                      }}
-                    >
-                      역할:
-                    </small>
-                    <span className="d-inline-flex align-items-center gap-1">
-                      <RoleBadge
-                        color="deeppink"
-                        name="유저"
-                        width={11}
-                        height={11}
-                        fontSize={13}
-                      />
+                  {work.workId === 'role-add' ? (
+                    <AddCicleOutlineOutlinedIcon className="me-2" />
+                  ) : (
+                    <RemoveCicleOutlineOutlinedIcon className="me-2" />
+                  )}
+                  <div className="text-start">
+                    <div className="mb-2 text-start">
+                      역할 {work.workId === 'role-add' ? '추가' : '제거'}하기
+                    </div>
+
+                    <span className="d-inline-flex justify-content-start align-items-center gap-1 flex-wrap">
+                      <small
+                        className="bg-dark my-auto"
+                        style={{
+                          borderRadius: 40,
+                          opacity: 0.9,
+                          padding: '0.1rem 0.5rem',
+                        }}
+                      >
+                        역할:
+                      </small>
+                      {(work.data.roles as string[]).map((r) => {
+                        let role = roles?.find((o) => o.id === r);
+
+                        if (!role) return null;
+
+                        return (
+                          <RoleBadge
+                            key={role.id}
+                            color={`#${
+                              role.color ? role.color.toString(16) : 'fff'
+                            }`}
+                            name={role.name}
+                            width={11}
+                            height={11}
+                            fontSize={13}
+                            removeable
+                            onRemove={() => {
+                              let newWork = cloneDeep(work);
+                              newWork.data.roles = newWork.data.roles.filter(
+                                (r: string) => r !== role?.id
+                              );
+                              setWorks([
+                                ...works.filter((w) => w.uid !== work.uid),
+                                newWork,
+                              ]);
+                            }}
+                          />
+                        );
+                      })}
                       <Dropdown
                         className="dropdown-menu-dark"
                         style={{
                           backgroundColor: 'transparent',
                         }}
-                        onSelect={(key) => {}}
+                        onSelect={(key) => {
+                          console.log(key);
+                          if (!key) return;
+                          if (work.data.roles.includes(key)) return;
+
+                          let newWork = cloneDeep(work);
+
+                          (newWork.data.roles as string[]).push(key);
+
+                          setWorks([
+                            ...works.filter((w) => w.uid !== work.uid),
+                            newWork,
+                          ]);
+                        }}
                       >
                         <Dropdown.Toggle
                           className="remove-after py-1"
@@ -542,11 +625,11 @@ const WorkflowsEdit: NextPage<WorkflowsEditRouterProps> = ({ guildId }) => {
                   </div>
                 </>
               )}
-              {work.workId === 'role-remove' && (
+              {work.workId === 'send-message' && (
                 <>
-                  <RemoveCicleOutlineOutlinedIcon className="me-2" />
-                  <div>
-                    <div className="mb-2 text-start">역할 제거하기</div>
+                  <ForwardToInboxOutlinedIcon className="me-2" />
+                  <div className="text-start">
+                    <div className="mb-2">메시지 보내기</div>
                     <small
                       className="bg-dark px-2 py-1 me-2"
                       style={{
@@ -554,53 +637,8 @@ const WorkflowsEdit: NextPage<WorkflowsEditRouterProps> = ({ guildId }) => {
                         opacity: 0.9,
                       }}
                     >
-                      역할:
+                      내용: {}
                     </small>
-                    <span className="d-inline-flex align-items-center gap-1">
-                      <RoleBadge
-                        color="deeppink"
-                        name="유저"
-                        width={11}
-                        height={11}
-                        fontSize={13}
-                      />
-                      <Dropdown
-                        className="dropdown-menu-dark"
-                        style={{
-                          backgroundColor: 'transparent',
-                        }}
-                        onSelect={(key) => {}}
-                      >
-                        <Dropdown.Toggle
-                          className="remove-after py-1"
-                          as={AddRole}
-                          id={`add-role-select-toggle=${work.uid}`}
-                          width={11}
-                          height={11}
-                        />
-                        <Dropdown.Menu
-                          style={{
-                            maxHeight: 300,
-                            overflowY: 'scroll',
-                          }}
-                        >
-                          {roles
-                            ?.filter((r) => r.id !== guild?.id && !r.managed)
-                            .sort((a, b) => b.position - a.position)
-                            .map((r) => (
-                              <Dropdown.Item
-                                key={r.id}
-                                eventKey={r.id}
-                                style={{
-                                  color: '#' + r.color.toString(16),
-                                }}
-                              >
-                                {r.name}
-                              </Dropdown.Item>
-                            ))}
-                        </Dropdown.Menu>
-                      </Dropdown>
-                    </span>
                   </div>
                 </>
               )}
@@ -638,7 +676,7 @@ const WorkflowsEdit: NextPage<WorkflowsEditRouterProps> = ({ guildId }) => {
                   </div>
                 </>
               )}
-              {work.workId === 'mute' && (
+              {work.workId === 'member-mute' && (
                 <>
                   <CancelScheduleSendOutlinedIcon className="me-2" />
                   <div className="text-start">
@@ -746,11 +784,13 @@ const WorkflowsEdit: NextPage<WorkflowsEditRouterProps> = ({ guildId }) => {
                 <div>
                   <Row className="mb-3">
                     <div>
-                      <BackTo
-                        className="ps-2 mb-4"
-                        name="워크플로우"
-                        to={`/dashboard/${guildId}/workflows`}
-                      />
+                      <div>
+                        <BackTo
+                          className="ps-2 mb-4"
+                          name="워크플로우"
+                          to={`/dashboard/${guildId}/workflows`}
+                        />
+                      </div>
                       <h3 className="mb-3">워크플로우 구성</h3>
                       <div className="py-2 d-flex align-items-center flex-wrap gap-2">
                         <b className="flex-shrink-0">워크플로우 이름:</b>
@@ -786,7 +826,7 @@ const WorkflowsEdit: NextPage<WorkflowsEditRouterProps> = ({ guildId }) => {
                         <div className="d-flex pe-3">
                           <DeleteBar />
                         </div>
-                        <div className="d-flex flex-column gap-2 w-100 mt-2">
+                        <div className="d-flex flex-column gap-2 w-100 mt-3">
                           <div className="d-flex align-items-center">
                             <small
                               className="flex-shrink-0 fw-bold"
@@ -807,6 +847,11 @@ const WorkflowsEdit: NextPage<WorkflowsEditRouterProps> = ({ guildId }) => {
                             name="역할 제거하기"
                           />
                           <WorkCard
+                            workId="send-message"
+                            icon={ForwardToInboxOutlinedIcon}
+                            name="메시지 보내기"
+                          />
+                          <WorkCard
                             workId="warn-add"
                             icon={WarningAmberOutlinedIcon}
                             name="경고 추가하기"
@@ -817,7 +862,7 @@ const WorkflowsEdit: NextPage<WorkflowsEditRouterProps> = ({ guildId }) => {
                             name="경고 제거하기"
                           />
                           <WorkCard
-                            workId="mute"
+                            workId="member-mute"
                             icon={CancelScheduleSendOutlinedIcon}
                             name="멤버 뮤트하기"
                           />
