@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Row,
   Spinner,
@@ -22,9 +22,22 @@ import {
   Delete as DeleteIcon,
 } from '@mui/icons-material';
 import Router from 'next/router';
+import { Emoji } from 'emoji-mart';
+import averageColor from 'utils/averageColor';
+import api from 'datas/api';
+import axios, { AxiosError } from 'axios';
+import { Workflow } from 'types/dbtypes';
+import urljoin from 'url-join';
+import useSWR from 'swr';
+import styles from 'styles/pages/workflows.module.scss';
+import clsx from 'clsx';
 
 interface WorkflowsRouterProps {
   guildId: string;
+}
+
+interface WorkflowIconProps {
+  emoji: string;
 }
 
 export const getServerSideProps: GetServerSideProps<
@@ -38,8 +51,68 @@ export const getServerSideProps: GetServerSideProps<
   };
 };
 
+const WorkflowIcon: React.FC<WorkflowIconProps> = ({ emoji }) => {
+  const [color, setColor] = useState('');
+
+  useEffect(() => {
+    const fn = async () => {
+      const color = await averageColor(
+        30,
+        `https://twemoji.maxcdn.com/72x72/${emoji}.png`
+      );
+      setColor(color);
+    };
+    fn();
+  }, [emoji]);
+
+  return (
+    <div
+      className={clsx(
+        styles.icon,
+        'd-flex justify-content-center align-items-center p-3 rounded-circle'
+      )}
+      style={{ backgroundColor: color }}
+    >
+      <img
+        width={30}
+        height={30}
+        src={`https://twemoji.maxcdn.com/72x72/${emoji}.png`}
+        alt={String.fromCodePoint(parseInt(emoji, 16))}
+        style={{ filter: `drop-shadow(0 0 0.75rem ${color})` }}
+      />
+    </div>
+  );
+};
+
 const Workflows: NextPage<WorkflowsRouterProps> = ({ guildId }) => {
   const [showNew, setShowNew] = useState(false);
+
+  const formRef = useRef<HTMLFormElement>(null);
+  const workflowNameRef = useRef<HTMLInputElement>(null);
+  const workflowEventRef = useRef<HTMLSelectElement>(null);
+  const [isCreating, setIsCreating] = useState(false);
+  const [createError, setCreateError] = useState(false);
+
+  const [workflowNameValiation, setWorkflowNameValidation] = useState<
+    boolean | null
+  >(null);
+  const [workflowEventValiation, setWorkflowEventValidation] = useState<
+    boolean | null
+  >(null);
+
+  const { data, mutate } = useSWR<Workflow[], AxiosError>(
+    new Cookies().get('ACCESS_TOKEN')
+      ? urljoin(api, `/servers/${guildId}/autotasking`)
+      : null,
+    (url) =>
+      axios
+        .get(url, {
+          headers: {
+            Authorization: `Bearer ${new Cookies().get('ACCESS_TOKEN')}`,
+          },
+        })
+        .then((r) => r.data)
+  );
 
   useEffect(() => {
     if (!new Cookies().get('ACCESS_TOKEN')) {
@@ -49,6 +122,31 @@ const Workflows: NextPage<WorkflowsRouterProps> = ({ guildId }) => {
     }
   }, []);
 
+  const setValidate = () => {
+    if (workflowNameRef.current) {
+      if (workflowNameRef.current.value.length > 0) {
+        setWorkflowNameValidation(true);
+      } else {
+        setWorkflowNameValidation(false);
+      }
+
+      if (workflowEventRef.current) {
+        if (workflowEventRef.current.value !== '0') {
+          setWorkflowEventValidation(true);
+        } else {
+          setWorkflowEventValidation(false);
+        }
+      }
+    }
+  };
+
+  const checkValidate = () => {
+    return (
+      (workflowNameRef.current?.value.length ?? 0) > 0 &&
+      workflowEventRef.current?.value !== '0'
+    );
+  };
+
   return (
     <>
       <Head>
@@ -56,7 +154,7 @@ const Workflows: NextPage<WorkflowsRouterProps> = ({ guildId }) => {
       </Head>
       <Layout>
         <DashboardLayout guildId={guildId}>
-          {() =>
+          {(guild) =>
             true ? (
               <div>
                 <Row className="dashboard-section">
@@ -97,7 +195,8 @@ const Workflows: NextPage<WorkflowsRouterProps> = ({ guildId }) => {
                   {Array.from(Array(5).keys()).map((i) => (
                     <Col className="mb-4" key={i} xs={12} lg={4}>
                       <Card bg="dark" className="shadow">
-                        <Card.Body className="d-flex pt-2 pe-2">
+                        <Card.Body className="d-flex pe-2 align-items-center gap-3">
+                          <WorkflowIcon emoji="1f60a" />
                           <div className="pt-2">
                             <h5 className="fw-bold">My Workflow {i + 1}</h5>
                             <small>멤버가 참여했을 때 | 5개 블록</small>
@@ -153,13 +252,36 @@ const Workflows: NextPage<WorkflowsRouterProps> = ({ guildId }) => {
                     <Modal.Title>새 워크플로우 만들기</Modal.Title>
                   </Modal.Header>
                   <Modal.Body>
-                    <Form noValidate>
-                      <Form.Group as={Row} className="mb-3">
+                    <Form ref={formRef} noValidate validated={false}>
+                      <Form.Group
+                        as={Row}
+                        className="mb-3"
+                        controlId="workflow-name"
+                      >
                         <Form.Label column xs="auto">
                           워크플로우 이름:
                         </Form.Label>
                         <Col>
-                          <Form.Control type="text" required />
+                          <Form.Control
+                            type="text"
+                            ref={workflowNameRef}
+                            isInvalid={workflowNameValiation === false}
+                            required
+                            autoComplete="off"
+                            onChange={(e) => {
+                              if (e.target.value.length) {
+                                setWorkflowNameValidation(true);
+                              } else {
+                                setWorkflowNameValidation(false);
+                              }
+                            }}
+                          />
+                          <Form.Control.Feedback
+                            className="text-danger"
+                            type="invalid"
+                          >
+                            워크플로우 이름을 입력하세요!
+                          </Form.Control.Feedback>
                           <div
                             className="mt-1"
                             style={{
@@ -174,19 +296,49 @@ const Workflows: NextPage<WorkflowsRouterProps> = ({ guildId }) => {
                           </div>
                         </Col>
                       </Form.Group>
-                      <Form.Group as={Row} className="mb-3">
+                      <Form.Group
+                        as={Row}
+                        className="mb-3"
+                        controlId="workflow-event"
+                      >
                         <Form.Label column xs="auto">
                           워크플로우 유형:
                         </Form.Label>
                         <Col>
-                          <Form.Select>
-                            <option>워크플로우 선택</option>
-                            <option>멤버가 메시지에 반응했을 때</option>
-                            <option>새 멤버가 참여했을 때</option>
-                            <option>멤버가 경고를 받았을 때</option>
-                            <option>멤버의 경고가 제거되었을 때</option>
-                            <option>멤버의 레벨이 올랐을 때</option>
+                          <Form.Select
+                            ref={workflowEventRef}
+                            isInvalid={workflowEventValiation === false}
+                            onChange={() => {
+                              if (workflowEventRef.current!.value !== '0') {
+                                setWorkflowEventValidation(true);
+                              } else {
+                                setWorkflowEventValidation(false);
+                              }
+                            }}
+                          >
+                            <option value="0">워크플로우 선택</option>
+                            <option value="reaction_added">
+                              멤버가 메시지에 반응했을 때
+                            </option>
+                            <option value="member_joined">
+                              새 멤버가 참여했을 때
+                            </option>
+                            <option value="warn_created">
+                              멤버가 경고를 받았을 때
+                            </option>
+                            <option value="warn_removed">
+                              멤버의 경고가 제거되었을 때
+                            </option>
+                            <option value="member_levelup">
+                              멤버의 레벨이 올랐을 때
+                            </option>
                           </Form.Select>
+                          <Form.Control.Feedback
+                            className="text-danger"
+                            type="invalid"
+                          >
+                            워크플로우 유형을 선택하세요!
+                          </Form.Control.Feedback>
                           <div
                             className="mt-1"
                             style={{
@@ -203,9 +355,48 @@ const Workflows: NextPage<WorkflowsRouterProps> = ({ guildId }) => {
                     </Form>
                   </Modal.Body>
                   <Modal.Footer>
-                    <Button variant="aztra">
+                    <Button
+                      variant={createError ? 'danger' : 'aztra'}
+                      disabled={isCreating || createError || !checkValidate()}
+                      onClick={() => {
+                        setValidate();
+
+                        if (!checkValidate()) return;
+
+                        setIsCreating(true);
+
+                        const postData = {
+                          name: workflowNameRef.current!.value,
+                          event: workflowEventRef.current!.value,
+                          icon: null,
+                        };
+
+                        axios
+                          .post(
+                            `${api}/servers/${guild?.id}/workflows`,
+                            postData,
+                            {
+                              headers: {
+                                Authorization: `Bearer ${new Cookies().get(
+                                  'ACCESS_TOKEN'
+                                )}`,
+                              },
+                            }
+                          )
+                          .then(() => mutate())
+                          .catch(() => {
+                            setCreateError(true);
+                            setTimeout(() => setCreateError(false), 3000);
+                          })
+                          .finally(() => setIsCreating(false));
+                      }}
+                    >
                       <AddIcon className="me-2" />
-                      생성하기
+                      {createError
+                        ? '오류'
+                        : isCreating
+                        ? '생성 중...'
+                        : '생성하기'}
                     </Button>
                     <Button
                       variant="dark"

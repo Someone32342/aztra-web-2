@@ -137,3 +137,12 @@ export interface SecureInvite {
   max_uses: number;
   use_email_verification: boolean;
 }
+
+export interface Workflow {
+  uuid: string;
+  guild: string;
+  name: string;
+  event: string;
+  works: any[];
+  icon: string | null;
+}

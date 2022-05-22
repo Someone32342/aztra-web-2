@@ -1,6 +1,5 @@
 import Document, { Html, Main, NextScript, Head } from 'next/document';
 import GA_ID from 'datas/ga';
-import { useEffect, useState } from 'react';
 
 export default class Doc extends Document {
   render() {
