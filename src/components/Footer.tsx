@@ -58,6 +58,9 @@ export default function Footer() {
                 <a href={links.privacy}>개인정보 처리방침</a>
               </li>
               <li>
+                <Link href="/tos">이용약관</Link>
+              </li>
+              <li>
                 <Link href="/docs">봇 가이드</Link>
               </li>
             </ul>
