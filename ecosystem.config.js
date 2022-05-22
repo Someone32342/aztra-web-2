@@ -7,12 +7,14 @@ module.exports = {
       args: 'start',
       instances: 0,
       exec_mode: 'cluster',
-      wait_ready: true,
       autorestart: true,
       max_memory_restart: '2G',
 
       output: '~/logs/pm2/aztra-web-2.log',
       error: '~/logs/pm2/aztra-web-2-error.log',
+      env: {
+        NODE_ENV: 'production',
+      },
       env_production: {
         NODE_ENV: 'production',
       },
