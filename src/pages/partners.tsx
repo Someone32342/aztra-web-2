@@ -72,7 +72,7 @@ const Partners: NextPage = () => {
                     width: 220,
                     boxShadow: '0 0 15px 7px rgba(111, 63, 173, 0.8)',
                   }}
-                  href="https://forms.gle/r7RjGUa8mT722SB46"
+                  href="https://forms.gle/DHEXxij9K3go7fBL8"
                   target="_blank"
                 >
                   지금 신청하기
